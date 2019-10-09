@@ -32,11 +32,5 @@
     <ClInclude Include="..\include\ademco_packet.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\hb.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\hb_detail.h">
-      <Filter>include</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

@@ -131,8 +131,6 @@
     <ClInclude Include="..\include\ademco_detail.h" />
     <ClInclude Include="..\include\ademco_event.h" />
     <ClInclude Include="..\include\ademco_packet.h" />
-    <ClInclude Include="..\include\hb.h" />
-    <ClInclude Include="..\include\hb_detail.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

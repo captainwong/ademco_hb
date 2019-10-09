@@ -50,7 +50,7 @@ struct AdemcoData
 		return str;
 	}
 
-	void assignAdecoId(size_t ademco_id) {
+	void assignAdemcoId(size_t ademco_id) {
 		char aid[7] = { 0 };
 		snprintf(aid, sizeof(aid), "%06X", static_cast<int>(ademco_id % 1000000));
 		std::copy(aid, aid + 6, std::back_inserter(data_));
@@ -94,7 +94,7 @@ struct AdemcoData
 		data_.reserve(21); // [#000000|1400 00 000]
 		data_.push_back('[');
 		data_.push_back('#');
-		assignAdecoId(ademco_id);
+		assignAdemcoId(ademco_id);
 		data_.push_back('|');
 		assignAdemcoEvent(ademco_event);
 		data_.push_back(' ');

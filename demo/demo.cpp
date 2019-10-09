@@ -68,8 +68,15 @@ void handle_network_data(const char* data_from_network)
 			// success
 			break;
 
-		case AdemcoId::id_hb:
-			// event report
+		case AdemcoId::id_hb: // event report
+			// reply ack
+			{
+				char ack[1024];
+				ap.make_ack(ack, sizeof(ack), ap.seq_.value_, ap.acct_.acct(), ap.ademcoData_.ademco_id_);
+				// send to machine via network
+			}
+
+			// handle event
 			printf("%s\n", ap.ademcoData_.toString().data());
 			break;
 
