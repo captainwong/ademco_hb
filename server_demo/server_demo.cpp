@@ -174,7 +174,7 @@ int main(int argc, char** argv)
 
 		if (bytes_transfered <= 0) {
 			printf("client offline\n");
-			closesocket(clientSock);
+			closesocket(clientSock); clientSock = INVALID_SOCKET;
 			clientBuffer.clear();
 		} else {
 			clientBuffer.wpos += bytes_transfered;			

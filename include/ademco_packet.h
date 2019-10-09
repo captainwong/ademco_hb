@@ -734,9 +734,10 @@ struct AdemcoPacket
 		*pos++ = CR;
 		assert(static_cast<size_t>(pos - dst) == length);
 
-		size_t ademco_len = length - 9 - 1;
-		detail::Dec2HexCharArray_4(detail::CalculateCRC(id_pos, ademco_len), crc_pos, false);
-		detail::Dec2HexCharArray_4(ademco_len, len_pos);
+		len_ = static_cast<uint16_t>(length - 9 - 1);
+		crc_ = detail::CalculateCRC(id_pos, len_.value_);
+		memcpy(crc_pos, crc_.data_, crc_.length);
+		memcpy(len_pos, len_.data_, len_.length);
 	}
 
 	std::string toString() {
@@ -747,44 +748,26 @@ struct AdemcoPacket
 		char* pos = buf;
 		*pos++ = '\\';
 		*pos++ = 'n';
-
-		char* crc_pos = pos; pos += 4;
-		char* len_pos = pos; pos += 4;
-		char* id_pos = pos;
-
-		memcpy(id_pos, id_.data(), id_.size()); pos += id_.size();
+		memcpy(pos, crc_.data_, crc_.length); pos += crc_.length;
+		memcpy(pos, len_.data_, len_.length); pos += len_.length;
+		memcpy(pos, id_.data(), id_.size()); pos += id_.size();
 		memcpy(pos, seq_.data_, seq_.length); pos += seq_.length;
 		memcpy(pos, &rrcvr_.data_[0], rrcvr_.size()); pos += rrcvr_.size();
 		memcpy(pos, &lpref_.data_[0], lpref_.size()); pos += lpref_.size();
 		memcpy(pos, acct_.data(), acct_.size()); pos += acct_.size();
 		memcpy(pos, &ademcoData_.data_[0], ademcoData_.size()); pos += ademcoData_.size();
 
-		char* xdata_pos = pos;
-
-		if (xdata_) {
-			memcpy(pos, &xdata_->rawData_[0], xdata_->rawSize());
-			pos += xdata_->rawSize();
-		}
-		memcpy(pos, timestamp_.data_, timestamp_.length); pos += timestamp_.length;
-
-		size_t ademco_len = calcLength();
-		detail::Dec2HexCharArray_4(detail::CalculateCRC(id_pos, ademco_len), crc_pos, false);
-		detail::Dec2HexCharArray_4(ademco_len, len_pos);
-
 		if (xdata_) {
 			for (auto c : xdataToString(xdata_)) {
-				*xdata_pos++ = c;
+				*pos++ = c;
 			}
-
-			memcpy(xdata_pos, timestamp_.data_, timestamp_.length); xdata_pos += timestamp_.length;
-			*xdata_pos++ = '\\';
-			*xdata_pos++ = 'r';
-			*xdata_pos++ = '\0';
-		} else {
-			*pos++ = '\\';
-			*pos++ = 'r';
-			*pos++ = '\0';
 		}
+
+		memcpy(pos, timestamp_.data_, timestamp_.length); pos += timestamp_.length;
+
+		*pos++ = '\\';
+		*pos++ = 'r';
+		*pos++ = '\0';
 
 		return buf;
 	}
