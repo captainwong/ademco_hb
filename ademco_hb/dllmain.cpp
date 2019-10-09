@@ -21,9 +21,11 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     return TRUE;
 }
 
-int parse(const char* pack, size_t pack_len, size_t& cb_commited)
+int parse(const char* pack, int pack_len, int* cb_commited)
 {
 	ademco::AdemcoPacket ap;
-	auto result = ap.parse(pack, pack_len, cb_commited);
+	size_t commited = 0;
+	auto result = ap.parse(pack, static_cast<size_t>(pack_len), commited);
+	*cb_commited = static_cast<int>(commited);
 	return static_cast<int>(result);
 }
