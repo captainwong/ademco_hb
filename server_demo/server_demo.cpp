@@ -40,10 +40,7 @@ std::vector<ADEMCO_EVENT> evntsWaiting4Send = {};
 
 int main(int argc, char** argv)
 {
-	usage(argv[0]);
-	if (argc < 2) {
-		return 0;
-	}
+	usage(argv[0]);	
 
 	WSADATA wsaData;
 	int err = WSAStartup(MAKEWORD(1, 1), &wsaData);
@@ -52,7 +49,11 @@ int main(int argc, char** argv)
 		abort();
 	}
 
-	int port = atoi(argv[1]);
+	int port = 12345;
+
+	if (argc > 1) {
+		port = atoi(argv[1]);
+	}
 
 	struct sockaddr_in sAddrIn;
 	memset(&sAddrIn, 0, sizeof(sAddrIn));
