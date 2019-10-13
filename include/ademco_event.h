@@ -521,8 +521,8 @@ struct AdemcoEvent
 
 	AdemcoEvent() {}
 
-	AdemcoEvent(EventSource source, ADEMCO_EVENT ademco_event, uint32_t zone, uint8_t gg, time_t timestamp,
-				time_t recv_time, const XDataPtr& xdata = {})
+	AdemcoEvent(EventSource source, ADEMCO_EVENT ademco_event, uint32_t zone, uint8_t gg, 
+				time_t timestamp = 0, time_t recv_time = 0, const XDataPtr& xdata = {})
 		: eventSource_(source), event_(ademco_event), zone_(zone), gg_(gg),
 		timestamp_(timestamp), recv_time_(recv_time), xdata_(xdata)
 	{}
