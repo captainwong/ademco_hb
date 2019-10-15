@@ -14,7 +14,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dll_demo", "dll_demo\dll_de
 		{EF267749-DA49-433D-BF4E-742D4BC7F1DA} = {EF267749-DA49-433D-BF4E-742D4BC7F1DA}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csharp_dll_demo", "csharp_dll_demo\csharp_dll_demo.csproj", "{3381C5DE-57BF-425F-A3A6-B85DECF776D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "csharp_dll_demo", "csharp_dll_demo\csharp_dll_demo.csproj", "{3381C5DE-57BF-425F-A3A6-B85DECF776D6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bench", "bench\bench.vcxproj", "{01B919A1-174A-45E5-A2B5-B509BD66E91A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -78,6 +80,16 @@ Global
 		{3381C5DE-57BF-425F-A3A6-B85DECF776D6}.Release|x64.Build.0 = Release|Any CPU
 		{3381C5DE-57BF-425F-A3A6-B85DECF776D6}.Release|x86.ActiveCfg = Release|Any CPU
 		{3381C5DE-57BF-425F-A3A6-B85DECF776D6}.Release|x86.Build.0 = Release|Any CPU
+		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Debug|x64.ActiveCfg = Debug|x64
+		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Debug|x64.Build.0 = Debug|x64
+		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Debug|x86.ActiveCfg = Debug|Win32
+		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Debug|x86.Build.0 = Debug|Win32
+		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Release|Any CPU.ActiveCfg = Release|Win32
+		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Release|x64.ActiveCfg = Release|x64
+		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Release|x64.Build.0 = Release|x64
+		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Release|x86.ActiveCfg = Release|Win32
+		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
