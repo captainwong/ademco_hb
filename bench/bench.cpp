@@ -67,6 +67,8 @@ void ademcoPacketBench()
 	printf("\ndone\nduration=%lldms\navg parse time=%.2lfus\n", ms, avg);
 	double avgpps = 1000.0 * TIMES / ms;
 	printf("average packets per second=%.2lf\n", avgpps);
+	double avgbps = total_len * 1000.0 / ms;
+	printf("average bytes per second=%.2lfB/s, %.2lfKB/s\n", avgbps, avgbps / 1024.0);
 }
 
 
