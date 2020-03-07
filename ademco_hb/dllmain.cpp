@@ -29,3 +29,20 @@ int parse(const char* pack, int pack_len, int* cb_commited)
 	*cb_commited = static_cast<int>(commited);
 	return static_cast<int>(result);
 }
+
+int pack(char* buff, int buff_len, int seq, int ademco_id, int ademco_event, int zone, int gg)
+{
+    ademco::AdemcoPacket ap;
+    auto res = ap.make_hb(buff, static_cast<size_t>(buff_len), static_cast<uint16_t>(seq), 
+        nullptr, static_cast<size_t>(ademco_id), static_cast<unsigned char>(gg), 
+        static_cast<ademco::ADEMCO_EVENT>(ademco_event), static_cast<size_t>(zone));
+    return static_cast<int>(res);
+}
+
+int pack_ack(char* buff, int buff_len, int seq, int ademco_id)
+{
+    ademco::AdemcoPacket ap;
+    auto res = ap.make_ack(buff, static_cast<size_t>(buff_len), static_cast<uint16_t>(seq),
+        nullptr, static_cast<size_t>(ademco_id));
+    return static_cast<int>(res);
+}
