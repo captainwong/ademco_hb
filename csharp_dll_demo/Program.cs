@@ -1,6 +1,7 @@
 ﻿using System;
 
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace csharp_dll_demo
 {
@@ -31,7 +32,17 @@ namespace csharp_dll_demo
                 string raw = "\nC5C30053\"HENG-BO\"0000R000000L000000#90219125916578[#000000|1737 00 000]_09:11:19,08-05-2019\r";
                 Int32 commited = 0;
                 Int32 res = parse(raw, raw.Length, ref commited);
-                Console.WriteLine("res={0:D}, commited={1:D}", res, commited); 
+                Console.WriteLine("res={0:D}, commited={1:D}", res, commited);
+                Console.WriteLine("parse ademco_id/event, etc.");
+                string pattern = @"\[\#(?<ademco_id>\d{6})\|(?<ademco_event>\d{4})\s(?<gg>\d{2})\s(?<zone>\d{3})\]";
+                foreach (Match match in Regex.Matches(raw, pattern))
+                {
+                    GroupCollection groups = match.Groups;
+                    foreach(Group group in groups)
+                    {
+                        Console.WriteLine(group.Name + " " + group.Value);
+                    }
+                }
                 Console.WriteLine("");
             }
 
