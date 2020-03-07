@@ -8,11 +8,19 @@
 
 文档
 
-## tools 测试及演示工具
+## tools 测试及演示工具，已编译的dll等
 
-* demo.exe 
-* server_demo.exe
+* bench.exe 性能测试
+* demo.exe 正确性测试以及使用C++开发、直接引入头文件的示例
+* server_demo.exe 简易版服务器，可用来接收主机报告、远程控制
 * 直连型主机模拟器
+* dll
+  * x64
+    * ademco_hb.lib
+    * ademco_hb.dll
+  * x86
+    * ademco_hb.lib
+    * ademco_hb.dll
 
 ## include
 
