@@ -238,8 +238,8 @@ struct CongwinFe100Packet
 		data_[ndx++] = ' ';
 
 		ndx += snprintf(data_ + ndx, sizeof(data_) - ndx, "%08d", static_cast<int>(acct)); // acct
-		data_[ndx++] = ' ';
 
+		data_[ndx++] = ' ';
 		data_[ndx++] = '1'; // 18
 		data_[ndx++] = '8';
 		data_[ndx++] = ' ';
@@ -262,12 +262,10 @@ struct CongwinFe100Packet
 			data_[ndx++] = 'B';			
 			data_[ndx++] = '2';
 		} else {
-			snprintf(data_ + ndx, sizeof(data_) - ndx, "%03d", static_cast<int>(evnt % 1000)); // event
+			ndx += snprintf(data_ + ndx, sizeof(data_) - ndx, "%03d", static_cast<int>(evnt % 1000)); // event
 		}
 		
-		ndx += 3;
 		data_[ndx++] = ' ';
-
 		data_[ndx++] = '0'; // gg is always 00
 		data_[ndx++] = '0';
 		data_[ndx++] = ' ';
@@ -279,8 +277,7 @@ struct CongwinFe100Packet
 			data_[ndx++] = 'C'; // C
 		}
 
-		sprintf(data_ + ndx, "%03d", static_cast<int>(zone % 10000));
-		ndx += 3;
+		ndx += sprintf(data_ + ndx, "%03d", static_cast<int>(zone % 10000));
 
 		data_[ndx++] = ' ';
 		data_[ndx++] = '\r';
