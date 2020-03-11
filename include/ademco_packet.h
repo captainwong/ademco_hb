@@ -230,56 +230,60 @@ struct CongwinFe100Packet
 		size_t zone = data->zone_;
 
 		int ndx = 0;
-		data_[ndx++] = 0x0A; // LF
-		data_[ndx++] = 0x20;
+		data_[ndx++] = '\n'; // LF
+		data_[ndx++] = ' ';
 
-		data_[ndx++] = 0x30; // RG
-		data_[ndx++] = 0x30;
-		data_[ndx++] = 0x20;
+		data_[ndx++] = '0'; // RG
+		data_[ndx++] = '0';
+		data_[ndx++] = ' ';
 
 		ndx += snprintf(data_ + ndx, sizeof(data_) - ndx, "%08d", static_cast<int>(acct)); // acct
-		//ndx += 4;
-		data_[ndx++] = 0x20;
+		data_[ndx++] = ' ';
 
-		data_[ndx++] = 0x31; // 18
-		data_[ndx++] = 0x38;
-		data_[ndx++] = 0x20;
+		data_[ndx++] = '1'; // 18
+		data_[ndx++] = '8';
+		data_[ndx++] = ' ';
 
-		bool status_evnt = isStatusEvent(evnt);
-		if (status_evnt) {
-			//data_[ndx++] = 'E';
+		// E for open, R for close
+		if (evnt / 1000 == 1 || evnt == 3456) {
+			data_[ndx++] = 'E'; 
+		} else {			
+			data_[ndx++] = 'R';
 		}
 
-		if (evnt / 1000 == 1) {
-			data_[ndx++] = 'E';
+		// 2020年3月11日16:37:18 修改
+		// 丛文使用 3B0 表示主机断线，3B2 表示主机上线
+		if (evnt == ADEMCO_EVENT::EVENT_OFFLINE) {
+			data_[ndx++] = '3';
+			data_[ndx++] = 'B';			
+			data_[ndx++] = '0';
+		} else if (evnt == ADEMCO_EVENT::EVENT_ONLINE) {
+			data_[ndx++] = '3';
+			data_[ndx++] = 'B';			
+			data_[ndx++] = '2';
 		} else {
-			if (evnt == 3456) {
-				data_[ndx++] = 'E';
-			} else {
-				data_[ndx++] = 'R';
-			}
+			snprintf(data_ + ndx, sizeof(data_) - ndx, "%03d", static_cast<int>(evnt % 1000)); // event
 		}
-
-		snprintf(data_ + ndx, sizeof(data_) - ndx, "%03d", static_cast<int>(evnt % 1000)); // event
+		
 		ndx += 3;
-		data_[ndx++] = 0x20;
+		data_[ndx++] = ' ';
 
-		data_[ndx++] = 0x30; // gg is always 00
-		data_[ndx++] = 0x30;
-		data_[ndx++] = 0x20;
+		data_[ndx++] = '0'; // gg is always 00
+		data_[ndx++] = '0';
+		data_[ndx++] = ' ';
 
-		//data_[ndx++] = 0x43; // FCCC, F is always, 'C' for zone, 'U' for user
-		if (status_evnt) {
-			data_[ndx++] = 0x55; // U
+		// 'C' for zone, 'U' for user
+		if (isStatusEvent(evnt)) {
+			data_[ndx++] = 'U'; // U
 		} else {
-			data_[ndx++] = 0x43; // C
+			data_[ndx++] = 'C'; // C
 		}
 
 		sprintf(data_ + ndx, "%03d", static_cast<int>(zone % 10000));
 		ndx += 3;
 
-		data_[ndx++] = 0x20;
-		data_[ndx++] = 0x0D;
+		data_[ndx++] = ' ';
+		data_[ndx++] = '\r';
 
 		return true;
 	}
