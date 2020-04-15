@@ -367,6 +367,7 @@ static XDataPtr parseXData(const char* pack, const char* pack_end)
 		}
 
 		xdata = std::make_shared<XData>();
+		xdata->lengthFormat_ = format;
 		// copy raw data
 		std::copy(pack, p, std::back_inserter(xdata->rawData_));
 		// copy payload data
