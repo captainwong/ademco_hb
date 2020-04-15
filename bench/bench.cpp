@@ -2,6 +2,7 @@
 #include "../include/ademco_packet.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <chrono>
 #include <thread>
 
@@ -48,7 +49,7 @@ void ademcoPacketBench()
 	int packets = 0;
 	while (res == ParseResult::RESULT_OK) {
 		packets++;
-		if (packets % 1000 == 0) {
+		if (packets % 500 == 0) {
 			printf("\r%d/%d %s", packets, TIMES, ap.timestamp_.data_);
 		}
 		pos += cb;
@@ -75,6 +76,4 @@ void ademcoPacketBench()
 int main()
 {
 	ademcoPacketBench();
-
-	system("pause");
 }

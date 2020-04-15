@@ -33,6 +33,7 @@ Debug/config/
 Debug/
 Release/
 ReleaseD/
+build/
 
 
 # vc6

@@ -4,6 +4,11 @@
 
 欢迎提 issue 及 pr 。
 
+## 编译示例
+
+* `Windows` 下使用 `VS 2019 Community` 打开 `ademco_hb.sln` 进行编译。
+* `Linux` 下执行 `build.sh` 编译 `demo`, `bench`, `server_demo` 三个示例程序，结果放在 `build` 文件夹内。
+
 ## docs
 
 文档

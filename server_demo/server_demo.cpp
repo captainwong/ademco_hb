@@ -1,15 +1,30 @@
-#ifndef _CRT_SECURE_NO_WARNINGS
+#ifdef _WIN32
 #define _CRT_SECURE_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#include <WinSock2.h>
+#pragma comment(lib, "ws2_32.lib")
+#define ioctl ioctlsocket
+#define socklen_t int
+#define close closesocket
+#else // linux
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#define SOCKET int
+#define INVALID_SOCKET -1
 #endif
+
 #define DISABLE_JLIB_LOG2
 
 #include <ademco_packet.h>
 #include <ademco_detail.h>
-#include <WinSock2.h>
-#pragma comment(lib, "ws2_32.lib")
 #include <thread>
 #include <vector>
 #include <mutex>
+#include <string.h>
 
 using namespace ademco;
 
@@ -22,9 +37,9 @@ constexpr size_t BUFF_SIZE = 4096;
 
 struct Buffer
 {
-	unsigned int	rpos;
-	unsigned int	wpos;
-	char			buff[BUFF_SIZE];
+	size_t	rpos;
+	size_t	wpos;
+	char	buff[BUFF_SIZE];
 
 	Buffer() { clear(); }
 	void clear() { memset(this, 0, sizeof(Buffer)); }
@@ -42,12 +57,14 @@ int main(int argc, char** argv)
 {
 	usage(argv[0]);	
 
+#ifdef _WIN32
 	WSADATA wsaData;
 	int err = WSAStartup(MAKEWORD(1, 1), &wsaData);
 	if (err != 0) {
 		printf("init wsa failed %d\n", err);
 		abort();
 	}
+#endif
 
 	int port = 12345;
 
@@ -59,31 +76,46 @@ int main(int argc, char** argv)
 	memset(&sAddrIn, 0, sizeof(sAddrIn));
 	sAddrIn.sin_family = AF_INET;
 	sAddrIn.sin_port = htons(static_cast<u_short>(port));
-	sAddrIn.sin_addr.S_un.S_addr = ADDR_ANY;
-
+	sAddrIn.sin_addr.s_addr = INADDR_ANY;
 
 	auto serverSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	u_long lngMode = 1;
-	ioctlsocket(serverSock, FIONBIO, (u_long FAR*) & lngMode);
-	bind(serverSock, (struct sockaddr*) & sAddrIn, sizeof(sAddrIn));
-	listen(serverSock, SOMAXCONN);
+	int ret = ioctl(serverSock, FIONBIO, (u_long*) & lngMode); 
+	if (ret != 0) {
+		fprintf(stderr, "ioctl failed %d\n", ret);
+		return ret;
+	}
+	ret = bind(serverSock, (struct sockaddr*) & sAddrIn, sizeof(sAddrIn));
+	if (ret != 0) {
+		fprintf(stderr, "bind failed %d\n", ret);
+		return ret;
+	}
+
+	ret = listen(serverSock, SOMAXCONN);
+	if (ret != 0) {
+		fprintf(stderr, "listen failed %d\n", ret);
+		return ret;
+	}
+
+	printf("Listening on %s:%d\n", inet_ntoa(sAddrIn.sin_addr), ntohs(sAddrIn.sin_port));
 
 	auto do_accept = [&serverSock]() {
 		if (clientSock != INVALID_SOCKET) { return; }
 
-		struct sockaddr_in sForeignAddIn;
-		int nLength = sizeof(struct sockaddr_in);
+		struct sockaddr_in sForeignAddrIn;
+		socklen_t nLength = sizeof(struct sockaddr_in);
 
 		fd_set rfd;
 		FD_ZERO(&rfd);
 		FD_SET(serverSock, &rfd);
 		timeval timeout = { 1, 0 };
-		int nfds = select(1, &rfd, (fd_set*)0, (fd_set*)0, &timeout);
+		int nfds = select(serverSock + 1, &rfd, (fd_set*)0, (fd_set*)0, &timeout);
+		printf("do_accept, select ret=%d\n", nfds);
 		if (nfds > 0) {
 			FD_CLR(serverSock, &rfd);
-			clientSock = accept(serverSock, (struct sockaddr*) & sForeignAddIn, &nLength);
+			clientSock = accept(serverSock, (struct sockaddr*) & sForeignAddrIn, &nLength);
+			printf("Got connection from %s:%d, fd=%lld\n", inet_ntoa(sForeignAddrIn.sin_addr), sForeignAddrIn.sin_port, clientSock);
 		}
-
 	};
 
 	auto do_handle = []() -> ademco::ParseResult {
@@ -159,22 +191,22 @@ int main(int argc, char** argv)
 		FD_ZERO(&fd_read);
 		FD_SET(clientSock, &fd_read);
 
-		BOOL bRead = FD_ISSET(clientSock, &fd_read);
+		int bRead = FD_ISSET(clientSock, &fd_read);
 		if (!bRead) { return; }
 
 		char* temp = clientBuffer.buff + clientBuffer.wpos;
-		DWORD dwLenToRead = BUFF_SIZE - clientBuffer.wpos;
+		size_t dwLenToRead = BUFF_SIZE - clientBuffer.wpos;
 		int bytes_transfered = recv(clientSock, temp, dwLenToRead, 0);
 
-		if (SOCKET_ERROR == bytes_transfered) {
-			if (WSAEWOULDBLOCK == WSAGetLastError()) {
+		if (-1 == bytes_transfered) {
+			if (EAGAIN == errno) {
 				return;
 			}
 		}
 
 		if (bytes_transfered <= 0) {
-			printf("client offline\n");
-			closesocket(clientSock); clientSock = INVALID_SOCKET;
+			printf("Client %d offline\n", clientSock);
+			close(clientSock); clientSock = INVALID_SOCKET;
 			clientBuffer.clear();
 		} else {
 			clientBuffer.wpos += bytes_transfered;			
@@ -189,7 +221,7 @@ int main(int argc, char** argv)
 				}
 
 				if (clientBuffer.wpos == BUFF_SIZE) {
-					memmove_s(clientBuffer.buff, BUFF_SIZE, clientBuffer.buff + clientBuffer.rpos, bytes_not_commited);
+					memmove(clientBuffer.buff, clientBuffer.buff + clientBuffer.rpos, bytes_not_commited);
 					memset(clientBuffer.buff + bytes_not_commited, 0, BUFF_SIZE - bytes_not_commited);
 					clientBuffer.wpos -= clientBuffer.rpos; clientBuffer.rpos = 0;
 					result = do_handle();
