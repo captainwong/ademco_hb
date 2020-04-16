@@ -52,6 +52,18 @@ size_t clientAdemcoId = 0;
 
 std::mutex mutex = {};
 std::vector<ADEMCO_EVENT> evntsWaiting4Send = {};
+char pwd[1024] = {};
+
+int setNonBlocking(SOCKET socket)
+{
+	u_long lngMode = 1;
+	int ret = ioctl(socket, FIONBIO, (u_long*)&lngMode);
+	if (ret != 0) {
+		fprintf(stderr, "ioctl failed %d\n", ret);
+		return ret;
+	}
+	return ret;
+}
 
 int main(int argc, char** argv)
 {
@@ -79,10 +91,8 @@ int main(int argc, char** argv)
 	sAddrIn.sin_addr.s_addr = INADDR_ANY;
 
 	auto serverSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	u_long lngMode = 1;
-	int ret = ioctl(serverSock, FIONBIO, (u_long*) & lngMode); 
+	int ret = setNonBlocking(serverSock); 
 	if (ret != 0) {
-		fprintf(stderr, "ioctl failed %d\n", ret);
 		return ret;
 	}
 	ret = bind(serverSock, (struct sockaddr*) & sAddrIn, sizeof(sAddrIn));
@@ -114,6 +124,10 @@ int main(int argc, char** argv)
 		if (nfds > 0) {
 			FD_CLR(serverSock, &rfd);
 			clientSock = accept(serverSock, (struct sockaddr*) & sForeignAddrIn, &nLength);
+			int ret = setNonBlocking(clientSock);
+			if (ret != 0) {
+				exit(0);
+			}
 			printf("Got connection from %s:%d, fd=%lld\n", inet_ntoa(sForeignAddrIn.sin_addr), sForeignAddrIn.sin_port, clientSock);
 		}
 	};
@@ -247,9 +261,17 @@ int main(int argc, char** argv)
 				char buf[1024];
 				AdemcoPacket ap;
 				for (auto e : evntsWaiting4Send) {
-					auto len = ap.make_hb(buf, sizeof(buf), 1, clientAcct, clientAdemcoId, 0, e, 0);
-					printf("S:%s\n", ap.toString().data());
-					send(clientSock, buf, len, 0);
+					if (e == EVENT_DISARM) {
+						auto xdata = makeXData(pwd, 6);
+						auto len = ap.make_hb(buf, sizeof(buf), 1, clientAcct, clientAdemcoId, 0, e, 0, xdata);
+						printf("S:%s\n", ap.toString().data());
+						send(clientSock, buf, len, 0);
+					} else {
+						auto len = ap.make_hb(buf, sizeof(buf), 1, clientAcct, clientAdemcoId, 0, e, 0);
+						printf("S:%s\n", ap.toString().data());
+						send(clientSock, buf, len, 0);
+					}
+					
 				}
 				evntsWaiting4Send.clear();
 			}
@@ -265,6 +287,11 @@ int main(int argc, char** argv)
 			std::lock_guard<std::mutex> lg(mutex);
 			evntsWaiting4Send.push_back(EVENT_ARM);
 		} else if (cmd == 'd' || cmd == 'D') {
+			bool pwd_ok = false;
+			do {
+				printf("Input 6 digit password:");
+				scanf("%s", &pwd);
+			} while (strlen(pwd) != 6);
 			std::lock_guard<std::mutex> lg(mutex);
 			evntsWaiting4Send.push_back(EVENT_DISARM);
 		} else if (cmd == '\r' || cmd == '\n') {
@@ -277,5 +304,6 @@ int main(int argc, char** argv)
 		}
 	}
 
+	close(serverSock);
 	printf("Bye!");
 }
