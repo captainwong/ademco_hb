@@ -287,7 +287,6 @@ int main(int argc, char** argv)
 			std::lock_guard<std::mutex> lg(mutex);
 			evntsWaiting4Send.push_back(EVENT_ARM);
 		} else if (cmd == 'd' || cmd == 'D') {
-			bool pwd_ok = false;
 			do {
 				printf("Input 6 digit password:");
 				scanf("%s", &pwd);
