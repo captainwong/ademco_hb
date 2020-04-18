@@ -159,6 +159,7 @@ int main(int argc, char** argv)
 			}
 
 			case AdemcoId::id_hb: // event report
+			case AdemcoId::id_admcid:
 			{
 				clientAcct = ap.acct_.acct();
 				clientAdemcoId = ap.ademcoData_.ademco_id_;
