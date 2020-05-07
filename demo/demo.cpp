@@ -62,7 +62,7 @@ void handle_network_data(const char* data_from_network)
 	switch (result) {
 	case ademco::ParseResult::RESULT_OK:
 	{
-		printf("id=%s\n", ap.id_.data());
+		printf("parse ok:\n%s\n", ap.toString().data());
 		switch (ap.id_.eid_) {
 		case AdemcoId::id_ack:
 			// success
@@ -87,12 +87,12 @@ void handle_network_data(const char* data_from_network)
 	}
 
 	case ademco::ParseResult::RESULT_NOT_ENOUGH: 
-		// do nothing
+		printf("not enough\n");
 		break;
 
 	case ademco::ParseResult::RESULT_DATA_ERROR: 
 	default:
-		// error handle, e.g. clear buff
+		printf("cannot parse\n");
 		break;
 	}
 }
@@ -105,7 +105,7 @@ int main()
 
 	char data_from_network[] = "\nC5C30053\"HENG-BO\"0000R000000L000000#90219125916578[#000000|1737 00 000]_09:11:19,08-05-2019\r";
 	handle_network_data(data_from_network);
-
+	handle_network_data("\n593F0034\"ACK\"0209R123ABCL456DEF#000001[]_09:00:00,04-18-2020\r");
 	
 
 
