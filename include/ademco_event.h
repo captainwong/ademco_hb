@@ -146,6 +146,7 @@ static constexpr ADEMCO_EVENT AdemcoEvents[] = {
 	EVENT_RECONNECT,
 	EVENT_LOST,
 	EVENT_LOST_RECOVER,
+	EVENT_3100,
 	EVENT_BATTERY_EXCEPTION,
 	EVENT_BATTERY_EXCEPTION_RECOVER,
 	EVENT_OTHER_EXCEPTION,
@@ -220,6 +221,7 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	case EVENT_RECONNECT:							return n_to_s(ademco_event) + "RECONNECT";							break;
 	case EVENT_LOST:								return n_to_s(ademco_event) + "LOST";								break;
 	case EVENT_LOST_RECOVER:						return n_to_s(ademco_event) + "LOST_RECOVER";						break;
+	case EVENT_3100:								return n_to_s(ademco_event) + "LCD CLEAR EXCEPTION";				break;
 	case EVENT_BATTERY_EXCEPTION:					return n_to_s(ademco_event) + "BATTERY_EXCEPTION";					break;
 	case EVENT_BATTERY_EXCEPTION_RECOVER:			return n_to_s(ademco_event) + "BATTERY_EXCEPTION_RECOVER";			break;
 	case EVENT_OTHER_EXCEPTION:						return n_to_s(ademco_event) + "OTHER_EXCEPTION";					break;
@@ -294,6 +296,7 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 	case EVENT_RECONNECT:							return n_to_s(ademco_event) + L"恢复";						break;
 	case EVENT_LOST:								return n_to_s(ademco_event) + L"失联";						break;
 	case EVENT_LOST_RECOVER:						return n_to_s(ademco_event) + L"恢复";						break;
+	case EVENT_3100:								return n_to_s(ademco_event) + L"液晶主机清除异常指示";		break;
 	case EVENT_BATTERY_EXCEPTION:					return n_to_s(ademco_event) + L"防区电源故障";				break;
 	case EVENT_BATTERY_EXCEPTION_RECOVER:			return n_to_s(ademco_event) + L"防区电源故障恢复";			break;
 	case EVENT_OTHER_EXCEPTION:						return n_to_s(ademco_event) + L"防区其他故障"; 				break;
