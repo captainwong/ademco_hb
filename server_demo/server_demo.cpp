@@ -128,7 +128,7 @@ int main(int argc, char** argv)
 			if (ret != 0) {
 				exit(0);
 			}
-			printf("Got connection from %s:%d, fd=%lld\n", inet_ntoa(sForeignAddrIn.sin_addr), sForeignAddrIn.sin_port, clientSock);
+			printf("Got connection from %s:%d, fd=%d\n", inet_ntoa(sForeignAddrIn.sin_addr), sForeignAddrIn.sin_port, clientSock);
 		}
 	};
 
@@ -201,10 +201,14 @@ int main(int argc, char** argv)
 	auto do_read = [&do_handle]() {
 		if (clientSock == INVALID_SOCKET) return;
 
-		timeval tv = { 0, 0 };
+		timeval tv = { 0, 1000000 };
 		fd_set fd_read;
 		FD_ZERO(&fd_read);
 		FD_SET(clientSock, &fd_read);
+		int nfds = select(clientSock + 1, &fd_read, (fd_set*)0, (fd_set*)0, &tv);
+		if (nfds <= 0) {
+			return;
+		}
 
 		int bRead = FD_ISSET(clientSock, &fd_read);
 		if (!bRead) { return; }
@@ -290,7 +294,7 @@ int main(int argc, char** argv)
 		} else if (cmd == 'd' || cmd == 'D') {
 			do {
 				printf("Input 6 digit password:");
-				scanf("%s", &pwd);
+				scanf("%s", pwd);
 			} while (strlen(pwd) != 6);
 			std::lock_guard<std::mutex> lg(mutex);
 			evntsWaiting4Send.push_back(EVENT_DISARM);

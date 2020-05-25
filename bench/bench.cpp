@@ -65,7 +65,7 @@ void ademcoPacketBench()
 	auto ms = duration_cast<milliseconds>(duration).count();
 	auto us = duration_cast<microseconds>(duration).count();
 	double avg = us * 1.0 / TIMES;
-	printf("\ndone\nduration=%lldms\navg parse time=%.2lfus\n", ms, avg);
+	printf("\ndone\nduration=%ldms\navg parse time=%.2lfus\n", (long)ms, avg);
 	double avgpps = 1000.0 * TIMES / ms;
 	printf("average packets per second=%.2lf\n", avgpps);
 	double avgbps = total_len * 1000.0 / ms;

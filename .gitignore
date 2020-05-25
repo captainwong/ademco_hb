@@ -34,6 +34,7 @@ Debug/
 Release/
 ReleaseD/
 build/
+obj/
 
 
 # vc6
