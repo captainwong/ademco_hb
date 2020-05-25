@@ -1,4 +1,4 @@
-#include "../ademco_hb/ademco_hb.h"
+ï»¿#include "../ademco_hb/ademco_hb.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -21,41 +21,41 @@ int main()
 {
 	int cb_commited = 0;
 
-	// ½âÎöÍêÕûÊý¾Ý°ü
+	// è§£æžå®Œæ•´æ•°æ®åŒ…
 	{
 		char raw[] = "\nC5C30053\"HENG-BO\"0000R000000L000000#90219125916578[#000000|1737 00 000]_09:11:19,08-05-2019\r";
 		int res = parse(raw, strlen(raw), &cb_commited);
 		assert(res == 0);
 	}
 
-	// ½âÎö³¤¶È²»×ãµÄÊý¾Ý°ü
+	// è§£æžé•¿åº¦ä¸è¶³çš„æ•°æ®åŒ…
 	{
 		char raw_not_enough[] = "\nC5C30053\"HENG-BO\"0000R000000L000000";
 		int res = parse(raw_not_enough, strlen(raw_not_enough), &cb_commited);
 		assert(res == 1);
 	}
 
-	// ½âÎöµ½´íÎóÊý¾Ý°ü
+	// è§£æžåˆ°é”™è¯¯æ•°æ®åŒ…
 	{
 		char raw_error[] = "abcdeadfasdfasdfasd";
 		int res = parse(raw_error, strlen(raw_error), &cb_commited);
 		assert(res == 2);
 	}
 
-	// ´ò°üÊ¾Àý
+	// æ‰“åŒ…ç¤ºä¾‹
 	{
 		char buff[1024];
-		// ¶Ô°²¶¨±¦IDÎª666666µÄÖ÷»ú½øÐÐ³··À
+		// å¯¹å®‰å®šå®IDä¸º666666çš„ä¸»æœºè¿›è¡Œæ’¤é˜²
 		int res = pack(buff, sizeof(buff), 1, 666666, 1400, 0, 0);
 		assert(res > 0);
 		//res = parse(buff, res, &cb_commited);
 		//assert(res == 0);
 	}
 
-	// ACK Ê¾Àý
+	// ACK ç¤ºä¾‹
 	{
 		char buff[1024];
-		// ¶Ô°²¶¨±¦IDÎª666666µÄÖ÷»ú»ØÓ¦ACK
+		// å¯¹å®‰å®šå®IDä¸º666666çš„ä¸»æœºå›žåº”ACK
 		int res = pack_ack(buff, sizeof(buff), 1, 666666);
 		assert(res > 0);
 		//res = parse(buff, res, &cb_commited);

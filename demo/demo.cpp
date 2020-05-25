@@ -1,4 +1,4 @@
-#ifndef _CRT_SECURE_NO_WARNINGS
+ï»¿#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #define DISABLE_JLIB_LOG2
@@ -118,9 +118,9 @@ int main()
 	ap.make_ack(buff, sizeof(buff), 1, "861234567890", 123321);
 	handle_network_data(buff);
 
-	size_t ademco_id = 123456; // Ö÷»ú±êÊ¶
-	size_t zone = 123; // ·ÀÇø±êÊ¶
-	auto evnt = EVENT_FIRE; // ÊÂ¼şÂë
+	size_t ademco_id = 123456; // ä¸»æœºæ ‡è¯†
+	size_t zone = 123; // é˜²åŒºæ ‡è¯†
+	auto evnt = EVENT_FIRE; // äº‹ä»¶ç 
 	ap.make_hb(buff, sizeof(buff), 1, nullptr, ademco_id, 0, evnt, zone);
 	handle_network_data(buff);
 
