@@ -30,7 +30,7 @@ using namespace ademco;
 
 void usage(const char* name)
 {
-	printf("Usage: %s listening_port\nWhile connection established, press A for Arm, D for Disarm, Q for Quit\n", name);
+	printf("Usage: %s listening_port\nWhile connection established, press A for Arm, D for Disarm, E for Emergency, Q for Quit\n", name);
 }
 
 constexpr size_t BUFF_SIZE = 4096;
@@ -298,13 +298,16 @@ int main(int argc, char** argv)
 			} while (strlen(pwd) != 6);
 			std::lock_guard<std::mutex> lg(mutex);
 			evntsWaiting4Send.push_back(EVENT_DISARM);
+		} else if (cmd == 'e' || cmd == 'E') {
+			std::lock_guard<std::mutex> lg(mutex);
+			evntsWaiting4Send.push_back(EVENT_EMERGENCY);
 		} else if (cmd == '\r' || cmd == '\n') {
 		} else if (cmd == 'q' || cmd == 'Q') {
 			running = false;
 			worker.join();
 			break;
 		} else {
-			printf("Press A for Arm, D for Disarm, Q for Quit\n");
+			printf("Press A for Arm, D for Disarm, E for Emergency, Q for Quit\n");
 		}
 	}
 
