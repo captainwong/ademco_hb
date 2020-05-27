@@ -2,7 +2,9 @@
 
 恒博协议库
 
-欢迎提 issue 及 pr 。
+欢迎提 `issue` 及 `pr` 。
+
+官方交流群：`1093730796`
 
 ## 编译示例
 
@@ -65,4 +67,6 @@
 
 *本人对 C# 不熟悉，欢迎提 PR 进行改进*
 
+## javademo
 
+请阅读 [javademo-README.md](javademo-README.md)
