@@ -116,9 +116,9 @@ namespace csharp_dll_demo
                         }
 
                         // handle event
-                        if (id == "HENG-BO")
+                        if (id == "HENG-BO" || id == "ADM-CID")
                         {
-                            pattern = @"\[\#(?<ademco_id>\d{6})\|(?<ademco_event>\d{4})\s(?<gg>\d{2})\s(?<zone>\d{3})\]";
+                            pattern = @"\[\#(?<ademco_id>[\d|a-fA-F]{6})\|(?<ademco_event>\d{4})\s(?<gg>\d{2})\s(?<zone>\d{3})\]";
                             Console.WriteLine(Regex.Matches(data, pattern)[0].ToString());
                         }
                     }

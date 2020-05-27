@@ -46,7 +46,7 @@ public class SimpleServer {
             while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("New client connected"); 
-                new SimpleServerThread(socket).start();
+                new SimpleServerThread(socket, lib).start();
             }
  
         } catch (IOException ex) {
