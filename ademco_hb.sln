@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "csharp_dll_demo", "csharp_d
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bench", "bench\bench.vcxproj", "{01B919A1-174A-45E5-A2B5-B509BD66E91A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ademco_java", "javademo\cpp\ademco_java.vcxproj", "{B323151B-AD89-4545-B95E-E2442A7961BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -122,6 +124,20 @@ Global
 		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Release|x64.Build.0 = Release|x64
 		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Release|x86.ActiveCfg = Release|Win32
 		{01B919A1-174A-45E5-A2B5-B509BD66E91A}.Release|x86.Build.0 = Release|Win32
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Debug|ARM.ActiveCfg = Debug|Win32
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Debug|ARM64.ActiveCfg = Debug|Win32
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Debug|x64.ActiveCfg = Debug|x64
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Debug|x64.Build.0 = Debug|x64
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Debug|x86.ActiveCfg = Debug|Win32
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Debug|x86.Build.0 = Debug|Win32
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Release|Any CPU.ActiveCfg = Release|Win32
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Release|ARM.ActiveCfg = Release|Win32
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Release|ARM64.ActiveCfg = Release|Win32
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Release|x64.ActiveCfg = Release|x64
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Release|x64.Build.0 = Release|x64
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Release|x86.ActiveCfg = Release|Win32
+		{B323151B-AD89-4545-B95E-E2442A7961BB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

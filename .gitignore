@@ -12,6 +12,12 @@ packages/
 # Dev partner files
 *.DPbcd
 
+
+# else
+*.class
+build/
+cmake-build-debug/
+
 # vs
 *.sdf
 #*.sln
