@@ -5,8 +5,7 @@ import java.nio.file.FileSystems;
 public class AdemcoHbLibrary
 {
     static
-    {
-        
+    {        
         if (System.getProperty("os.name").startsWith("Windows")) { // Windows
             System.load(
                 FileSystems.getDefault()
@@ -39,11 +38,30 @@ public class AdemcoHbLibrary
     */
     private static native ParseResult nativeParse(String pack, int pack_len);
 
+    /*
+    * @brief 将远程控制命令打包成网络传输数据
+    * @param[in] seq 序号
+    * @param[in] ademco_id 安定宝ID
+    * @param[in] ademco_event 安定宝事件码
+    * @param[in] zone 防区号
+    * @param[in] gg 分防区号
+    * @return String
+    */
+    private static native String nativePack(int seq, int ademco_id, int ademco_event, int zone, int gg);
 
+    /*
+    * @brief 打包ACK
+    * @param[in] seq 序号
+    * @param[in] ademco_id 安定宝ID
+    * @return String
+    */
+    private static native String nativePackAck(int seq, int ademco_id);
 
 
     public void testPprint(){ nativePrint(); }
     public ParseResult parse(String pack, int pack_len){return nativeParse(pack, pack_len);}
+    public String pack(int seq, int ademco_id, int ademco_event, int zone, int gg){return nativePack(seq, ademco_id, ademco_event, zone, gg);}
+    public String packAck(int seq, int ademco_id){return nativePackAck(seq, ademco_id);}
 
     public static void main(String[] args){
         AdemcoHbLibrary lib = new AdemcoHbLibrary();
@@ -57,26 +75,4 @@ public class AdemcoHbLibrary
     }
     
 
-    /*
-    * @brief 将远程控制命令打包成网络传输数据
-    * @param[in|out] buff 缓冲区
-    * @param[in] buff_len 缓冲区长度
-    * @param[in] seq 序号
-    * @param[in] ademco_id 安定宝ID
-    * @param[in] ademco_event 安定宝事件码
-    * @param[in] zone 防区号
-    * @param[in] gg 分防区号
-    * @return 大于0 成功，返回值代表包长；0 buff空间不足
-    */
-    //DLL_FUNC int pack(char* buff, int buff_len, int seq, int ademco_id, int ademco_event, int zone, int gg);
-
-    /*
-    * @brief 打包ACK
-    * @param[in|out] buff 缓冲区
-    * @param[in] buff_len 缓冲区长度
-    * @param[in] seq 序号
-    * @param[in] ademco_id 安定宝ID
-    * @return 大于0 成功，返回值代表包长；0 buff空间不足
-    */
-    //DLL_FUNC int pack_ack(char* buff, int buff_len, int seq, int ademco_id);
 }

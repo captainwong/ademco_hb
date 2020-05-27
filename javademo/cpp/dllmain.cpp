@@ -63,3 +63,32 @@ JNIEXPORT jobject JNICALL Java_javademo_jni_AdemcoHbLibrary_nativeParse
     return obj;
 }
 
+JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_nativePack
+(JNIEnv* env, jclass clazz, jint seq, jint ademco_id, jint ademco_event, jint zone, jint gg)
+{
+    ademco::AdemcoPacket ap;
+    char buff[1024];
+    auto res = ap.make_hb(buff, sizeof(buff), static_cast<uint16_t>(seq),
+                          nullptr, static_cast<size_t>(ademco_id), static_cast<unsigned char>(gg),
+                          static_cast<ademco::ADEMCO_EVENT>(ademco_event), static_cast<size_t>(zone));
+    if (res > 0) {
+        buff[res] = 0;
+        return env->NewStringUTF(buff);
+    }
+    return 0;
+}
+
+JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_nativePackAck
+(JNIEnv* env, jclass clazz, jint seq, jint ademco_id)
+{
+    ademco::AdemcoPacket ap; 
+    char buff[1024];
+    auto res = ap.make_ack(buff, sizeof(buff), static_cast<uint16_t>(seq),
+                           nullptr, static_cast<size_t>(ademco_id));
+    if (res > 0) {
+        buff[res] = 0;
+        return env->NewStringUTF(buff);
+    }
+    return 0;
+}
+

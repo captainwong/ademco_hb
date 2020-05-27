@@ -23,6 +23,22 @@ JNIEXPORT void JNICALL Java_javademo_jni_AdemcoHbLibrary_nativePrint
 JNIEXPORT jobject JNICALL Java_javademo_jni_AdemcoHbLibrary_nativeParse
   (JNIEnv *, jclass, jstring, jint);
 
+/*
+ * Class:     javademo_jni_AdemcoHbLibrary
+ * Method:    nativePack
+ * Signature: (IIIII)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_nativePack
+  (JNIEnv *, jclass, jint, jint, jint, jint, jint);
+
+/*
+ * Class:     javademo_jni_AdemcoHbLibrary
+ * Method:    nativePackAck
+ * Signature: (II)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_nativePackAck
+  (JNIEnv *, jclass, jint, jint);
+
 #ifdef __cplusplus
 }
 #endif
