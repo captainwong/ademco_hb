@@ -1,6 +1,6 @@
-# Hengbo Protocal Library
+# Ademco Protocol Hengbo Implementation
 
-恒博协议库
+安定宝协议恒博实现
 
 欢迎提 `issue` 及 `pr` 。
 
