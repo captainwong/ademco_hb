@@ -21,7 +21,11 @@
 
 3. `java javademo.jni.SimpleServer 12345` 进行测试
 
-## 二次开发可以参考 `SimpleServer` 引入 `AdmeocHbLibrary` 进行解包、打包。
+## 二次开发
+
+可以参考 `SimpleServer` 引入 `AdmeocHbLibrary` 进行解包、打包。
+
+注意若使用预编译动态库，引入 `AdmeocHbLibrary` 时需整包引入，动态链接库会以包名查找 `AdmeocHbLibrary` 类，详情见 [dllmain.cpp](javademo/cpp/dllmain.cpp) 内 `Java_javademo_jni_AdemcoHbLibrary_nativeParse` 函数，包名不同则查找失败，用户自行编译动态库时需同时修改此函数内容。
 
 ## 作者对 `Java` 开发不熟悉，有任何意见、建议欢迎提 `issue` 及 `pr`
 

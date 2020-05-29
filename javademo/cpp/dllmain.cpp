@@ -35,9 +35,7 @@ JNIEXPORT jobject JNICALL Java_javademo_jni_AdemcoHbLibrary_nativeParse
     size_t commited = 0;
     jboolean iscopy = 0;
     std::string s = env->GetStringUTFChars(pack, &iscopy);
-    auto result = ap.parse(s.data(), static_cast<size_t>(pack_len), commited);
-    //*cb_commited = static_cast<int>(commited);
-    //return static_cast<int>(result);
+    auto result = ap.parse(s.data(), static_cast<size_t>(pack_len), commited);    
     // Attempt to find the Version class.
     clazz = env->FindClass("javademo/jni/AdemcoHbLibrary$ParseResult");
     // If this class does not exist then return null.
