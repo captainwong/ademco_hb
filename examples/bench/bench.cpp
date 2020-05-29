@@ -1,5 +1,5 @@
 #define DISABLE_JLIB_LOG2
-#include "../include/ademco_packet.h"
+#include "../../include/ademco_packet.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

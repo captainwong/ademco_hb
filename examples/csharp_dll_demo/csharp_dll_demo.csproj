@@ -5,6 +5,7 @@
     <FileUpgradeFlags>40</FileUpgradeFlags>
     <UpgradeBackupLocation>D:\dev\ademco_hb\Backup\csharp_dll_demo\</UpgradeBackupLocation>
     <OldToolsVersion>2.0</OldToolsVersion>
+    <StartupObject>csharp_dll_demo.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Prefer32Bit>false</Prefer32Bit>
