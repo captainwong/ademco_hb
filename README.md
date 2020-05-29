@@ -6,23 +6,9 @@
 
 官方交流群：`1093730796`
 
-## 编译示例
-
-* `Windows` 下使用 `VS 2019 Community` 打开 `ademco_hb.sln` 进行编译。
-* `Linux` 下执行 `build.sh` 编译 `demo`, `bench`, `server_demo` 三个示例程序，结果放在 `build` 文件夹内。
-
 ## docs
 
-文档
-
-## tools 测试及演示工具，已编译的dll等
-
-* `ademco_hb.dll` 供 `dll_demo` 和 `csharp_dll_demo` 调用
-* `ademco_java.dll` 供 `Java SimpleServer` 调用 
-* `bench.exe` 性能测试
-* `demo.exe` 正确性测试以及使用C++开发、直接引入头文件的示例
-* `server_demo.exe` 简易版服务器，可用来接收主机报告、远程控制
-* 直连型主机模拟器
+[文档](docs/README.md)
 
 ## include
 
@@ -39,6 +25,14 @@
     定义了可用于安定宝协议封包、解包的结构体与相应函数
 
 ## examples
+
+* `Windows` 下使用 `VS 2019 Community` 打开 `ademco_hb.sln` 进行编译。
+* `Linux/MacOS` 下执行 `build.sh` 编译 `demo`, `bench`, `server_demo` 三个示例程序，结果放在 `build` 文件夹内。
+* 如需编译 `javademo` 请阅读 [javademo-README.md](examples/javademo-README.md)
+
+### bench
+
+性能测试
 
 ### demo
 
@@ -67,3 +61,13 @@
 ### javademo
 
 请阅读 [javademo-README.md](examples/javademo-README.md)
+
+
+## tools 测试及演示工具，已编译的dll等
+
+* `ademco_hb.dll` 供 `dll_demo` 和 `csharp_dll_demo` 调用
+* `ademco_java.dll` 供 `Java SimpleServer` 调用 
+* `bench.exe` 性能测试
+* `demo.exe` 正确性测试以及使用C++开发、直接引入头文件的示例
+* `server_demo.exe` 简易版服务器，可用来接收主机报告、远程控制
+* 直连型主机模拟器
