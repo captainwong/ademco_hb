@@ -9,35 +9,35 @@ extern "C" {
 #endif
 /*
  * Class:     javademo_jni_AdemcoHbLibrary
- * Method:    nativePrint
+ * Method:    testPrint
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_javademo_jni_AdemcoHbLibrary_nativePrint
+JNIEXPORT void JNICALL Java_javademo_jni_AdemcoHbLibrary_testPrint
   (JNIEnv *, jobject);
 
 /*
  * Class:     javademo_jni_AdemcoHbLibrary
- * Method:    nativeParse
+ * Method:    parse
  * Signature: (Ljava/lang/String;I)Ljavademo/jni/AdemcoHbLibrary/ParseResult;
  */
-JNIEXPORT jobject JNICALL Java_javademo_jni_AdemcoHbLibrary_nativeParse
-  (JNIEnv *, jclass, jstring, jint);
+JNIEXPORT jobject JNICALL Java_javademo_jni_AdemcoHbLibrary_parse
+  (JNIEnv *, jobject, jstring, jint);
 
 /*
  * Class:     javademo_jni_AdemcoHbLibrary
- * Method:    nativePack
+ * Method:    pack
  * Signature: (IIIII)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_nativePack
-  (JNIEnv *, jclass, jint, jint, jint, jint, jint);
+JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack
+  (JNIEnv *, jobject, jint, jint, jint, jint, jint);
 
 /*
  * Class:     javademo_jni_AdemcoHbLibrary
- * Method:    nativePackAck
+ * Method:    packAck
  * Signature: (II)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_nativePackAck
-  (JNIEnv *, jclass, jint, jint);
+JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_packAck
+  (JNIEnv *, jobject, jint, jint);
 
 #ifdef __cplusplus
 }

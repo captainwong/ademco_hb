@@ -25,11 +25,13 @@
 
 ## Windows
 
-1. `javac -encoding utf-8 javademo/jni/AdemcoHbLibrary.java && javah -d javademo/cpp -jni javademo.jni.AdemcoHbLibrary`
+1. `javac -encoding utf-8 ./javademo/jni/AdemcoHbLibrary.java && javah -d ./javademo/cpp -jni javademo.jni.AdemcoHbLibrary`
 
 2. 使用 `Visual Studio 2019` 打开 `ademco_hb.sln`, 以 `Release/x64` 编译 `ademco_java` 项目，可能需要修改项目属性 `C/C++` --> `Additional Include Directories`，将与 `Java` 相关的路径修改，生成 `x64/Release/ademco_java.dll`
 
-3. `java javademo.jni.SimpleServer 12345` 进行测试
+3. `javac javademo/jni/SimpleServer.java` 编译示例
+
+4. `java javademo.jni.SimpleServer 12345` 进行测试
 
 
 ## 作者对 `Java` 开发不熟悉，有任何意见、建议欢迎提 `issue` 及 `pr`

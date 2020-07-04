@@ -19,7 +19,7 @@ public class AdemcoHbLibrary
         }
     }
 
-    private native void nativePrint();
+    public native void testPrint();
 
     public class ParseResult {
         // 0 解析到正确、完整的一包；
@@ -36,7 +36,7 @@ public class AdemcoHbLibrary
     * @param[in] pack_len 网络数据流有效长度
     * @return ParseResult
     */
-    private static native ParseResult nativeParse(String pack, int pack_len);
+    public native ParseResult parse(String pack, int pack_len);
 
     /*
     * @brief 将远程控制命令打包成网络传输数据
@@ -47,7 +47,7 @@ public class AdemcoHbLibrary
     * @param[in] gg 分防区号
     * @return String
     */
-    private static native String nativePack(int seq, int ademco_id, int ademco_event, int zone, int gg);
+    public native String pack(int seq, int ademco_id, int ademco_event, int zone, int gg);
 
     /*
     * @brief 打包ACK
@@ -55,24 +55,12 @@ public class AdemcoHbLibrary
     * @param[in] ademco_id 安定宝ID
     * @return String
     */
-    private static native String nativePackAck(int seq, int ademco_id);
+    public native String packAck(int seq, int ademco_id);
 
 
-    public void testPprint(){ nativePrint(); }
-    public ParseResult parse(String pack, int pack_len){return nativeParse(pack, pack_len);}
-    public String pack(int seq, int ademco_id, int ademco_event, int zone, int gg){return nativePack(seq, ademco_id, ademco_event, zone, gg);}
-    public String packAck(int seq, int ademco_id){return nativePackAck(seq, ademco_id);}
-
-    public static void main(String[] args){
-        AdemcoHbLibrary lib = new AdemcoHbLibrary();
-        lib.testPprint();
-
-        String data = "\nC5C30053\"HENG-BO\"0000R000000L000000#90219125916578[#000000|1737 00 000]_09:11:19,08-05-2019\r";
-        ParseResult res = lib.parse(data, data.length());
-        assert(res.result == 0);
-        assert(res.cb_commited == data.length());
-        System.out.println("parse result=" + res.result + ",cb_commited=" + res.cb_commited);
-    }
-    
+    // public void testPrint(){ nativePrint(); }
+    // public ParseResult parse(String pack, int pack_len){return nativeParse(pack, pack_len);}
+    // public String pack(int seq, int ademco_id, int ademco_event, int zone, int gg){return nativePack(seq, ademco_id, ademco_event, zone, gg);}
+    // public String packAck(int seq, int ademco_id){return nativePackAck(seq, ademco_id);}
 
 }

@@ -22,14 +22,14 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 }
 #endif
 
-JNIEXPORT void JNICALL Java_javademo_jni_AdemcoHbLibrary_nativePrint
-(JNIEnv*, jobject)
+JNIEXPORT void JNICALL Java_javademo_jni_AdemcoHbLibrary_testPrint
+  (JNIEnv *, jobject)
 {
     printf("native print\n");
 }
 
-JNIEXPORT jobject JNICALL Java_javademo_jni_AdemcoHbLibrary_nativeParse
-(JNIEnv* env, jclass clazz, jstring pack, jint pack_len)
+JNIEXPORT jobject JNICALL Java_javademo_jni_AdemcoHbLibrary_parse
+(JNIEnv* env, jobject , jstring pack, jint pack_len)
 {
     ademco::AdemcoPacket ap;
     size_t commited = 0;
@@ -37,7 +37,7 @@ JNIEXPORT jobject JNICALL Java_javademo_jni_AdemcoHbLibrary_nativeParse
     std::string s = env->GetStringUTFChars(pack, &iscopy);
     auto result = ap.parse(s.data(), static_cast<size_t>(pack_len), commited);    
     // Attempt to find the Version class.
-    clazz = env->FindClass("javademo/jni/AdemcoHbLibrary$ParseResult");
+    jclass clazz = env->FindClass("javademo/jni/AdemcoHbLibrary$ParseResult");
     // If this class does not exist then return null.
     if (clazz == 0)
         return 0;
@@ -61,8 +61,8 @@ JNIEXPORT jobject JNICALL Java_javademo_jni_AdemcoHbLibrary_nativeParse
     return obj;
 }
 
-JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_nativePack
-(JNIEnv* env, jclass clazz, jint seq, jint ademco_id, jint ademco_event, jint zone, jint gg)
+JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack
+(JNIEnv* env, jobject, jint seq, jint ademco_id, jint ademco_event, jint zone, jint gg)
 {
     ademco::AdemcoPacket ap;
     char buff[1024];
@@ -76,8 +76,8 @@ JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_nativePack
     return 0;
 }
 
-JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_nativePackAck
-(JNIEnv* env, jclass clazz, jint seq, jint ademco_id)
+JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_packAck
+(JNIEnv* env, jobject, jint seq, jint ademco_id)
 {
     ademco::AdemcoPacket ap; 
     char buff[1024];

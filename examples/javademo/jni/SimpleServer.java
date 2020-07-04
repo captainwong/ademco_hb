@@ -7,7 +7,7 @@ public class SimpleServer {
     public static void main(String[] args) {
 
         AdemcoHbLibrary lib = new AdemcoHbLibrary();
-        lib.testPprint();
+        lib.testPrint();
 
         // test parse
         {
