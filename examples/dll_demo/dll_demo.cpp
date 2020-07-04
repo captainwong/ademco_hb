@@ -11,9 +11,9 @@
 #endif
 #else // WIN32
 #ifdef _DEBUG
-#pragma comment(lib, "../Debug/ademco_hbd.lib")
+#pragma comment(lib, "../Win32/Debug/ademco_hbd.lib")
 #else
-#pragma comment(lib, "../Release/ademco_hb.lib")
+#pragma comment(lib, "../Win32/Release/ademco_hb.lib")
 #endif
 #endif
 
