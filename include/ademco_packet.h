@@ -665,7 +665,7 @@ public:
 
 	void setAcct(size_t acct) {
 		data_.resize(8); data_[0] = '#'; 
-		snprintf(&data_[1], 7, "%06d", static_cast<int>(acct % 1000000));
+		snprintf(&data_[1], 7, "%06X", static_cast<int>(acct % 1000000));
 	}
 
 	void setAcct(const std::string& acct) {
