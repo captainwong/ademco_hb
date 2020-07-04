@@ -17,7 +17,13 @@ JAVA_INCLUDE_OS=$JAVA_INCLUDE/linux
 #JAVA_INCLUDE_OS=$JAVA_INCLUDE/darwin
 
 
-javac -encoding utf-8 javademo/jni/AdemcoHbLibrary.java && javah -d javademo/cpp -jni javademo.jni.AdemcoHbLibrary
+# 编译Java类
+javac -encoding utf-8 javademo/jni/AdemcoHbLibrary.java
+# 生成C++头文件
+javah -d javademo/cpp -jni javademo.jni.AdemcoHbLibrary
+# 生成C++动态库，目标文件 ./build/libademcojava.so
 g++ -std=c++11 $JAVADEMO_SRC/pch.cpp $JAVADEMO_SRC/dllmain.cpp -I$JAVADEMO_SRC -I../include -I$JAVA_INCLUDE -I$JAVA_INCLUDE_OS -fPIC -shared -o build/libademcojava.so
+# 编译使用动态库的Java示例
 javac -encoding utf-8 javademo/jni/SimpleServer.java
+# 执行使用动态库的Java示例
 java javademo.jni.SimpleServer 12345
