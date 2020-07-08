@@ -39,7 +39,7 @@ public class AdemcoHbLibrary
     public native ParseResult parse(String pack, int pack_len);
 
     /*
-    * @brief 将远程控制命令打包成网络传输数据
+    * @brief 将远程控制命令（不包含xdata）打包成网络传输数据
     * @param[in] seq 序号
     * @param[in] ademco_id 安定宝ID
     * @param[in] ademco_event 安定宝事件码
@@ -48,6 +48,18 @@ public class AdemcoHbLibrary
     * @return String
     */
     public native String pack(int seq, int ademco_id, int ademco_event, int zone, int gg);
+
+    
+    /*
+    * @brief 将远程控制命令（包含xdata）打包成网络传输数据
+    * @param[in] seq 序号
+    * @param[in] ademco_id 安定宝ID
+    * @param[in] ademco_event 安定宝事件码
+    * @param[in] zone 防区号
+    * @param[in] gg 分防区号
+    * @return String
+    */
+    public native String pack2(int seq, int ademco_id, int ademco_event, int zone, int gg, String xdata);
 
     /*
     * @brief 打包ACK

@@ -76,6 +76,24 @@ JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack
     return 0;
 }
 
+JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack2
+(JNIEnv* env, jobject, jint seq, jint ademco_id, jint ademco_event, jint zone, jint gg, jstring xdata)
+{
+    jboolean iscopy = 0;
+    std::string s = env->GetStringUTFChars(xdata, &iscopy);
+    auto xdata_ = ademco::makeXData(s.data(), s.size());
+    ademco::AdemcoPacket ap;
+    char buff[1024];
+    auto res = ap.make_hb(buff, sizeof(buff), static_cast<uint16_t>(seq),
+                          nullptr, static_cast<size_t>(ademco_id), static_cast<unsigned char>(gg),
+                          static_cast<ademco::ADEMCO_EVENT>(ademco_event), static_cast<size_t>(zone), xdata_);
+    if (res > 0) {
+        buff[res] = 0;
+        return env->NewStringUTF(buff);
+    }
+    return 0;
+}
+
 JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_packAck
 (JNIEnv* env, jobject, jint seq, jint ademco_id)
 {
