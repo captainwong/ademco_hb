@@ -41,33 +41,35 @@ public class AdemcoHbLibrary
     /*
     * @brief 将远程控制命令（不包含xdata）打包成网络传输数据
     * @param[in] seq 序号
+    * @param[in] acct 主机账号
     * @param[in] ademco_id 安定宝ID
     * @param[in] ademco_event 安定宝事件码
     * @param[in] zone 防区号
     * @param[in] gg 分防区号
     * @return String
     */
-    public native String pack(int seq, int ademco_id, int ademco_event, int zone, int gg);
+    public native String pack(int seq, String acct, int ademco_id, int ademco_event, int zone, int gg);
 
     
     /*
     * @brief 将远程控制命令（包含xdata）打包成网络传输数据
     * @param[in] seq 序号
+    * @param[in] acct 主机账号
     * @param[in] ademco_id 安定宝ID
     * @param[in] ademco_event 安定宝事件码
     * @param[in] zone 防区号
     * @param[in] gg 分防区号
     * @return hex String，如字符串"123456" 表示为 "313233343536", 需手动转换为byte[] 进行发送，参考SimpleServerThread
     */
-    public native String pack2(int seq, int ademco_id, int ademco_event, int zone, int gg, String xdata);
+    public native String pack2(int seq, String acct, int ademco_id, int ademco_event, int zone, int gg, String xdata);
 
     /*
     * @brief 打包ACK
     * @param[in] seq 序号
-    * @param[in] ademco_id 安定宝ID
+    * @param[in] acct 主机账号
     * @return String
     */
-    public native String packAck(int seq, int ademco_id);
+    public native String packAck(int seq, String acct);
 
 
     // public void testPrint(){ nativePrint(); }

@@ -26,26 +26,26 @@ JNIEXPORT jobject JNICALL Java_javademo_jni_AdemcoHbLibrary_parse
 /*
  * Class:     javademo_jni_AdemcoHbLibrary
  * Method:    pack
- * Signature: (IIIII)Ljava/lang/String;
+ * Signature: (ILjava/lang/String;IIII)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack
-  (JNIEnv *, jobject, jint, jint, jint, jint, jint);
+  (JNIEnv *, jobject, jint, jstring, jint, jint, jint, jint);
 
 /*
  * Class:     javademo_jni_AdemcoHbLibrary
  * Method:    pack2
- * Signature: (IIIIILjava/lang/String;)Ljava/lang/String;
+ * Signature: (ILjava/lang/String;IIIILjava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack2
-  (JNIEnv *, jobject, jint, jint, jint, jint, jint, jstring);
+  (JNIEnv *, jobject, jint, jstring, jint, jint, jint, jint, jstring);
 
 /*
  * Class:     javademo_jni_AdemcoHbLibrary
  * Method:    packAck
- * Signature: (II)Ljava/lang/String;
+ * Signature: (ILjava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_packAck
-  (JNIEnv *, jobject, jint, jint);
+  (JNIEnv *, jobject, jint, jstring);
 
 #ifdef __cplusplus
 }

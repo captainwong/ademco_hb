@@ -23,16 +23,16 @@ public class SimpleServer {
         // test pack
         {            
             System.out.println("testing pack...");
-            System.out.println("using seq=1234, ademco_id=666666, event=3400, zone=0, gg=0");
-            String data = lib.pack(1234, 666666, 3400, 0, 0);
+            System.out.println("using seq=1234, acct=861234567890, ademco_id=666666, event=3400, zone=0, gg=0");
+            String data = lib.pack(1234, "861234567890", 666666, 3400, 0, 0);
             System.out.println("data=" + data);
         }
 
         // test pack ack
         {
             System.out.println("testing packAck...");
-            System.out.println("using seq=1234, ademco_id=666666");
-            String data = lib.packAck(1234, 666666);
+            System.out.println("using seq=1234, acct=861234567890, ");
+            String data = lib.packAck(1234, "861234567890");
             System.out.println("data=" + data);
         }
 

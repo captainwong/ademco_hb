@@ -59,16 +59,16 @@ public class SimpleServerThread extends Thread {
                 if (m.find()) {
                     String id = m.group(1);
                     int seq = Integer.parseInt(m.group(2));
-                    int ademco_id = Integer.parseInt(m.group(3));
+                    String acct = m.group(3);
                     System.out.println("Found id: " + id);
                     System.out.println("Found seq: " + seq);
-                    System.out.println("Found ademco_id: " + ademco_id); 
+                    System.out.println("Found acct: " + acct); 
 
                     switch(id){
                         case "ACK":break;
                         case "NULL": // reply ack
                         {
-                            String ack = lib.packAck(seq, ademco_id);
+                            String ack = lib.packAck(seq, acct);
                             System.out.println("replying ack:" + ack);
                             writer.write(ack);
                             writer.flush();
@@ -78,7 +78,7 @@ public class SimpleServerThread extends Thread {
                         case "ADM-CID":
                         {
                             // reply ack
-                            String ack = lib.packAck(seq, ademco_id);
+                            String ack = lib.packAck(seq, acct);
                             System.out.println("replying ack:" + ack);
                             writer.write(ack);
                             writer.flush();
@@ -87,7 +87,6 @@ public class SimpleServerThread extends Thread {
                             m = r2.matcher(line);
                             if (m.find()) {
                                 int ademco_id16 = Integer.parseInt(m.group(1), 16);
-                                assert(ademco_id == ademco_id16);
                                 int ademco_event = Integer.parseInt(m.group(2));
                                 int gg = Integer.parseInt(m.group(3));
                                 int zone = Integer.parseInt(m.group(4));
@@ -99,7 +98,7 @@ public class SimpleServerThread extends Thread {
                                     long now = System.currentTimeMillis();
                                     if(now - lastTimeStatusChange > 5000){
                                         lastTimeStatusChange = now;
-                                        String cmd = lib.pack2(seq+1, ademco_id16, ademco_event == 3400 ? 1400 : 3400, gg, zone, "123456");
+                                        String cmd = lib.pack2(seq+1, acct, ademco_id16, ademco_event == 3400 ? 1400 : 3400, gg, zone, "123456");
                                         System.out.println("sending command:" + cmd);
                                         byte[] data = hexStringToByteArray(cmd);
                                         output.write(data);
