@@ -28,9 +28,15 @@
 
 using namespace ademco;
 
+void op_usage()
+{
+	printf("Press A for Arm, D for Disarm, E for Emergency, Q for Quit\n");
+}
+
 void usage(const char* name)
 {
-	printf("Usage: %s listening_port\nWhile connection established, press A for Arm, D for Disarm, E for Emergency, Q for Quit\n", name);
+	printf("Usage: %s listening_port\n", name);
+	op_usage();
 }
 
 constexpr size_t BUFF_SIZE = 4096;
@@ -307,7 +313,7 @@ int main(int argc, char** argv)
 			worker.join();
 			break;
 		} else {
-			printf("Press A for Arm, D for Disarm, E for Emergency, Q for Quit\n");
+			op_usage();
 		}
 	}
 

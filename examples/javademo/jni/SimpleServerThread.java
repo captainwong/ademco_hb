@@ -29,8 +29,23 @@ public class SimpleServerThread extends Thread {
 	                .digit(s.charAt(i + 1), 16));
 	    }
 	    return b;
-	}
+    }
+    
 
+    public static String printable_bytes(byte[] b){
+        String HEX_STRING = "0123456789ABCDEF";
+        String s = "";
+        for(int i = 0; i < b.length; i++){
+            byte c = b[i];
+            if(32 <= c && c <= 127){
+                s += (char)c;
+            }else{
+                s += "\\x" + HEX_STRING.charAt(b[i] >>> 4);
+                s += HEX_STRING.charAt(b[i] & 0x0F);
+            }
+        }
+        return s;
+    }
 
  
     public void run() {
@@ -94,15 +109,25 @@ public class SimpleServerThread extends Thread {
                                 System.out.println("Found gg: " + gg);
                                 System.out.println("Found zone: " + zone); 
 
+                                // 主机状态改变间隔超过5秒，则触发一次远程控制命令发送给主机
                                 if(ademco_event == 3400 || ademco_event == 1400){
                                     long now = System.currentTimeMillis();
                                     if(now - lastTimeStatusChange > 5000){
                                         lastTimeStatusChange = now;
-                                        String cmd = lib.pack2(seq+1, acct, ademco_id16, ademco_event == 3400 ? 1400 : 3400, gg, zone, "123456");
-                                        System.out.println("sending command:" + cmd);
-                                        byte[] data = hexStringToByteArray(cmd);
-                                        output.write(data);
-                                        output.flush();
+                                        if(ademco_event == 3400){ // 布防则发撤防命令
+                                            String cmd = lib.pack2(seq+1, acct, ademco_id16, 1400, 0, 0, "123456");
+                                            byte[] data = hexStringToByteArray(cmd);
+                                            System.out.println("sending 1400 command:" + printable_bytes(data));
+                                            output.write(data);
+                                            output.flush();
+                                        }else{ // 撤防就发布防命令
+                                            String cmd = lib.pack(seq+1, acct, ademco_id16, 3400, 0, 0);
+                                            System.out.println("sending 3400 command:" + cmd);
+                                            writer.write(ack);
+                                            writer.flush();
+                                        }
+                                        
+                                        
                                     }
                                 }
                             }else{

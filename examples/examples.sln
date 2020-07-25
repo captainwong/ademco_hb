@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server_demo", "server_demo\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ademco_java", "javademo\cpp\ademco_java.vcxproj", "{B323151B-AD89-4545-B95E-E2442A7961BB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server_demo_libevent", "server_demo_libevent\server_demo_libevent.vcxproj", "{AD6D6F3B-B39D-4F70-9940-3AB4FC870974}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +107,16 @@ Global
 		{B323151B-AD89-4545-B95E-E2442A7961BB}.Release|x64.Build.0 = Release|x64
 		{B323151B-AD89-4545-B95E-E2442A7961BB}.Release|x86.ActiveCfg = Release|Win32
 		{B323151B-AD89-4545-B95E-E2442A7961BB}.Release|x86.Build.0 = Release|Win32
+		{AD6D6F3B-B39D-4F70-9940-3AB4FC870974}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{AD6D6F3B-B39D-4F70-9940-3AB4FC870974}.Debug|x64.ActiveCfg = Debug|x64
+		{AD6D6F3B-B39D-4F70-9940-3AB4FC870974}.Debug|x64.Build.0 = Debug|x64
+		{AD6D6F3B-B39D-4F70-9940-3AB4FC870974}.Debug|x86.ActiveCfg = Debug|Win32
+		{AD6D6F3B-B39D-4F70-9940-3AB4FC870974}.Debug|x86.Build.0 = Debug|Win32
+		{AD6D6F3B-B39D-4F70-9940-3AB4FC870974}.Release|Any CPU.ActiveCfg = Release|Win32
+		{AD6D6F3B-B39D-4F70-9940-3AB4FC870974}.Release|x64.ActiveCfg = Release|x64
+		{AD6D6F3B-B39D-4F70-9940-3AB4FC870974}.Release|x64.Build.0 = Release|x64
+		{AD6D6F3B-B39D-4F70-9940-3AB4FC870974}.Release|x86.ActiveCfg = Release|Win32
+		{AD6D6F3B-B39D-4F70-9940-3AB4FC870974}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
