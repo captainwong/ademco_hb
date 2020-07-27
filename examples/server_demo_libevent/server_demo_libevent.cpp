@@ -14,24 +14,43 @@
 #include <errno.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <thread>
 #include <vector>
 #include <mutex>
 #include <string>
+#include <algorithm>
+#include <chrono>
+#include <unordered_map>
 
 #include <event2/listener.h>
 #include <event2/buffer.h>
 #include <event2/bufferevent.h>
+#include <event2/thread.h>
 
 #if !defined(LIBEVENT_VERSION_NUMBER) || LIBEVENT_VERSION_NUMBER < 0x02010100
 #error "This version of Libevent is not supported; Get 2.1.1-alpha or later."
 #endif
 
 #define DISABLE_JLIB_LOG2
-
 #include <ademco_packet.h>
 
 using namespace ademco;
+
+struct Client {
+	int fd = 0;
+	evbuffer* output = nullptr;
+	std::string acct = {};
+	int ademco_id = 0;
+	int seq = 0;
+};
+
+std::unordered_map<int, Client> clients = {};
+
+// events will be sent to all clients
+std::vector<ADEMCO_EVENT> events = {};
+std::mutex mutex = {};
+char pwd[1024] = { 0 };
 
 void op_usage()
 {
@@ -41,18 +60,95 @@ void op_usage()
 void usage(const char* name)
 {
 	printf("Usage: %s listening_port\n", name);
-	op_usage();
 }
 
-struct Client {
-	int fd = 0;
-	std::string acct = {};
-	int ademco_id = 0;
-};
+void handle_ademco_msg(AdemcoPacket& packet, bufferevent* bev)
+{
+	int fd = bufferevent_getfd(bev);
+	auto& client = clients[fd];
+	printf("C#%d acct=%s ademco_id=%06X :%s\n", fd, client.acct.data(), client.ademco_id, packet.toString().data());
+	auto output = bufferevent_get_output(bev);
+	switch (packet.id_.eid_) {
+	case AdemcoId::id_null:
+	case AdemcoId::id_hb:
+	case AdemcoId::id_admcid:
+		if (packet.id_.eid_ != AdemcoId::id_null) {
+			client.acct = packet.acct_.acct();
+			client.ademco_id = packet.ademcoData_.ademco_id_;			
+		}
+		{
+			char buf[1024];
+			size_t n = packet.make_ack(buf, sizeof(buf), packet.seq_.value_, packet.acct_.acct(), packet.ademcoData_.ademco_id_);
+			evbuffer_add(output, buf, n);
+			printf("S#%d acct=%s ademco_id=%06X :%s\n", fd, client.acct.data(), client.ademco_id, packet.toString().data());
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+// send all buffered events to all clients
+void commandcb(evutil_socket_t, short, void*)
+{
+	std::vector<ADEMCO_EVENT> evs;
+
+	{
+		std::lock_guard<std::mutex> lg(mutex);
+		evs = std::move(events);
+	}
+
+	char buf[1024];
+	AdemcoPacket maker;
+	for (auto& client : clients) {
+		for (auto e : evs) {
+			size_t n = 0;
+			if (e == EVENT_DISARM) {
+				if (++client.second.seq == 10000) {
+					client.second.seq = 1;
+				}
+				auto xdata = makeXData(pwd, 6);
+				n = maker.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 0, e, 0, xdata);
+			} else {
+				n = maker.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 0, e, 0);
+			}
+			evbuffer_add(client.second.output, buf, n);
+			printf("S#%d acct=%s ademco_id=%06X :%s\n", 
+				   client.second.fd, client.second.acct.data(), client.second.ademco_id, maker.toString().data());
+		}
+	}
+}
 
 void readcb(struct bufferevent* bev, void* user_data)
 {
-	//evbuffer_add_buffer(bufferevent_get_output(bev), bufferevent_get_input(bev));
+	auto input = bufferevent_get_input(bev);
+
+	while (1) {
+		size_t len = evbuffer_get_length(input);
+		if (len < 9) { return; }
+		static AdemcoPacket parser = {};
+		char buff[1024] = { 0 };
+		evbuffer_copyout(input, buff, std::min(len, sizeof(buff)));
+		size_t cb_commited = 0;
+		auto res = parser.parse(buff, 1024, cb_commited);
+		bool done = false;
+		switch (res) {
+		case ademco::ParseResult::RESULT_OK:
+			evbuffer_drain(input, cb_commited);
+			handle_ademco_msg(parser, bev);
+			break;
+		case ademco::ParseResult::RESULT_NOT_ENOUGH:
+			done = true;
+			break;
+		case ademco::ParseResult::RESULT_DATA_ERROR:
+			fprintf(stderr, "error while parsing data\n");
+			evbuffer_drain(input, len);
+			done = true;
+			break;
+		}
+
+		if (done) { break; }
+	}
 }
 
 void eventcb(struct bufferevent* bev, short events, void* user_data)
@@ -67,6 +163,7 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 			   fd, strerror(errno));
 	}
 	printf("Connection #%d closed.\n", fd);
+	clients.erase(fd);
 	bufferevent_free(bev);
 }
 
@@ -86,6 +183,11 @@ void accept_cb(evconnlistener* listener, evutil_socket_t fd, sockaddr* addr, int
 		return;
 	}
 
+	Client client;
+	client.fd = fd;
+	client.output = bufferevent_get_output(bev);
+	clients[fd] = client;
+
 	bufferevent_setcb(bev, readcb, nullptr, eventcb, nullptr);
 	bufferevent_enable(bev, EV_WRITE | EV_READ);
 }
@@ -100,9 +202,20 @@ void accpet_error_cb(evconnlistener* listener, void* context)
 
 int main(int argc, char** argv)
 {
+	usage(argv[0]);
+
 #ifdef _WIN32
 	WSADATA wsa_data;
 	WSAStartup(0x0201, &wsa_data);
+	if (0 != evthread_use_windows_threads()) {
+		fprintf(stderr, "failed to init libevent with thread by calling evthread_use_windows_threads\n");
+		return -1;
+	}
+#else 
+	if (0 != evthread_use_pthreads()) {
+		fprintf(stderr, "failed to init libevent with thread by calling evthread_use_pthreads\n");
+		return -1;
+	}
 #endif
 
 	int port = 12345; 
@@ -139,7 +252,50 @@ int main(int argc, char** argv)
 	}
 	printf("%s is listening on port %d\n", argv[0], port);
 	evconnlistener_set_error_cb(listener, accpet_error_cb);
-	event_base_dispatch(base);
+
+	std::thread t([&base]() {
+		event_base_dispatch(base);
+	});
+
+	op_usage();
+
+	while (1) {
+		int cmd = getchar();
+		struct timeval tv = { 0, 1000 };
+
+		if (cmd == 'a' || cmd == 'A') {
+			{
+				std::lock_guard<std::mutex> lg(mutex);
+				events.push_back(EVENT_ARM);
+			}
+			event_add(event_new(base, -1, 0, commandcb, nullptr), &tv);
+		} else if (cmd == 'd' || cmd == 'D') {
+			do {
+				printf("Input 6 digit password:");
+				scanf("%s", pwd);
+			} while (strlen(pwd) != 6);
+			{
+				std::lock_guard<std::mutex> lg(mutex);
+				events.push_back(EVENT_DISARM);
+			}
+			event_add(evtimer_new(base, commandcb, nullptr), &tv);
+		} else if (cmd == 'e' || cmd == 'E') {
+			{
+				std::lock_guard<std::mutex> lg(mutex);
+				events.push_back(EVENT_EMERGENCY);
+			}
+			event_add(evtimer_new(base, commandcb, nullptr), &tv);
+		} else if (cmd == '\r' || cmd == '\n') {
+		} else if (cmd == 'q' || cmd == 'Q') {
+			event_base_loopbreak(base);
+			t.join();
+			break;
+		} else {
+			op_usage();
+		}
+	}
+
+	printf("Bye\n");
 
 	return 0;
 }
