@@ -41,8 +41,8 @@ struct Client {
 	int fd = 0;
 	evbuffer* output = nullptr;
 	std::string acct = {};
-	int ademco_id = 0;
-	int seq = 0;
+	size_t ademco_id = 0;
+	uint16_t seq = 0;
 };
 
 std::unordered_map<int, Client> clients = {};
@@ -64,9 +64,9 @@ void usage(const char* name)
 
 void handle_ademco_msg(AdemcoPacket& packet, bufferevent* bev)
 {
-	int fd = bufferevent_getfd(bev);
+	int fd = (int)bufferevent_getfd(bev);
 	auto& client = clients[fd];
-	printf("C#%d acct=%s ademco_id=%06X :%s\n", fd, client.acct.data(), client.ademco_id, packet.toString().data());
+	printf("C#%d acct=%s ademco_id=%06zX :%s\n", fd, client.acct.data(), client.ademco_id, packet.toString().data());
 	auto output = bufferevent_get_output(bev);
 	switch (packet.id_.eid_) {
 	case AdemcoId::id_null:
@@ -80,7 +80,7 @@ void handle_ademco_msg(AdemcoPacket& packet, bufferevent* bev)
 			char buf[1024];
 			size_t n = packet.make_ack(buf, sizeof(buf), packet.seq_.value_, packet.acct_.acct(), packet.ademcoData_.ademco_id_);
 			evbuffer_add(output, buf, n);
-			printf("S#%d acct=%s ademco_id=%06X :%s\n", fd, client.acct.data(), client.ademco_id, packet.toString().data());
+			printf("S#%d acct=%s ademco_id=%06zX :%s\n", fd, client.acct.data(), client.ademco_id, packet.toString().data());
 		}
 		break;
 	default:
@@ -113,7 +113,7 @@ void commandcb(evutil_socket_t, short, void*)
 				n = maker.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 0, e, 0);
 			}
 			evbuffer_add(client.second.output, buf, n);
-			printf("S#%d acct=%s ademco_id=%06X :%s\n", 
+			printf("S#%d acct=%s ademco_id=%06zX :%s\n", 
 				   client.second.fd, client.second.acct.data(), client.second.ademco_id, maker.toString().data());
 		}
 	}
@@ -153,7 +153,7 @@ void readcb(struct bufferevent* bev, void* user_data)
 
 void eventcb(struct bufferevent* bev, short events, void* user_data)
 {
-	int fd = bufferevent_getfd(bev);
+	int fd = (int)bufferevent_getfd(bev);
 	printf("eventcb events=%04X\n", events);
 	if (events & BEV_EVENT_EOF) {
 	} else if (events & (BEV_EVENT_WRITING)) {
@@ -184,9 +184,9 @@ void accept_cb(evconnlistener* listener, evutil_socket_t fd, sockaddr* addr, int
 	}
 
 	Client client;
-	client.fd = fd;
+	client.fd = (int)fd;
 	client.output = bufferevent_get_output(bev);
-	clients[fd] = client;
+	clients[(int)fd] = client;
 
 	bufferevent_setcb(bev, readcb, nullptr, eventcb, nullptr);
 	bufferevent_enable(bev, EV_WRITE | EV_READ);
