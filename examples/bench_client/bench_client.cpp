@@ -6,6 +6,7 @@ Ping Pong Client
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <sys/syscall.h>
 #else
 # ifndef  _CRT_SECURE_NO_WARNINGS
 #  define  _CRT_SECURE_NO_WARNINGS
@@ -27,6 +28,7 @@ Ping Pong Client
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include <unordered_set>
 
 #include <event2/listener.h>
 #include <event2/buffer.h>
@@ -41,6 +43,14 @@ Ping Pong Client
 #include <ademco_packet.h>
 
 using namespace ademco;
+
+uint64_t gettid() {
+#ifdef _WIN32
+	return static_cast<uint64_t>(GetCurrentThreadId());
+#else
+	return static_cast<uint64_t>(::syscall(SYS_gettid));	
+#endif
+}
 
 int thread_count = 0;
 int session_count = 0;
@@ -57,6 +67,7 @@ int64_t totalDecodeTime = 0;
 
 struct Session {
 	int id = 0;
+	int fd = 0;
 	std::string acct = {};
 	size_t ademco_id = 0;
 	uint16_t seq = 0;
@@ -71,7 +82,6 @@ struct Session {
 	int64_t encodeTime = 0;
 	int64_t decodeTime = 0;
 };
-
 
 void handle_ademco_msg(Session* session, bufferevent* bev)
 {
@@ -146,29 +156,32 @@ void writecb(struct bufferevent* bev, void* user_data)
 
 void timer_cb(evutil_socket_t fd, short what, void* arg)
 {
-	auto bev = (bufferevent*)arg;
-	Session* session = nullptr;
-	bufferevent_getcb(bev, nullptr, nullptr, nullptr, (void**)&session);
-	printf("client #%d timeout\n", session->id);
+	auto session = (Session*)arg;
+	//Session* session = nullptr;
+	//bufferevent_getcb(bev, nullptr, nullptr, nullptr, (void**)&session);
+	printf("session #%d timeout\n", session->id);
 
 	//auto bev = (bufferevent*)arg;
 	//bufferevent_free(bev);
 	//evutil_closesocket(fd);
 
-	bufferevent_disable(bev, EV_WRITE);
+	//bufferevent_disable(bev, EV_WRITE);
 	// SHUT_WR
-	shutdown(fd, 1);
+	shutdown(session->fd, 1);
 }
 
 void eventcb(struct bufferevent* bev, short events, void* user_data)
 {
 	auto session = (Session*)user_data;
-	printf("eventcb #%d events=%04X\n", session->id, events);
+	printf("eventcb on session #%d events=%04X\n", session->id, events);
 	if (events & BEV_EVENT_CONNECTED) {
-		printf("client #%d connected\n", session->id);
+		int fd = bufferevent_getfd(bev);
+		session->fd = fd;
+		printf("session #%d connected fd=%d\n", session->id, fd);
 		{
 			std::lock_guard<std::mutex> lg(mutex);
-			if (++session_connected == session_count) {
+			printf("live connections %d\n", ++session_connected);
+			if (session_connected == session_count * thread_count) {
 				printf("All connected\n");
 			}
 		}
@@ -176,7 +189,7 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 		session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->seq, session->acct, session->ademco_id);
 		evbuffer_add(bufferevent_get_output(bev), buf, session->lastTimePacketSize);
 		auto base = bufferevent_get_base(bev);
-		auto timer = event_new(base, bufferevent_getfd(bev), EV_TIMEOUT, timer_cb, bev);
+		auto timer = event_new(base, -1, EV_TIMEOUT, timer_cb, session);
 		if (!timer) {
 			fprintf(stderr, "create timer failed\n");
 			event_base_loopbreak(base);
@@ -186,9 +199,9 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 		event_add(timer, &tv);
 		return;
 	} else if (events & (BEV_EVENT_EOF)) {
-		printf("Connection #%d closed.\n", session->id);
+		printf("session #%d closed.\n", session->id);
 	} else if (events & BEV_EVENT_ERROR) {
-		printf("Got an error on the connection #%d: %s\n",
+		printf("Got an error on session #%d: %s\n",
 			   session->id, strerror(errno));
 	}
 
@@ -201,7 +214,9 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 		totalEncodeTime += session->encodeTime;
 		totalDecodeTime += session->decodeTime;
 
-		if (--session_connected == 0) {
+		--session_connected;
+		printf("live connections %d\n", session_connected);
+		if (session_connected == 0) {
 			printf("All disconnected\n");
 			double encodeSpeed = totalEncodeTime * 1.0 / totalMsgWritten;
 			double decodeSpeed = totalDecodeTime * 1.0 / totalMsgRead;
@@ -220,7 +235,7 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 	
 	delete session;
 	bufferevent_free(bev);
-	event_base_loopbreak(bufferevent_get_base(bev));
+	//event_base_loopbreak(bufferevent_get_base(bev));	
 }
 
 event_base* init_thread(const sockaddr_in& sin, int session_start, int session_per_thread)
@@ -319,8 +334,11 @@ int main(int argc, char** argv)
 	std::vector<std::thread> threads;
 
 	for (int i = 1; i < thread_count; i++) {		
-		auto base = init_thread(sin, i * thread_count, session_per_thread);
-		threads.emplace_back(std::thread([&base]() { event_base_dispatch(base); }));
+		auto base = init_thread(sin, i * session_per_thread, session_per_thread);
+		threads.push_back(std::thread([](event_base* base) {
+			//printf("thread %lld created\n", gettid()); 
+			event_base_dispatch(base); 
+		}, base));
 	}
 
 	auto main_thread_base = init_thread(sin, 0, session_per_thread);
