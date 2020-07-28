@@ -326,7 +326,7 @@ int main(int argc, char** argv)
 	auto main_thread_base = init_thread(sin, 0, session_per_thread);
 	event_base_dispatch(main_thread_base);
 
-	for (int i = 1; i < thread_count; i++) {
+	for (int i = 0; i < thread_count; i++) {
 		threads[i].join();
 	}
 
