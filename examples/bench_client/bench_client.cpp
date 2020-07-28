@@ -220,6 +220,7 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 	
 	delete session;
 	bufferevent_free(bev);
+	event_base_loopbreak(bufferevent_get_base(bev));
 }
 
 event_base* init_thread(const sockaddr_in& sin, int session_start, int session_per_thread)
