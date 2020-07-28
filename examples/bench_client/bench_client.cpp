@@ -150,7 +150,7 @@ void timer_cb(evutil_socket_t fd, short what, void* arg)
 	//bufferevent_free(bev);
 	//evutil_closesocket(fd);
 
-	//bufferevent_disable(bev, EV_WRITE);
+	bufferevent_disable(bev, EV_WRITE);
 	// SHUT_WR
 	shutdown(fd, 1);
 }
