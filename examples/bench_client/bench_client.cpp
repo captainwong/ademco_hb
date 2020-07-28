@@ -3,6 +3,7 @@ Ping Pong Client
 */
 
 #ifndef _WIN32
+#include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
