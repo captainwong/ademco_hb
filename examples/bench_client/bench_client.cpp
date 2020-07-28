@@ -67,8 +67,9 @@ int64_t totalEncodeTime = 0;
 int64_t totalDecodeTime = 0;
 
 struct Session {
-	int id = 0;
 	int fd = 0;
+	bufferevent* bev = nullptr;
+	int id = 0;
 	std::string acct = {};
 	size_t ademco_id = 0;
 	uint16_t seq = 0;
@@ -166,7 +167,7 @@ void timer_cb(evutil_socket_t fd, short what, void* arg)
 	//bufferevent_free(bev);
 	//evutil_closesocket(fd);
 
-	//bufferevent_disable(bev, EV_WRITE);
+	bufferevent_disable(session->bev, EV_WRITE);
 	// SHUT_WR
 	shutdown(session->fd, 1);
 }
@@ -182,7 +183,7 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 		{
 			std::lock_guard<std::mutex> lg(mutex);
 			printf("live connections %d\n", ++session_connected);
-			if (session_connected == session_count * thread_count) {
+			if (session_connected == session_count) {
 				printf("All connected\n");
 			}
 		}
@@ -254,6 +255,7 @@ event_base* init_thread(const sockaddr_in& sin, int session_start, int session_p
 			exit(-1);
 		}
 		auto session = new Session();
+		session->bev = bev;
 		session->id = i + session_start;
 		session->acct = std::string("861234567890") + std::to_string(i + session_start);
 		session->ademco_id = i + session_start;
