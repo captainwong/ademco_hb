@@ -50,7 +50,7 @@ struct AdemcoData
 		return str;
 	}
 
-	void assignAdemcoId(size_t ademco_id) {
+	void assignAdecoId(size_t ademco_id) {
 		char aid[7] = { 0 };
 		snprintf(aid, sizeof(aid), "%06X", static_cast<int>(ademco_id % 1000000));
 		std::copy(aid, aid + 6, std::back_inserter(data_));
@@ -94,7 +94,7 @@ struct AdemcoData
 		data_.reserve(21); // [#000000|1400 00 000]
 		data_.push_back('[');
 		data_.push_back('#');
-		assignAdemcoId(ademco_id);
+		assignAdecoId(ademco_id);
 		data_.push_back('|');
 		assignAdemcoEvent(ademco_event);
 		data_.push_back(' ');
@@ -285,6 +285,45 @@ struct CongwinFe100Packet
 		return true;
 	}
 }; // CongwinFe100Packet
+
+
+//! 安定宝事件 xdata 段
+struct XData
+{
+	enum class LengthFormat {
+		TWO_HEX,
+		FOUR_DECIMAL,
+	};
+
+	LengthFormat lengthFormat_ = LengthFormat::TWO_HEX;
+	//! 刨去[ len ]后，真实有效数据的长度，用来程序调用
+	std::vector<char> data_ = {};
+	//! 包含 [ len ... ] 的全部数据长度，可以用来网络发送
+	std::vector<char> rawData_ = {};
+
+	XData() {}
+
+	size_t size() const { return data_.size(); }
+	size_t rawSize() const { return rawData_.size(); }
+
+	bool operator==(const XData& rhs) const {
+		return lengthFormat_ == rhs.lengthFormat_
+			&& data_ == rhs.data_;
+	}
+};
+
+typedef std::shared_ptr<XData> XDataPtr;
+
+inline bool operator==(const XDataPtr& lhs, const XDataPtr& rhs)
+{
+	if (lhs && rhs) {
+		return *lhs == *rhs;
+	} else if (!lhs && !rhs) {
+		return true;
+	} else {
+		return false;
+	}
+}
 
 //! 生成xdata
 static XDataPtr makeXData(const std::vector<char>& payload, XData::LengthFormat lengthFormat = XData::LengthFormat::TWO_HEX)
@@ -665,7 +704,7 @@ public:
 
 	void setAcct(size_t acct) {
 		data_.resize(8); data_[0] = '#'; 
-		snprintf(&data_[1], 7, "%06X", static_cast<int>(acct % 1000000));
+		snprintf(&data_[1], 7, "%06d", static_cast<int>(acct % 1000000));
 	}
 
 	void setAcct(const std::string& acct) {
@@ -721,14 +760,14 @@ struct AdemcoPacket
 		char* len_pos = pos; pos += 4;
 		char* id_pos = pos;
 
-		memcpy(id_pos, id_.data(), id_.size()); pos += id_.size();		
+		memcpy(id_pos, id_.data(), id_.size()); pos += id_.size();
 		memcpy(pos, seq_.data_, seq_.length); pos += seq_.length;
 		memcpy(pos, &rrcvr_.data_[0], rrcvr_.size()); pos += rrcvr_.size();
 		memcpy(pos, &lpref_.data_[0], lpref_.size()); pos += lpref_.size();
 		memcpy(pos, acct_.data(), acct_.size()); pos += acct_.size();
 		memcpy(pos, &ademcoData_.data_[0], ademcoData_.size()); pos += ademcoData_.size();
 		if (xdata_) {
-			memcpy(pos, &xdata_->rawData_[0], xdata_->rawSize()); 
+			memcpy(pos, &xdata_->rawData_[0], xdata_->rawSize());
 			pos += xdata_->rawSize();
 		}
 		memcpy(pos, timestamp_.data_, timestamp_.length); pos += timestamp_.length;
@@ -872,7 +911,12 @@ struct AdemcoPacket
 		seq_ = seq;
 		rrcvr_.setDefault(); lpref_.setDefault();
 		acct ? acct_.setAcct(acct) : acct_.setAcct(ademco_id);
-		ademcoData_.make(ademco_id, gg, evnt, zone);
+		if (acct && ademco_id == 0) {
+			ademcoData_.make(acct, gg, evnt, zone);
+		} else {
+			ademcoData_.make(ademco_id, gg, evnt, zone);
+		}		
+		
 		xdata_ = xdata;
 		timestamp_.make();
 		size_t length = calcLength();

@@ -88,6 +88,7 @@ enum ADEMCO_EVENT : uint32_t {
 	EVENT_I_AM_LCD_MACHINE						= 1727, // 主机类型--液晶主机
 	EVENT_I_AM_WIRE_MACHINE						= 1737, // 主机类型--网线主机
 	EVENT_I_AM_WIFI_MACHINE						= 1747, // 主机类型--WiFi主机
+	EVENT_I_AM_3_SECTION_MACHINE				= 1757, // 主机类型--三区段主机
 
 	EVENT_PHONE_USER_SOS						= 1709, // 手机用户SOS
 	EVENT_PHONE_USER_CANCLE_ALARM				= 1711, // 手机用户消警
@@ -174,6 +175,7 @@ static constexpr ADEMCO_EVENT AdemcoEvents[] = {
 	EVENT_I_AM_LCD_MACHINE,
 	EVENT_I_AM_WIRE_MACHINE,
 	EVENT_I_AM_WIFI_MACHINE,
+	EVENT_I_AM_3_SECTION_MACHINE,
 	EVENT_SIM_IS_IOT_CARD,
 	EVENT_SIM_IS_NOT_IOT_CARD,
 
@@ -190,9 +192,7 @@ static constexpr ADEMCO_EVENT AdemcoEvents[] = {
 inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool with_event_number = true)
 {
 	auto n_to_s = [&with_event_number](uint32_t n) ->std::string {
-		if (with_event_number) {
-			return std::to_string(n) + "--";
-		}
+		if (with_event_number) { return std::to_string(n) + "--"; }
 		return std::string();
 	};
 
@@ -245,10 +245,11 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	case EVENT_I_AM_NET_MODULE:						return n_to_s(ademco_event) + "I_AM_NET_MODULE"; 					break;
 	case EVENT_PHONE_USER_SOS:						return n_to_s(ademco_event) + "SOS"; 								break;
 	case EVENT_PHONE_USER_CANCLE_ALARM:				return n_to_s(ademco_event) + "PHONE_USER_CANCLE_ALARM"; 			break;
-	case EVENT_I_AM_GPRS:							return n_to_s(ademco_event) + "EVENT_I_AM_GPRS";					break;
+	case EVENT_I_AM_GPRS:							return n_to_s(ademco_event) + "I_AM_GPRS_MACHINE";					break;
 	case EVENT_I_AM_LCD_MACHINE:					return n_to_s(ademco_event) + "I_AM_LCD_MACHINE";					break;
 	case EVENT_I_AM_WIRE_MACHINE:					return n_to_s(ademco_event) + "I_AM_WIRE_MACHINE";					break;
 	case EVENT_I_AM_WIFI_MACHINE:					return n_to_s(ademco_event) + "I_AM_WIFI_MACHINE";					break;
+	case EVENT_I_AM_3_SECTION_MACHINE:				return n_to_s(ademco_event) + "I_AM_3_SECTION_MACHINE";				break;
 	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + "SIM card is IOT";					break;
 	case EVENT_SIM_IS_NOT_IOT_CARD:					return n_to_s(ademco_event) + "SIM card is not IOT";				break;
 	case EVENT_ENTER_SETTING_MODE:					return n_to_s(ademco_event) + "ENTER_SETTING_MODE";					break;
@@ -325,6 +326,7 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 	case EVENT_I_AM_LCD_MACHINE:					return n_to_s(ademco_event) + L"我是液晶主机";				break;
 	case EVENT_I_AM_WIRE_MACHINE:					return n_to_s(ademco_event) + L"我是网线主机";				break;
 	case EVENT_I_AM_WIFI_MACHINE:					return n_to_s(ademco_event) + L"我是WiFi主机";				break;
+	case EVENT_I_AM_3_SECTION_MACHINE:				return n_to_s(ademco_event) + L"我是三区段主机";				break;
 	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + L"SIM卡为物联卡";				break;
 	case EVENT_SIM_IS_NOT_IOT_CARD:					return n_to_s(ademco_event) + L"SIM卡为非物联卡";				break;
 	case EVENT_ENTER_SETTING_MODE:					return n_to_s(ademco_event) + L"主机进入设置状态";			break;
@@ -346,6 +348,17 @@ static inline bool isStatusEvent(ADEMCO_EVENT ademco_event)
 		|| ademco_event == EVENT_DISARM;
 }
 
+//! 是否主机类型事件
+static inline bool isMachineTypeEvent(ADEMCO_EVENT ademco_event)
+{
+	return ademco_event == EVENT_I_AM_NET_MODULE
+		|| ademco_event == EVENT_I_AM_GPRS
+		|| ademco_event == EVENT_I_AM_LCD_MACHINE
+		|| ademco_event == EVENT_I_AM_WIRE_MACHINE
+		|| ademco_event == EVENT_I_AM_WIFI_MACHINE
+		|| ademco_event == EVENT_I_AM_3_SECTION_MACHINE;
+}
+
 // 安定宝事件级别
 enum EventLevel
 {
@@ -355,29 +368,6 @@ enum EventLevel
 	EVENT_LEVEL_EXCEPTION,			// 橙色报警
 	EVENT_LEVEL_ALARM,				// 红色报警
 };
-
-#if !defined(__GNUG__) && defined(_AFX)
-inline COLORREF GetEventLevelColor(EventLevel level)
-{
-	switch (level) {
-	case ademco::EVENT_LEVEL_NULL:
-		return RGB(0, 187, 94);			// 绿色
-		break;
-	case ademco::EVENT_LEVEL_EXCEPTION_RESUME:
-		return RGB(224, 224, 12);		// 黄色
-		break;
-	case ademco::EVENT_LEVEL_EXCEPTION:
-		return RGB(0xFF, 0x80, 0x00);	// 橙色
-		break;
-	case ademco::EVENT_LEVEL_ALARM:
-		return RGB(0xFF, 0x18, 0x18);	// 红色
-		break;
-	default:
-		return RGB(255, 255, 255);		// 白色
-		break;
-	}
-}
-#endif // !defined(__GNUG__) && defined(_AFX)
 
 // 获取安定宝事件级别
 inline EventLevel GetEventLevel(ADEMCO_EVENT ademco_event)
@@ -444,125 +434,5 @@ inline ADEMCO_EVENT getExceptionEventByResumeEvent(ADEMCO_EVENT resume_event)
 	}
 }
 
-//! 安定宝事件源
-enum EventSource
-{
-	ES_UNKNOWN,
-	ES_TCP_CLIENT,		// 从客户端接收的事件 (如直连型网络模块、GPRS主机等）
-	ES_TCP_SERVER1,		// 从1号中转服务器接收的事件
-	ES_TCP_SERVER2,		// 从2号中转服务器接收的事件
-	ES_SMS,				// 接警中心短信模块收到的事件
-};
-
-//! 安定宝事件源字符串
-static inline const char* eventSourceString(EventSource es) {
-	switch (es) {
-	case EventSource::ES_TCP_CLIENT:
-		return "ES_TCP_CLIENT";
-		break;
-	case EventSource::ES_TCP_SERVER1:
-		return "ES_TCP_SERVER1";
-		break;
-	case EventSource::ES_TCP_SERVER2:
-		return "ES_TCP_SERVER2";
-		break;
-	case EventSource::ES_SMS:
-		return "ES_SMS";
-		break;
-	case EventSource::ES_UNKNOWN:
-	default:
-		return "ES_UNKNOWN";
-		break;
-	}
-
-}
-
-//! 安定宝事件 xdata 段
-struct XData
-{
-	enum class LengthFormat {
-		TWO_HEX,
-		FOUR_DECIMAL,
-	};
-
-	LengthFormat lengthFormat_ = LengthFormat::TWO_HEX;
-	//! 刨去[ len ]后，真实有效数据的长度，用来程序调用
-	std::vector<char> data_ = {};
-	//! 包含 [ len ... ] 的全部数据长度，可以用来网络发送
-	std::vector<char> rawData_ = {};
-
-	XData() {}
-
-	size_t size() const { return data_.size(); }
-	size_t rawSize() const { return rawData_.size(); }
-
-	bool operator==(const XData& rhs) const {
-		return lengthFormat_ == rhs.lengthFormat_
-			&& data_ == rhs.data_;
-	}	
-};
-
-typedef std::shared_ptr<XData> XDataPtr;
-
-inline bool operator==(const XDataPtr& lhs, const XDataPtr& rhs)
-{
-	if (lhs && rhs) {
-		return *lhs == *rhs;
-	} else if (!lhs && !rhs) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-//! 安定宝事件
-struct AdemcoEvent
-{
-	EventSource eventSource_ = ES_UNKNOWN;		// 来源
-	ADEMCO_EVENT event_ = EVENT_INVALID_EVENT;	// 事件码
-	uint32_t zone_ = 0;							// 防区号
-	uint8_t gg_ = 0;							// 分防区号
-	time_t timestamp_ = 0;						// 时间戳
-	time_t recv_time_ = 0;						// 接收时间
-	XDataPtr xdata_ = {};						// 附加信息
-
-	AdemcoEvent() {}
-
-	AdemcoEvent(EventSource source, ADEMCO_EVENT ademco_event, uint32_t zone, uint8_t gg, 
-				time_t timestamp = 0, time_t recv_time = 0, const XDataPtr& xdata = {})
-		: eventSource_(source), event_(ademco_event), zone_(zone), gg_(gg),
-		timestamp_(timestamp), recv_time_(recv_time), xdata_(xdata)
-	{}
-
-	AdemcoEvent(const AdemcoEvent& rhs)
-		: eventSource_(rhs.eventSource_), event_(rhs.event_), zone_(rhs.zone_), gg_(rhs.gg_),
-		timestamp_(rhs.timestamp_), recv_time_(rhs.recv_time_), xdata_(rhs.xdata_)
-	{}
-
-	~AdemcoEvent()
-	{}
-
-	AdemcoEvent& operator=(const AdemcoEvent& rhs)
-	{
-		eventSource_ = rhs.eventSource_;
-		event_ = rhs.event_;
-		zone_ = rhs.zone_;
-		gg_ = rhs.gg_;
-		timestamp_ = rhs.timestamp_;
-		recv_time_ = rhs.recv_time_;
-		xdata_ = rhs.xdata_;
-		return *this;
-	}
-
-	bool operator == (const AdemcoEvent& rhs)
-	{
-		return (event_ == rhs.event_)
-			&& (zone_ == rhs.zone_)
-			&& (gg_ == rhs.gg_)
-			&& (xdata_ == rhs.xdata_);
-	}
-};
-
-typedef std::shared_ptr<AdemcoEvent> AdemcoEventPtr;
 
 } // namespace ademco
