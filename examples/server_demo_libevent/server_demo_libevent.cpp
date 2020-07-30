@@ -203,7 +203,7 @@ void accept_cb(evconnlistener* listener, evutil_socket_t fd, sockaddr* addr, int
 	char str[INET_ADDRSTRLEN] = { 0 };
 	auto sin = (sockaddr_in*)addr;
 	inet_ntop(AF_INET, &sin->sin_addr, str, INET_ADDRSTRLEN);
-	printf("accpet TCP connection from: %s:%d\n", str, sin->sin_port);
+	printf("accpet TCP connection #%d from: %s:%d\n", fd, str, sin->sin_port);
 
 	evutil_make_socket_nonblocking(fd);
 

@@ -2,7 +2,7 @@
 
 mkdir -p build
 cd build
-opt=-O3
+opt='-O3 –DNDEBUG'
 g++ -std=c++11 $opt ../bench/bench.cpp -I../../include -o bench
 g++ -std=c++11 $opt ../demo/demo.cpp -I../../include -o demo
 g++ -std=c++11 $opt ../server_demo/server_demo.cpp -I../../include -lpthread -o server_demo
