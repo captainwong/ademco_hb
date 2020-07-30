@@ -50,7 +50,7 @@ struct AdemcoData
 		return str;
 	}
 
-	void assignAdecoId(size_t ademco_id) {
+	void assignAdemcoId(size_t ademco_id) {
 		char aid[7] = { 0 };
 		snprintf(aid, sizeof(aid), "%06X", static_cast<int>(ademco_id % 1000000));
 		std::copy(aid, aid + 6, std::back_inserter(data_));
@@ -94,7 +94,7 @@ struct AdemcoData
 		data_.reserve(21); // [#000000|1400 00 000]
 		data_.push_back('[');
 		data_.push_back('#');
-		assignAdecoId(ademco_id);
+		assignAdemcoId(ademco_id);
 		data_.push_back('|');
 		assignAdemcoEvent(ademco_event);
 		data_.push_back(' ');
@@ -704,7 +704,7 @@ public:
 
 	void setAcct(size_t acct) {
 		data_.resize(8); data_[0] = '#'; 
-		snprintf(&data_[1], 7, "%06d", static_cast<int>(acct % 1000000));
+		snprintf(&data_[1], 7, "%06X", static_cast<int>(acct % 1000000));
 	}
 
 	void setAcct(const std::string& acct) {
@@ -911,11 +911,7 @@ struct AdemcoPacket
 		seq_ = seq;
 		rrcvr_.setDefault(); lpref_.setDefault();
 		acct ? acct_.setAcct(acct) : acct_.setAcct(ademco_id);
-		if (acct && ademco_id == 0) {
-			ademcoData_.make(acct, gg, evnt, zone);
-		} else {
-			ademcoData_.make(ademco_id, gg, evnt, zone);
-		}		
+		ademcoData_.make(ademco_id, gg, evnt, zone);
 		
 		xdata_ = xdata;
 		timestamp_.make();
