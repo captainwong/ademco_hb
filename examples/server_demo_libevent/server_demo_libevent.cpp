@@ -127,11 +127,11 @@ void commandcb(evutil_socket_t, short, void* user_data)
 	std::lock_guard<std::mutex> lg(context->mutex);
 	for (auto& client : context->clients) {
 		for (auto e : evs) {
+			if (++client.second.seq == 10000) {
+				client.second.seq = 1;
+			}
 			size_t n = 0;
-			if (e == EVENT_DISARM) {
-				if (++client.second.seq == 10000) {
-					client.second.seq = 1;
-				}
+			if (e == EVENT_DISARM) {				
 				auto xdata = makeXData(pwd, 6);
 				n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 0, e, 0, xdata);
 			} else {
