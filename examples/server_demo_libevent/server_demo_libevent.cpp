@@ -67,7 +67,7 @@ int disable_data_print = 0;
 
 void op_usage()
 {
-	printf("Press A for Arm, D for Disarm, E for Emergency, Q for Quit\n");
+	printf("Press A for Arm, D for Disarm, E for Emergency, T for query machine type, Q for Quit\n");
 }
 
 void usage(const char* name)
@@ -373,6 +373,13 @@ int main(int argc, char** argv)
 			{
 				std::lock_guard<std::mutex> lg(mutex);
 				events.push_back(EVENT_EMERGENCY);
+				threads_to_handled_event = thread_count;
+			}
+			fire_command();
+		} else if (cmd == 't' || cmd == 'T') {
+			{
+				std::lock_guard<std::mutex> lg(mutex);
+				events.push_back(EVENT_WHAT_IS_YOUR_TYPE);
 				threads_to_handled_event = thread_count;
 			}
 			fire_command();
