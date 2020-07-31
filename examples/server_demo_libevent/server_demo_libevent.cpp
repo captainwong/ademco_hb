@@ -62,13 +62,31 @@ std::vector<ThreadContext*> worker_thread_contexts = {};
 std::vector<ADEMCO_EVENT> events = {};
 int threads_to_handled_event = 0;
 std::mutex mutex = {};
-char pwd[1024] = { 0 };
+struct UserInput {
+	char pwd[1024] = { 0 };
+	int ademco_id = 0;
+	int ev = 0;
+	int gg = 0;
+	int zone = 0;
+}userInput = {};
+
 
 int disable_data_print = 0;
 
 void op_usage()
 {
-	printf("Press A for Arm, D for Disarm, E for Emergency, T for query machine type, Q for Quit\n");
+	printf("Press a key and hit <enter>:\n"
+		   "A: Arm\n"
+		   "D: Disarm, require 6 digits password\n"
+		   "E: Emergency\n"
+		   "T: Query machine type\n"
+		   "M: Mannualy input [event gg zone], Exampel Input: 'M' <enter> 1400 1 0 <enter>\n"
+		   "C: Like M, not send to all clients, but send to specific client with ademco_id: [ademco_id event gg zone]\n"
+		   "\n"
+		   "I: Print clients info\n"
+		   "P: Toggle enable/disable for data print\n"
+		   "Q: Quit\n"
+		   );
 }
 
 void usage(const char* name)
@@ -132,13 +150,32 @@ void commandcb(evutil_socket_t, short, void* user_data)
 	for (auto& client : context->clients) {
 		for (auto e : evs) {			
 			size_t n = 0;
-			if (client.second.type == EVENT_I_AM_3_SECTION_MACHINE && (e == EVENT_ARM || e == EVENT_DISARM)) {
+			if (e == EVENT_INVALID_EVENT) { // M
+				n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 
+											userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone);
+				evbuffer_add(client.second.output, buf, n);
+				if (!disable_data_print) {
+					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, context->packet.toString().data());
+				}
+			} else if (e == (EVENT_INVALID_EVENT + 1)) { // C
+				if (client.second.ademco_id != userInput.ademco_id) {
+					continue;
+				}
+				n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id,
+											userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone);
+				evbuffer_add(client.second.output, buf, n);
+				if (!disable_data_print) {
+					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, context->packet.toString().data());
+				}
+			} else if (client.second.type == EVENT_I_AM_3_SECTION_MACHINE && (e == EVENT_ARM || e == EVENT_DISARM)) {
 				for (int gg = 1; gg <= 3; gg++) {
 					if (++client.second.seq == 10000) {
 						client.second.seq = 1;
 					}
 					if (e == EVENT_DISARM) {
-						auto xdata = makeXData(pwd, 6);
+						auto xdata = makeXData(userInput.pwd, 6);
 						n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, gg, e, 0, xdata);
 					} else {
 						n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, gg, e, 0);
@@ -154,7 +191,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 					client.second.seq = 1;
 				}
 				if (e == EVENT_DISARM) {
-					auto xdata = makeXData(pwd, 6);
+					auto xdata = makeXData(userInput.pwd, 6);
 					n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 0, e, 0, xdata);
 				} else {
 					n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 0, e, 0);
@@ -372,53 +409,130 @@ int main(int argc, char** argv)
 		}
 	};
 
-	while (1) {
+	bool running = true;
+	while (running) {
 		int cmd = getchar();
-		if (cmd == 'a' || cmd == 'A') {
+		if ('a' <= cmd && cmd <= 'z') {
+			cmd -= 32;
+		}
+
+		switch (cmd) {
+		case 'A':
 			{
 				std::lock_guard<std::mutex> lg(mutex);
 				events.push_back(EVENT_ARM);
 				threads_to_handled_event = thread_count;
 			}
 			fire_command();
-		} else if (cmd == 'd' || cmd == 'D') {
+			break;
+
+		case 'D':
 			do {
 				printf("Input 6 digit password:");
-				scanf("%s", pwd);
-			} while (strlen(pwd) != 6);
+				scanf("%s", userInput.pwd);
+			} while (strlen(userInput.pwd) != 6);
 			{
 				std::lock_guard<std::mutex> lg(mutex);
 				events.push_back(EVENT_DISARM);
 				threads_to_handled_event = thread_count;
 			}
 			fire_command();
-		} else if (cmd == 'e' || cmd == 'E') {
+			break;
+
+		case 'E':
 			{
 				std::lock_guard<std::mutex> lg(mutex);
 				events.push_back(EVENT_EMERGENCY);
 				threads_to_handled_event = thread_count;
 			}
 			fire_command();
-		} else if (cmd == 't' || cmd == 'T') {
+			break;
+
+		case 'T':
 			{
 				std::lock_guard<std::mutex> lg(mutex);
 				events.push_back(EVENT_WHAT_IS_YOUR_TYPE);
 				threads_to_handled_event = thread_count;
 			}
 			fire_command();
-		} else if (cmd == '\r' || cmd == '\n') {
-		} else if (cmd == 'q' || cmd == 'Q') {
-			timeval tv{ 0, 1000 };
-			event_base_loopexit(listen_thread_evbase, &tv);
-			listener_thread.join();
-			for (int i = 0; i < thread_count; i++) {
-				event_base_loopexit(worker_thread_contexts[i]->base, &tv);
-				worker_threads[i].join();
+			break;
+
+		case 'M':
+			{
+				int ret = 0;
+				do {
+					printf("Input [event gg zone]:");
+					ret = scanf("%d %d %d", &userInput.ev, &userInput.gg, &userInput.zone);
+				} while (ret != 3);
+				{
+					std::lock_guard<std::mutex> lg(mutex);
+					events.push_back(EVENT_INVALID_EVENT);
+					threads_to_handled_event = thread_count;
+				}
+				fire_command();
+				break;
+			}
+
+		case 'C':
+			{
+				int ret = 0;
+				do {
+					printf("Input [ademco_id event gg zone]:");
+					ret = scanf("%d %d %d %d", &userInput.ademco_id, &userInput.ev, &userInput.gg, &userInput.zone);
+				} while (ret != 4);
+				{
+					std::lock_guard<std::mutex> lg(mutex);
+					events.push_back((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 1));
+					threads_to_handled_event = thread_count;
+				}
+				fire_command();
+				break;
+			}
+
+		case 'I':
+			{
+				std::vector<Client> copiedClients;
+				for (auto context : worker_thread_contexts) {
+					std::lock_guard<std::mutex> lg(context->mutex);
+					for (const auto& client : context->clients) {
+						copiedClients.push_back(client.second);
+					}
+				}
+				printf("Total connnected %zd clients:\n", copiedClients.size());
+				for (const auto& client : copiedClients) {
+					printf("  fd=#%d acct=%s ademco_id=%zd\n", client.fd, client.acct.data(), client.ademco_id);
+				}
 			}
 			break;
-		} else {
+
+		case 'P':
+			disable_data_print = !disable_data_print;
+			printf("Data print is %s\n", disable_data_print ? "On" : "Off");
+			break;
+
+		case 'Q':
+			{
+				timeval tv{ 0, 1000 };
+				event_base_loopexit(listen_thread_evbase, &tv);
+				listener_thread.join();
+				printf("listener thread exited\n");
+				for (int i = 0; i < thread_count; i++) {
+					event_base_loopexit(worker_thread_contexts[i]->base, &tv);
+					worker_threads[i].join();
+					printf("worker_thread #%d exited\n", i);
+				}
+				running = false;
+				break;
+			}
+			
+		case '\r':
+		case '\n':
+			break;
+
+		default:
 			op_usage();
-		}
+			break;
+		}		
 	}
 
 	printf("Bye\n");
