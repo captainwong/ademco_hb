@@ -132,7 +132,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 	for (auto& client : context->clients) {
 		for (auto e : evs) {			
 			size_t n = 0;
-			if (client.second.type == EVENT_I_AM_3_SECTION_MACHINE) {
+			if (client.second.type == EVENT_I_AM_3_SECTION_MACHINE && (e == EVENT_ARM || e == EVENT_DISARM)) {
 				for (int gg = 1; gg <= 3; gg++) {
 					if (++client.second.seq == 10000) {
 						client.second.seq = 1;
