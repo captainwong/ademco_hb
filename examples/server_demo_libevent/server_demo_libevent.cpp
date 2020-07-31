@@ -43,6 +43,7 @@ struct Client {
 	std::string acct = {};
 	size_t ademco_id = 0;
 	uint16_t seq = 0;
+	int type = -1;
 };
 
 struct ThreadContext {
@@ -91,6 +92,9 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 		if (context->packet.id_.eid_ != AdemcoId::id_null) {
 			client.acct = context->packet.acct_.acct();
 			client.ademco_id = context->packet.ademcoData_.ademco_id_;
+			if (ademco::isMachineTypeEvent(context->packet.ademcoData_.ademco_event_)) {
+				client.type = context->packet.ademcoData_.ademco_event_;
+			}
 		}
 		{
 			char buf[1024];
@@ -126,21 +130,40 @@ void commandcb(evutil_socket_t, short, void* user_data)
 
 	std::lock_guard<std::mutex> lg(context->mutex);
 	for (auto& client : context->clients) {
-		for (auto e : evs) {
-			if (++client.second.seq == 10000) {
-				client.second.seq = 1;
-			}
+		for (auto e : evs) {			
 			size_t n = 0;
-			if (e == EVENT_DISARM) {				
-				auto xdata = makeXData(pwd, 6);
-				n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 0, e, 0, xdata);
+			if (client.second.type == EVENT_I_AM_3_SECTION_MACHINE) {
+				for (int gg = 1; gg <= 3; gg++) {
+					if (++client.second.seq == 10000) {
+						client.second.seq = 1;
+					}
+					if (e == EVENT_DISARM) {
+						auto xdata = makeXData(pwd, 6);
+						n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, gg, e, 0, xdata);
+					} else {
+						n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, gg, e, 0);
+					}
+					evbuffer_add(client.second.output, buf, n);
+					if (!disable_data_print) {
+						printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+							   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, context->packet.toString().data());
+					}
+				}
 			} else {
-				n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 0, e, 0);
-			}
-			evbuffer_add(client.second.output, buf, n);
-			if (!disable_data_print) {
-				printf("S#%d acct=%s ademco_id=%06zX :%s\n",
-					   client.second.fd, client.second.acct.data(), client.second.ademco_id, context->packet.toString().data());
+				if (++client.second.seq == 10000) {
+					client.second.seq = 1;
+				}
+				if (e == EVENT_DISARM) {
+					auto xdata = makeXData(pwd, 6);
+					n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 0, e, 0, xdata);
+				} else {
+					n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 0, e, 0);
+				}
+				evbuffer_add(client.second.output, buf, n);
+				if (!disable_data_print) {
+					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, context->packet.toString().data());
+				}
 			}
 		}
 	}
@@ -203,7 +226,7 @@ void accept_cb(evconnlistener* listener, evutil_socket_t fd, sockaddr* addr, int
 	char str[INET_ADDRSTRLEN] = { 0 };
 	auto sin = (sockaddr_in*)addr;
 	inet_ntop(AF_INET, &sin->sin_addr, str, INET_ADDRSTRLEN);
-	printf("accpet TCP connection #%d from: %s:%d\n", fd, str, sin->sin_port);
+	printf("accpet TCP connection #%d from: %s:%d\n", (int)fd, str, sin->sin_port);
 
 	evutil_make_socket_nonblocking(fd);
 
