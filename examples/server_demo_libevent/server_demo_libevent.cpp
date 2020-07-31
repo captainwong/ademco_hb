@@ -264,11 +264,9 @@ void accept_cb(evconnlistener* listener, evutil_socket_t fd, sockaddr* addr, int
 	auto sin = (sockaddr_in*)addr;
 	inet_ntop(AF_INET, &sin->sin_addr, str, INET_ADDRSTRLEN);
 	printf("accpet TCP connection #%d from: %s:%d\n", (int)fd, str, sin->sin_port);
-
 	evutil_make_socket_nonblocking(fd);
 
 	static int worker_id = 0;
-
 	auto context = worker_thread_contexts[worker_id];
 	auto bev = bufferevent_socket_new(context->base, fd, BEV_OPT_CLOSE_ON_FREE);
 	if (!bev) {
@@ -276,6 +274,7 @@ void accept_cb(evconnlistener* listener, evutil_socket_t fd, sockaddr* addr, int
 		event_base_loopbreak(context->base);
 		return;
 	}
+
 	Client client;
 	client.fd = (int)fd;
 	client.output = bufferevent_get_output(bev);
@@ -287,7 +286,6 @@ void accept_cb(evconnlistener* listener, evutil_socket_t fd, sockaddr* addr, int
 
 	bufferevent_setcb(bev, readcb, nullptr, eventcb, context);
 	bufferevent_enable(bev, EV_WRITE | EV_READ);
-
 	worker_id = (++worker_id) % thread_count;	
 }
 
