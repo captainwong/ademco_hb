@@ -68,6 +68,7 @@ struct UserInput {
 	int ev = 0;
 	int gg = 0;
 	int zone = 0;
+	char xdata[1024] = { 0 };
 }userInput = {};
 
 
@@ -80,8 +81,9 @@ void op_usage()
 		   "D: Disarm, require 6 digits password\n"
 		   "E: Emergency\n"
 		   "T: Query machine type\n"
-		   "M: Mannualy input [event gg zone], Exampel Input: 'M' <enter> 1400 1 0 <enter>\n"
+		   "M: Mannualy input [event gg zone], Exampel Input: 'M' <enter> 3400 1 0 <enter>\n"
 		   "C: Like M, not send to all clients, but send to specific client with ademco_id: [ademco_id event gg zone]\n"
+		   "X: Like C, with xdata: [ademco_id event gg zone xdata]\n"
 		   "\n"
 		   "I: Print clients info\n"
 		   "P: Toggle enable/disable for data print\n"
@@ -164,6 +166,18 @@ void commandcb(evutil_socket_t, short, void* user_data)
 				}
 				n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id,
 											userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone);
+				evbuffer_add(client.second.output, buf, n);
+				if (!disable_data_print) {
+					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, context->packet.toString().data());
+				}
+			} else if (e == (EVENT_INVALID_EVENT + 2)) { // X
+				if (client.second.ademco_id != userInput.ademco_id) {
+					continue;
+				}
+				auto xdata = makeXData(userInput.xdata, strlen(userInput.xdata));
+				n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id,
+											userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone, xdata);
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
 					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
@@ -487,6 +501,22 @@ int main(int argc, char** argv)
 				break;
 			}
 
+		case 'X':
+			{
+				int ret = 0;
+				do {
+					printf("Input [ademco_id event gg zone xdata]:");
+					ret = scanf("%d %d %d %d %s", &userInput.ademco_id, &userInput.ev, &userInput.gg, &userInput.zone, userInput.xdata);
+				} while (ret != 5);
+				{
+					std::lock_guard<std::mutex> lg(mutex);
+					events.push_back((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 2));
+					threads_to_handled_event = thread_count;
+				}
+				fire_command();
+				break;
+			}
+
 		case 'I':
 			{
 				std::vector<Client> copiedClients;
@@ -528,6 +558,7 @@ int main(int argc, char** argv)
 			break;
 
 		default:
+			printf("Invalid command\n");
 			op_usage();
 			break;
 		}		
