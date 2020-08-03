@@ -535,7 +535,7 @@ int main(int argc, char** argv)
 
 		case 'P':
 			disable_data_print = !disable_data_print;
-			printf("Data print is %s\n", disable_data_print ? "On" : "Off");
+			printf("Data print is %s\n", disable_data_print ? "Off" : "On");
 			break;
 
 		case 'Q':
