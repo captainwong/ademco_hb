@@ -28,9 +28,31 @@
 #include <event2/bufferevent.h>
 #include <event2/thread.h>
 
-#if !defined(LIBEVENT_VERSION_NUMBER) || LIBEVENT_VERSION_NUMBER < 0x02010100
-#error "This version of Libevent is not supported; Get 2.1.1-alpha or later."
+#ifdef ENABLE_BREAKPAD
+#ifdef _WIN32
+#include <client/windows/handler/exception_handler.h>
+static bool dumpCallback(const wchar_t* dump_path,
+						 const wchar_t* minidump_id,
+						 void* context,
+						 EXCEPTION_POINTERS* exinfo,
+						 MDRawAssertionInfo* assertion,
+						 bool succeeded)
+{
+	printf("Dump path: %ls\n", dump_path);
+	return succeeded;
+}
+
+#else
+#include <client/linux/handler/exception_handler.h>
+static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
+						 void* context, bool succeeded)
+{
+	printf("Dump path: %s\n", descriptor.path());
+	return succeeded;
+}
 #endif
+#endif
+
 
 #define DISABLE_JLIB_LOG2
 #include <ademco_packet.h>
@@ -363,11 +385,18 @@ int main(int argc, char** argv)
 		fprintf(stderr, "failed to init libevent with thread by calling evthread_use_windows_threads\n");
 		return -1;
 	}
+	google_breakpad::ExceptionHandler eh(nullptr, // dump_path
+										 nullptr, // FilterCallback 
+										 dumpCallback, // MinidumpCallback 
+										 nullptr, // callback_context
+										 google_breakpad::ExceptionHandler::HANDLER_ALL // handler_types
+	); // MINIDUMP_TYPE
 #else 
 	if (0 != evthread_use_pthreads()) {
 		fprintf(stderr, "failed to init libevent with thread by calling evthread_use_pthreads\n");
 		return -1;
 	}
+	google_breakpad::ExceptionHandler eh(google_breakpad::MinidumpDescriptor("./"), nullptr, dumpCallback, nullptr, true, -1);
 #endif
 
 	int port = 12345; 
