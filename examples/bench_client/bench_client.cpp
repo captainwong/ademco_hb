@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <string.h>
 #include <time.h>
 #include <string>
@@ -232,7 +233,7 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 			printf("All disconnected\n");
 			double encodeSpeed = totalEncodeTime * 1.0 / totalMsgWritten;
 			double decodeSpeed = totalDecodeTime * 1.0 / totalMsgRead;
-			printf("Read %.2f MiB %lld packets, Write %.2f MiB %lld packets\n"
+			printf("Read %.2f MiB %" PRId64 " packets, Write %.2f MiB %" PRId64 " packets\n"
 				   "Average msg size is %.2f bytes\n"
 				   "Throughput is %.2f MiB/s %.2f packets/s\n"
 				   "Encode average time %.2f us, %.2f packets/s\n"

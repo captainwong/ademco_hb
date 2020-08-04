@@ -472,17 +472,20 @@ int main(int argc, char** argv)
 			break;
 
 		case 'D':
-			do {
-				printf("Input 6 digit password:");
-				scanf("%s", userInput.pwd);
-			} while (strlen(userInput.pwd) != 6);
 			{
-				std::lock_guard<std::mutex> lg(mutex);
-				events.push_back(EVENT_DISARM);
-				threads_to_handled_event = thread_count;
-			}
-			fire_command();
+				int ret = 0;
+				do {
+					printf("Input 6 digit password:");
+					ret = scanf("%s", userInput.pwd);
+				} while (ret != 1 || strlen(userInput.pwd) != 6);
+				{
+					std::lock_guard<std::mutex> lg(mutex);
+					events.push_back(EVENT_DISARM);
+					threads_to_handled_event = thread_count;
+				}
+				fire_command();
 			break;
+			}
 
 		case 'E':
 			{

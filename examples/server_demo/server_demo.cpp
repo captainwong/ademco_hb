@@ -125,7 +125,7 @@ int main(int argc, char** argv)
 		FD_ZERO(&rfd);
 		FD_SET(serverSock, &rfd);
 		timeval timeout = { 1, 0 };
-		int nfds = select(serverSock + 1, &rfd, (fd_set*)0, (fd_set*)0, &timeout);
+		int nfds = select((int)(serverSock + 1), &rfd, (fd_set*)0, (fd_set*)0, &timeout);
 		printf("do_accept, select ret=%d\n", nfds);
 		if (nfds > 0) {
 			FD_CLR(serverSock, &rfd);
@@ -134,7 +134,7 @@ int main(int argc, char** argv)
 			if (ret != 0) {
 				exit(0);
 			}
-			printf("Got connection from %s:%d, fd=%d\n", inet_ntoa(sForeignAddrIn.sin_addr), sForeignAddrIn.sin_port, clientSock);
+			printf("Got connection from %s:%d, fd=%d\n", inet_ntoa(sForeignAddrIn.sin_addr), sForeignAddrIn.sin_port, (int)clientSock);
 		}
 	};
 
@@ -160,7 +160,7 @@ int main(int argc, char** argv)
 				char ack[1024];
 				auto len = ap.make_ack(ack, sizeof(ack), ap.seq_.value_, ap.acct_.acct(), ap.ademcoData_.ademco_id_);
 				printf("S:%s\n", ap.toString().data());
-				send(clientSock, ack, len, 0);
+				send(clientSock, ack, (int)len, 0);
 				break;
 			}
 
@@ -178,7 +178,7 @@ int main(int argc, char** argv)
 					auto len = ap.make_ack(ack, sizeof(ack), ap.seq_.value_, ap.acct_.acct(), ap.ademcoData_.ademco_id_);
 					printf("S:%s\n", ap.toString().data());
 					// send to machine via network
-					send(clientSock, ack, len, 0);
+					send(clientSock, ack, (int)len, 0);
 				}
 
 				break;
@@ -211,7 +211,7 @@ int main(int argc, char** argv)
 		fd_set fd_read;
 		FD_ZERO(&fd_read);
 		FD_SET(clientSock, &fd_read);
-		int nfds = select(clientSock + 1, &fd_read, (fd_set*)0, (fd_set*)0, &tv);
+		int nfds = select(int(clientSock + 1), &fd_read, (fd_set*)0, (fd_set*)0, &tv);
 		if (nfds <= 0) {
 			return;
 		}
@@ -221,7 +221,7 @@ int main(int argc, char** argv)
 
 		char* temp = clientBuffer.buff + clientBuffer.wpos;
 		size_t dwLenToRead = BUFF_SIZE - clientBuffer.wpos;
-		int bytes_transfered = recv(clientSock, temp, dwLenToRead, 0);
+		int bytes_transfered = recv(clientSock, temp, (int)dwLenToRead, 0);
 
 		if (-1 == bytes_transfered) {
 			if (EAGAIN == errno) {
@@ -230,14 +230,14 @@ int main(int argc, char** argv)
 		}
 
 		if (bytes_transfered <= 0) {
-			printf("Client %d offline\n", clientSock);
+			printf("Client %d offline\n", (int)clientSock);
 			close(clientSock); clientSock = INVALID_SOCKET;
 			clientBuffer.clear();
 		} else {
 			clientBuffer.wpos += bytes_transfered;			
 			auto result = do_handle();
 			while (1) {
-				unsigned int bytes_not_commited = clientBuffer.wpos - clientBuffer.rpos;
+				size_t bytes_not_commited = clientBuffer.wpos - clientBuffer.rpos;
 				if (bytes_not_commited == 0) { 
 					if (clientBuffer.wpos == BUFF_SIZE) { 
 						clientBuffer.clear(); 
@@ -276,11 +276,11 @@ int main(int argc, char** argv)
 						auto xdata = makeXData(pwd, 6);
 						auto len = ap.make_hb(buf, sizeof(buf), 1, clientAcct, clientAdemcoId, 0, e, 0, xdata);
 						printf("S:%s\n", ap.toString().data());
-						send(clientSock, buf, len, 0);
+						send(clientSock, buf, (int)len, 0);
 					} else {
 						auto len = ap.make_hb(buf, sizeof(buf), 1, clientAcct, clientAdemcoId, 0, e, 0);
 						printf("S:%s\n", ap.toString().data());
-						send(clientSock, buf, len, 0);
+						send(clientSock, buf, (int)len, 0);
 					}
 					
 				}
@@ -298,10 +298,11 @@ int main(int argc, char** argv)
 			std::lock_guard<std::mutex> lg(mutex);
 			evntsWaiting4Send.push_back(EVENT_ARM);
 		} else if (cmd == 'd' || cmd == 'D') {
+			int ret = 0;
 			do {
 				printf("Input 6 digit password:");
-				scanf("%s", pwd);
-			} while (strlen(pwd) != 6);
+				ret = scanf("%s", pwd);
+			} while (ret != 1 || strlen(pwd) != 6);
 			std::lock_guard<std::mutex> lg(mutex);
 			evntsWaiting4Send.push_back(EVENT_DISARM);
 		} else if (cmd == 'e' || cmd == 'E') {

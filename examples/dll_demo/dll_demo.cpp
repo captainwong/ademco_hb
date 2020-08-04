@@ -24,21 +24,21 @@ int main()
 	// 解析完整数据包
 	{
 		char raw[] = "\nC5C30053\"HENG-BO\"0000R000000L000000#90219125916578[#000000|1737 00 000]_09:11:19,08-05-2019\r";
-		int res = parse(raw, strlen(raw), &cb_commited);
+		int res = parse(raw, (int)strlen(raw), &cb_commited);
 		assert(res == 0);
 	}
 
 	// 解析长度不足的数据包
 	{
 		char raw_not_enough[] = "\nC5C30053\"HENG-BO\"0000R000000L000000";
-		int res = parse(raw_not_enough, strlen(raw_not_enough), &cb_commited);
+		int res = parse(raw_not_enough, (int)strlen(raw_not_enough), &cb_commited);
 		assert(res == 1);
 	}
 
 	// 解析到错误数据包
 	{
 		char raw_error[] = "abcdeadfasdfasdfasd";
-		int res = parse(raw_error, strlen(raw_error), &cb_commited);
+		int res = parse(raw_error, (int)strlen(raw_error), &cb_commited);
 		assert(res == 2);
 	}
 
