@@ -246,6 +246,7 @@ void readcb(struct bufferevent* bev, void* user_data)
 {
 	auto input = bufferevent_get_input(bev);
 	auto context = (ThreadContext*)user_data;
+	std::lock_guard<std::mutex> lg(context->mutex);
 
 	while (1) {
 		size_t len = evbuffer_get_length(input);
@@ -304,6 +305,7 @@ void accept_cb(evconnlistener* listener, evutil_socket_t fd, sockaddr* addr, int
 
 	static int worker_id = 0;
 	auto context = worker_thread_contexts[worker_id];
+	std::lock_guard<std::mutex> lg(context->mutex);
 	auto bev = bufferevent_socket_new(context->base, fd, BEV_OPT_CLOSE_ON_FREE);
 	if (!bev) {
 		fprintf(stderr, "Error constructing bufferevent!\n");
@@ -314,11 +316,7 @@ void accept_cb(evconnlistener* listener, evutil_socket_t fd, sockaddr* addr, int
 	Client client;
 	client.fd = (int)fd;
 	client.output = bufferevent_get_output(bev);
-
-	{
-		std::lock_guard<std::mutex> lg(context->mutex);
-		context->clients[(int)fd] = client;
-	}
+	context->clients[(int)fd] = client;
 
 	bufferevent_setcb(bev, readcb, nullptr, eventcb, context);
 	bufferevent_enable(bev, EV_WRITE | EV_READ);
@@ -442,8 +440,10 @@ int main(int argc, char** argv)
 		}));
 	}
 
-	init_listener_thread(sin);
-	std::thread listener_thread([]() { event_base_dispatch(listen_thread_evbase); });
+	std::thread listener_thread([&sin]() {
+		init_listener_thread(sin); 
+		event_base_dispatch(listen_thread_evbase);
+	});
 
 	op_usage();
 
