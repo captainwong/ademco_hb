@@ -1,7 +1,3 @@
-/**
-Ping Pong Client
-*/
-
 #ifndef _WIN32
 #include <unistd.h>
 #include <netinet/in.h>
@@ -267,6 +263,8 @@ event_base* init_thread(const sockaddr_in& sin, int session_start, int session_p
 			fprintf(stderr, "error starting connection\n");
 			exit(-1);
 		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 
 	return base;
@@ -336,12 +334,12 @@ int main(int argc, char** argv)
 
 	std::vector<std::thread> threads;
 
-	for (int i = 1; i < thread_count; i++) {		
-		auto base = init_thread(sin, i * session_per_thread, session_per_thread);
-		threads.push_back(std::thread([](event_base* base) {
+	for (int i = 1; i < thread_count; i++) {
+		threads.push_back(std::thread([&sin, i, session_per_thread]() {
 			//printf("thread %lld created\n", gettid()); 
-			event_base_dispatch(base); 
-		}, base));
+			auto base = init_thread(sin, i * session_per_thread, session_per_thread);
+			event_base_dispatch(base);
+		}));
 	}
 
 	auto main_thread_base = init_thread(sin, 0, session_per_thread);

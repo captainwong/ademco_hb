@@ -2,7 +2,7 @@
 
 mkdir -p build
 cd build
-opt="-std=c++11 -O3"
+opt="-std=c++11 -O3 -g -gdwarf"
 g++ $opt ../bench/bench.cpp -I../../include -o bench
 g++ $opt ../demo/demo.cpp -I../../include -o demo
 g++ $opt ../server_demo/server_demo.cpp -I../../include -lpthread -o server_demo
