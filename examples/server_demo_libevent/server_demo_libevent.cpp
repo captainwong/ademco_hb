@@ -28,7 +28,7 @@
 #include <event2/bufferevent.h>
 #include <event2/thread.h>
 
-#ifdef ENABLE_BREAKPAD
+#if ENABLE_BREAKPAD
 #ifdef _WIN32
 #include <client/windows/handler/exception_handler.h>
 static bool dumpCallback(const wchar_t* dump_path,
@@ -300,7 +300,7 @@ void accept_cb(evconnlistener* listener, evutil_socket_t fd, sockaddr* addr, int
 	auto sin = (sockaddr_in*)addr;
 	inet_ntop(AF_INET, &sin->sin_addr, str, INET_ADDRSTRLEN);
 	printf("accpet TCP connection #%d from: %s:%d\n", (int)fd, str, sin->sin_port);
-	evutil_make_socket_nonblocking(fd);
+	//evutil_make_socket_nonblocking(fd);
 
 	static int worker_id = 0;
 	auto context = worker_thread_contexts[worker_id];
@@ -385,18 +385,22 @@ int main(int argc, char** argv)
 		fprintf(stderr, "failed to init libevent with thread by calling evthread_use_windows_threads\n");
 		return -1;
 	}
-	google_breakpad::ExceptionHandler eh(nullptr, // dump_path
+#if ENABLE_BREAKPAD
+	google_breakpad::ExceptionHandler eh(L"./", // dump_path
 										 nullptr, // FilterCallback 
 										 dumpCallback, // MinidumpCallback 
 										 nullptr, // callback_context
 										 google_breakpad::ExceptionHandler::HANDLER_ALL // handler_types
 	); // MINIDUMP_TYPE
+#endif
 #else 
 	if (0 != evthread_use_pthreads()) {
 		fprintf(stderr, "failed to init libevent with thread by calling evthread_use_pthreads\n");
 		return -1;
 	}
+#if ENABLE_BREAKPAD
 	google_breakpad::ExceptionHandler eh(google_breakpad::MinidumpDescriptor("./"), nullptr, dumpCallback, nullptr, true, -1);
+#endif
 #endif
 
 	int port = 12345; 

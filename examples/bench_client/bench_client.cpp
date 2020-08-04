@@ -32,10 +32,6 @@
 #include <event2/bufferevent.h>
 #include <event2/thread.h>
 
-#if !defined(LIBEVENT_VERSION_NUMBER) || LIBEVENT_VERSION_NUMBER < 0x02010100
-#error "This version of Libevent is not supported; Get 2.1.1-alpha or later."
-#endif
-
 #define DISABLE_JLIB_LOG2
 #include <ademco_packet.h>
 
@@ -64,6 +60,7 @@ int64_t totalDecodeTime = 0;
 
 struct Session {
 	int fd = 0;
+	int thread_id = 0;
 	bufferevent* bev = nullptr;
 	int id = 0;
 	std::string acct = {};
@@ -80,6 +77,19 @@ struct Session {
 	int64_t encodeTime = 0;
 	int64_t decodeTime = 0;
 };
+
+struct ThreadContext {
+	int thread_id = 0;
+	event_base* base = nullptr;
+	sockaddr_in addr = {};
+	int session_start = 0;
+	int session_end = 0;
+
+	void connectNext();
+};
+typedef ThreadContext* ThreadContextPtr;
+
+ThreadContextPtr* threadContexts = nullptr;
 
 void handle_ademco_msg(Session* session, bufferevent* bev)
 {
@@ -173,9 +183,8 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 	auto session = (Session*)user_data;
 	printf("eventcb on session #%d events=%04X\n", session->id, events);
 	if (events & BEV_EVENT_CONNECTED) {
-		int fd = bufferevent_getfd(bev);
-		session->fd = fd;
-		printf("session #%d connected fd=%d\n", session->id, fd);
+		auto ctx = threadContexts[session->thread_id];
+		printf("session #%d connected fd=%d\n", session->id, session->fd);
 		{
 			std::lock_guard<std::mutex> lg(mutex);
 			printf("live connections %d\n", ++session_connected);
@@ -195,6 +204,11 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 		}
 		struct timeval tv = { timeout, 0 };
 		event_add(timer, &tv);
+
+		if (++ctx->session_start < ctx->session_end) {
+			ctx->connectNext();
+		}
+
 		return;
 	} else if (events & (BEV_EVENT_EOF)) {
 		printf("session #%d closed.\n", session->id);
@@ -236,16 +250,23 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 	//event_base_loopbreak(bufferevent_get_base(bev));	
 }
 
-event_base* init_thread(const sockaddr_in& sin, int session_start, int session_per_thread)
+ThreadContext* init_thread(int thread_id, const sockaddr_in& sin, int session_start, int session_per_thread)
 {
-	auto base = event_base_new();
-	if (!base) {
+	ThreadContext* context = new ThreadContext();
+	context->thread_id = thread_id;
+	context->base = event_base_new();
+	if (!context->base) {
 		fprintf(stderr, "init libevent failed\n");
 		exit(-1);
 	}
+	memcpy(&context->addr, &sin, sizeof(sin));
+	context->session_start = session_start;
+	context->session_end = session_start + session_per_thread;
+	context->connectNext();
+	
 
-	for (int i = 0; i < session_per_thread; i++) {
-		auto bev = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
+	/*for (int i = 0; i < session_per_thread; i++) {
+		auto bev = bufferevent_socket_new(context->base, -1, BEV_OPT_CLOSE_ON_FREE);
 		if (!bev) {
 			fprintf(stderr, "allocate bufferevent failed\n");
 			exit(-1);
@@ -265,9 +286,33 @@ event_base* init_thread(const sockaddr_in& sin, int session_start, int session_p
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
-	}
+	}*/
 
-	return base;
+	threadContexts[thread_id] = context;
+	return context;
+}
+
+void ThreadContext::connectNext()
+{
+	auto bev = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
+	if (!bev) {
+		fprintf(stderr, "allocate bufferevent failed\n");
+		exit(-1);
+	}
+	auto session = new Session();
+	session->thread_id = thread_id;
+	session->bev = bev;
+	session->id = session_start;
+	session->acct = std::string("861234567890") + std::to_string(session_start);
+	session->ademco_id = session_start;
+	session->seq = 1;
+	bufferevent_setcb(bev, readcb, writecb, eventcb, session);
+	bufferevent_enable(bev, EV_READ | EV_WRITE);
+	if (bufferevent_socket_connect(bev, (const sockaddr*)(&addr), sizeof(addr)) < 0) {
+		fprintf(stderr, "error starting connection\n");
+		exit(-1);
+	}
+	session->fd = (int)bufferevent_getfd(bev);
 }
 
 int main(int argc, char** argv)
@@ -333,17 +378,18 @@ int main(int argc, char** argv)
 	sin.sin_port = htons(port);
 
 	std::vector<std::thread> threads;
+	threadContexts = new ThreadContextPtr[thread_count];
 
 	for (int i = 1; i < thread_count; i++) {
 		threads.push_back(std::thread([&sin, i, session_per_thread]() {
 			//printf("thread %lld created\n", gettid()); 
-			auto base = init_thread(sin, i * session_per_thread, session_per_thread);
-			event_base_dispatch(base);
+			auto context = init_thread(i, sin, i * session_per_thread, session_per_thread);
+			event_base_dispatch(context->base);
 		}));
 	}
 
-	auto main_thread_base = init_thread(sin, 0, session_per_thread);
-	event_base_dispatch(main_thread_base);
+	auto main_thread_context = init_thread(0, sin, 0, session_per_thread);
+	event_base_dispatch(main_thread_context->base);
 
 	for (auto& t : threads) {
 		t.join();
