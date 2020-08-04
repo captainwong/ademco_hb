@@ -29,7 +29,7 @@
 #include <event2/thread.h>
 
 #ifdef ENABLE_BREAKPAD 
-#if ENABLE_BREAKPAD
+#if (ENABLE_BREAKPAD==1)
 #ifdef _WIN32
 #include <client/windows/handler/exception_handler.h>
 static bool dumpCallback(const wchar_t* dump_path,
@@ -388,7 +388,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 #ifdef ENABLE_BREAKPAD 
-#if ENABLE_BREAKPAD
+#if (ENABLE_BREAKPAD==1)
 	google_breakpad::ExceptionHandler eh(L"./", // dump_path
 										 nullptr, // FilterCallback 
 										 dumpCallback, // MinidumpCallback 
@@ -403,7 +403,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 #ifdef ENABLE_BREAKPAD 
-#if ENABLE_BREAKPAD
+#if (ENABLE_BREAKPAD==1)
 	google_breakpad::ExceptionHandler eh(google_breakpad::MinidumpDescriptor("./"), nullptr, dumpCallback, nullptr, true, -1);
 #endif
 #endif
