@@ -28,7 +28,7 @@
 #include <event2/bufferevent.h>
 #include <event2/thread.h>
 
-#if ENABLE_BREAKPAD
+#if defined(ENABLE_BREAKPAD) && ENABLE_BREAKPAD
 #ifdef _WIN32
 #include <client/windows/handler/exception_handler.h>
 static bool dumpCallback(const wchar_t* dump_path,
@@ -385,7 +385,7 @@ int main(int argc, char** argv)
 		fprintf(stderr, "failed to init libevent with thread by calling evthread_use_windows_threads\n");
 		return -1;
 	}
-#if ENABLE_BREAKPAD
+#if defined(ENABLE_BREAKPAD) && ENABLE_BREAKPAD
 	google_breakpad::ExceptionHandler eh(L"./", // dump_path
 										 nullptr, // FilterCallback 
 										 dumpCallback, // MinidumpCallback 
@@ -398,7 +398,7 @@ int main(int argc, char** argv)
 		fprintf(stderr, "failed to init libevent with thread by calling evthread_use_pthreads\n");
 		return -1;
 	}
-#if ENABLE_BREAKPAD
+#if defined(ENABLE_BREAKPAD) && ENABLE_BREAKPAD
 	google_breakpad::ExceptionHandler eh(google_breakpad::MinidumpDescriptor("./"), nullptr, dumpCallback, nullptr, true, -1);
 #endif
 #endif
