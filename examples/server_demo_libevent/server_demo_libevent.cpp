@@ -28,7 +28,8 @@
 #include <event2/bufferevent.h>
 #include <event2/thread.h>
 
-#if defined(ENABLE_BREAKPAD) && ENABLE_BREAKPAD
+#ifdef ENABLE_BREAKPAD 
+#if ENABLE_BREAKPAD
 #ifdef _WIN32
 #include <client/windows/handler/exception_handler.h>
 static bool dumpCallback(const wchar_t* dump_path,
@@ -50,6 +51,7 @@ static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
 	printf("Dump path: %s\n", descriptor.path());
 	return succeeded;
 }
+#endif
 #endif
 #endif
 
@@ -385,7 +387,8 @@ int main(int argc, char** argv)
 		fprintf(stderr, "failed to init libevent with thread by calling evthread_use_windows_threads\n");
 		return -1;
 	}
-#if defined(ENABLE_BREAKPAD) && ENABLE_BREAKPAD
+#ifdef ENABLE_BREAKPAD 
+#if ENABLE_BREAKPAD
 	google_breakpad::ExceptionHandler eh(L"./", // dump_path
 										 nullptr, // FilterCallback 
 										 dumpCallback, // MinidumpCallback 
@@ -393,13 +396,16 @@ int main(int argc, char** argv)
 										 google_breakpad::ExceptionHandler::HANDLER_ALL // handler_types
 	); // MINIDUMP_TYPE
 #endif
+#endif
 #else 
 	if (0 != evthread_use_pthreads()) {
 		fprintf(stderr, "failed to init libevent with thread by calling evthread_use_pthreads\n");
 		return -1;
 	}
-#if defined(ENABLE_BREAKPAD) && ENABLE_BREAKPAD
+#ifdef ENABLE_BREAKPAD 
+#if ENABLE_BREAKPAD
 	google_breakpad::ExceptionHandler eh(google_breakpad::MinidumpDescriptor("./"), nullptr, dumpCallback, nullptr, true, -1);
+#endif
 #endif
 #endif
 
