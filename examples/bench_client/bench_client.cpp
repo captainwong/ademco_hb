@@ -264,30 +264,6 @@ ThreadContext* init_thread(int thread_id, const sockaddr_in& sin, int session_st
 	context->session_start = session_start;
 	context->session_end = session_start + session_per_thread;
 	context->connectNext();
-	
-
-	/*for (int i = 0; i < session_per_thread; i++) {
-		auto bev = bufferevent_socket_new(context->base, -1, BEV_OPT_CLOSE_ON_FREE);
-		if (!bev) {
-			fprintf(stderr, "allocate bufferevent failed\n");
-			exit(-1);
-		}
-		auto session = new Session();
-		session->bev = bev;
-		session->id = i + session_start;
-		session->acct = std::string("861234567890") + std::to_string(i + session_start);
-		session->ademco_id = i + session_start;
-		session->seq = 1;
-		bufferevent_setcb(bev, readcb, writecb, eventcb, session);
-		bufferevent_enable(bev, EV_READ | EV_WRITE);
-
-		if (bufferevent_socket_connect(bev, (const sockaddr*)(&sin), sizeof(sin)) < 0) {
-			fprintf(stderr, "error starting connection\n");
-			exit(-1);
-		}
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
-	}*/
 
 	threadContexts[thread_id] = context;
 	return context;

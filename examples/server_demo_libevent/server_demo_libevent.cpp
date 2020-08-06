@@ -108,7 +108,7 @@ void op_usage()
 		   "X: Like C, with xdata: [ademco_id event gg zone xdata]\n"
 		   "\n"
 		   "I: Print clients info\n"
-		   "P: Toggle enable/disable for data print\n"
+		   "P: Toggle enable/disable data print\n"
 		   "Q: Quit\n"
 		   );
 }
