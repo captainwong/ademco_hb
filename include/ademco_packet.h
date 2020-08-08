@@ -898,6 +898,22 @@ struct AdemcoPacket
 		return make_ack(pack, pack_len, seq, acct.empty() ? nullptr : acct.data(), ademco_id);
 	}
 
+	size_t make_nak(char* pack, size_t pack_len, uint16_t seq, const std::string& acct, size_t ademco_id) {
+		id_.eid_ = AdemcoId::Enum::id_nak;
+		seq_ = seq;
+		rrcvr_.setDefault(); lpref_.setDefault();
+		!acct.empty() ? acct_.setAcct(acct) : acct_.setAcct(ademco_id);
+		ademcoData_.make();
+		xdata_.reset();
+		timestamp_.make();
+		size_t length = calcLength();
+		assert(length < pack_len);
+		if (length < pack_len) {
+			copyData(pack, length);
+			return length;
+		} else { return 0; }
+	}
+
 	// set acct to nullptr if you want to use ademco_id as acct
 	size_t make_hb(char* pack, size_t pack_len, 
 				   uint16_t seq, 
