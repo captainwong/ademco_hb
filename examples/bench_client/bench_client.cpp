@@ -263,9 +263,9 @@ ThreadContext* init_thread(int thread_id, const sockaddr_in& sin, int session_st
 	memcpy(&context->addr, &sin, sizeof(sin));
 	context->session_start = session_start;
 	context->session_end = session_start + session_per_thread;
+	threadContexts[thread_id] = context;
 	context->connectNext();
 
-	threadContexts[thread_id] = context;
 	return context;
 }
 

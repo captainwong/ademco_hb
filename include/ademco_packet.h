@@ -2,6 +2,7 @@
 
 #include "ademco_event.h"
 #include "ademco_detail.h"
+#include <iterator>
 
 namespace ademco
 {
