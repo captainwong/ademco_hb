@@ -304,6 +304,12 @@ struct XData
 
 	XData() {}
 
+	XData(const XData& rhs) {
+		lengthFormat_ = rhs.lengthFormat_;
+		data_ = rhs.data_;
+		rawData_ = rhs.rawData_;
+	}
+
 	size_t size() const { return data_.size(); }
 	size_t rawSize() const { return rawData_.size(); }
 
@@ -453,6 +459,15 @@ struct AdemcoTimeStamp
 	time_t time_ = 0;
 
 	AdemcoTimeStamp() { make(); }
+	AdemcoTimeStamp(const AdemcoTimeStamp& rhs) {
+		memcpy(data_, rhs.data_, length + 1);
+		time_ = rhs.time_;
+	}
+	AdemcoTimeStamp& operator=(const AdemcoTimeStamp& rhs) {
+		memcpy(data_, rhs.data_, length + 1);
+		time_ = rhs.time_;
+		return *this;
+	}
 
 	void make() {
 		time_ = time(nullptr);
@@ -731,6 +746,25 @@ struct AdemcoPacket
 	static constexpr char CR = 0x0D;
 
 	AdemcoPacket() {}
+	AdemcoPacket(const AdemcoPacket& rhs) { deepCopy(rhs); }
+	AdemcoPacket& operator=(const AdemcoPacket& rhs) { deepCopy(rhs); return *this; }
+
+	void deepCopy(const AdemcoPacket& rhs) {
+		crc_ = rhs.crc_;
+		len_ = rhs.len_;
+		id_ = rhs.id_;
+		seq_ = rhs.seq_;
+		rrcvr_ = rhs.rrcvr_;
+		lpref_ = rhs.lpref_;
+		acct_ = rhs.acct_;
+		ademcoData_ = rhs.ademcoData_;
+		if (rhs.xdata_) {
+			xdata_ = std::make_shared<XData>(*rhs.xdata_);
+		} else {
+			xdata_.reset();
+		}
+		timestamp_ = rhs.timestamp_;
+	}
 
 	void clear() {
 		crc_ = 0;
