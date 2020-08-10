@@ -227,7 +227,6 @@ static const char* HexCharArrayToStr(char* dst, const char* hex, size_t len, uns
 	//AUTO_LOG_FUNCTION;
 	//jlib::dump_hex(hex, len, spdlog::level::debug);
 	memset(dst, 0, len * 2);
-	JLOG_DBUG("memset ok");
 	char tmp[8] = { 0 };
 	unsigned char high = 0, low = 0;
 
