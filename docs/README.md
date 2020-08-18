@@ -67,63 +67,81 @@
 
 |事件码|含义|en|
 |-----|----|--|
-|400|	布防/撤防|Arm/Disarm|
-|456|	半布防（无论打开/关闭都表示半布防）|Half-Arm|
-|120|	紧急报警| Emergency|
+|3400|布防|ARM|
+|1400|撤防|DISARM|
+|1456|半布防|HALFARM|
+|3456|半布防|HALFARM|
+|1120|紧急报警|EMERGENCY|
 
 ### 防区报警
 
 |事件码|含义|en|
 |-----|----|--|
-|110|	火警|Fire|
-|113|	水警|Water|
-|121|	胁迫|Duress|
-|130|	盗警|Burglar|
-|134|	门铃|DoorRing|
-|137|	主机防拆|Machine Temper|
-|151|	煤气|Gas|
-|383|	防区防拆|Sensor Temper|
-|570|	旁路|Bypass|
+|1130|盗警|BURGLAR|
+|1134|门铃|DOORRINGING|
+|1110|火警|FIRE|
+|1121|胁迫|DURESS|
+|1151|煤气|GAS|
+|1113|水警|WATER|
+|1137|防拆|TEMPER|
+|1383|防区防拆|ZONE_TEMPER|
+|1570|旁路|EVENT_BY_PASS|
+|3570|解除旁路|EVENT_BY_PASS_RESUME|
 
 ### 防区异常
 
 |事件码|含义|en|
 |-----|----|--|
-|301	|AC掉电/恢复	|AC Broke|
-|302	|低电/恢复	|Battery Low|
-|311	|坏电/恢复	|Battery Broke|
-|380	|其他故障/恢复|	Other Exceptions|
-|381	|失效/恢复|	Disconnect/Reconnect|
-|384	|电源故障/恢复|Power Failure|
-|387	|光扰/恢复|Solar Disturb|
-|393	|失联/恢复|Lost/Lost Recover|
+|1301|主机AC掉电|AC BROKE|
+|3301|主机AC恢复|AC RECOVER|
+|1302|低电|LOWBATTERY|
+|3302|复电|BATATTERY_RECOVER|
+|1311|坏电|BADBATTERY|
+|1387|光扰|SOLARDISTURB|
+|1381|失效|DISCONNECT|
+|3381|恢复|RECONNECT|
+|1384|防区电源故障|BATTERY_EXCEPTION|
+|3384|防区电源故障恢复|BATTERY_EXCEPTION_RECOVER|
+|1380|防区其他故障|OTHER_EXCEPTION|
+|3380|防区其他故障恢复|OTHER_EXCEPTION_RECOVER|
+|1393|失联|LOST|
+|3393|恢复|LOST_RECOVER|
+|3100|液晶主机清除异常指示|LCD CLEAR EXCEPTION|
 
 ### *恒博私有事件码*
 
-|事件码|zh_CN|en|
-|-----|----|-------|
-|485|	网络模块与工程主机485串口断开/恢复	|485 connection between net module and engeneer machine lost/recover|
-|700|	链路挂起	|Connection Hangup|
-|701|	撤防密码错误|	Disarm Password Wrong|
-|702|	分机探头异常|	Exception of sub-machine's sensor|
-|703|	分机电源异常|	Exception of sub-machine's power|
-|704|	索要防区信息（TODO）|	|
-|705|	查询分机信息	|
-|706|	写入主机信息	||
-|707|	主机类型：网络模块	|
-|717|	主机类型：GPRS主机	|
-|727|	主机类型：液晶主机	|
-|737|	主机类型：网线主机	|
-|747|	主机类型：WiFi主机	|
-|757|	主机类型：三区段主机	|
-|709|	手机用户SOS	|SOS from phone user|
-|710|	主机恢复出厂设置（中转、短信等）	|
-|711|	手机用户消警|	Alarm cancelation by phone user|
-|712|	主机进入/退出设置状态|	Machine entered/leaved setting mode|
-|713|	主机恢复出厂设置（直连通道）|	
-|756|	主机SIM卡类型，1756为物联卡，3756为非物联卡	|
-|798|	索要主机类型	|
-|799|	主机信号强度变化	|
+|事件码|含义|en|
+|-----|----|--|
+|1485|485断开|485DIS|
+|3485|485恢复|485CONN|
+|1700|链路挂起|CONN_HANGUP|
+|3700|链路恢复|CONN_RESUME|
+|1701|撤防密码错误|DISARM_PWD_ERR|
+|1702|分防区异常|SUB_SENSOR_EXCEPTION|
+|3702|分防区恢复|SUB_SENSOR_RESUME|
+|1703|分防区电源异常|SUB_POWER_EXCEPTION|
+|3703|分防区电源恢复|SUB_POWER_RESUME|
+|1704|索要/回复|RETRIEVE|
+|2704|进入设置状态|ENTER_SET_MODE|
+|3704|拒绝/停止索要|STOP RETRIEVE|
+|1705|查询|QUERY|
+|1706|写入主机信息|WRITE_TO_MACHINE|
+|1707|我是网络模块|I_AM_NET_MODULE|
+|1717|我是GPRS主机|I_AM_GPRS_MACHINE|
+|1727|我是液晶主机|I_AM_LCD_MACHINE|
+|1737|我是网线主机|I_AM_WIRE_MACHINE|
+|1747|我是WiFi主机|I_AM_WIFI_MACHINE|
+|1757|我是三区段主机|I_AM_3_SECTION_MACHINE|
+|1709|手机用户SOS|SOS|
+|1711|手机用户消警|PHONE_USER_CANCLE_ALARM|
+|1712|主机进入设置状态|ENTER_SETTING_MODE|
+|3712|主机退出设置状态|EXIT_SETTING_MODE|
+|1710|主机恢复出厂设置|RESTORE_FACTORY_SETTINGS|
+|1713|主机恢复出厂设置|RESTORE_FACTORY_SETTINGS|
+|1756|SIM卡为物联卡|SIM card is IOT|
+|3756|SIM卡为非物联卡|SIM card is not IOT|
+|1798|索要主机类型|EVENT_WHAT_IS_YOUR_TYPE|
+|1799|信号强度变化|SIGNAL_STRENGTH_CHANGED|
 
 ## 四、恒博扩展
 
