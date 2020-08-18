@@ -377,7 +377,6 @@ inline EventLevel GetEventLevel(ADEMCO_EVENT ademco_event)
 	case EVENT_DISARM:
 	case EVENT_HALFARM:
 		return EVENT_LEVEL_STATUS;
-		break;
 	case EVENT_AC_RECOVER:
 	case EVENT_RECONNECT:
 	case EVENT_LOST_RECOVER:
@@ -388,7 +387,6 @@ inline EventLevel GetEventLevel(ADEMCO_EVENT ademco_event)
 	case EVENT_BATTERY_EXCEPTION_RECOVER:
 	case EVENT_OTHER_EXCEPTION_RECOVER:
 		return EVENT_LEVEL_EXCEPTION_RESUME;
-		break;
 	case EVENT_AC_BROKE:
 	case EVENT_LOWBATTERY:
 	case EVENT_BADBATTERY:
@@ -401,7 +399,6 @@ inline EventLevel GetEventLevel(ADEMCO_EVENT ademco_event)
 	case EVENT_BATTERY_EXCEPTION:
 	case EVENT_OTHER_EXCEPTION:
 		return EVENT_LEVEL_EXCEPTION;
-		break;
 	case EVENT_SERIAL485DIS:
 	case EVENT_BURGLAR:
 	case EVENT_DURESS:
@@ -412,9 +409,9 @@ inline EventLevel GetEventLevel(ADEMCO_EVENT ademco_event)
 	case EVENT_ZONE_TEMPER:
 	case EVENT_WATER:
 		return EVENT_LEVEL_ALARM;
-	default: break;
+	default:
+		return EVENT_LEVEL_NULL;
 	}
-	return EVENT_LEVEL_NULL;
 }
 
 //! 获取异常恢复事件所对应的异常事件
