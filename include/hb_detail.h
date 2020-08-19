@@ -820,12 +820,12 @@ struct ResponseParser {
 			switch (data[4]) {
 
 #define define_ResponseType_case(t) \
-case 0x##t: \
+case 0x ## t: \
 { \
-	if (len != t##R::len) { break; } \
+	if (len != t ## R::len) { break; } \
 	t##R resp; memcpy(resp.data, data, len); sum(resp); \
 	if (resp.data[len - 1] != data[len - 1]) { break; } \
-	return ResponseType::##t##_response; \
+	return ResponseType:: ## t ## _response; \
 }
 
 
