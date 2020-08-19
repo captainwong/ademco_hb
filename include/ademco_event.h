@@ -4,13 +4,12 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include <time.h>
-#include <vector>
-#include <memory>
-#include <algorithm>
-#include <ctype.h>
-#include <string>
 #include <stdint.h>
+
+#ifdef ENABLE_ADEMCO_EVENT_TO_STRING
+#include <string>
+#endif // ENABLE_ADEMCO_EVENT_TO_STRING
+
 
 namespace ademco
 {
@@ -76,7 +75,7 @@ enum ADEMCO_EVENT : uint32_t {
 	EVENT_SUB_MACHINE_POWER_EXCEPTION			= 1703, // 分机电源异常
 	EVENT_SUB_MACHINE_POWER_RESUME				= 3703, // 分机电源恢复
 
-	EVENT_RETRIEVE_ZONE_OR_SUB_MACHINE			= 1704, // 索要/回复防区或分机信息
+	EVENT_COM_PASSTHROUGH						= 1704, // 串口透传
 	EVENT_ENTER_SET_MODE						= 2704, // 进入设置状态
 	EVENT_STOP_RETRIEVE							= 3704,	// 接警中心发送，为停止索要；报警主机发送，为拒绝索要
 
@@ -89,6 +88,7 @@ enum ADEMCO_EVENT : uint32_t {
 	EVENT_I_AM_WIRE_MACHINE						= 1737, // 主机类型--网线主机
 	EVENT_I_AM_WIFI_MACHINE						= 1747, // 主机类型--WiFi主机
 	EVENT_I_AM_3_SECTION_MACHINE				= 1757, // 主机类型--三区段主机
+	EVENT_I_AM_IOT_MACHINE						= 1767, // 主机类型--物联卡主机
 
 	EVENT_PHONE_USER_SOS						= 1709, // 手机用户SOS
 	EVENT_PHONE_USER_CANCLE_ALARM				= 1711, // 手机用户消警
@@ -163,7 +163,7 @@ static constexpr ADEMCO_EVENT AdemcoEvents[] = {
 	EVENT_SUB_MACHINE_SENSOR_RESUME,
 	EVENT_SUB_MACHINE_POWER_EXCEPTION,
 	EVENT_SUB_MACHINE_POWER_RESUME,
-	EVENT_RETRIEVE_ZONE_OR_SUB_MACHINE,
+	EVENT_COM_PASSTHROUGH,
 
 	EVENT_ENTER_SET_MODE,
 	EVENT_STOP_RETRIEVE,
@@ -176,6 +176,7 @@ static constexpr ADEMCO_EVENT AdemcoEvents[] = {
 	EVENT_I_AM_WIRE_MACHINE,
 	EVENT_I_AM_WIFI_MACHINE,
 	EVENT_I_AM_3_SECTION_MACHINE,
+	EVENT_I_AM_IOT_MACHINE,
 	EVENT_SIM_IS_IOT_CARD,
 	EVENT_SIM_IS_NOT_IOT_CARD,
 
@@ -197,68 +198,69 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	};
 
 	switch (ademco_event) {
-	case EVENT_ARM:									return n_to_s(ademco_event) + "ARM";								break;
-	case EVENT_BURGLAR:								return n_to_s(ademco_event) + "BURGLAR";							break;
-	case EVENT_DISARM:								return n_to_s(ademco_event) + "DISARM";								break;
-	case EVENT_DURESS:								return n_to_s(ademco_event) + "DURESS";								break;
-	case EVENT_EMERGENCY:							return n_to_s(ademco_event) + "EMERGENCY";							break;
-	case EVENT_FIRE:								return n_to_s(ademco_event) + "FIRE";								break;
-	case EVENT_GAS:									return n_to_s(ademco_event) + "GAS";								break;
-	case EVENT_HALFARM: case EVENT_HALFARM_1456:	return n_to_s(ademco_event) + "HALFARM";							break;
-	case EVENT_TEMPER:								return n_to_s(ademco_event) + "TEMPER";								break;
-	case EVENT_ZONE_TEMPER:							return n_to_s(ademco_event) + "ZONE_TEMPER";						break;
-	case EVENT_BY_PASS:								return n_to_s(ademco_event) + "EVENT_BY_PASS";						break;
-	case EVENT_BY_PASS_RESUME:						return n_to_s(ademco_event) + "EVENT_BY_PASS_RESUME";				break;
+	case EVENT_ARM:									return n_to_s(ademco_event) + "ARM";								
+	case EVENT_BURGLAR:								return n_to_s(ademco_event) + "BURGLAR";							
+	case EVENT_DISARM:								return n_to_s(ademco_event) + "DISARM";								
+	case EVENT_DURESS:								return n_to_s(ademco_event) + "DURESS";								
+	case EVENT_EMERGENCY:							return n_to_s(ademco_event) + "EMERGENCY";							
+	case EVENT_FIRE:								return n_to_s(ademco_event) + "FIRE";								
+	case EVENT_GAS:									return n_to_s(ademco_event) + "GAS";								
+	case EVENT_HALFARM: case EVENT_HALFARM_1456:	return n_to_s(ademco_event) + "HALFARM";							
+	case EVENT_TEMPER:								return n_to_s(ademco_event) + "TEMPER";								
+	case EVENT_ZONE_TEMPER:							return n_to_s(ademco_event) + "ZONE_TEMPER";						
+	case EVENT_BY_PASS:								return n_to_s(ademco_event) + "EVENT_BY_PASS";						
+	case EVENT_BY_PASS_RESUME:						return n_to_s(ademco_event) + "EVENT_BY_PASS_RESUME";				
 
-	case EVENT_WATER:								return n_to_s(ademco_event) + "WATER";								break;
-	case EVENT_AC_BROKE:							return n_to_s(ademco_event) + "AC BROKE";							break;
-	case EVENT_AC_RECOVER:							return n_to_s(ademco_event) + "AC RECOVER";							break;
-	case EVENT_LOWBATTERY:							return n_to_s(ademco_event) + "LOWBATTERY";							break;
-	case EVENT_BATTERY_RECOVER:						return n_to_s(ademco_event) + "BATATTERY_RECOVER"; 					break;
-	case EVENT_BADBATTERY:							return n_to_s(ademco_event) + "BADBATTERY";							break;
-	case EVENT_SOLARDISTURB:						return n_to_s(ademco_event) + "SOLARDISTURB";						break;
-	case EVENT_DISCONNECT:							return n_to_s(ademco_event) + "DISCONNECT";							break;
-	case EVENT_RECONNECT:							return n_to_s(ademco_event) + "RECONNECT";							break;
-	case EVENT_LOST:								return n_to_s(ademco_event) + "LOST";								break;
-	case EVENT_LOST_RECOVER:						return n_to_s(ademco_event) + "LOST_RECOVER";						break;
-	case EVENT_3100:								return n_to_s(ademco_event) + "LCD CLEAR EXCEPTION";				break;
-	case EVENT_BATTERY_EXCEPTION:					return n_to_s(ademco_event) + "BATTERY_EXCEPTION";					break;
-	case EVENT_BATTERY_EXCEPTION_RECOVER:			return n_to_s(ademco_event) + "BATTERY_EXCEPTION_RECOVER";			break;
-	case EVENT_OTHER_EXCEPTION:						return n_to_s(ademco_event) + "OTHER_EXCEPTION";					break;
-	case EVENT_OTHER_EXCEPTION_RECOVER:				return n_to_s(ademco_event) + "OTHER_EXCEPTION_RECOVER";			break;
+	case EVENT_WATER:								return n_to_s(ademco_event) + "WATER";								
+	case EVENT_AC_BROKE:							return n_to_s(ademco_event) + "AC BROKE";							
+	case EVENT_AC_RECOVER:							return n_to_s(ademco_event) + "AC RECOVER";							
+	case EVENT_LOWBATTERY:							return n_to_s(ademco_event) + "LOWBATTERY";							
+	case EVENT_BATTERY_RECOVER:						return n_to_s(ademco_event) + "BATATTERY_RECOVER"; 					
+	case EVENT_BADBATTERY:							return n_to_s(ademco_event) + "BADBATTERY";							
+	case EVENT_SOLARDISTURB:						return n_to_s(ademco_event) + "SOLARDISTURB";						
+	case EVENT_DISCONNECT:							return n_to_s(ademco_event) + "DISCONNECT";							
+	case EVENT_RECONNECT:							return n_to_s(ademco_event) + "RECONNECT";							
+	case EVENT_LOST:								return n_to_s(ademco_event) + "LOST";								
+	case EVENT_LOST_RECOVER:						return n_to_s(ademco_event) + "LOST_RECOVER";						
+	case EVENT_3100:								return n_to_s(ademco_event) + "LCD CLEAR EXCEPTION";				
+	case EVENT_BATTERY_EXCEPTION:					return n_to_s(ademco_event) + "BATTERY_EXCEPTION";					
+	case EVENT_BATTERY_EXCEPTION_RECOVER:			return n_to_s(ademco_event) + "BATTERY_EXCEPTION_RECOVER";			
+	case EVENT_OTHER_EXCEPTION:						return n_to_s(ademco_event) + "OTHER_EXCEPTION";					
+	case EVENT_OTHER_EXCEPTION_RECOVER:				return n_to_s(ademco_event) + "OTHER_EXCEPTION_RECOVER";			
 
-	case EVENT_SERIAL485DIS:						return n_to_s(ademco_event) + "485DIS";								break;
-	case EVENT_SERIAL485CONN:						return n_to_s(ademco_event) + "485CONN";							break;
-	case EVENT_DOORRINGING:							return n_to_s(ademco_event) + "DOORRINGING";						break;
-	case EVENT_CONN_HANGUP: 						return n_to_s(ademco_event) + "CONN_HANGUP";						break;
-	case EVENT_CONN_RESUME: 						return n_to_s(ademco_event) + "CONN_RESUME";						break;
-	case EVENT_DISARM_PWD_ERR: 						return n_to_s(ademco_event) + "DISARM_PWD_ERR";						break;
-	case EVENT_SUB_MACHINE_SENSOR_EXCEPTION:		return n_to_s(ademco_event) + "SUB_SENSOR_EXCEPTION"; 				break;
-	case EVENT_SUB_MACHINE_SENSOR_RESUME:			return n_to_s(ademco_event) + "SUB_SENSOR_RESUME"; 					break;
-	case EVENT_SUB_MACHINE_POWER_EXCEPTION:			return n_to_s(ademco_event) + "SUB_POWER_EXCEPTION"; 				break;
-	case EVENT_SUB_MACHINE_POWER_RESUME:			return n_to_s(ademco_event) + "SUB_POWER_RESUME"; 					break;
-	case EVENT_RETRIEVE_ZONE_OR_SUB_MACHINE:		return n_to_s(ademco_event) + "RETRIEVE"; 							break;
-	case EVENT_ENTER_SET_MODE:						return n_to_s(ademco_event) + "ENTER_SET_MODE"; 					break;
-	case EVENT_STOP_RETRIEVE:						return n_to_s(ademco_event) + "STOP RETRIEVE"; 						break;
-	case EVENT_QUERY_SUB_MACHINE:					return n_to_s(ademco_event) + "QUERY"; 								break;
-	case EVENT_WRITE_TO_MACHINE:					return n_to_s(ademco_event) + "WRITE_TO_MACHINE"; 					break;
-	case EVENT_I_AM_NET_MODULE:						return n_to_s(ademco_event) + "I_AM_NET_MODULE"; 					break;
-	case EVENT_PHONE_USER_SOS:						return n_to_s(ademco_event) + "SOS"; 								break;
-	case EVENT_PHONE_USER_CANCLE_ALARM:				return n_to_s(ademco_event) + "PHONE_USER_CANCLE_ALARM"; 			break;
-	case EVENT_I_AM_GPRS:							return n_to_s(ademco_event) + "I_AM_GPRS_MACHINE";					break;
-	case EVENT_I_AM_LCD_MACHINE:					return n_to_s(ademco_event) + "I_AM_LCD_MACHINE";					break;
-	case EVENT_I_AM_WIRE_MACHINE:					return n_to_s(ademco_event) + "I_AM_WIRE_MACHINE";					break;
-	case EVENT_I_AM_WIFI_MACHINE:					return n_to_s(ademco_event) + "I_AM_WIFI_MACHINE";					break;
-	case EVENT_I_AM_3_SECTION_MACHINE:				return n_to_s(ademco_event) + "I_AM_3_SECTION_MACHINE";				break;
-	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + "SIM card is IOT";					break;
-	case EVENT_SIM_IS_NOT_IOT_CARD:					return n_to_s(ademco_event) + "SIM card is not IOT";				break;
-	case EVENT_ENTER_SETTING_MODE:					return n_to_s(ademco_event) + "ENTER_SETTING_MODE";					break;
-	case EVENT_EXIT_SETTING_MODE:					return n_to_s(ademco_event) + "EXIT_SETTING_MODE";					break;
+	case EVENT_SERIAL485DIS:						return n_to_s(ademco_event) + "485DIS";								
+	case EVENT_SERIAL485CONN:						return n_to_s(ademco_event) + "485CONN";							
+	case EVENT_DOORRINGING:							return n_to_s(ademco_event) + "DOORRINGING";						
+	case EVENT_CONN_HANGUP: 						return n_to_s(ademco_event) + "CONN_HANGUP";						
+	case EVENT_CONN_RESUME: 						return n_to_s(ademco_event) + "CONN_RESUME";						
+	case EVENT_DISARM_PWD_ERR: 						return n_to_s(ademco_event) + "DISARM_PWD_ERR";						
+	case EVENT_SUB_MACHINE_SENSOR_EXCEPTION:		return n_to_s(ademco_event) + "SUB_SENSOR_EXCEPTION"; 				
+	case EVENT_SUB_MACHINE_SENSOR_RESUME:			return n_to_s(ademco_event) + "SUB_SENSOR_RESUME"; 					
+	case EVENT_SUB_MACHINE_POWER_EXCEPTION:			return n_to_s(ademco_event) + "SUB_POWER_EXCEPTION"; 				
+	case EVENT_SUB_MACHINE_POWER_RESUME:			return n_to_s(ademco_event) + "SUB_POWER_RESUME"; 					
+	case EVENT_COM_PASSTHROUGH:						return n_to_s(ademco_event) + "COM_PASSTHROUGH";
+	case EVENT_ENTER_SET_MODE:						return n_to_s(ademco_event) + "ENTER_SET_MODE"; 					
+	case EVENT_STOP_RETRIEVE:						return n_to_s(ademco_event) + "STOP RETRIEVE"; 						
+	case EVENT_QUERY_SUB_MACHINE:					return n_to_s(ademco_event) + "QUERY"; 								
+	case EVENT_WRITE_TO_MACHINE:					return n_to_s(ademco_event) + "WRITE_TO_MACHINE"; 					
+	case EVENT_I_AM_NET_MODULE:						return n_to_s(ademco_event) + "I_AM_NET_MODULE"; 					
+	case EVENT_PHONE_USER_SOS:						return n_to_s(ademco_event) + "SOS"; 								
+	case EVENT_PHONE_USER_CANCLE_ALARM:				return n_to_s(ademco_event) + "PHONE_USER_CANCLE_ALARM"; 			
+	case EVENT_I_AM_GPRS:							return n_to_s(ademco_event) + "I_AM_GPRS_MACHINE";					
+	case EVENT_I_AM_LCD_MACHINE:					return n_to_s(ademco_event) + "I_AM_LCD_MACHINE";					
+	case EVENT_I_AM_WIRE_MACHINE:					return n_to_s(ademco_event) + "I_AM_WIRE_MACHINE";					
+	case EVENT_I_AM_WIFI_MACHINE:					return n_to_s(ademco_event) + "I_AM_WIFI_MACHINE";					
+	case EVENT_I_AM_3_SECTION_MACHINE:				return n_to_s(ademco_event) + "I_AM_3_SECTION_MACHINE";				
+	case EVENT_I_AM_IOT_MACHINE:					return n_to_s(ademco_event) + "I_AM_IOT_MACHINE";				
+	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + "SIM card is IOT";					
+	case EVENT_SIM_IS_NOT_IOT_CARD:					return n_to_s(ademco_event) + "SIM card is not IOT";				
+	case EVENT_ENTER_SETTING_MODE:					return n_to_s(ademco_event) + "ENTER_SETTING_MODE";					
+	case EVENT_EXIT_SETTING_MODE:					return n_to_s(ademco_event) + "EXIT_SETTING_MODE";					
 	case EVENT_RESTORE_FACTORY_SETTINGS_710:
-	case EVENT_RESTORE_FACTORY_SETTINGS:			return n_to_s(ademco_event) + "RESTORE_FACTORY_SETTINGS";			break;
-	case EVENT_WHAT_IS_YOUR_TYPE:					return n_to_s(ademco_event) + "EVENT_WHAT_IS_YOUR_TYPE";			break;
-	case EVENT_SIGNAL_STRENGTH_CHANGED:				return n_to_s(ademco_event) + "SIGNAL_STRENGTH_CHANGED";			break;
-	default:			with_event_number = true;	return n_to_s(ademco_event) + "undefined";							break;
+	case EVENT_RESTORE_FACTORY_SETTINGS:			return n_to_s(ademco_event) + "RESTORE_FACTORY_SETTINGS";			
+	case EVENT_WHAT_IS_YOUR_TYPE:					return n_to_s(ademco_event) + "EVENT_WHAT_IS_YOUR_TYPE";			
+	case EVENT_SIGNAL_STRENGTH_CHANGED:				return n_to_s(ademco_event) + "SIGNAL_STRENGTH_CHANGED";			
+	default:			with_event_number = true;	return n_to_s(ademco_event) + "undefined";							
 	}
 }
 
@@ -272,70 +274,71 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 	};
 
 	switch (ademco_event) {
-	case EVENT_ARM:									return n_to_s(ademco_event) + L"布防";						break;
-	case EVENT_BURGLAR:								return n_to_s(ademco_event) + L"盗警";						break;
-	case EVENT_DISARM:								return n_to_s(ademco_event) + L"撤防";						break;
-	case EVENT_DURESS:								return n_to_s(ademco_event) + L"胁迫";						break;
-	case EVENT_EMERGENCY:							return n_to_s(ademco_event) + L"紧急报警";					break;
+	case EVENT_ARM:									return n_to_s(ademco_event) + L"布防";						
+	case EVENT_BURGLAR:								return n_to_s(ademco_event) + L"盗警";						
+	case EVENT_DISARM:								return n_to_s(ademco_event) + L"撤防";						
+	case EVENT_DURESS:								return n_to_s(ademco_event) + L"胁迫";						
+	case EVENT_EMERGENCY:							return n_to_s(ademco_event) + L"紧急报警";					
 
-	case EVENT_FIRE:								return n_to_s(ademco_event) + L"火警";						break;
-	case EVENT_GAS:									return n_to_s(ademco_event) + L"煤气";						break;
-	case EVENT_HALFARM:	case EVENT_HALFARM_1456:	return n_to_s(ademco_event) + L"半布防";						break;
-	case EVENT_TEMPER:								return n_to_s(ademco_event) + L"防拆";						break;
-	case EVENT_ZONE_TEMPER:							return n_to_s(ademco_event) + L"防区防拆";					break;
-	case EVENT_WATER:								return n_to_s(ademco_event) + L"水警";						break;
-	case EVENT_BY_PASS:								return n_to_s(ademco_event) + L"旁路";						break;
-	case EVENT_BY_PASS_RESUME:						return n_to_s(ademco_event) + L"解除旁路";					break;
+	case EVENT_FIRE:								return n_to_s(ademco_event) + L"火警";						
+	case EVENT_GAS:									return n_to_s(ademco_event) + L"煤气";						
+	case EVENT_HALFARM:	case EVENT_HALFARM_1456:	return n_to_s(ademco_event) + L"半布防";						
+	case EVENT_TEMPER:								return n_to_s(ademco_event) + L"防拆";						
+	case EVENT_ZONE_TEMPER:							return n_to_s(ademco_event) + L"防区防拆";					
+	case EVENT_WATER:								return n_to_s(ademco_event) + L"水警";						
+	case EVENT_BY_PASS:								return n_to_s(ademco_event) + L"旁路";						
+	case EVENT_BY_PASS_RESUME:						return n_to_s(ademco_event) + L"解除旁路";					
 
-	case EVENT_AC_BROKE:							return n_to_s(ademco_event) + L"主机AC掉电";					break;
-	case EVENT_AC_RECOVER:							return n_to_s(ademco_event) + L"主机AC恢复";					break;
-	case EVENT_LOWBATTERY:							return n_to_s(ademco_event) + L"低电";						break;
-	case EVENT_BATTERY_RECOVER: 					return n_to_s(ademco_event) + L"复电";						break;
-	case EVENT_BADBATTERY:							return n_to_s(ademco_event) + L"坏电";						break;
-	case EVENT_SOLARDISTURB:						return n_to_s(ademco_event) + L"光扰";						break;
-	case EVENT_DISCONNECT:							return n_to_s(ademco_event) + L"失效";						break;
-	case EVENT_RECONNECT:							return n_to_s(ademco_event) + L"恢复";						break;
-	case EVENT_LOST:								return n_to_s(ademco_event) + L"失联";						break;
-	case EVENT_LOST_RECOVER:						return n_to_s(ademco_event) + L"恢复";						break;
-	case EVENT_3100:								return n_to_s(ademco_event) + L"液晶主机清除异常指示";		break;
-	case EVENT_BATTERY_EXCEPTION:					return n_to_s(ademco_event) + L"防区电源故障";				break;
-	case EVENT_BATTERY_EXCEPTION_RECOVER:			return n_to_s(ademco_event) + L"防区电源故障恢复";			break;
-	case EVENT_OTHER_EXCEPTION:						return n_to_s(ademco_event) + L"防区其他故障"; 				break;
-	case EVENT_OTHER_EXCEPTION_RECOVER:				return n_to_s(ademco_event) + L"防区其他故障恢复"; 			break;
+	case EVENT_AC_BROKE:							return n_to_s(ademco_event) + L"主机AC掉电";					
+	case EVENT_AC_RECOVER:							return n_to_s(ademco_event) + L"主机AC恢复";					
+	case EVENT_LOWBATTERY:							return n_to_s(ademco_event) + L"低电";						
+	case EVENT_BATTERY_RECOVER: 					return n_to_s(ademco_event) + L"复电";						
+	case EVENT_BADBATTERY:							return n_to_s(ademco_event) + L"坏电";						
+	case EVENT_SOLARDISTURB:						return n_to_s(ademco_event) + L"光扰";						
+	case EVENT_DISCONNECT:							return n_to_s(ademco_event) + L"失效";						
+	case EVENT_RECONNECT:							return n_to_s(ademco_event) + L"恢复";						
+	case EVENT_LOST:								return n_to_s(ademco_event) + L"失联";						
+	case EVENT_LOST_RECOVER:						return n_to_s(ademco_event) + L"恢复";						
+	case EVENT_3100:								return n_to_s(ademco_event) + L"液晶主机清除异常指示";		
+	case EVENT_BATTERY_EXCEPTION:					return n_to_s(ademco_event) + L"防区电源故障";				
+	case EVENT_BATTERY_EXCEPTION_RECOVER:			return n_to_s(ademco_event) + L"防区电源故障恢复";			
+	case EVENT_OTHER_EXCEPTION:						return n_to_s(ademco_event) + L"防区其他故障"; 				
+	case EVENT_OTHER_EXCEPTION_RECOVER:				return n_to_s(ademco_event) + L"防区其他故障恢复"; 			
 
-	case EVENT_SERIAL485DIS:						return n_to_s(ademco_event) + L"485断开";					break;
-	case EVENT_SERIAL485CONN:						return n_to_s(ademco_event) + L"485恢复";					break;
-	case EVENT_DOORRINGING:							return n_to_s(ademco_event) + L"门铃";						break;
-	case EVENT_CONN_HANGUP:							return n_to_s(ademco_event) + L"链路挂起"; 					break;
-	case EVENT_CONN_RESUME:							return n_to_s(ademco_event) + L"链路恢复"; 					break;
-	case EVENT_DISARM_PWD_ERR: 						return n_to_s(ademco_event) + L"撤防密码错误";				break;
+	case EVENT_SERIAL485DIS:						return n_to_s(ademco_event) + L"485断开";					
+	case EVENT_SERIAL485CONN:						return n_to_s(ademco_event) + L"485恢复";					
+	case EVENT_DOORRINGING:							return n_to_s(ademco_event) + L"门铃";						
+	case EVENT_CONN_HANGUP:							return n_to_s(ademco_event) + L"链路挂起"; 					
+	case EVENT_CONN_RESUME:							return n_to_s(ademco_event) + L"链路恢复"; 					
+	case EVENT_DISARM_PWD_ERR: 						return n_to_s(ademco_event) + L"撤防密码错误";				
 
-	case EVENT_SUB_MACHINE_SENSOR_EXCEPTION:		return n_to_s(ademco_event) + L"分防区异常"; 				break;
-	case EVENT_SUB_MACHINE_SENSOR_RESUME:			return n_to_s(ademco_event) + L"分防区恢复"; 				break;
-	case EVENT_SUB_MACHINE_POWER_EXCEPTION:			return n_to_s(ademco_event) + L"分防区电源异常"; 				break;
-	case EVENT_SUB_MACHINE_POWER_RESUME:			return n_to_s(ademco_event) + L"分防区电源恢复"; 				break;
-	case EVENT_RETRIEVE_ZONE_OR_SUB_MACHINE:		return n_to_s(ademco_event) + L"索要/回复"; 					break;
-	case EVENT_ENTER_SET_MODE:						return n_to_s(ademco_event) + L"进入设置状态"; 				break;
-	case EVENT_STOP_RETRIEVE:						return n_to_s(ademco_event) + L"拒绝/停止索要"; 				break;
-	case EVENT_QUERY_SUB_MACHINE:					return n_to_s(ademco_event) + L"查询"; 						break;
-	case EVENT_WRITE_TO_MACHINE:					return n_to_s(ademco_event) + L"写入主机信息"; 				break;
-	case EVENT_I_AM_NET_MODULE:						return n_to_s(ademco_event) + L"我是网络模块"; 				break;
-	case EVENT_PHONE_USER_SOS:						return n_to_s(ademco_event) + L"手机用户SOS"; 				break;
-	case EVENT_PHONE_USER_CANCLE_ALARM:				return n_to_s(ademco_event) + L"手机用户消警"; 				break;
-	case EVENT_I_AM_GPRS:							return n_to_s(ademco_event) + L"我是GPRS主机";				break;
-	case EVENT_I_AM_LCD_MACHINE:					return n_to_s(ademco_event) + L"我是液晶主机";				break;
-	case EVENT_I_AM_WIRE_MACHINE:					return n_to_s(ademco_event) + L"我是网线主机";				break;
-	case EVENT_I_AM_WIFI_MACHINE:					return n_to_s(ademco_event) + L"我是WiFi主机";				break;
-	case EVENT_I_AM_3_SECTION_MACHINE:				return n_to_s(ademco_event) + L"我是三区段主机";				break;
-	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + L"SIM卡为物联卡";				break;
-	case EVENT_SIM_IS_NOT_IOT_CARD:					return n_to_s(ademco_event) + L"SIM卡为非物联卡";				break;
-	case EVENT_ENTER_SETTING_MODE:					return n_to_s(ademco_event) + L"主机进入设置状态";			break;
-	case EVENT_EXIT_SETTING_MODE:					return n_to_s(ademco_event) + L"主机退出设置状态";			break;
+	case EVENT_SUB_MACHINE_SENSOR_EXCEPTION:		return n_to_s(ademco_event) + L"分防区异常"; 				
+	case EVENT_SUB_MACHINE_SENSOR_RESUME:			return n_to_s(ademco_event) + L"分防区恢复"; 				
+	case EVENT_SUB_MACHINE_POWER_EXCEPTION:			return n_to_s(ademco_event) + L"分防区电源异常"; 				
+	case EVENT_SUB_MACHINE_POWER_RESUME:			return n_to_s(ademco_event) + L"分防区电源恢复"; 				
+	case EVENT_COM_PASSTHROUGH:						return n_to_s(ademco_event) + L"串口透传";
+	case EVENT_ENTER_SET_MODE:						return n_to_s(ademco_event) + L"进入设置状态"; 				
+	case EVENT_STOP_RETRIEVE:						return n_to_s(ademco_event) + L"拒绝/停止索要"; 				
+	case EVENT_QUERY_SUB_MACHINE:					return n_to_s(ademco_event) + L"查询"; 						
+	case EVENT_WRITE_TO_MACHINE:					return n_to_s(ademco_event) + L"写入主机信息"; 				
+	case EVENT_I_AM_NET_MODULE:						return n_to_s(ademco_event) + L"我是网络模块"; 				
+	case EVENT_PHONE_USER_SOS:						return n_to_s(ademco_event) + L"手机用户SOS"; 				
+	case EVENT_PHONE_USER_CANCLE_ALARM:				return n_to_s(ademco_event) + L"手机用户消警"; 				
+	case EVENT_I_AM_GPRS:							return n_to_s(ademco_event) + L"我是GPRS主机";				
+	case EVENT_I_AM_LCD_MACHINE:					return n_to_s(ademco_event) + L"我是液晶主机";				
+	case EVENT_I_AM_WIRE_MACHINE:					return n_to_s(ademco_event) + L"我是网线主机";				
+	case EVENT_I_AM_WIFI_MACHINE:					return n_to_s(ademco_event) + L"我是WiFi主机";				
+	case EVENT_I_AM_3_SECTION_MACHINE:				return n_to_s(ademco_event) + L"我是三区段主机";				
+	case EVENT_I_AM_IOT_MACHINE:					return n_to_s(ademco_event) + L"我是物联卡主机";
+	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + L"SIM卡为物联卡";				
+	case EVENT_SIM_IS_NOT_IOT_CARD:					return n_to_s(ademco_event) + L"SIM卡为非物联卡";				
+	case EVENT_ENTER_SETTING_MODE:					return n_to_s(ademco_event) + L"主机进入设置状态";			
+	case EVENT_EXIT_SETTING_MODE:					return n_to_s(ademco_event) + L"主机退出设置状态";			
 	case EVENT_RESTORE_FACTORY_SETTINGS_710:
-	case EVENT_RESTORE_FACTORY_SETTINGS:			return n_to_s(ademco_event) + L"主机恢复出厂设置";			break;
-	case EVENT_WHAT_IS_YOUR_TYPE:					return n_to_s(ademco_event) + L"索要主机类型";				break;
-	case EVENT_SIGNAL_STRENGTH_CHANGED:				return n_to_s(ademco_event) + L"信号强度变化";				break;
-	default:			with_event_number = true;	return n_to_s(ademco_event) + L"未定义";						break;
+	case EVENT_RESTORE_FACTORY_SETTINGS:			return n_to_s(ademco_event) + L"主机恢复出厂设置";			
+	case EVENT_WHAT_IS_YOUR_TYPE:					return n_to_s(ademco_event) + L"索要主机类型";				
+	case EVENT_SIGNAL_STRENGTH_CHANGED:				return n_to_s(ademco_event) + L"信号强度变化";				
+	default:			with_event_number = true;	return n_to_s(ademco_event) + L"未定义";						
 	}
 }
 #endif
@@ -356,7 +359,8 @@ static inline bool isMachineTypeEvent(ADEMCO_EVENT ademco_event)
 		|| ademco_event == EVENT_I_AM_LCD_MACHINE
 		|| ademco_event == EVENT_I_AM_WIRE_MACHINE
 		|| ademco_event == EVENT_I_AM_WIFI_MACHINE
-		|| ademco_event == EVENT_I_AM_3_SECTION_MACHINE;
+		|| ademco_event == EVENT_I_AM_3_SECTION_MACHINE
+		|| ademco_event == EVENT_I_AM_IOT_MACHINE;
 }
 
 // 安定宝事件级别

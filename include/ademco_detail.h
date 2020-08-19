@@ -3,6 +3,10 @@
 #include "ademco_event.h"
 #include <assert.h>
 #include <string.h> // memset
+#include <ctype.h>
+#include <time.h>
+#include <vector>
+#include <string>
 
 #if defined(DISABLE_JLIB_LOG2) && !defined(JLIB_DISABLE_LOG)
 #define JLIB_DISABLE_LOG
@@ -400,5 +404,4 @@ static std::string toString(const std::vector<char>& data, // 数据
 }
 
 } // namespace detail
-
 } // namespace ademco

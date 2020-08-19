@@ -2,6 +2,9 @@
 
 #include "ademco_event.h"
 #include "ademco_detail.h"
+#include <vector>
+#include <string>
+#include <memory>
 #include <iterator>
 
 namespace ademco
@@ -444,7 +447,7 @@ static std::string xdataToString(const XDataPtr& xdata, detail::ToStringOption o
 	}
 
 	// data
-	str += toString(xdata->data_, option, true, false);
+	str += detail::toString(xdata->data_, option, true, false);
 
 	str += "]";
 
@@ -816,7 +819,7 @@ struct AdemcoPacket
 		memcpy(len_pos, len_.data_, len_.length);
 	}
 
-	std::string toString() {
+	std::string toString(detail::ToStringOption xdataToStringOpt = detail::ToStringOption::TRY_IS_ALNUM_FIRST) {
 		char buf[1024] = { 0 };
 		auto sz = make(buf, sizeof(buf));
 		buf[sz] = '\0';
@@ -834,7 +837,7 @@ struct AdemcoPacket
 		memcpy(pos, &ademcoData_.data_[0], ademcoData_.size()); pos += ademcoData_.size();
 
 		if (xdata_) {
-			for (auto c : xdataToString(xdata_)) {
+			for (auto c : xdataToString(xdata_, xdataToStringOpt)) {
 				*pos++ = c;
 			}
 		}
