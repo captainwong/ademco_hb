@@ -846,7 +846,6 @@ case 0x ## t: \
 				//define_case(A9) TODO
 				define_ResponseType_case(AB)
 
-#undef define_ResponseType_case
 
 			case 0xA2: // EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
 					{
