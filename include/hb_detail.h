@@ -414,8 +414,8 @@ typedef ReadMachineAcctRequest WriteMachineAcctResponse;
 
 //! 三区段主机索要主机状态 EB CB 3F 06 B0 AB
 struct MachineStatusRequest3Section {
-	static constexpr Char len = 6;
-	static constexpr Char data[len] = { 0xEB, 0xCB, 0x3F, 0x06, 0xB0, 0xAB };
+	static constexpr const Char len = 6;
+	static constexpr const Char data[len] = { 0xEB, 0xCB, 0x3F, 0x06, 0xB0, 0xAB };
 };
 typedef MachineStatusRequest3Section B0;
 
