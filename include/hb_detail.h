@@ -65,7 +65,7 @@ enum class MachineStatus : Char {
 	InvalidMachineStatus = 0xFF,
 };
 
-static constexpr MachineStatus machineStatusFromChar(Char s) {
+static MachineStatus machineStatusFromChar(Char s) {
 	if (static_cast<Char>(MachineStatus::Arm) <= s
 		&& s < static_cast<Char>(MachineStatus::MachineStatusCount))
 	{
@@ -123,7 +123,7 @@ enum MachineType : Char {
 	InvalidMachineType = 0xFF,
 };
 
-static constexpr MachineType machineTypeFromChar(Char t) {
+static MachineType machineTypeFromChar(Char t) {
 	if (static_cast<Char>(MachineType::WiFi) <= t
 		&& t < static_cast<Char>(MachineType::MachineTypeCount))
 	{
@@ -150,7 +150,7 @@ static constexpr uint16_t Zone4MachineSelf = 0;
 //! 主机防区号范围
 static constexpr uint16_t ZoneMin = 1;
 //! 最大防区号根据型号不同而不同
-static constexpr uint16_t zoneMax(MachineType type) {
+static uint16_t zoneMax(MachineType type) {
 	switch (type) {
 	case MachineType::Gprs: // HB-4040G HB-5050G HB-5050-4G
 	case MachineType::Wired: // HB-4040R HB-5050R
@@ -181,34 +181,34 @@ static constexpr uint16_t zoneMax(MachineType type) {
 static constexpr uint16_t MaxZoneCount = 1000;
 
 //! 对任何主机类型，防区号是否合法（可以包含0防区）
-static constexpr bool isValidZone(uint16_t zone) {
+static bool isValidZone(uint16_t zone) {
 	return Zone4MachineSelf <= zone && zone < MaxZoneCount;
 }
 
 //! 对任何主机类型，防区号是否合法（不可以包含0防区）
-static constexpr bool isValidZoneStrict(uint16_t zone) { 
+static bool isValidZoneStrict(uint16_t zone) { 
 	return ZoneMin <= zone && zone < MaxZoneCount;
 }
 
 //! 防区号是否合法（可以包含0防区）
-static constexpr bool isValidZone(MachineType type, uint16_t zone) {
+static bool isValidZone(MachineType type, uint16_t zone) {
 	return Zone4MachineSelf <= zone && zone <= zoneMax(type);
 }
 
 //! 防区号是否合法（不可以可以包含0防区）
-static constexpr bool isValidZoneStrict(MachineType type, uint16_t zone) {
+static bool isValidZoneStrict(MachineType type, uint16_t zone) {
 	return ZoneMin <= zone && zone <= zoneMax(type);
 }
 
 //! 主机是否具有半布防功能
-static constexpr bool machineCanHalfArm(MachineType type) {
+static bool machineCanHalfArm(MachineType type) {
 	return type == MachineType::NetMod
 		|| type == MachineType::Lcd
 		;
 }
 
 //! 主机是否可以报告信号强度
-static constexpr bool machineCanReportSignalStrength(MachineType type) {
+static bool machineCanReportSignalStrength(MachineType type) {
 	return type == MachineType::Gprs
 		|| type == MachineType::IoT
 		|| type == MachineType::Lcd
@@ -218,7 +218,7 @@ static constexpr bool machineCanReportSignalStrength(MachineType type) {
 }
 
 //! 主机本身是否可以短信报警（不算通过服务如阿里语音等）
-static constexpr bool machineCanReportBySMS(MachineType type) {
+static bool machineCanReportBySMS(MachineType type) {
 	return type == MachineType::Gprs
 		|| type == MachineType::Lcd
 		|| type == MachineType::TrueColor
@@ -227,7 +227,7 @@ static constexpr bool machineCanReportBySMS(MachineType type) {
 }
 
 //! 主机是否已投产使用
-static constexpr bool machineIsSolding(MachineType type) {
+static bool machineIsSolding(MachineType type) {
 	return type == MachineType::NetMod
 		|| type == MachineType::Gprs
 		|| type == MachineType::IoT
@@ -239,12 +239,12 @@ static constexpr bool machineIsSolding(MachineType type) {
 }
 
 //! 主机是否可以直接写入防区数据（无需对码）
-static constexpr bool machineCanDirectlyWriteZone(MachineType type) {
+static bool machineCanDirectlyWriteZone(MachineType type) {
 	return type == MachineType::NetMod;
 }
 
 //! 主机是否可以挂载分机
-static constexpr bool machineCanLinkSubMachine(MachineType type) {
+static bool machineCanLinkSubMachine(MachineType type) {
 	return type == MachineType::NetMod;
 }
 
