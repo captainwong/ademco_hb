@@ -526,9 +526,10 @@ struct ZoneResponse {
 		Char count = len - 8 / 2; // zone/prop pairs
 		if (count == 0) { zps.clear(); hasMore = false; return true; }
 		for (Char i = 0; i < count; i++) {
-			Char zone = data[5 + i * 2];
-			ZoneProperty prop = zonePropertyFromChar(data[6 + i * 2]);
-			if (prop != ZoneProperty::InvalidZoneProperty) { zps.emplace_back(ZoneAndProperty{ zone, prop }); }
+			ZoneAndProperty zp;
+			zp.zone = data[5 + i * 2];
+			zp.prop = zonePropertyFromChar(data[6 + i * 2]);
+			if (zp.prop != ZoneProperty::InvalidZoneProperty) { zps.emplace_back(zp); }
 		}
 		hasMore = data[len - 2] == 0xFF;
 		return true;
@@ -997,20 +998,20 @@ enum Key : Char {
 typedef std::vector<Key> Keys;
 
 //! 用于将Key的值Char转为Key，不特殊处理Key_0
-static constexpr Key keyFromChar(Char c) {
+static Key keyFromChar(Char c) {
 	if ((Key_1 <= c && c <= Key_STOP_SOUND) || (c == Key_STOP_ALARM)) {
 		return static_cast<Key>(c);
 	}return Key_NULL;
 }
 
 //! 将 0~9转换为Key，特殊处理Key_0
-static constexpr Key keyFromNumber(int i) {
+static Key keyFromNumber(int i) {
 	if (i == 0) { return Key_0; }
 	else if (1 <= i && i <= 9) { return static_cast<Key>(i); }
 	else { return Key_NULL; }
 }
 
-static constexpr char keyToPrintableChar(Key key) {
+static char keyToPrintableChar(Key key) {
 	switch (key) {
 	case Key_1: case Key_2: case Key_3:  
 	case Key_4: case Key_5: 
