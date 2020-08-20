@@ -176,7 +176,10 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 			com::A2R::ZoneAndProperties zps; bool hasMore = false;
 			if (client.queryZoneStage == QueryZoneStage::QueryingZones && resp.parse(zps, hasMore)) {
 				for (const auto& zp : zps) {
-					client.zones[zp.zone] = ZonePropertyAndLostConfig{ zp.prop, false };
+					ZonePropertyAndLostConfig zplc;
+					zplc.prop = zp.prop;
+					zplc.enableLostReport = false;
+					client.zones[zp.zone] = zplc;
 				}
 				char buf[1024];
 

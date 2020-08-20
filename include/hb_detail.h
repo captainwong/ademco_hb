@@ -1566,7 +1566,7 @@ enum ZoneType : Char {
 	ZT_INVALID		= 0xFF,
 };
 
-static constexpr ZoneType zoneTypeFromChar(Char c) {
+static ZoneType zoneTypeFromChar(Char c) {
 	switch (c) {
 	case ZT_ZONE:				return ZT_ZONE;
 	case ZT_SUBMACHINE:			return ZT_SUBMACHINE;
@@ -1600,7 +1600,7 @@ enum ZoneProperty : Char {
 	ZP_INVALID		= 0xFF,
 };
 
-static constexpr ZoneProperty zonePropertyFromChar(Char c) {
+static ZoneProperty zonePropertyFromChar(Char c) {
 	switch (c) {
 	case ZP_GLOBAL:				return ZP_GLOBAL;
 	case ZP_HALF:				return ZP_HALF;
@@ -1616,7 +1616,7 @@ static constexpr ZoneProperty zonePropertyFromChar(Char c) {
 }
 
 #ifdef ENABLE_OLD_ZONE_PROPERTY_TO_STRING
-static constexpr wchar_t* zonePropertyToString(ZoneProperty zp) {
+static const wchar_t* zonePropertyToString(ZoneProperty zp) {
 	switch (zp) {
 	case ZP_GLOBAL:				return L"全局盗警";
 	case ZP_HALF:				return L"半局盗警";
