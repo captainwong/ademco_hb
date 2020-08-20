@@ -427,10 +427,10 @@ struct MachineStatusResponse3Section {
 		struct Cmd {
 			Char head[6];
 			// 0 撤防，1 布防
-			Char status  : 2;
-			Char status1 : 2;
+			Char status3  : 2;
 			Char status2 : 2;
-			Char status3 : 2;
+			Char status1 : 2;
+			Char status : 2;
 			Char sum;
 		};
 
@@ -497,7 +497,7 @@ struct ZoneResponse {
 	}
 
 	/*
-	* @brief add zone to data and (if this packet isOver) calc sum
+	* @brief maker, add zone to data and (if this packet isOver) calc sum
 	* @note first time zone&prop will be placed in 6&7, then second zone&prop will be in 8&9, and so on
 	* @note but the max number of zone&prop you can add is 20
 	* @note len is automatically added (with 2) everytime except for first time
@@ -511,6 +511,27 @@ struct ZoneResponse {
 		data[len - 2] = hasMoreZone ? 0x00 : 0xFF; 
 		if (isOver) { sum(this); }
 		return *this;
+	}
+
+	struct ZoneAndProperty {
+		Char zone = 0;
+		ZoneProperty prop = ZoneProperty::InvalidZoneProperty;
+	};
+	typedef std::vector<ZoneAndProperty> ZoneAndProperties;
+
+	//! parser, make sure to call ResponseParser::parse first and return is A2_response to check data valid, then copy data/len to member.
+	bool parse(ZoneAndProperties& zps, bool& hasMore) {
+		if (len < 8 || data[3] != len) { return false; } // check valid again
+		Char sum_ = data[len - 1]; sum(data, len); if (sum_ != data[len - 1]) { return false; } // check sum again
+		Char count = len - 8 / 2; // zone/prop pairs
+		if (count == 0) { zps.clear(); hasMore = false; return true; }
+		for (Char i = 0; i < count; i++) {
+			Char zone = data[5 + i * 2];
+			ZoneProperty prop = zonePropertyFromChar(data[6 + i * 2]);
+			if (prop != ZoneProperty::InvalidZoneProperty) { zps.emplace_back(ZoneAndProperty{ zone, prop }); }
+		}
+		hasMore = data[len - 2] == 0xFF;
+		return true;
 	}
 };
 typedef ZoneResponse A2R;
@@ -716,7 +737,7 @@ struct RequestParser {
 		Invalid_request = -1, 
 	};
 
-	static RequestType parse(const Char* data, size_t len) {
+	static RequestType parse(const Char* data, Char len) {
 		do {
 			if (len < 5) { break; }
 			if (data[0] != 0xEB) { break; }
@@ -813,47 +834,80 @@ struct ResponseParser {
 		Invalid_response = -1,
 	};
 
-	static ResponseType parse(const char* data, size_t len) {
+	static ResponseType parse(const Char* data, Char len) {
 		do {
 			if (len < 7) { break; } // 所有的 response ，长度最小为 7
 			if (data[0] != 0xEB || data[1] != 0xBA || data[2] != 0x3F) { break; }
-			switch (data[4]) {
-
-#define define_ResponseType_case(t) \
-case 0x ## t: \
-{ \
-	if (len != t ## R::len) { break; } \
-	t##R resp; memcpy(resp.data, data, len); sum(resp); \
-	if (resp.data[len - 1] != data[len - 1]) { break; } \
-	return ResponseType:: ## t ## _response; \
-}
-
-
-				//case 0xA0: // EB BA 3F 07 P0 A0 P1 P2 P3 SUM
-				//	{
-				//		if (len != A0R::len) { break; }
-				//		A0R resp; memcpy(resp.data, data, len); sum(resp);
-				//		if (resp.data[len - 1] != data[len - 1]) { break; }
-				//		return ResponseType::A0_response;
-				//	}
-
-				define_ResponseType_case(A0)
-				define_ResponseType_case(A3)
-				define_ResponseType_case(A4)
-				define_ResponseType_case(A6)
-				define_ResponseType_case(A7)
-				define_ResponseType_case(A8)
-				//define_case(A9) TODO
-				define_ResponseType_case(AB)
-
+			switch (data[5]) {
+			case 0xA0: // EB BA 3F 07 P0 A0 P1 P2 P3 SUM
+				{
+					if (len != A0R::len) { break; }
+					A0R resp; memcpy(resp.data, data, len); sum(resp);
+					if (resp.data[len - 1] != data[len - 1]) { break; }
+					return ResponseType::A0_response;
+				}
 
 			case 0xA2: // EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
-					{
-						if (len != 8 + data[3] * 2) { break; }
-						A2R resp; memcpy(resp.data, data, len); sum(resp);
-						if (resp.data[len - 1] != data[len - 1]) { break; }
-						return ResponseType::A2_response;
-					}
+				{
+					if (len != 8 + data[3] * 2) { break; }
+					A2R resp; memcpy(resp.data, data, len); sum(resp);
+					if (resp.data[len - 1] != data[len - 1]) { break; }
+					return ResponseType::A2_response;
+				}
+
+			case 0xA3: 
+				{
+					if (len != A3R::len) { break; }
+					A3R resp; memcpy(resp.data, data, len); sum(resp);
+					if (resp.data[len - 1] != data[len - 1]) { break; }
+					return ResponseType::A3_response;
+				}
+
+			case 0xA4: 
+				{
+					if (len != A4R::len) { break; }
+					A4R resp; memcpy(resp.data, data, len); sum(resp);
+					if (resp.data[len - 1] != data[len - 1]) { break; }
+					return ResponseType::A4_response;
+				}
+
+			case 0xA6: 
+				{
+					if (len != A6R::len) { break; }
+					A6R resp; memcpy(resp.data, data, len); sum(resp);
+					if (resp.data[len - 1] != data[len - 1]) { break; }
+					return ResponseType::A6_response;
+				}
+
+			case 0xA7:
+				{
+					if (len != A7R::len) { break; }
+					A7R resp; memcpy(resp.data, data, len); sum(resp);
+					if (resp.data[len - 1] != data[len - 1]) { break; }
+					return ResponseType::A7_response;
+				}
+
+			case 0xA8:
+				{
+					if (len != A8R::len) { break; }
+					A8R resp; memcpy(resp.data, data, len); sum(resp);
+					if (resp.data[len - 1] != data[len - 1]) { break; }
+					return ResponseType::A8_response;
+				}
+
+			case 0xA9:
+				{
+					// TODO
+				}
+
+			case 0xAB:
+				{
+					if (len != ABR::len) { break; }
+					ABR resp; memcpy(resp.data, data, len); sum(resp);
+					if (resp.data[len - 1] != data[len - 1]) { break; }
+					return ResponseType::AB_response;
+				}
+
 			case 0xAD: // EB BA 3F PN P0 AD P1 DATA P2 SUM
 				{
 					Char lenExpected = 0;
@@ -876,7 +930,7 @@ case 0x ## t: \
 
 			case 0xB1: // EB BA 3F 08 P0 B1 P1 SUM
 				{
-					if (len != A0R::len) { break; }
+					if (len != B1R::len) { break; }
 					B1R resp; memcpy(resp.data.data, data, len); sum(resp.data.data, resp.len);
 					if (resp.data.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::B1_response;

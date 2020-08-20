@@ -64,6 +64,18 @@ using namespace ademco;
 using namespace hb;
 using namespace hb::common;
 
+enum class QueryZoneStage {
+	None,
+	WaitingSettingsMode,
+	QueryingZones,
+	QueryingLostConfig,
+};
+
+struct ZonePropertyAndLostConfig {
+	ZoneProperty prop = ZoneProperty::InvalidZoneProperty;
+	bool enableLostReport = false; // 失联开关
+};
+
 struct Client {
 	int fd = 0;
 	evbuffer* output = nullptr;
@@ -71,6 +83,8 @@ struct Client {
 	size_t ademco_id = 0;
 	uint16_t seq = 0;
 	int type = -1;
+	std::unordered_map<size_t, ZonePropertyAndLostConfig> zones = {};
+	QueryZoneStage queryZoneStage = QueryZoneStage::None;
 
 	uint16_t nextSeq() { if (++seq == 10000) { seq = 1; } return seq; }
 };
@@ -96,6 +110,8 @@ std::vector<ThreadContext*> worker_thread_contexts = {};
 #define COMMAND_X_AEGZX ((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 2))
 // Y
 #define COMMAND_Y_AEGZX ((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 3))
+// Z
+#define COMMAND_Z_QUERY_ZONE ((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 4))
 
 
 // events will be sent to all clients
@@ -125,6 +141,7 @@ void op_usage()
 		   "C: Like M, not send to all clients, but send to specific client with ademco_id: [ademco_id event gg zone]\n"
 		   "X: Like C, with xdata: [ademco_id event gg zone xdata]\n"
 		   "Y: Like X, with xdata, but xdata is hex: [ademco_id event gg zone xdata], example: [1 1704 0 0 EB AB 3F A1 76]\n"
+		   "Z: Query Zone info: [ademco_id]\n"
 		   "\n"
 		   "I: Print clients info\n"
 		   "P: Toggle enable/disable data print\n"
@@ -137,60 +154,85 @@ void usage(const char* name)
 	printf("Usage: %s [listening_port] [thread_count] [disable_data_print]\n", name);
 }
 
-void handle_com_passthrough(ThreadContext* context, bufferevent* bev)
-{
-	do {
-		if (!context->packet.xdata_) {
-			printf("WARNING! 1704 NO XDATA!\n");
-			break;
-		}
+void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* output)
+{	
+	if (!context->packet.xdata_) {
+		printf("WARNING! 1704 NO XDATA!\n");
+		return;
+	}
 
-		// GRPS cannot send us hex data, we need to convert data like "1234ABCDEF" to hex 0x1234ABCDEF 
-		std::vector<char> xdata(context->packet.xdata_->data_.size() / 2);
-		detail::ConvertHiLoAsciiToHexCharArray(&xdata[0], context->packet.xdata_->data_.data(), context->packet.xdata_->data_.size());
-		printf("1704 real xdata is %s\n", detail::toString(xdata, detail::ToStringOption::ALL_CHAR_AS_HEX, false, false).data());
+	// GRPS cannot send us hex data, we need to convert data like "1234ABCDEF" to hex 0x1234ABCDEF 
+	std::vector<char> xdata(context->packet.xdata_->data_.size() / 2);
+	detail::ConvertHiLoAsciiToHexCharArray(&xdata[0], context->packet.xdata_->data_.data(), context->packet.xdata_->data_.size());
+	printf("1704 real xdata is %s\n", detail::toString(xdata, detail::ToStringOption::ALL_CHAR_AS_HEX, false, false).data());
 
-		auto resp_type = hb::common::com::ResponseParser::parse(xdata.data(), xdata.size());
-		switch (resp_type) {
-		case hb::common::com::ResponseParser::ResponseType::A0_response:
-			break;
-		case hb::common::com::ResponseParser::ResponseType::A2_response:
-			break;
-		case hb::common::com::ResponseParser::ResponseType::A3_response:
-			break;
-		case hb::common::com::ResponseParser::ResponseType::A4_response:
-			break;
-		case hb::common::com::ResponseParser::ResponseType::A6_response:
-			break;
-		case hb::common::com::ResponseParser::ResponseType::A7_response:
-			break;
-		case hb::common::com::ResponseParser::ResponseType::A8_response:
-			break;
-		case hb::common::com::ResponseParser::ResponseType::A9_response:
-			break;
-		case hb::common::com::ResponseParser::ResponseType::AB_response:
-			break;
-		case hb::common::com::ResponseParser::ResponseType::AD_response:
-			break;
-		case hb::common::com::ResponseParser::ResponseType::AE_response:
-			break;
-		case hb::common::com::ResponseParser::ResponseType::B1_response:
-			{
-				hb::common::com::B1R b1; memcpy(b1.data.data, xdata.data(), xdata.size());
-				printf("\t\t status1:%s status2:%s status3:%s\n", 
-					   b1.data.cmd.status1 == 0 ? "Arm" : "Disarm",
-					   b1.data.cmd.status2 == 0 ? "Arm" : "Disarm",
-					   b1.data.cmd.status3 == 0 ? "Arm" : "Disarm");
+	auto resp_type = com::ResponseParser::parse((const Char*)xdata.data(), xdata.size() & 0xFF);
+	switch (resp_type) {
+	case com::ResponseParser::ResponseType::A0_response:
+		break;
+	case com::ResponseParser::ResponseType::A2_response:
+		{
+			com::A2R resp; memcpy(resp.data, xdata.data(), xdata.size()); resp.len = xdata.size() & 0xFF;
+			com::A2R::ZoneAndProperties zps; bool hasMore = false;
+			if (client.queryZoneStage == QueryZoneStage::QueryingZones && resp.parse(zps, hasMore)) {
+				for (const auto& zp : zps) {
+					client.zones[zp.zone] = ZonePropertyAndLostConfig{ zp.prop, false };
+				}
+				char buf[1024];
 
-				break;
+				XDataPtr xdata;
+				if (hasMore) { // 继续索要剩余防区
+					com::A2 req;
+					xdata = makeXData((const char*)req.data, req.len);					
+				} else { // 开始索要防区失联设置
+					com::AC req;
+					xdata = makeXData((const char*)req.data, req.len);
+					client.queryZoneStage = QueryZoneStage::QueryingLostConfig;
+				}
+
+				auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0, EVENT_COM_PASSTHROUGH, 0, xdata);
+				evbuffer_add(output, buf, n);
+				if (!disable_data_print) {
+					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+						   context->worker_id, client.fd, client.acct.data(), client.ademco_id,
+						   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+				}
 			}
-		case hb::common::com::ResponseParser::ResponseType::Invalid_response:
-			break;
-		default:
 			break;
 		}
+	case com::ResponseParser::ResponseType::A3_response:
+		break;
+	case com::ResponseParser::ResponseType::A4_response:
+		break;
+	case com::ResponseParser::ResponseType::A6_response:
+		break;
+	case com::ResponseParser::ResponseType::A7_response:
+		break;
+	case com::ResponseParser::ResponseType::A8_response:
+		break;
+	case com::ResponseParser::ResponseType::A9_response:
+		break;
+	case com::ResponseParser::ResponseType::AB_response:
+		break;
+	case com::ResponseParser::ResponseType::AD_response:
+		break;
+	case com::ResponseParser::ResponseType::AE_response:
+		break;
+	case com::ResponseParser::ResponseType::B1_response:
+		{
+			com::B1R b1; memcpy(b1.data.data, xdata.data(), xdata.size());
+			printf("\t\t status1:%s status2:%s status3:%s\n", 
+					b1.data.cmd.status1 == 0 ? "Arm" : "Disarm",
+					b1.data.cmd.status2 == 0 ? "Arm" : "Disarm",
+					b1.data.cmd.status3 == 0 ? "Arm" : "Disarm");
+			break;
+		}
+	case com::ResponseParser::ResponseType::Invalid_response:
+		break;
+	default:
+		break;
+	}
 
-	} while (0);
 }
 
 void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
@@ -214,19 +256,32 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 				if (ademco::isMachineTypeEvent(context->packet.ademcoData_.ademco_event_)) {
 					client.type = context->packet.ademcoData_.ademco_event_;
 					if (client.type == EVENT_I_AM_3_SECTION_MACHINE) { // 三区段主机需要主动索要主机状态
-						hb::common::com::MachineStatusRequest3Section req;
+						com::B0 req;
 						auto xdata = makeXData((const char*)req.data, req.len);
-						auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0, EVENT_COM_PASSTHROUGH, 0, xdata);
+						auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0, 
+														 EVENT_COM_PASSTHROUGH, 0, xdata);
 						evbuffer_add(output, buf, n);
 						if (!disable_data_print) {
 							printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
-								   context->worker_id, fd, client.acct.data(), client.ademco_id, context->packet.toString().data());
+								   context->worker_id, fd, client.acct.data(), client.ademco_id, 
+								   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 						}
 						break;
 					}
 				} else if (context->packet.ademcoData_.ademco_event_ == EVENT_COM_PASSTHROUGH) {
-					handle_com_passthrough(context, bev);
+					handle_com_passthrough(context, client, output);
 					break;
+				} else if (context->packet.ademcoData_.ademco_event_ == EVENT_ENTER_SET_MODE && client.queryZoneStage == QueryZoneStage::WaitingSettingsMode) {
+					client.queryZoneStage = QueryZoneStage::QueryingZones;
+					com::A1 req;
+					auto xdata = makeXData((const char*)req.data, req.len);
+					auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0, EVENT_COM_PASSTHROUGH, 0, xdata);
+					evbuffer_add(output, buf, n);
+					if (!disable_data_print) {
+						printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+							   context->worker_id, fd, client.acct.data(), client.ademco_id, 
+							   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+					}
 				}
 			}
 
@@ -268,7 +323,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 		for (auto e : evs) {			
 			size_t n = 0;
 			if (e == COMMAND_M_EGZ) { // M
-				n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 
+				n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id,
 											userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone);
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
@@ -279,7 +334,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 				if (client.second.ademco_id != userInput.ademco_id) {
 					continue;
 				}
-				n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id,
+				n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id,
 											userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone);
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
@@ -291,7 +346,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 					continue;
 				}
 				auto xdata = makeXData(userInput.xdata, strlen(userInput.xdata));
-				n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id,
+				n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id,
 											userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone, xdata);
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
@@ -305,7 +360,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 				std::vector<char> data(strlen(userInput.xdata) / 2);
 				ademco::detail::ConvertHiLoAsciiToHexCharArray(&data[0], userInput.xdata, strlen(userInput.xdata));
 				auto xdata = makeXData(data);
-				n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id,
+				n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id,
 											userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone, xdata);
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
@@ -313,16 +368,27 @@ void commandcb(evutil_socket_t, short, void* user_data)
 						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, 
 						   context->packet.toString(ademco::detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 				}
+			} else if (e == COMMAND_Z_QUERY_ZONE) {
+				if (client.second.ademco_id != userInput.ademco_id) {
+					continue;
+				}
+				n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id, 0, EVENT_ENTER_SET_MODE, 0);
+				evbuffer_add(client.second.output, buf, n);
+				client.second.zones.clear();
+				client.second.queryZoneStage = QueryZoneStage::WaitingSettingsMode;
+				if (!disable_data_print) {
+					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id,
+						   context->packet.toString(ademco::detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+				}
+
 			} else if (client.second.type == EVENT_I_AM_3_SECTION_MACHINE && (e == EVENT_ARM || e == EVENT_DISARM)) {
 				for (int gg = 1; gg <= 3; gg++) {
-					if (++client.second.seq == 10000) {
-						client.second.seq = 1;
-					}
 					if (e == EVENT_DISARM) {
 						auto xdata = makeXData(userInput.pwd, 6);
-						n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, gg, e, 0, xdata);
+						n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id, gg, e, 0, xdata);
 					} else {
-						n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, gg, e, 0);
+						n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id, gg, e, 0);
 					}
 					evbuffer_add(client.second.output, buf, n);
 					if (!disable_data_print) {
@@ -331,14 +397,11 @@ void commandcb(evutil_socket_t, short, void* user_data)
 					}
 				}
 			} else {
-				if (++client.second.seq == 10000) {
-					client.second.seq = 1;
-				}
 				if (e == EVENT_DISARM) {
 					auto xdata = makeXData(userInput.pwd, 6);
-					n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 0, e, 0, xdata);
+					n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id, 0, e, 0, xdata);
 				} else {
-					n = context->packet.make_hb(buf, sizeof(buf), client.second.seq, client.second.acct, client.second.ademco_id, 0, e, 0);
+					n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id, 0, e, 0);
 				}
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
@@ -661,6 +724,23 @@ int main(int argc, char** argv)
 				fire_command();
 				break;
 			}
+
+		case 'Z':
+			{
+				int ret = 0;
+				do {
+					printf("Input [ademco_id]:");
+					ret = scanf("%d", &userInput.ademco_id);
+				} while (ret != 1);
+				{
+					std::lock_guard<std::mutex> lg(mutex);
+					commands.push_back(COMMAND_Z_QUERY_ZONE);
+					threads_to_handled_event = thread_count;
+				}
+				fire_command();
+				break;
+			}
+
 
 
 		case 'I':
