@@ -65,13 +65,13 @@ using namespace hb;
 using namespace hb::common;
 
 // fix gcc cry
-//#ifdef __GNUG__
-//constexpr Char com::MachineStatusRequest3Section::data[com::MachineStatusRequest3Section::len] = { 0xEB, 0xCB, 0x3F, 0x06, 0xB0, 0xAB };
-//constexpr Char com::ZoneRequest::data[com::ZoneRequest::len] = { 0xEB, 0xAB, 0x3F, 0xA1, 0x76 };
-//constexpr Char com::ZoneRequestMore::data[com::ZoneRequestMore::len] = { 0xEB, 0xAB, 0x3F, 0xA2, 0x77 };
-//constexpr Char com::QuerySensorLostSettingsRequest::data[com::QuerySensorLostSettingsRequest::len] = { 0xEB, 0xAB, 0x3F, 0xAC, 0x81 };
-//constexpr Char com::QueryMoreSensorLostSettingsRequest::data[com::QueryMoreSensorLostSettingsRequest::len] = { 0xEB, 0xAB, 0x3F, 0xAD, 0x82 };
-//#endif
+#ifdef __GNUG__
+constexpr Char com::MachineStatusRequest3Section::data[];
+constexpr Char com::ZoneRequest::data[];
+constexpr Char com::ZoneRequestMore::data[];
+constexpr Char com::QuerySensorLostSettingsRequest::data[];
+constexpr Char com::QueryMoreSensorLostSettingsRequest::data[];
+#endif
 
 
 enum class QueryZoneStage {
