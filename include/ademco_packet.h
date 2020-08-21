@@ -295,8 +295,13 @@ struct CongwinFe100Packet
 struct XData
 {
 	enum class LengthFormat {
-		TWO_HEX,
-		FOUR_DECIMAL,
+		TWO_HEX, // 以两个hex字节表示长度，如 \x00, \x06
+		FOUR_DECIMAL, // 以4个ASCII字符表示长度，如 "0008"
+	};
+
+	enum class DataFormat {
+		AS_IS, //! 原样打包
+		TO_ASCII, //! 一个字节的HEX值转换为两个ASCII字符，如 6 转为  00 06
 	};
 
 	LengthFormat lengthFormat_ = LengthFormat::TWO_HEX;
@@ -336,37 +341,38 @@ inline bool operator==(const XDataPtr& lhs, const XDataPtr& rhs)
 }
 
 //! 生成xdata
-static XDataPtr makeXData(const std::vector<char>& payload, XData::LengthFormat lengthFormat = XData::LengthFormat::TWO_HEX)
+static XDataPtr makeXData(const std::vector<char>& payload, 
+						  XData::LengthFormat lengthFormat = XData::LengthFormat::TWO_HEX, 
+						  XData::DataFormat dataFormat = XData::DataFormat::AS_IS)
 {
 	auto xdata = std::make_shared<XData>();
 	xdata->lengthFormat_ = lengthFormat;
+	if (dataFormat == XData::DataFormat::TO_ASCII) {
+		auto tmp = detail::toString(payload, detail::ToStringOption::ALL_CHAR_AS_HEX, false, false);
+		std::copy(tmp.begin(), tmp.end(), std::back_inserter(xdata->data_));
+	} else {
+		xdata->data_ = payload;
+	}
+
 	switch (lengthFormat)
 	{
 	case XData::LengthFormat::FOUR_DECIMAL:
 	{
-		xdata->data_ = payload;
-		//                     [   len                  ]
-		xdata->rawData_.resize(1 + 4 + payload.size() + 1);
+		xdata->rawData_.resize(1 + 4 + xdata->data_.size() + 1);
 		xdata->rawData_[0] = '[';
-		/*Dec2HexCharArray_4(payload.size() * 2, &xdata->rawData_[1], false);
-		for (size_t i = 0; i < payload.size(); i++) {
-			xdata->rawData_[5 + i * 2] = detail::Dec2Hex((payload[i] >> 4) & 0x0F);
-			xdata->rawData_[5 + i * 2 + 1] = detail::Dec2Hex((payload[i] & 0x0F));
-		}*/
-		detail::Dec2HexCharArray_4(payload.size(), &xdata->rawData_[1], false);
-		memcpy(&xdata->rawData_[5], payload.data(), payload.size());
+		detail::Dec2HexCharArray_4(xdata->data_.size(), &xdata->rawData_[1], false);
+		memcpy(&xdata->rawData_[5], xdata->data_.data(), xdata->data_.size());
 		xdata->rawData_.back() = ']';
 		break;
 	}
 	case XData::LengthFormat::TWO_HEX:
 	default:
 	{
-		xdata->data_ = payload;
-		xdata->rawData_.resize(1 + 2 + payload.size() + 1);
+		xdata->rawData_.resize(1 + 2 + xdata->data_.size() + 1);
 		xdata->rawData_[0] = '[';
-		xdata->rawData_[1] = static_cast<char>((payload.size() << 8) & 0xFF);
-		xdata->rawData_[2] = static_cast<char>(payload.size() & 0xFF);
-		memcpy(&xdata->rawData_[3], payload.data(), payload.size());
+		xdata->rawData_[1] = static_cast<char>((xdata->data_.size() << 8) & 0xFF);
+		xdata->rawData_[2] = static_cast<char>(xdata->data_.size() & 0xFF);
+		memcpy(&xdata->rawData_[3], xdata->data_.data(), xdata->data_.size());
 		xdata->rawData_.back() = ']';
 	}
 	break;
@@ -375,9 +381,18 @@ static XDataPtr makeXData(const std::vector<char>& payload, XData::LengthFormat 
 	return xdata;
 }
 
-static XDataPtr makeXData(const char* pack, size_t len, XData::LengthFormat lengthFormat = XData::LengthFormat::TWO_HEX) {
+static XDataPtr makeXData(const char* pack, size_t len, 
+						  XData::LengthFormat lengthFormat = XData::LengthFormat::TWO_HEX,
+						  XData::DataFormat dataFormat = XData::DataFormat::AS_IS) {
 	std::vector<char> data(pack, pack + len);
-	return makeXData(data, lengthFormat);
+	return makeXData(data, lengthFormat, dataFormat);
+}
+
+static XDataPtr makeXData(const unsigned char* pack, size_t len,
+						  XData::LengthFormat lengthFormat = XData::LengthFormat::TWO_HEX,
+						  XData::DataFormat dataFormat = XData::DataFormat::AS_IS) {
+	std::vector<char> data((const char*)pack, (const char*)pack + len);
+	return makeXData(data, lengthFormat, dataFormat);
 }
 
 static XDataPtr parseXData(const char* pack, const char* pack_end)

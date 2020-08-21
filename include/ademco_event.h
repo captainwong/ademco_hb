@@ -77,7 +77,7 @@ enum ADEMCO_EVENT : uint32_t {
 
 	EVENT_COM_PASSTHROUGH						= 1704, // 串口透传
 	EVENT_ENTER_SET_MODE						= 2704, // 进入设置状态
-	EVENT_STOP_RETRIEVE							= 3704,	// 接警中心发送，为停止索要；报警主机发送，为拒绝索要
+	EVENT_EXIT_SET_MODE							= 3704,	// 接警中心发送，为停止索要；报警主机发送，为拒绝索要
 
 	EVENT_QUERY_SUB_MACHINE						= 1705, // 查询分机信息
 	EVENT_WRITE_TO_MACHINE						= 1706, // 写入主机信息
@@ -166,7 +166,7 @@ static constexpr ADEMCO_EVENT AdemcoEvents[] = {
 	EVENT_COM_PASSTHROUGH,
 
 	EVENT_ENTER_SET_MODE,
-	EVENT_STOP_RETRIEVE,
+	EVENT_EXIT_SET_MODE,
 	EVENT_QUERY_SUB_MACHINE,
 	EVENT_WRITE_TO_MACHINE,
 
@@ -240,7 +240,7 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	case EVENT_SUB_MACHINE_POWER_RESUME:			return n_to_s(ademco_event) + "SUB_POWER_RESUME"; 					
 	case EVENT_COM_PASSTHROUGH:						return n_to_s(ademco_event) + "COM_PASSTHROUGH";
 	case EVENT_ENTER_SET_MODE:						return n_to_s(ademco_event) + "ENTER_SET_MODE"; 					
-	case EVENT_STOP_RETRIEVE:						return n_to_s(ademco_event) + "STOP RETRIEVE"; 						
+	case EVENT_EXIT_SET_MODE:						return n_to_s(ademco_event) + "EXIT_SET_MODE";
 	case EVENT_QUERY_SUB_MACHINE:					return n_to_s(ademco_event) + "QUERY"; 								
 	case EVENT_WRITE_TO_MACHINE:					return n_to_s(ademco_event) + "WRITE_TO_MACHINE"; 					
 	case EVENT_I_AM_NET_MODULE:						return n_to_s(ademco_event) + "I_AM_NET_MODULE"; 					
@@ -318,7 +318,7 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 	case EVENT_SUB_MACHINE_POWER_RESUME:			return n_to_s(ademco_event) + L"分防区电源恢复"; 				
 	case EVENT_COM_PASSTHROUGH:						return n_to_s(ademco_event) + L"串口透传";
 	case EVENT_ENTER_SET_MODE:						return n_to_s(ademco_event) + L"进入设置状态"; 				
-	case EVENT_STOP_RETRIEVE:						return n_to_s(ademco_event) + L"拒绝/停止索要"; 				
+	case EVENT_EXIT_SET_MODE:						return n_to_s(ademco_event) + L"拒绝/停止设置";
 	case EVENT_QUERY_SUB_MACHINE:					return n_to_s(ademco_event) + L"查询"; 						
 	case EVENT_WRITE_TO_MACHINE:					return n_to_s(ademco_event) + L"写入主机信息"; 				
 	case EVENT_I_AM_NET_MODULE:						return n_to_s(ademco_event) + L"我是网络模块"; 				

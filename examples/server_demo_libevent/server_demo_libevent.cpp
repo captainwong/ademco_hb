@@ -150,7 +150,7 @@ void op_usage()
 		   "M: Mannualy input [event gg zone], Exampel Input: 'M' <enter> 3400 1 0 <enter>\n"
 		   "C: Like M, not send to all clients, but send to specific client with ademco_id: [ademco_id event gg zone]\n"
 		   "X: Like C, with xdata: [ademco_id event gg zone xdata]\n"
-		   "Y: Like X, with xdata, but xdata is hex: [ademco_id event gg zone xdata], example: [1 1704 0 0 EB AB 3F A1 76]\n"
+		   "Y: Like X, with xdata, but xdata is hex: [ademco_id event gg zone xdata], example: [1 1704 0 0 EBAB3FA176]\n"
 		   "Z: Query Zone info: [ademco_id]\n"
 		   "\n"
 		   "I: Print clients info\n"
@@ -182,6 +182,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 		break;
 	case com::ResponseParser::ResponseType::A2_response:
 		{
+			char buf[1024];
 			com::A2R resp; memcpy(resp.data, xdata.data(), xdata.size()); resp.len = xdata.size() & 0xFF;
 			com::A2R::ZoneAndProperties zps; bool hasMore = false;
 			if (client.queryZoneStage == QueryZoneStage::QueryingZones && resp.parse(zps, hasMore)) {
@@ -191,8 +192,6 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 					zplc.enableLostReport = false;
 					client.zones[zp.zone] = zplc;
 				}
-				char buf[1024];
-
 				XDataPtr xdata;
 				if (hasMore) { // ¼ÌÐøË÷ÒªÊ£Óà·ÀÇø
 					com::A2 req;
@@ -203,7 +202,17 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 					client.queryZoneStage = QueryZoneStage::QueryingLostConfig;
 				}
 
-				auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0, EVENT_COM_PASSTHROUGH, 0, xdata);
+				auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0, 
+												 EVENT_COM_PASSTHROUGH, 0, xdata);
+				evbuffer_add(output, buf, n);
+				if (!disable_data_print) {
+					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+						   context->worker_id, client.fd, client.acct.data(), client.ademco_id,
+						   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+				}
+			} else {
+				auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0,
+												 EVENT_EXIT_SET_MODE, 0);
 				evbuffer_add(output, buf, n);
 				if (!disable_data_print) {
 					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
@@ -284,11 +293,13 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 				} else if (context->packet.ademcoData_.ademco_event_ == EVENT_COM_PASSTHROUGH) {
 					handle_com_passthrough(context, client, output);
 					break;
-				} else if (context->packet.ademcoData_.ademco_event_ == EVENT_ENTER_SET_MODE && client.queryZoneStage == QueryZoneStage::WaitingSettingsMode) {
+				} else if (context->packet.ademcoData_.ademco_event_ == EVENT_ENTER_SET_MODE &&
+						   client.queryZoneStage == QueryZoneStage::WaitingSettingsMode) {
 					client.queryZoneStage = QueryZoneStage::QueryingZones;
 					com::A1 req;
 					auto xdata = makeXData((const char*)req.data, req.len);
-					auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0, EVENT_COM_PASSTHROUGH, 0, xdata);
+					auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0, 
+													 EVENT_COM_PASSTHROUGH, 0, xdata);
 					evbuffer_add(output, buf, n);
 					if (!disable_data_print) {
 						printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
@@ -300,7 +311,8 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 
 			// ACK
 			{
-				size_t n = context->packet.make_ack(buf, sizeof(buf), context->packet.seq_.value_, context->packet.acct_.acct(), context->packet.ademcoData_.ademco_id_);
+				size_t n = context->packet.make_ack(buf, sizeof(buf), context->packet.seq_.value_, 
+													context->packet.acct_.acct(), context->packet.ademcoData_.ademco_id_);
 				evbuffer_add(output, buf, n);
 				if (!disable_data_print) {
 					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
@@ -341,7 +353,8 @@ void commandcb(evutil_socket_t, short, void* user_data)
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
 					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
-						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, context->packet.toString().data());
+						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, 
+						   context->packet.toString().data());
 				}
 			} else if (e == (COMMAND_C_AEGZ)) { // C
 				if (client.second.ademco_id != userInput.ademco_id) {
@@ -352,7 +365,8 @@ void commandcb(evutil_socket_t, short, void* user_data)
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
 					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
-						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, context->packet.toString().data());
+						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, 
+						   context->packet.toString().data());
 				}
 			} else if (e == (COMMAND_X_AEGZX)) { // X
 				if (client.second.ademco_id != userInput.ademco_id) {
@@ -364,7 +378,8 @@ void commandcb(evutil_socket_t, short, void* user_data)
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
 					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
-						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, context->packet.toString().data());
+						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, 
+						   context->packet.toString().data());
 				}
 			} else if (e == (COMMAND_Y_AEGZX)) { // Y
 				if (client.second.ademco_id != userInput.ademco_id) {
@@ -385,7 +400,8 @@ void commandcb(evutil_socket_t, short, void* user_data)
 				if (client.second.ademco_id != userInput.ademco_id) {
 					continue;
 				}
-				n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id, 0, EVENT_ENTER_SET_MODE, 0);
+				n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id, 0, 
+											EVENT_ENTER_SET_MODE, 0);
 				evbuffer_add(client.second.output, buf, n);
 				client.second.zones.clear();
 				client.second.queryZoneStage = QueryZoneStage::WaitingSettingsMode;
@@ -406,7 +422,8 @@ void commandcb(evutil_socket_t, short, void* user_data)
 					evbuffer_add(client.second.output, buf, n);
 					if (!disable_data_print) {
 						printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
-							   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, context->packet.toString().data());
+							   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, 
+							   context->packet.toString().data());
 					}
 				}
 			} else {
@@ -419,7 +436,8 @@ void commandcb(evutil_socket_t, short, void* user_data)
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
 					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
-						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, context->packet.toString().data());
+						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, 
+						   context->packet.toString().data());
 				}
 			}
 		}
@@ -556,6 +574,12 @@ ThreadContext* init_worker_thread(int i)
 	return context;
 }
 
+void clear_stdin()
+{
+	int ret = scanf("%*[^\n]%*c");
+	(void)ret;
+}
+
 int main(int argc, char** argv)
 {
 	usage(argv[0]);
@@ -640,7 +664,7 @@ int main(int argc, char** argv)
 
 	bool running = true;
 	while (running) {
-		int cmd = getchar();
+		int cmd = getchar(); 
 		if ('a' <= cmd && cmd <= 'z') {
 			cmd -= 32;
 		}
@@ -661,6 +685,7 @@ int main(int argc, char** argv)
 				do {
 					printf("Input 6 digit password:");
 					ret = scanf("%s", userInput.pwd);
+					clear_stdin();
 				} while (ret != 1 || strlen(userInput.pwd) != 6);
 				{
 					std::lock_guard<std::mutex> lg(mutex);
@@ -695,6 +720,7 @@ int main(int argc, char** argv)
 				do {
 					printf("Input [event gg zone]:");
 					ret = scanf("%d %d %d", &userInput.ev, &userInput.gg, &userInput.zone);
+					clear_stdin();
 				} while (ret != 3);
 				{
 					std::lock_guard<std::mutex> lg(mutex);
@@ -711,6 +737,7 @@ int main(int argc, char** argv)
 				do {
 					printf("Input [ademco_id event gg zone]:");
 					ret = scanf("%d %d %d %d", &userInput.ademco_id, &userInput.ev, &userInput.gg, &userInput.zone);
+					clear_stdin();
 				} while (ret != 4);
 				{
 					std::lock_guard<std::mutex> lg(mutex);
@@ -728,6 +755,7 @@ int main(int argc, char** argv)
 				do {
 					printf("Input [ademco_id event gg zone xdata]:");
 					ret = scanf("%d %d %d %d %s", &userInput.ademco_id, &userInput.ev, &userInput.gg, &userInput.zone, userInput.xdata);
+					clear_stdin();
 				} while (ret != 5);
 				{
 					std::lock_guard<std::mutex> lg(mutex);
@@ -744,6 +772,7 @@ int main(int argc, char** argv)
 				do {
 					printf("Input [ademco_id]:");
 					ret = scanf("%d", &userInput.ademco_id);
+					clear_stdin();
 				} while (ret != 1);
 				{
 					std::lock_guard<std::mutex> lg(mutex);
@@ -797,8 +826,9 @@ int main(int argc, char** argv)
 			break;
 
 		default:
+			clear_stdin();
 			printf("Invalid command\n");
-			op_usage();
+			op_usage(); 
 			break;
 		}		
 	}

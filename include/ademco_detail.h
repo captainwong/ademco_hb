@@ -325,7 +325,7 @@ static void NumStr2HexCharArray_N(const char* str, char* hexarr, size_t max_hex_
 
 /**
 * @brief 将字符串形式的高低字节转换为真正的高低字节数组
-* @param dst 结果地址
+* @param dst 结果地址，调用方需确保 dst 可写长度至少为 len / 2
 * @param src 字符串形式的高低字节， 如 "ffffabcd1234", 输出 0xff 0xff 0xab 0xcd 0x12 0x34
 * @param len 字符串长度
 * @note 起因是钱工的GPRS模块无法传输hex，只能传输ascii字节
@@ -333,8 +333,8 @@ static void NumStr2HexCharArray_N(const char* str, char* hexarr, size_t max_hex_
 static void ConvertHiLoAsciiToHexCharArray(char* dst, const char* src, size_t len)
 {
 	for (size_t i = 0; i < len; i++) {
-		if (!isdigit(src[i]) && !isalpha(src[i])) {
-			JLOG_ERRO("NumStr2HexCharArray_N: not all character is digit or alpha.");
+		if (!isxdigit((int)(unsigned char)src[i])) {
+			JLOG_ERRO("NumStr2HexCharArray_N: not all character is xdigit.");
 			return;
 		}
 	}

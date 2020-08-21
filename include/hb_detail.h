@@ -478,8 +478,8 @@ typedef ZoneRequest A1;
 
 //! 回应主机防区 EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
 struct ZoneResponse {
-	//! 一包数据最多有20个防区
-	static constexpr Char max_zone = 20;
+	//! 一包数据最多有20个字节，所以最多可以包含 (20 - 8) / 2 = 6 个防区
+	static constexpr Char max_zone = 6;
 	static constexpr Char max_len = 8 + 2 * max_zone;
 	/*
 	 * when param is not 0xFF, means there's more zone coming; vice versa
@@ -527,11 +527,11 @@ struct ZoneResponse {
 		if (count == 0) { zps.clear(); hasMore = false; return true; }
 		for (Char i = 0; i < count; i++) {
 			ZoneAndProperty zp;
-			zp.zone = data[5 + i * 2];
-			zp.prop = zonePropertyFromChar(data[6 + i * 2]);
+			zp.zone = data[6 + i * 2];
+			zp.prop = zonePropertyFromChar(data[7 + i * 2]);
 			if (zp.prop != ZoneProperty::InvalidZoneProperty) { zps.emplace_back(zp); }
 		}
-		hasMore = data[len - 2] == 0xFF;
+		hasMore = data[len - 2] != 0xFF;
 		return true;
 	}
 };
@@ -733,6 +733,10 @@ struct RequestParser {
 		A3_request, // 修改防区
 		A5_request, // 获取定时器
 		A7_request, // 设置定时器
+		AA_request, // 修改防区探头遗失/失联
+		AC_request, // 索要防区探头遗失/失联--第一次索要
+		AD_request, // 索要防区探头遗失/失联--继续索要
+		B0_request, // 索要三区段主机状态
 		RD_acct_request, // 读取主机账号
 		WR_acct_request, // 写入主机账号
 		Invalid_request = -1, 
@@ -744,73 +748,102 @@ struct RequestParser {
 			if (data[0] != 0xEB) { break; }
 			switch (data[1]) {
 			case 0xAB:
-			{
-				if (data[2] != 0x3F) { break; }
-				switch (data[3]) {
-				case 0xA0: // EB AB 3F A0 75
 				{
-					if (len != A0::len) { break; }
-					if (memcmp(A0::data, data, len) != 0) { break; }
-					return RequestType::A0_request;
+					if (data[2] != 0x3F) { break; }
+					switch (data[3]) {
+					case 0xA0: // EB AB 3F A0 75
+						{
+							if (len != A0::len) { break; }
+							if (memcmp(A0::data, data, len) != 0) { break; }
+							return RequestType::A0_request;
+						}
+					case 0xA1: // EB AB 3F A1 76
+						{
+							if (len != A1::len) { break; }
+							if (memcmp(A1::data, data, len) != 0) { break; }
+							return RequestType::A1_request;
+						}
+					case 0xA2: // EB AB 3F A2 77
+						{
+							if (len != A2::len) { break; }
+							if (memcmp(A2::data, data, len) != 0) { break; }
+							return RequestType::A2_request;
+						}
+					case 0xA5: // EB AB 3F A5 7A
+						{
+							if (len != A5::len) { break; }
+							if (memcmp(A5::data, data, len) != 0) { break; }
+							return RequestType::A5_request;
+						}
+					case 0xAC: // EB AB 3F AC 81
+						{
+							if (len != AC::len) { break; }
+							if (memcmp(AC::data, data, len) != 0) { break; }
+							return RequestType::AC_request;
+						}
+					case 0xAD: // EB AB 3F AD 82
+						{
+							if (len != AD::len) { break; }
+							if (memcmp(AD::data, data, len) != 0) { break; }
+							return RequestType::AD_request;
+						}
+
+					default:
+						break;
+					}
+					break;
 				}
-				case 0xA1: // EB AB 3F A1 76
+			case 0xBA:
 				{
-					if (len != A1::len) { break; }
-					if (memcmp(A1::data, data, len) != 0) { break; }
-					return RequestType::A1_request;
+					if (data[2] != 0x3F) { break; }
+					if (len == ReadMachineAcctRequest::len && memcmp(data, ReadMachineAcctRequest::data, len) == 0) {
+						return RequestType::RD_acct_request; 
+					}
+					break;
 				}
-				case 0xA2: // EB AB 3F A2 77
+			case 0xCB:
 				{
-					if (len != A2::len) { break; }
-					if (memcmp(A2::data, data, len) != 0) { break; }
-					return RequestType::A2_request;
-				}
-				case 0xA5: // EB AB 3F A5 7A
-				{
-					if (len != A5::len) { break; }
-					if (memcmp(A5::data, data, len) != 0) { break; }
-					return RequestType::A5_request;
-				}
-				default:
+					if (data[2] != 0x3F) { break; }
+
+					// EB CB 3F 09 A3 P1 P2 P3 SUM
 					if (data[3] == 0x09 && data[4] == 0xA3 && len == A3::len) {
-						A3 a3; memcpy(a3.data, data, len); sum(a3);
-						if (a3.data[len - 1] != data[len - 1]) { break; }
-						return RequestType::A3_request;
+						A3 req; memcpy(req.data, data, len); sum(req);
+						if (data[len - 1] == req.data[len - 1]) { return RequestType::A3_request; }
+					}
+
+					if (data[3] == 0x0F && data[4] == 0x4D && len == WriteMachineAcctRequest::len) {
+						WriteMachineAcctRequest req; memcpy(req.data, data, req.len); sum(req);
+						if (data[len - 1] == req.data[len - 1]) { return RequestType::WR_acct_request; }
+					}
+
+					// EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
+					if (data[3] == 0x0E && data[4] == 0xA7 && len == A7::len) {
+						A7 req; memcpy(req.data, data, req.len); sum(req);
+						if (data[len - 1] == req.data[len - 1]) { return RequestType::A7_request; }
+					}
+
+					/*if (data[3] == 0x08 && data[4] == 0xA9 && len == A9::len) {
+						A7 req; memcpy(req.data, data, req.len); sum(req);
+						if (data[len - 1] == req.data[len - 1]) { return RequestType::A7_request; }
+					}*/
+
+					// EB CB 3F 08 AA P1 P2 SUM
+					if (data[3] == 0x08 && data[4] == 0xAA && len == AA::len) {
+						AA req; memcpy(req.data, data, req.len); sum(req);
+						if (data[len - 1] == req.data[len - 1]) { return RequestType::AA_request; }
+					}
+
+					/*if (data[3] == 0x08 && data[4] == 0xAE && len == AE::len) {
+						AA req; memcpy(req.data, data, req.len); sum(req);
+						if (data[len - 1] == req.data[len - 1]) { return RequestType::AA_request; }
+					}*/
+
+					// EB CB 3F 06 B0 AB
+					if (data[3] == 0x08 && data[4] == 0xB0 && len == B0::len && memcmp(B0::data, data, len) == 0) {
+						return RequestType::B0_request;
 					}
 				}
-				break;
-			}
-			case 0xBA:
-			{
-				if (data[2] != 0x3F) { break; }
-				if (len == ReadMachineAcctRequest::len) {
-					if (memcmp(data, ReadMachineAcctRequest::data, len) == 0) 
-					{ return RequestType::RD_acct_request; }
-				}
-				break;
-			}
-			case 0xCB:
-			{
-				if (data[2] != 0x3F) { break; }
-
-				// EB CB 3F 09 A3 P1 P2 P3 SUM
-				if (data[3] == 0x09 && data[4] == 0xA3 && len == A3::len) {
-					A3 req; memcpy(req.data, data, len); sum(req);
-					if (data[len - 1] == req.data[len - 1]) { return RequestType::A3_request; }
-				}
-
-				if (data[3] == 0x0F && data[4] == 0x4D && len == WriteMachineAcctRequest::len) {
-					WriteMachineAcctRequest req; memcpy(req.data, data, req.len); sum(req);
-					if (data[len - 1] == req.data[len - 1]) { return RequestType::WR_acct_request; }
-				}
-
-				// EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
-				if (data[3] == 0x0E && data[4] == 0xA7 && len == A7::len) {
-					A7 req; memcpy(req.data, data, req.len); sum(req);
-					if (data[len - 1] == req.data[len - 1]) { return RequestType::A7_request; }
-				}
-			}
-			}
+					}
 		} while (0);
 		return RequestType::Invalid_request;
 	}
@@ -850,7 +883,7 @@ struct ResponseParser {
 
 			case 0xA2: // EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
 				{
-					if (len != 8 + data[3] * 2) { break; }
+					if (len != data[3]) { break; }
 					A2R resp; memcpy(resp.data, data, len); sum(resp);
 					if (resp.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::A2_response;
@@ -911,13 +944,13 @@ struct ResponseParser {
 
 			case 0xAD: // EB BA 3F PN P0 AD P1 DATA P2 SUM
 				{
-					Char lenExpected = 0;
-					if (data[6] == 0xF0) { // 防区号1个字节
-						lenExpected = 6 + data[3] + 2;
-					} else if (data[6] == 0xF1) { // 防区号2个字节
-						lenExpected = 6 + data[3] * 2 + 2;
-					} else { break; }
-					if (len != lenExpected) { break; }
+					//Char lenExpected = 0;
+					//if (data[6] == 0xF0) { // 防区号1个字节
+					//	lenExpected = 6 + data[3] + 2;
+					//} else if (data[6] == 0xF1) { // 防区号2个字节
+					//	lenExpected = 6 + data[3] * 2 + 2;
+					//} else { break; }
+					if (len != data[3]) { break; }
 					ADR resp; std::copy(data, data + len, std::back_inserter(resp.data)); sum(resp.data.data(), (Char)resp.data.size());
 					if (resp.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::AD_response;
@@ -1843,4 +1876,4 @@ struct WriteToMachineRequest {
 } // namespace old
 
 
-} // namespace hb
+} // namespace hb 
