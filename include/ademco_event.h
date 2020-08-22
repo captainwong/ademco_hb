@@ -34,8 +34,8 @@ enum ADEMCO_EVENT : uint32_t {
 	EVENT_DURESS								= 1121, // 胁迫
 	EVENT_GAS									= 1151, // 煤气
 	EVENT_WATER									= 1113, // 水警
-	EVENT_TEMPER								= 1137, // 主机防拆
-	EVENT_ZONE_TEMPER							= 1383, // 防区防拆
+	EVENT_TAMPER								= 1137, // 主机防拆
+	EVENT_ZONE_TAMPER							= 1383, // 防区防拆
 	EVENT_BY_PASS								= 1570, // 旁路
 	EVENT_BY_PASS_RESUME						= 3570, // 解除旁路
 
@@ -132,8 +132,8 @@ static constexpr ADEMCO_EVENT AdemcoEvents[] = {
 	EVENT_DURESS,
 	EVENT_GAS,
 	EVENT_WATER,
-	EVENT_TEMPER,
-	EVENT_ZONE_TEMPER,
+	EVENT_TAMPER,
+	EVENT_ZONE_TAMPER,
 	EVENT_BY_PASS,
 	EVENT_BY_PASS_RESUME,
 
@@ -206,8 +206,8 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	case EVENT_FIRE:								return n_to_s(ademco_event) + "FIRE";								
 	case EVENT_GAS:									return n_to_s(ademco_event) + "GAS";								
 	case EVENT_HALFARM: case EVENT_HALFARM_1456:	return n_to_s(ademco_event) + "HALFARM";							
-	case EVENT_TEMPER:								return n_to_s(ademco_event) + "TEMPER";								
-	case EVENT_ZONE_TEMPER:							return n_to_s(ademco_event) + "ZONE_TEMPER";						
+	case EVENT_TAMPER:								return n_to_s(ademco_event) + "TAMPER";								
+	case EVENT_ZONE_TAMPER:							return n_to_s(ademco_event) + "ZONE_TAMPER";						
 	case EVENT_BY_PASS:								return n_to_s(ademco_event) + "EVENT_BY_PASS";						
 	case EVENT_BY_PASS_RESUME:						return n_to_s(ademco_event) + "EVENT_BY_PASS_RESUME";				
 
@@ -283,8 +283,8 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 	case EVENT_FIRE:								return n_to_s(ademco_event) + L"火警";						
 	case EVENT_GAS:									return n_to_s(ademco_event) + L"煤气";						
 	case EVENT_HALFARM:	case EVENT_HALFARM_1456:	return n_to_s(ademco_event) + L"半布防";						
-	case EVENT_TEMPER:								return n_to_s(ademco_event) + L"防拆";						
-	case EVENT_ZONE_TEMPER:							return n_to_s(ademco_event) + L"防区防拆";					
+	case EVENT_TAMPER:								return n_to_s(ademco_event) + L"防拆";						
+	case EVENT_ZONE_TAMPER:							return n_to_s(ademco_event) + L"防区防拆";					
 	case EVENT_WATER:								return n_to_s(ademco_event) + L"水警";						
 	case EVENT_BY_PASS:								return n_to_s(ademco_event) + L"旁路";						
 	case EVENT_BY_PASS_RESUME:						return n_to_s(ademco_event) + L"解除旁路";					
@@ -409,8 +409,8 @@ inline EventLevel GetEventLevel(ADEMCO_EVENT ademco_event)
 	case EVENT_EMERGENCY:
 	case EVENT_FIRE:
 	case EVENT_GAS:
-	case EVENT_TEMPER:
-	case EVENT_ZONE_TEMPER:
+	case EVENT_TAMPER:
+	case EVENT_ZONE_TAMPER:
 	case EVENT_WATER:
 		return EVENT_LEVEL_ALARM;
 	default:
