@@ -286,7 +286,7 @@ static const wchar_t* machineTypeToWString(MachineType type) {
 //! 防区属性
 enum ZoneProperty : Char {
 	//! 匪警全局
-	BuglarGlobal	= 0x00,
+	Buglar			= 0x00,
 	//! 匪警紧急
 	Emergency		= 0x01,
 	//! 火警防区
@@ -325,27 +325,27 @@ enum ZoneProperty : Char {
 };
 
 static ZoneProperty zonePropertyFromChar(Char zp) {
-	if (ZoneProperty::BuglarGlobal <= zp && zp < ZoneProperty::ZonePropertyCount)
+	if (ZoneProperty::Buglar <= zp && zp < ZoneProperty::ZonePropertyCount)
 	{ return static_cast<ZoneProperty>(zp); }
 	return ZoneProperty::InvalidZoneProperty;
 }
 
 static std::vector<ZoneProperty> getAvailableZoneProperties(MachineType type) {
 	switch (type) {
-	case NetMod:	return { BuglarGlobal, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing };
-	case Gprs:		return { BuglarGlobal, Emergency, Fire, Duress, Gas, Water, };
-	case Lcd:		return { BuglarGlobal, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing };
-	case Wired:		return { BuglarGlobal, Emergency, Fire, Duress, Gas, Water, };
-	case TrueColor:	return { BuglarGlobal, Emergency, Fire, Duress, Gas, Water, RemoteControl, Shield, DoorRing, Bypass };
-	case ThreeSection:return { BuglarGlobal, Emergency, Fire, Duress, Gas, Water, RemoteControl, Shield, DoorRing, Bypass };
+	case NetMod:	return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing };
+	case Gprs:		return { Buglar, Emergency, Fire, Duress, Gas, Water, };
+	case Lcd:		return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing };
+	case Wired:		return { Buglar, Emergency, Fire, Duress, Gas, Water, };
+	case TrueColor:	return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, Shield, DoorRing, Bypass };
+	case ThreeSection:return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, Shield, DoorRing, Bypass };
 	default:		return {};
 	}
 }
 
 #ifdef ENABLE_COMMON_ZONE_PROPERTY_TO_STRING
-static const wchar_t* zonePropertyToString(ZoneProperty zp) {
+static const wchar_t* zonePropertyToStringChinese(ZoneProperty zp) {
 	switch (zp) {
-	case ZoneProperty::BuglarGlobal:	return L"匪警全局";
+	case ZoneProperty::Buglar:			return L"匪警全局";
 	case ZoneProperty::Emergency:		return L"匪警紧急";
 	case ZoneProperty::Fire:			return L"火警防区";
 	case ZoneProperty::Duress:			return L"胁迫防区";
@@ -363,6 +363,28 @@ static const wchar_t* zonePropertyToString(ZoneProperty zp) {
 	case ZoneProperty::Bypass:			return L"旁路防区";
 	case ZoneProperty::InvalidZoneProperty:
 	default:							return L"无效属性";
+	}
+}
+static const char* zonePropertyToStringEn(ZoneProperty zp) {
+	switch (zp) {
+	case ZoneProperty::Buglar:			return "Buglar";
+	case ZoneProperty::Emergency:		return "Emergency";
+	case ZoneProperty::Fire:			return "Fire";
+	case ZoneProperty::Duress:			return "Duress";
+	case ZoneProperty::Gas:				return "Gas";
+	case ZoneProperty::Water:			return "Water";
+	case ZoneProperty::SubMachine:		return "SubMachine";
+	case ZoneProperty::RemoteControl:	return "RemoteControl";
+	case ZoneProperty::BuglarHalf:		return "BuglarHalf";
+	case ZoneProperty::Shield:			return "Shield";
+	case ZoneProperty::DoorRing:		return "DoorRing";
+	case ZoneProperty::Reserved0B:		return "Reserved0B";
+	case ZoneProperty::Reserved0C:		return "Reserved0C";
+	case ZoneProperty::Reserved0D:		return "Reserved0D";
+	case ZoneProperty::Reserved0E:		return "Reserved0E";
+	case ZoneProperty::Bypass:			return "Bypass";
+	case ZoneProperty::InvalidZoneProperty:
+	default:							return "InvalidZoneProperty";
 	}
 }
 #endif // ENABLE_COMMON_ZONE_PROPERTY_TO_STRING
@@ -428,7 +450,7 @@ struct MachineStatusResponse3Section {
 			Char head[6];
 			// 0 撤防，1 布防
 			Char status3  : 2;
-			Char status2 : 2;
+			Char status2 : 2; 
 			Char status1 : 2;
 			Char status : 2;
 			Char sum;
@@ -444,6 +466,16 @@ struct MachineStatusResponse3Section {
 		return memcmp(data.cmd.head, head, 4) == 0
 			&& data.cmd.head[5] == 0xB1
 			&& sum(data.data, len) == s;
+	}
+
+	void make(MachineStatus status1, MachineStatus status2, MachineStatus status3, MachineStatus status = MachineStatus::Arm) {
+		Char head[6] = { 0xEB, 0xBA, 0x3F, 0x08, 0xCC, 0xB1 };
+		memcpy(data.cmd.head, head, 6);
+		data.cmd.status = (Char)status & 0x3;
+		data.cmd.status1 = (Char)status1 & 0x3;
+		data.cmd.status2 = (Char)status2 & 0x3;
+		data.cmd.status3 = (Char)status3 & 0x3;
+		sum(data.data, len);
 	}
 };
 static_assert(sizeof(MachineStatusResponse3Section) == 8, "sizeof(MachineStatusResponse3Section) must be 8");
@@ -478,22 +510,20 @@ typedef ZoneRequest A1;
 
 //! 回应主机防区 EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
 struct ZoneResponse {
-	//! 一包数据最多有20个字节，所以最多可以包含 (20 - 8) / 2 = 6 个防区
-	static constexpr Char max_zone = 6;
-	static constexpr Char max_len = 8 + 2 * max_zone;
+	static constexpr Char min_len = 8; // 无防区防拆数据时长度最小为8
+	static constexpr Char max_len = 20; // 一包数据最多有20个字节
+	static constexpr Char max_zone = (max_len - min_len) / 2; // 最多可以包含 (20 - 8) / 2 = 6 个防区
 	/*
 	 * when param is not 0xFF, means there's more zone coming; vice versa
 	 * zone&prop can be placed as much as 20 times
-	 *                      0     1     2   3.len   4     5  6.zone 7.prop 8.param 9.sum
 	 */
-	Char data[max_len] = { 0xEB, 0xBA, 0x3F, 0x0A, 0xCC, 0xA2, 0x00, 0x00, 0xFF, 0x00 };
-	Char len = 10; // init as minimum len
+	Char data[max_len] = {};
+	Char len = min_len; // init as minimum len
 
 	// default ctor, no zone exists
 	ZoneResponse() {
-		len = 8;
-		Char nodata[8] = { 0xEB, 0xBA, 0x3F, 0x08, 0xCC, 0xA2, 0xFF, 0x00 };
-		memcpy(data, nodata, 8);
+		Char nodata[min_len] = { 0xEB, 0xBA, 0x3F, 0x08, 0xCC, 0xA2, 0xFF, 0x00 }; sum(nodata, min_len);
+		memcpy(data, nodata, min_len); len = min_len;
 	}
 
 	/*
@@ -521,9 +551,9 @@ struct ZoneResponse {
 
 	//! parser, make sure to call ResponseParser::parse first and return is A2_response to check data valid, then copy data/len to member.
 	bool parse(ZoneAndProperties& zps, bool& hasMore) {
-		if (len < 8 || data[3] != len) { return false; } // check valid again
+		if (len < min_len || data[3] != len) { return false; } // check valid again
 		Char sum_ = data[len - 1]; sum(data, len); if (sum_ != data[len - 1]) { return false; } // check sum again
-		Char count = len - 8 / 2; // zone/prop pairs
+		Char count = (len - min_len) / 2; // zone/prop pairs
 		if (count == 0) { zps.clear(); hasMore = false; return true; }
 		for (Char i = 0; i < count; i++) {
 			ZoneAndProperty zp;
@@ -675,25 +705,55 @@ typedef QueryMoreSensorLostSettingsRequest AD;
 
 //! 索要防区探头遗失/失联回应 EB BA 3F PN P0 AD P1 DATA P2 SUM
 struct QuerySensorLostSettingsResponse {
-	CharVector data{};
-	const Char p1 = 0xF0; // F0 防区号单字节表示，F1防区号双字节表示
+	static constexpr Char P1FlagZoneAs1Char = 0xF0;
+	static constexpr Char P1FlagZoneAs2Chars = 0xF1;
+	static constexpr Char min_len = 9; // 无防区防拆数据时长度最小为9
+	static constexpr Char max_len = 20; 
 
-	QuerySensorLostSettingsResponse(Char p1 = 0xF0) :p1(p1) {
-		data = { 0xEB, 0xBA, 0x3F, 0, 0xAD, p1 };
+	Char data[max_len] = {};
+	Char len = 9; // init as minimum len
+	const Char p1 = P1FlagZoneAs1Char; // F0 防区号单字节表示，F1防区号双字节表示
+
+	// default ctor, no zone exists
+	QuerySensorLostSettingsResponse(Char p1 = P1FlagZoneAs1Char) :p1(p1) {
+		Char nodata[min_len] = { 0xEB, 0xBA, 0x3F, 0x09, 0x00, 0xAD, p1, 0xFF, 0x00 }; 
+		sum(nodata, min_len); memcpy(data, nodata, min_len); len = min_len;
 	}
 
-	void addZone(size_t zone, bool isOver = true, bool hasMore = false) {
-		data[3]++;
-		if (p1 == 0xF0) { data.push_back(zone & 0xFF); }
-		else {
-			data.push_back((zone >> 8) & 0xFF);
-			data.push_back(zone & 0xFF);
+	Char maxZone() const { Char res = (max_len - min_len); if (p1 == P1FlagZoneAs2Chars) { res /= 2; } return res; }
+
+	QuerySensorLostSettingsResponse& addZone(size_t zone, bool isOver = true, bool hasMore = false) {
+		if (len == max_len) { return *this; }
+		Char pos = static_cast<Char>(len - 2);
+		if (p1 == P1FlagZoneAs1Char) {
+			data[pos] = zone & 0xFF; 
+			len = static_cast<Char>(len + 1); data[3] = len;
+		} else {
+			data[pos] = (zone >> 8) & 0xFF; data[pos + 1] = zone & 0xFF;
+			len = static_cast<Char>(len + 2); data[3] = len;
 		}
-		if (isOver) {
-			data.push_back(hasMore ? 0x00 : 0xFF);
-			data.push_back(0); // sum
-			sum(data);
+		data[len - 2] = hasMore ? 0x00 : 0xFF;
+		if (isOver) { sum(this); }
+		return *this;
+	}
+
+	//! parser, make sure to call ResponseParser::parse first and return is ADR_response to check data valid, then copy data/len to member.
+	bool parse(std::vector<size_t>& zones, bool& hasMore) {
+		if (len < min_len || data[3] != len) { return false; } // check valid again
+		Char sum_ = data[len - 1]; sum(data, len); if (sum_ != data[len - 1]) { return false; } // check sum again
+		Char flag = data[6]; if (flag != P1FlagZoneAs1Char && flag != P1FlagZoneAs2Chars) { return false; } // check param
+		Char count = (len - min_len); if (flag == P1FlagZoneAs2Chars) { count /= 2; }
+		if (count == 0) { zones.clear(); hasMore = false; return true; }
+		for (Char i = 0; i < count; i++) {
+			size_t zone = data[7 + i];
+			if (p1 == P1FlagZoneAs2Chars) {
+				zone <<= 8;
+				zone |= data[8 + i];
+			} 
+			zones.push_back(zone);
 		}
+		hasMore = data[len - 2] != 0xFF;
+		return true;
 	}
 };
 typedef QuerySensorLostSettingsResponse ADR;
@@ -839,7 +899,7 @@ struct RequestParser {
 					}*/
 
 					// EB CB 3F 06 B0 AB
-					if (data[3] == 0x08 && data[4] == 0xB0 && len == B0::len && memcmp(B0::data, data, len) == 0) {
+					if (data[3] == 0x06 && data[4] == 0xB0 && len == B0::len && memcmp(B0::data, data, len) == 0) {
 						return RequestType::B0_request;
 					}
 				}
@@ -944,14 +1004,8 @@ struct ResponseParser {
 
 			case 0xAD: // EB BA 3F PN P0 AD P1 DATA P2 SUM
 				{
-					//Char lenExpected = 0;
-					//if (data[6] == 0xF0) { // 防区号1个字节
-					//	lenExpected = 6 + data[3] + 2;
-					//} else if (data[6] == 0xF1) { // 防区号2个字节
-					//	lenExpected = 6 + data[3] * 2 + 2;
-					//} else { break; }
 					if (len != data[3]) { break; }
-					ADR resp; std::copy(data, data + len, std::back_inserter(resp.data)); sum(resp.data.data(), (Char)resp.data.size());
+					ADR resp; memcpy(resp.data, data, len); sum(resp); sum(resp);
 					if (resp.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::AD_response;
 				}

@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <chrono>
 #include <unordered_map>
+#include <map>
 
 #include <event2/listener.h>
 #include <event2/buffer.h>
@@ -57,8 +58,11 @@ static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
 #define DISABLE_JLIB_LOG2
 #include <ademco_packet.h>
 
+#define ENABLE_COMMON_MACHINE_STATUS_TO_STRING
+#define ENABLE_COMMON_MACHINE_TYPE_TO_STRING
 #define ENABLE_COMMON_ZONE_PROPERTY_TO_STRING
 #include <hb_detail.h>
+#include <hb_helper.h>
 
 using namespace ademco;
 using namespace hb;
@@ -83,7 +87,7 @@ enum class QueryZoneStage {
 
 struct ZonePropertyAndLostConfig {
 	ZoneProperty prop = ZoneProperty::InvalidZoneProperty;
-	bool enableLostReport = false; // 失联开关
+	bool tamper_enabled = false; // 失联开关
 };
 
 struct Client {
@@ -93,7 +97,11 @@ struct Client {
 	size_t ademco_id = 0;
 	uint16_t seq = 0;
 	int type = -1;
-	std::unordered_map<size_t, ZonePropertyAndLostConfig> zones = {};
+	MachineStatus status = MachineStatus::Arm;
+	MachineStatus status1 = MachineStatus::Arm;
+	MachineStatus status2 = MachineStatus::Arm;
+	MachineStatus status3 = MachineStatus::Arm;
+	std::map<size_t, ZonePropertyAndLostConfig> zones = {};
 	QueryZoneStage queryZoneStage = QueryZoneStage::None;
 
 	uint16_t nextSeq() { if (++seq == 10000) { seq = 1; } return seq; }
@@ -167,30 +175,34 @@ void usage(const char* name)
 void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* output)
 {	
 	if (!context->packet.xdata_) {
-		printf("WARNING! 1704 NO XDATA!\n");
+		printf("\tWARNING! 1704 NO XDATA!\n");
 		return;
 	}
 
 	// GRPS cannot send us hex data, we need to convert data like "1234ABCDEF" to hex 0x1234ABCDEF 
 	std::vector<char> xdata(context->packet.xdata_->data_.size() / 2);
 	detail::ConvertHiLoAsciiToHexCharArray(&xdata[0], context->packet.xdata_->data_.data(), context->packet.xdata_->data_.size());
-	printf("1704 real xdata is %s\n", detail::toString(xdata, detail::ToStringOption::ALL_CHAR_AS_HEX, false, false).data());
+	printf("\t%s\n", detail::toString(xdata, detail::ToStringOption::ALL_CHAR_AS_HEX, false, false).data());
 
+	char buf[1024];
 	auto resp_type = com::ResponseParser::parse((const Char*)xdata.data(), xdata.size() & 0xFF);
 	switch (resp_type) {
 	case com::ResponseParser::ResponseType::A0_response:
 		break;
 	case com::ResponseParser::ResponseType::A2_response:
 		{
-			char buf[1024];
 			com::A2R resp; memcpy(resp.data, xdata.data(), xdata.size()); resp.len = xdata.size() & 0xFF;
 			com::A2R::ZoneAndProperties zps; bool hasMore = false;
 			if (client.queryZoneStage == QueryZoneStage::QueryingZones && resp.parse(zps, hasMore)) {
 				for (const auto& zp : zps) {
 					ZonePropertyAndLostConfig zplc;
 					zplc.prop = zp.prop;
-					zplc.enableLostReport = false;
+					zplc.tamper_enabled = false;
 					client.zones[zp.zone] = zplc;
+					snprintf(buf, sizeof(buf), getZoneFormatString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)), zp.zone);
+					printf("\t\tZone:");
+					printf(buf);
+					printf("  Prop:0x%02X %s\n", zp.prop, zonePropertyToStringEn(zp.prop));
 				}
 				XDataPtr xdata;
 				if (hasMore) { // 继续索要剩余防区
@@ -237,16 +249,56 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 	case com::ResponseParser::ResponseType::AB_response:
 		break;
 	case com::ResponseParser::ResponseType::AD_response:
-		break;
+		{
+			com::ADR resp; memcpy(resp.data, xdata.data(), xdata.size()); resp.len = xdata.size() & 0xFF;
+			bool hasMore = false;
+			std::vector<size_t> zones;
+			if (client.queryZoneStage == QueryZoneStage::QueryingLostConfig && resp.parse(zones, hasMore)) {
+				for (const auto& zone : zones) {
+					auto& z = client.zones[zone];
+					client.zones[zone].tamper_enabled = true;
+					snprintf(buf, sizeof(buf), getZoneFormatString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)), zone);
+					printf("\t\tZone:");
+					printf(buf);
+					printf("  Tamper Enabled: true\n");
+				}
+				XDataPtr xdata;
+				if (hasMore) { // 继续索要剩余防区
+					com::A2 req;
+					xdata = makeXData((const char*)req.data, req.len);
+					auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0,
+													 EVENT_COM_PASSTHROUGH, 0, xdata);
+					evbuffer_add(output, buf, n);
+					if (!disable_data_print) {
+						printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+							   context->worker_id, client.fd, client.acct.data(), client.ademco_id,
+							   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+					}
+					break;
+				}
+			} 
+			auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0,
+											 EVENT_EXIT_SET_MODE, 0);
+			evbuffer_add(output, buf, n);
+			if (!disable_data_print) {
+				printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+					   context->worker_id, client.fd, client.acct.data(), client.ademco_id,
+					   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+			}
+			break;
+		}
 	case com::ResponseParser::ResponseType::AE_response:
 		break;
 	case com::ResponseParser::ResponseType::B1_response:
 		{
 			com::B1R b1; memcpy(b1.data.data, xdata.data(), xdata.size());
-			printf("\t\t status1:%s status2:%s status3:%s\n", 
-					b1.data.cmd.status1 == 0 ? "Arm" : "Disarm",
-					b1.data.cmd.status2 == 0 ? "Arm" : "Disarm",
-					b1.data.cmd.status3 == 0 ? "Arm" : "Disarm");
+			client.status1 = b1.data.cmd.status1 == 0 ? MachineStatus::Arm : MachineStatus::Disarm;
+			client.status2 = b1.data.cmd.status2 == 0 ? MachineStatus::Arm : MachineStatus::Disarm;
+			client.status3 = b1.data.cmd.status3 == 0 ? MachineStatus::Arm : MachineStatus::Disarm;
+			printf("\t\t status1: %d %s\n\t\t status2: %d %s\n\t\t status3: %d %s\n",
+				   client.status1, machineStatusToString(client.status1),
+				   client.status2, machineStatusToString(client.status2),
+				   client.status3, machineStatusToString(client.status3));
 			break;
 		}
 	case com::ResponseParser::ResponseType::Invalid_response:
@@ -290,6 +342,13 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 						}
 						break;
 					}
+				} else if (ademco::isMachineStatusEvent(context->packet.ademcoData_.ademco_event_)) {
+					auto status = machienStatusFromAdemcoEvent(context->packet.ademcoData_.ademco_event_);
+					if (context->packet.ademcoData_.gg_ == 0) { client.status = status; }
+					else if (context->packet.ademcoData_.gg_ == 1) { client.status1 = status; } 
+					else if (context->packet.ademcoData_.gg_ == 2) { client.status2 = status; } 
+					else if (context->packet.ademcoData_.gg_ == 3) { client.status3 = status; }
+					else { break; }
 				} else if (context->packet.ademcoData_.ademco_event_ == EVENT_COM_PASSTHROUGH) {
 					handle_com_passthrough(context, client, output);
 					break;
@@ -795,8 +854,31 @@ int main(int argc, char** argv)
 					}
 				}
 				printf("Total connnected %zd clients:\n", copiedClients.size());
+
 				for (const auto& client : copiedClients) {
-					printf("  fd=#%d acct=%s ademco_id=%zd\n", client.fd, client.acct.data(), client.ademco_id);
+					if (client.type == EVENT_I_AM_3_SECTION_MACHINE) {
+						printf("  fd=#%d acct=%s ademco_id=%zd type=%s\n",
+							   client.fd, client.acct.data(), client.ademco_id,
+							   machineTypeToString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)));
+						printf("    status1: %d %s    status2: %d %s    status3: %d %s\n",
+							   client.status1, machineStatusToString(client.status1),
+							   client.status2, machineStatusToString(client.status2),
+							   client.status3, machineStatusToString(client.status3));
+					} else {
+						printf("  fd=#%d acct=%s ademco_id=%zd type=%s status=%d %s\n", 
+							   client.fd, client.acct.data(), client.ademco_id,
+							   machineTypeToString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)), 
+							   client.status, machineStatusToString(client.status));
+					}
+					for (const auto& zp : client.zones) {
+						char buf[512];
+						snprintf(buf, sizeof(buf), getZoneFormatString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)), zp.first);
+						printf("    Zone:");
+						printf(buf);
+						printf("  Prop:0x%02X %s     \tTamper Enabled:%s\n", 
+							   zp.second.prop, zonePropertyToStringEn(zp.second.prop), 
+							   zp.second.tamper_enabled ? "true" : "false");
+					}
 				}
 			}
 			break;

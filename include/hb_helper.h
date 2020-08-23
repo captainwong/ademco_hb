@@ -76,7 +76,7 @@ static ademco::ADEMCO_EVENT ademcoEventFromMachineStatus(common::MachineStatus s
 static ademco::ADEMCO_EVENT ademcoEventFromZoneProperty(common::ZoneProperty zp)
 {
 	switch (zp) {
-	case hb::common::BuglarGlobal:  return ademco::EVENT_BURGLAR;
+	case hb::common::Buglar:		return ademco::EVENT_BURGLAR;
 	case hb::common::BuglarHalf:	return ademco::EVENT_BURGLAR;
 	case hb::common::Emergency:	    return ademco::EVENT_EMERGENCY;
 	case hb::common::Fire:			return ademco::EVENT_FIRE;
@@ -104,7 +104,7 @@ static ademco::ADEMCO_EVENT ademcoEventFromZonePropertyOld(old::ZoneProperty zp)
 {
 	switch (zp) {
 	case hb::old::ZP_GLOBAL:	return ademco::EVENT_BURGLAR;
-	case hb::old::ZP_HALF:		return ademco::EVENT_HALFARM;
+	case hb::old::ZP_HALF:		return ademco::EVENT_BURGLAR;
 	case hb::old::ZP_EMERGENCY:	return ademco::EVENT_EMERGENCY;
 	case hb::old::ZP_DOORRING:	return ademco::EVENT_DOORRINGING;
 	case hb::old::ZP_FIRE:		return ademco::EVENT_FIRE;

@@ -275,7 +275,7 @@ struct CongwinFe100Packet
 		data_[ndx++] = ' ';
 
 		// 'C' for zone, 'U' for user
-		if (isStatusEvent(evnt)) {
+		if (isMachineStatusEvent(evnt)) {
 			data_[ndx++] = 'U'; // U
 		} else {
 			data_[ndx++] = 'C'; // C

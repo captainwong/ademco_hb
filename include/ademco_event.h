@@ -344,7 +344,7 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 #endif
 
 //! 是否主机状态事件
-static inline bool isStatusEvent(ADEMCO_EVENT ademco_event)
+static inline bool isMachineStatusEvent(ADEMCO_EVENT ademco_event)
 {
 	return ademco_event == EVENT_ARM
 		|| ademco_event == EVENT_HALFARM
