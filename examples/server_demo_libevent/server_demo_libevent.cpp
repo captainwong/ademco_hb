@@ -78,11 +78,15 @@ constexpr Char com::QueryMoreSensorLostSettingsRequest::data[];
 #endif
 
 
-enum class QueryZoneStage {
+enum class QueryStage {
 	None,
+
 	WaitingSettingsMode,
 	QueryingZones,
 	QueryingLostConfig,
+
+	WaitingSettingsMode2,
+	QueryingTimer,
 };
 
 struct ZonePropertyAndLostConfig {
@@ -102,7 +106,7 @@ struct Client {
 	MachineStatus status2 = MachineStatus::Arm;
 	MachineStatus status3 = MachineStatus::Arm;
 	std::map<size_t, ZonePropertyAndLostConfig> zones = {};
-	QueryZoneStage queryZoneStage = QueryZoneStage::None;
+	QueryStage queryStage = QueryStage::None;
 
 	uint16_t nextSeq() { if (++seq == 10000) { seq = 1; } return seq; }
 };
@@ -130,6 +134,8 @@ std::vector<ThreadContext*> worker_thread_contexts = {};
 #define COMMAND_Y_AEGZX ((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 3))
 // Z
 #define COMMAND_Z_QUERY_ZONE ((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 4))
+// F 
+#define COMMAND_F_QUERY_TIMER ((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 5))
 
 
 // events will be sent to all clients
@@ -160,6 +166,7 @@ void op_usage()
 		   "X: Like C, with xdata: [ademco_id event gg zone xdata]\n"
 		   "Y: Like X, with xdata, but xdata is hex: [ademco_id event gg zone xdata], example: [1 1704 0 0 EBAB3FA176]\n"
 		   "Z: Query Zone info: [ademco_id]\n"
+		   "F: Query Machine Timer: [ademco_id]\n"
 		   "\n"
 		   "I: Print clients info\n"
 		   "P: Toggle enable/disable data print\n"
@@ -193,7 +200,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 		{
 			com::A2R resp; memcpy(resp.data, xdata.data(), xdata.size()); resp.len = xdata.size() & 0xFF;
 			com::A2R::ZoneAndProperties zps; bool hasMore = false;
-			if (client.queryZoneStage == QueryZoneStage::QueryingZones && resp.parse(zps, hasMore)) {
+			if (client.queryStage == QueryStage::QueryingZones && resp.parse(zps, hasMore)) {
 				for (const auto& zp : zps) {
 					ZonePropertyAndLostConfig zplc;
 					zplc.prop = zp.prop;
@@ -211,7 +218,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 				} else { // 开始索要防区失联设置
 					com::AC req;
 					xdata = makeXData((const char*)req.data, req.len);
-					client.queryZoneStage = QueryZoneStage::QueryingLostConfig;
+					client.queryStage = QueryStage::QueryingLostConfig;
 				}
 
 				auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0, 
@@ -253,7 +260,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 			com::ADR resp; memcpy(resp.data, xdata.data(), xdata.size()); resp.len = xdata.size() & 0xFF;
 			bool hasMore = false;
 			std::vector<size_t> zones;
-			if (client.queryZoneStage == QueryZoneStage::QueryingLostConfig && resp.parse(zones, hasMore)) {
+			if (client.queryStage == QueryStage::QueryingLostConfig && resp.parse(zones, hasMore)) {
 				for (const auto& zone : zones) {
 					auto& z = client.zones[zone];
 					client.zones[zone].tamper_enabled = true;
@@ -352,19 +359,33 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 				} else if (context->packet.ademcoData_.ademco_event_ == EVENT_COM_PASSTHROUGH) {
 					handle_com_passthrough(context, client, output);
 					break;
-				} else if (context->packet.ademcoData_.ademco_event_ == EVENT_ENTER_SET_MODE &&
-						   client.queryZoneStage == QueryZoneStage::WaitingSettingsMode) {
-					client.queryZoneStage = QueryZoneStage::QueryingZones;
-					com::A1 req;
-					auto xdata = makeXData((const char*)req.data, req.len);
-					auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0, 
-													 EVENT_COM_PASSTHROUGH, 0, xdata);
-					evbuffer_add(output, buf, n);
-					if (!disable_data_print) {
-						printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
-							   context->worker_id, fd, client.acct.data(), client.ademco_id, 
-							   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+				} else if (context->packet.ademcoData_.ademco_event_ == EVENT_ENTER_SET_MODE) {
+					if (client.queryStage == QueryStage::WaitingSettingsMode) {
+						client.queryStage = QueryStage::QueryingZones;
+						com::A1 req;
+						auto xdata = makeXData((const char*)req.data, req.len);
+						auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0,
+														 EVENT_COM_PASSTHROUGH, 0, xdata);
+						evbuffer_add(output, buf, n);
+						if (!disable_data_print) {
+							printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+								   context->worker_id, fd, client.acct.data(), client.ademco_id,
+								   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+						}
+					} else if (client.queryStage == QueryStage::WaitingSettingsMode2) {
+						client.queryStage = QueryStage::QueryingTimer;
+						com::A5 req;
+						auto xdata = makeXData((const char*)req.data, req.len);
+						auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0,
+														 EVENT_COM_PASSTHROUGH, 0, xdata);
+						evbuffer_add(output, buf, n);
+						if (!disable_data_print) {
+							printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+								   context->worker_id, fd, client.acct.data(), client.ademco_id,
+								   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+						}
 					}
+					
 				}
 			}
 
@@ -463,13 +484,27 @@ void commandcb(evutil_socket_t, short, void* user_data)
 											EVENT_ENTER_SET_MODE, 0);
 				evbuffer_add(client.second.output, buf, n);
 				client.second.zones.clear();
-				client.second.queryZoneStage = QueryZoneStage::WaitingSettingsMode;
+				client.second.queryStage = QueryStage::WaitingSettingsMode;
 				if (!disable_data_print) {
 					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
 						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id,
 						   context->packet.toString(ademco::detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 				}
 
+			} else if (e == COMMAND_F_QUERY_TIMER) { // F
+				if (client.second.ademco_id != userInput.ademco_id) {
+					continue;
+				}
+				n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id, 0,
+											EVENT_ENTER_SET_MODE, 0);
+				evbuffer_add(client.second.output, buf, n);
+				client.second.zones.clear();
+				client.second.queryStage = QueryStage::WaitingSettingsMode2;
+				if (!disable_data_print) {
+					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id,
+						   context->packet.toString(ademco::detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+				}
 			} else if (client.second.type == EVENT_I_AM_3_SECTION_MACHINE && (e == EVENT_ARM || e == EVENT_DISARM)) {
 				for (int gg = 1; gg <= 3; gg++) {
 					if (e == EVENT_DISARM) {
@@ -842,6 +877,22 @@ int main(int argc, char** argv)
 				break;
 			}
 
+		case 'F':
+			{
+				int ret = 0;
+				do {
+					printf("Input [ademco_id]:");
+					ret = scanf("%d", &userInput.ademco_id);
+					clear_stdin();
+				} while (ret != 1);
+				{
+					std::lock_guard<std::mutex> lg(mutex);
+					commands.push_back(COMMAND_F_QUERY_TIMER);
+					threads_to_handled_event = thread_count;
+				}
+				fire_command();
+				break;
+			}
 
 
 		case 'I':

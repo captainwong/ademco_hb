@@ -398,6 +398,8 @@ static const char* zonePropertyToStringEn(ZoneProperty zp) {
 namespace com
 {
 
+#include <pshpack1.h>
+
 //! 读取主机账号 
 struct ReadMachineAcctRequest {
 	static constexpr Char len = 7;
@@ -636,13 +638,25 @@ struct ZoneOpResponse {
 };
 typedef ZoneOpResponse A4R;
 
+struct Timepoint {
+	Char hour = 0xFF, minute = 0xFF;
+};
+struct Timer {
+	Timepoint armAt = {}, disarmAt = {};
+};
 //! 主机定时器，一共2组
-struct MachineTimer {
-	struct Timepoint { Char hour = 0; Char minute = 0; };
-	struct Timer { Timepoint armAt = {}; Timepoint disarmAt = {}; };
-	Timer data[2] = {}; // 8byte
+union MachineTimer {
+	Timer timer[2]; // 8byte
+	Char data[8];
+	MachineTimer() { memset(data, 0xFF, 8); }
 };
 static_assert(sizeof(MachineTimer) == 8, "sizeof(MachineTimer) must be 8");
+static inline bool isValidMachineTimer(const Timer& t) {
+	return 0 <= t.armAt.hour && t.armAt.hour < 24 &&
+		0 <= t.armAt.minute && t.armAt.minute < 60 && 
+		0 <= t.disarmAt.hour && t.disarmAt.hour < 24 &&
+		0 <= t.disarmAt.minute && t.disarmAt.minute < 60;
+}
 
 //! 获取主机定时器 EB AB 3F A5 7A
 struct MachineTimerRequest {
@@ -656,8 +670,8 @@ struct MachineTimerResponse {
 	static constexpr Char len = 7 + sizeof(MachineTimer); // 15
 	//                  0     1     2     3     4     5    a1ah  a1am  a1dh  a1dm  a2ah  a2am  a2dh  a2dm  sum  
 	Char data[len] = { 0xEB, 0xBA, 0x3F, 0x0F, 0xCC, 0xA6, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x00 };
-	MachineTimer getTimer() const { MachineTimer t; memcpy(&t, &data[6], sizeof(MachineTimer)); return t; }
-	void setTimer(const MachineTimer& t) { memcpy(&data[6], &t, sizeof(MachineTimer)); sum(this); }
+	MachineTimer getTimer() const { MachineTimer t; memcpy(&t.data, &data[6], sizeof(MachineTimer)); return t; }
+	void setTimer(const MachineTimer& t) { memcpy(&data[6], &t.data, sizeof(MachineTimer)); sum(this); }
 };
 typedef MachineTimerResponse A6R;
 
@@ -666,7 +680,7 @@ struct SetMachineTimerRequest {
 	static constexpr Char len = 6 + sizeof(MachineTimer); // 14
 	//                  0     1     2     3     4    a1ah  a1am  a1dh  a1dm  a2ah  a2am  a2dh  a2dm  sum  
 	Char data[len] = { 0xEB, 0xCB, 0x3F, 0x0E, 0xA7, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x00 };
-	MachineTimer getTimer() const { MachineTimer t; memcpy(&t, &data[5], sizeof(MachineTimer)); return t; }
+	MachineTimer getTimer() const { MachineTimer t; memcpy(&t.data, &data[5], sizeof(MachineTimer)); return t; }
 	void setTimer(const MachineTimer& t) { memcpy(&data[5], &t, sizeof(MachineTimer)); sum(this); }
 };
 typedef SetMachineTimerRequest A7;
@@ -1029,6 +1043,8 @@ struct ResponseParser {
 		return ResponseType::Invalid_response;
 	}
 };
+
+#include <poppack.h>
 
 } // namespace com
 } // namespace common
