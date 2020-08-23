@@ -398,8 +398,6 @@ static const char* zonePropertyToStringEn(ZoneProperty zp) {
 namespace com
 {
 
-#include <pshpack1.h>
-
 //! 读取主机账号 
 struct ReadMachineAcctRequest {
 	static constexpr Char len = 7;
@@ -1043,8 +1041,6 @@ struct ResponseParser {
 		return ResponseType::Invalid_response;
 	}
 };
-
-#include <poppack.h>
 
 } // namespace com
 } // namespace common
