@@ -201,7 +201,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 					client.zones[zp.zone] = zplc;
 					snprintf(buf, sizeof(buf), getZoneFormatString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)), zp.zone);
 					printf("\t\tZone:");
-					printf(buf);
+					printf("%s", buf);
 					printf("  Prop:0x%02X %s\n", zp.prop, zonePropertyToStringEn(zp.prop));
 				}
 				XDataPtr xdata;
@@ -259,7 +259,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 					client.zones[zone].tamper_enabled = true;
 					snprintf(buf, sizeof(buf), getZoneFormatString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)), zone);
 					printf("\t\tZone:");
-					printf(buf);
+					printf("%s", buf);
 					printf("  Tamper Enabled: true\n");
 				}
 				XDataPtr xdata;
@@ -296,9 +296,9 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 			client.status2 = b1.data.cmd.status2 == 0 ? MachineStatus::Arm : MachineStatus::Disarm;
 			client.status3 = b1.data.cmd.status3 == 0 ? MachineStatus::Arm : MachineStatus::Disarm;
 			printf("\t\t status1: %d %s\n\t\t status2: %d %s\n\t\t status3: %d %s\n",
-				   client.status1, machineStatusToString(client.status1),
-				   client.status2, machineStatusToString(client.status2),
-				   client.status3, machineStatusToString(client.status3));
+				   (int)client.status1, machineStatusToString(client.status1),
+				   (int)client.status2, machineStatusToString(client.status2),
+				   (int)client.status3, machineStatusToString(client.status3));
 			break;
 		}
 	case com::ResponseParser::ResponseType::Invalid_response:
@@ -861,20 +861,20 @@ int main(int argc, char** argv)
 							   client.fd, client.acct.data(), client.ademco_id,
 							   machineTypeToString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)));
 						printf("    status1: %d %s    status2: %d %s    status3: %d %s\n",
-							   client.status1, machineStatusToString(client.status1),
-							   client.status2, machineStatusToString(client.status2),
-							   client.status3, machineStatusToString(client.status3));
+							   (int)client.status1, machineStatusToString(client.status1),
+							   (int)client.status2, machineStatusToString(client.status2),
+							   (int)client.status3, machineStatusToString(client.status3));
 					} else {
 						printf("  fd=#%d acct=%s ademco_id=%zd type=%s status=%d %s\n", 
 							   client.fd, client.acct.data(), client.ademco_id,
 							   machineTypeToString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)), 
-							   client.status, machineStatusToString(client.status));
+							   (int)client.status, machineStatusToString(client.status));
 					}
 					for (const auto& zp : client.zones) {
 						char buf[512];
 						snprintf(buf, sizeof(buf), getZoneFormatString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)), zp.first);
 						printf("    Zone:");
-						printf(buf);
+						printf("%s", buf);
 						printf("  Prop:0x%02X %s     \tTamper Enabled:%s\n", 
 							   zp.second.prop, zonePropertyToStringEn(zp.second.prop), 
 							   zp.second.tamper_enabled ? "true" : "false");
