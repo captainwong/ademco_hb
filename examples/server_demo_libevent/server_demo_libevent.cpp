@@ -246,6 +246,19 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 	case com::ResponseParser::ResponseType::A4_response:
 		break;
 	case com::ResponseParser::ResponseType::A6_response:
+		{
+			com::A6R resp; memcpy(resp.data, xdata.data(), resp.len);
+			com::MachineTimer t = resp.getTimer();
+			for (int i = 0; i < 2; i++) {
+				if (com::isValidMachineTimer(t.timer[i])) {
+					printf("\t\tMachine Timer#%d: Arm at %02d:%02d, Disarm at %02d:%02d\n", i + 1,
+						   t.timer[i].armAt.hour, t.timer[i].armAt.minute,
+						   t.timer[i].disarmAt.hour, t.timer[i].disarmAt.minute);
+				} else {
+					printf("\t\tMachine Timer#%d: Not Set\n", i + 1);
+				}
+			}			
+		}
 		break;
 	case com::ResponseParser::ResponseType::A7_response:
 		break;
