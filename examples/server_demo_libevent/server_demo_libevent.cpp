@@ -70,11 +70,12 @@ using namespace hb::common;
 
 // fix gcc cry
 #ifdef __GNUG__
-constexpr Char com::MachineStatusRequest3Section::data[];
-constexpr Char com::ZoneRequest::data[];
-constexpr Char com::ZoneRequestMore::data[];
-constexpr Char com::QuerySensorLostSettingsRequest::data[];
-constexpr Char com::QueryMoreSensorLostSettingsRequest::data[];
+constexpr Char com::A1::data[];
+constexpr Char com::A2::data[];
+constexpr Char com::AC::data[];
+constexpr Char com::AD::data[];
+constexpr Char com::A5::data[];
+constexpr Char com::B0::data[];
 #endif
 
 
