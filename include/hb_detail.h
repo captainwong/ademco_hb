@@ -510,9 +510,9 @@ typedef ZoneRequest A1;
 
 //! 回应主机防区 EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
 struct ZoneResponse {
-	static constexpr Char min_len = 8; // 无防区防拆数据时长度最小为8
-	static constexpr Char max_len = 20; // 一包数据最多有20个字节
-	static constexpr Char max_zone = (max_len - min_len) / 2; // 最多可以包含 (20 - 8) / 2 = 6 个防区
+	static constexpr Char min_len = 8; // 无防区数据时长度最小为8
+	static constexpr Char max_zone = 20; // 最多可以包含 20 个防区
+	static constexpr Char max_len = min_len + max_zone * 2; // 一包数据最多有8+20*2=48个字节
 	/*
 	 * when param is not 0xFF, means there's more zone coming; vice versa
 	 * zone&prop can be placed as much as 20 times
@@ -720,7 +720,8 @@ struct QuerySensorLostSettingsResponse {
 	static constexpr Char P1FlagZoneAs1Char = 0xF0;
 	static constexpr Char P1FlagZoneAs2Chars = 0xF1;
 	static constexpr Char min_len = 9; // 无防区防拆数据时长度最小为9
-	static constexpr Char max_len = 20; 
+	static constexpr Char max_zone = 20; // 最多包含20个防区
+	static constexpr Char max_len = min_len + max_zone * 2; // 最多有 9 + 20 *2 = 49 个字节
 
 	Char data[max_len] = {};
 	Char len = 9; // init as minimum len
