@@ -161,7 +161,7 @@
 
 ### 4.2 `xdata` 段格式：`[len xdata…]`，长度可变
 
-`len` 可以使用 `两个 hex 字节` 或 `四个 decimal char` 表示
+`len` 可以使用 `两个 hex 字节` 或 `四个 decimal char` 表示，主机只解析 `两个 hex 字节` 的 `xdata`。
 
 * 使用两个 `hex`
 
