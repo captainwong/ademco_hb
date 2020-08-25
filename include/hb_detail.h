@@ -553,7 +553,7 @@ struct ZoneResponse {
 	bool parse(ZoneAndProperties& zps, bool& hasMore) {
 		if (len < min_len || data[3] != len) { return false; } // check valid again
 		Char sum_ = data[len - 1]; sum(data, len); if (sum_ != data[len - 1]) { return false; } // check sum again
-		Char count = (len - min_len) / 2; // zone/prop pairs
+		Char count = (len - min_len) >> 2; // zone/prop pairs
 		if (count == 0) { zps.clear(); hasMore = false; return true; }
 		for (Char i = 0; i < count; i++) {
 			ZoneAndProperty zp;
