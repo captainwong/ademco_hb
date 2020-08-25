@@ -553,7 +553,7 @@ struct ZoneResponse {
 	bool parse(ZoneAndProperties& zps, bool& hasMore) {
 		if (len < min_len || data[3] != len) { return false; } // check valid again
 		Char sum_ = data[len - 1]; sum(data, len); if (sum_ != data[len - 1]) { return false; } // check sum again
-		Char count = Char(len - min_len) >> 1; // zone/prop pairs
+		Char count = Char((len - min_len) >> 1); // zone/prop pairs
 		if (count == 0) { zps.clear(); hasMore = false; return true; }
 		for (Char i = 0; i < count; i++) {
 			ZoneAndProperty zp;
@@ -755,7 +755,7 @@ struct QuerySensorLostSettingsResponse {
 		if (len < min_len || data[3] != len) { return false; } // check valid again
 		Char sum_ = data[len - 1]; sum(data, len); if (sum_ != data[len - 1]) { return false; } // check sum again
 		Char flag = data[6]; if (flag != P1FlagZoneAs1Char && flag != P1FlagZoneAs2Chars) { return false; } // check param
-		Char count = Char(len - min_len); if (flag == P1FlagZoneAs2Chars) { count >>= 1; }
+		Char count = Char(len - min_len); if (flag == P1FlagZoneAs2Chars) { count = Char(count >> 1); }
 		if (count == 0) { zones.clear(); hasMore = false; return true; }
 		for (Char i = 0; i < count; i++) {
 			size_t zone = data[7 + i];
