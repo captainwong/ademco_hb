@@ -439,7 +439,7 @@ struct MachineStatusRequest3Section {
 	static constexpr const Char len = 6;
 	static constexpr const Char data[len] = { 0xEB, 0xCB, 0x3F, 0x06, 0xB0, 0xAB };
 };
-typedef MachineStatusRequest3Section B0;
+typedef MachineStatusRequest3Section Req_B0;
 
 //! 三区段主机状态回应 EB BA 3F 08 P0 B1 P1 SUM
 struct MachineStatusResponse3Section {
@@ -479,14 +479,14 @@ struct MachineStatusResponse3Section {
 	}
 };
 static_assert(sizeof(MachineStatusResponse3Section) == 8, "sizeof(MachineStatusResponse3Section) must be 8");
-typedef MachineStatusResponse3Section B1R;
+typedef MachineStatusResponse3Section Resp_B1;
 
 //! 索要主机状态 EB AB 3F A0 75
 struct MachineStatusRequest { 
 	static constexpr Char len = 5;
 	static constexpr Char data[len] = { 0xEB, 0xAB, 0x3F, 0xA0, 0x75 };
 };
-typedef MachineStatusRequest A0;
+typedef MachineStatusRequest Req_A0;
 
 //! 回应主机状态 EB BA 3F 07 P0 A0 P1 P2 P3 SUM
 struct MachineStatusResponse {
@@ -499,14 +499,14 @@ struct MachineStatusResponse {
 	MachineStatusResponse& make(MachineStatus status_, MachineType type_) { status = status_; type = type_; return make(); }
 	MachineStatusResponse& make() { data[6] = (Char)status; data[7] = type; sum(this); return *this; }
 };
-typedef MachineStatusResponse A0R;
+typedef MachineStatusResponse Resp_A0;
 
 //! 索要主机防区 EB AB 3F A1 76
 struct ZoneRequest {
 	static constexpr Char len = 5;
 	static constexpr Char data[len] = { 0xEB, 0xAB, 0x3F, 0xA1, 0x76 };
 };
-typedef ZoneRequest A1;
+typedef ZoneRequest Req_A1;
 
 //! 回应主机防区 EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
 struct ZoneResponse {
@@ -565,7 +565,7 @@ struct ZoneResponse {
 		return true;
 	}
 };
-typedef ZoneResponse A2R;
+typedef ZoneResponse Resp_A2;
 
 //! 索要更多主机防区 EB AB 3F A2 77
 //! 仅应在收到ZoneResponse的param非0xFF时发送，以索要全部防区
@@ -573,7 +573,7 @@ struct ZoneRequestMore {
 	static constexpr Char len = 5;
 	static constexpr Char data[len] = { 0xEB, 0xAB, 0x3F, 0xA2, 0x77 };
 };
-typedef ZoneRequestMore A2;
+typedef ZoneRequestMore Req_A2;
 
 //! 修改主机防区 EB CB 3F 09 A3 P1 P2 P3 SUM
 struct ZoneOpRequest {
@@ -599,7 +599,7 @@ struct ZoneOpRequest {
 		data[5] = zone; data[6] = prop; data[7] = op; sum(this); return *this;
 	}
 };
-typedef ZoneOpRequest A3;
+typedef ZoneOpRequest Req_A3;
 
 //! 学码开始回应 EB BA 3F 07 P0 A3 5A
 //! 因为学码时主机要等待外部无线信号（用户触发探测器），因此先回应A3表示已经开始学码，学码成功时回 ZoneOpResponse A4
@@ -607,7 +607,7 @@ struct ZoneOpLearningResponse {
 	static constexpr Char len = 7;
 	Char data[len] = { 0xEB, 0xBA, 0x3F, 0x07, 0xCC, 0xA3, 0x5A };
 };
-typedef ZoneOpLearningResponse A3R;
+typedef ZoneOpLearningResponse Resp_A3;
 
 //! 修改防区回应 EB BA 3F 0A P0 A4 P1 P2 P3 SUM
 struct ZoneOpResponse {
@@ -634,7 +634,7 @@ struct ZoneOpResponse {
 		data[6] = zone; data[7] = prop; data[8] = code; sum(this); return *this;
 	}
 };
-typedef ZoneOpResponse A4R;
+typedef ZoneOpResponse Resp_A4;
 
 struct Timepoint {
 	Char hour = 0xFF, minute = 0xFF;
@@ -661,7 +661,7 @@ struct MachineTimerRequest {
 	static constexpr Char len = 5;
 	static constexpr Char data[len] = { 0xEB, 0xAB, 0x3F, 0xA5, 0x7A };
 };
-typedef MachineTimerRequest A5;
+typedef MachineTimerRequest Req_A5;
 
 //! 主机定时器回应 EB BA 3F 0F P0 A6 H1 M1 H2 M2 H3 M3 H4 M4 SUM
 struct MachineTimerResponse {
@@ -671,7 +671,7 @@ struct MachineTimerResponse {
 	MachineTimer getTimer() const { MachineTimer t; memcpy(&t.data, &data[6], sizeof(MachineTimer)); return t; }
 	void setTimer(const MachineTimer& t) { memcpy(&data[6], &t.data, sizeof(MachineTimer)); sum(this); }
 };
-typedef MachineTimerResponse A6R;
+typedef MachineTimerResponse Resp_A6;
 
 //! 设置主机定时器 EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
 struct SetMachineTimerRequest {
@@ -681,14 +681,14 @@ struct SetMachineTimerRequest {
 	MachineTimer getTimer() const { MachineTimer t; memcpy(&t.data, &data[5], sizeof(MachineTimer)); return t; }
 	void setTimer(const MachineTimer& t) { memcpy(&data[5], &t, sizeof(MachineTimer)); sum(this); }
 };
-typedef SetMachineTimerRequest A7;
+typedef SetMachineTimerRequest Req_A7;
 
 //! 设置主机定时器回应 EB BA 3F 07 P0 A7 SUM
 struct SetMachineTimerResponse {
 	static constexpr Char len = 7;
 	Char data[len] = { 0xEB, 0xBA, 0x3F, 0x07, 0xCC, 0xA7, 0x5E };
 };
-typedef SetMachineTimerResponse A7R;
+typedef SetMachineTimerResponse Resp_A7;
 
 //! 拒绝设置回应 EB BA 3F 07 P0 A8 SUM
 //! 任何操作，主机如果认为非法，都可以用A8直接回复
@@ -696,7 +696,7 @@ struct RejectResponse {
 	static constexpr Char len = 7;
 	Char data[len] = { 0xEB, 0xBA, 0x3F, 0x07, 0xCC, 0xA8, 0x5F };
 };
-typedef RejectResponse A8R;
+typedef RejectResponse Resp_A8;
 
 //! 测试地址 
 // TODO
@@ -706,14 +706,14 @@ struct QuerySensorLostSettingsRequest {
 	static constexpr Char len = 5;
 	static constexpr Char data[len] = { 0xEB, 0xAB, 0x3F, 0xAC, 0x81 };
 };
-typedef QuerySensorLostSettingsRequest AC;
+typedef QuerySensorLostSettingsRequest Req_AC;
 
 //! 索要防区探头遗失/失联  索要更多 EB AB 3F AD 82
 struct QueryMoreSensorLostSettingsRequest {
 	static constexpr Char len = 5;
 	static constexpr Char data[len] = { 0xEB, 0xAB, 0x3F, 0xAD, 0x82 };
 };
-typedef QueryMoreSensorLostSettingsRequest AD;
+typedef QueryMoreSensorLostSettingsRequest Req_AD;
 
 //! 索要防区探头遗失/失联回应 EB BA 3F PN P0 AD P1 DATA P2 SUM
 struct QuerySensorLostSettingsResponse {
@@ -769,7 +769,7 @@ struct QuerySensorLostSettingsResponse {
 		return true;
 	}
 };
-typedef QuerySensorLostSettingsResponse ADR;
+typedef QuerySensorLostSettingsResponse Resp_AD;
 
 //! 修改防区探头遗失/失联 EB CB 3F 08 AA P1 P2 SUM
 struct ChangeSensorLostSettingsRequest {
@@ -781,7 +781,7 @@ struct ChangeSensorLostSettingsRequest {
 		data[5] = zone; data[6] = on; sum(data, len);
 	}
 };
-typedef ChangeSensorLostSettingsRequest AA;
+typedef ChangeSensorLostSettingsRequest Req_AA;
 
 //! 修改防区探头遗失/失联回应 EB BA 3F 09 P0 AB P1 P2 SUM
 struct ChangeSensorLostSettingsResponse {
@@ -793,7 +793,7 @@ struct ChangeSensorLostSettingsResponse {
 		data[6] = zone; data[7] = p2; sum(data, len);
 	}
 };
-typedef ChangeSensorLostSettingsResponse ABR;
+typedef ChangeSensorLostSettingsResponse Resp_AB;
 
 
 //! 解析 Request
@@ -826,38 +826,38 @@ struct RequestParser {
 					switch (data[3]) {
 					case 0xA0: // EB AB 3F A0 75
 						{
-							if (len != A0::len) { break; }
-							if (memcmp(A0::data, data, len) != 0) { break; }
+							if (len != Req_A0::len) { break; }
+							if (memcmp(Req_A0::data, data, len) != 0) { break; }
 							return RequestType::A0_request;
 						}
 					case 0xA1: // EB AB 3F A1 76
 						{
-							if (len != A1::len) { break; }
-							if (memcmp(A1::data, data, len) != 0) { break; }
+							if (len != Req_A1::len) { break; }
+							if (memcmp(Req_A1::data, data, len) != 0) { break; }
 							return RequestType::A1_request;
 						}
 					case 0xA2: // EB AB 3F A2 77
 						{
-							if (len != A2::len) { break; }
-							if (memcmp(A2::data, data, len) != 0) { break; }
+							if (len != Req_A2::len) { break; }
+							if (memcmp(Req_A2::data, data, len) != 0) { break; }
 							return RequestType::A2_request;
 						}
 					case 0xA5: // EB AB 3F A5 7A
 						{
-							if (len != A5::len) { break; }
-							if (memcmp(A5::data, data, len) != 0) { break; }
+							if (len != Req_A5::len) { break; }
+							if (memcmp(Req_A5::data, data, len) != 0) { break; }
 							return RequestType::A5_request;
 						}
 					case 0xAC: // EB AB 3F AC 81
 						{
-							if (len != AC::len) { break; }
-							if (memcmp(AC::data, data, len) != 0) { break; }
+							if (len != Req_AC::len) { break; }
+							if (memcmp(Req_AC::data, data, len) != 0) { break; }
 							return RequestType::AC_request;
 						}
 					case 0xAD: // EB AB 3F AD 82
 						{
-							if (len != AD::len) { break; }
-							if (memcmp(AD::data, data, len) != 0) { break; }
+							if (len != Req_AD::len) { break; }
+							if (memcmp(Req_AD::data, data, len) != 0) { break; }
 							return RequestType::AD_request;
 						}
 
@@ -879,8 +879,8 @@ struct RequestParser {
 					if (data[2] != 0x3F) { break; }
 
 					// EB CB 3F 09 A3 P1 P2 P3 SUM
-					if (data[3] == 0x09 && data[4] == 0xA3 && len == A3::len) {
-						A3 req; memcpy(req.data, data, len); sum(req);
+					if (data[3] == 0x09 && data[4] == 0xA3 && len == Req_A3::len) {
+						Req_A3 req; memcpy(req.data, data, len); sum(req);
 						if (data[len - 1] == req.data[len - 1]) { return RequestType::A3_request; }
 					}
 
@@ -890,8 +890,8 @@ struct RequestParser {
 					}
 
 					// EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
-					if (data[3] == 0x0E && data[4] == 0xA7 && len == A7::len) {
-						A7 req; memcpy(req.data, data, req.len); sum(req);
+					if (data[3] == 0x0E && data[4] == 0xA7 && len == Req_A7::len) {
+						Req_A7 req; memcpy(req.data, data, req.len); sum(req);
 						if (data[len - 1] == req.data[len - 1]) { return RequestType::A7_request; }
 					}
 
@@ -901,8 +901,8 @@ struct RequestParser {
 					}*/
 
 					// EB CB 3F 08 AA P1 P2 SUM
-					if (data[3] == 0x08 && data[4] == 0xAA && len == AA::len) {
-						AA req; memcpy(req.data, data, req.len); sum(req);
+					if (data[3] == 0x08 && data[4] == 0xAA && len == Req_AA::len) {
+						Req_AA req; memcpy(req.data, data, req.len); sum(req);
 						if (data[len - 1] == req.data[len - 1]) { return RequestType::AA_request; }
 					}
 
@@ -912,7 +912,7 @@ struct RequestParser {
 					}*/
 
 					// EB CB 3F 06 B0 AB
-					if (data[3] == 0x06 && data[4] == 0xB0 && len == B0::len && memcmp(B0::data, data, len) == 0) {
+					if (data[3] == 0x06 && data[4] == 0xB0 && len == Req_B0::len && memcmp(Req_B0::data, data, len) == 0) {
 						return RequestType::B0_request;
 					}
 				}
@@ -948,8 +948,8 @@ struct ResponseParser {
 			switch (data[5]) {
 			case 0xA0: // EB BA 3F 07 P0 A0 P1 P2 P3 SUM
 				{
-					if (len != A0R::len) { break; }
-					A0R resp; memcpy(resp.data, data, len); sum(resp);
+					if (len != Resp_A0::len) { break; }
+					Resp_A0 resp; memcpy(resp.data, data, len); sum(resp);
 					if (resp.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::A0_response;
 				}
@@ -957,47 +957,47 @@ struct ResponseParser {
 			case 0xA2: // EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
 				{
 					if (len != data[3]) { break; }
-					A2R resp; memcpy(resp.data, data, len); sum(resp);
+					Resp_A2 resp; memcpy(resp.data, data, len); sum(resp);
 					if (resp.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::A2_response;
 				}
 
 			case 0xA3: 
 				{
-					if (len != A3R::len) { break; }
-					A3R resp; memcpy(resp.data, data, len); sum(resp);
+					if (len != Resp_A3::len) { break; }
+					Resp_A3 resp; memcpy(resp.data, data, len); sum(resp);
 					if (resp.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::A3_response;
 				}
 
 			case 0xA4: 
 				{
-					if (len != A4R::len) { break; }
-					A4R resp; memcpy(resp.data, data, len); sum(resp);
+					if (len != Resp_A4::len) { break; }
+					Resp_A4 resp; memcpy(resp.data, data, len); sum(resp);
 					if (resp.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::A4_response;
 				}
 
 			case 0xA6: 
 				{
-					if (len != A6R::len) { break; }
-					A6R resp; memcpy(resp.data, data, len); sum(resp);
+					if (len != Resp_A6::len) { break; }
+					Resp_A6 resp; memcpy(resp.data, data, len); sum(resp);
 					if (resp.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::A6_response;
 				}
 
 			case 0xA7:
 				{
-					if (len != A7R::len) { break; }
-					A7R resp; memcpy(resp.data, data, len); sum(resp);
+					if (len != Resp_A7::len) { break; }
+					Resp_A7 resp; memcpy(resp.data, data, len); sum(resp);
 					if (resp.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::A7_response;
 				}
 
 			case 0xA8:
 				{
-					if (len != A8R::len) { break; }
-					A8R resp; memcpy(resp.data, data, len); sum(resp);
+					if (len != Resp_A8::len) { break; }
+					Resp_A8 resp; memcpy(resp.data, data, len); sum(resp);
 					if (resp.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::A8_response;
 				}
@@ -1009,8 +1009,8 @@ struct ResponseParser {
 
 			case 0xAB:
 				{
-					if (len != ABR::len) { break; }
-					ABR resp; memcpy(resp.data, data, len); sum(resp);
+					if (len != Resp_AB::len) { break; }
+					Resp_AB resp; memcpy(resp.data, data, len); sum(resp);
 					if (resp.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::AB_response;
 				}
@@ -1018,7 +1018,7 @@ struct ResponseParser {
 			case 0xAD: // EB BA 3F PN P0 AD P1 DATA P2 SUM
 				{
 					if (len != data[3]) { break; }
-					ADR resp; memcpy(resp.data, data, len); sum(resp); sum(resp);
+					Resp_AD resp; memcpy(resp.data, data, len); sum(resp); sum(resp);
 					if (resp.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::AD_response;
 				}
@@ -1031,8 +1031,8 @@ struct ResponseParser {
 
 			case 0xB1: // EB BA 3F 08 P0 B1 P1 SUM
 				{
-					if (len != B1R::len) { break; }
-					B1R resp; memcpy(resp.data.data, data, len); sum(resp.data.data, resp.len);
+					if (len != Resp_B1::len) { break; }
+					Resp_B1 resp; memcpy(resp.data.data, data, len); sum(resp.data.data, resp.len);
 					if (resp.data.data[len - 1] != data[len - 1]) { break; }
 					return ResponseType::B1_response;
 				}

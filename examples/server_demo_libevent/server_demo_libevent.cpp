@@ -203,8 +203,8 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 		break;
 	case com::ResponseParser::ResponseType::A2_response:
 		{
-			com::A2R resp; memcpy(resp.data, xdata.data(), xdata.size()); resp.len = xdata.size() & 0xFF;
-			com::A2R::ZoneAndProperties zps; bool hasMore = false;
+			com::Resp_A2 resp; memcpy(resp.data, xdata.data(), xdata.size()); resp.len = xdata.size() & 0xFF;
+			com::Resp_A2::ZoneAndProperties zps; bool hasMore = false;
 			if (client.queryStage == QueryStage::QueryingZones && resp.parse(zps, hasMore)) {
 				for (const auto& zp : zps) {
 					ZonePropertyAndLostConfig zplc;
@@ -218,10 +218,10 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 				}
 				XDataPtr xdata;
 				if (hasMore) { // 继续索要剩余防区
-					com::A2 req;
+					com::Req_A2 req;
 					xdata = makeXData((const char*)req.data, req.len);					
 				} else { // 开始索要防区失联设置
-					com::AC req;
+					com::Req_AC req;
 					xdata = makeXData((const char*)req.data, req.len);
 					client.queryStage = QueryStage::QueryingLostConfig;
 				}
@@ -254,7 +254,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 		{
 			if (client.queryStage == QueryStage::QueryingTimer) {
 				client.queryStage = QueryStage::None;
-				com::A6R resp; memcpy(resp.data, xdata.data(), resp.len);
+				com::Resp_A6 resp; memcpy(resp.data, xdata.data(), resp.len);
 				client.timer = resp.getTimer();
 				for (int i = 0; i < 2; i++) {
 					if (com::isValidMachineTimer(client.timer.timer[i])) {
@@ -286,7 +286,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 		break;
 	case com::ResponseParser::ResponseType::AD_response:
 		{
-			com::ADR resp; memcpy(resp.data, xdata.data(), xdata.size()); resp.len = xdata.size() & 0xFF;
+			com::Resp_AD resp; memcpy(resp.data, xdata.data(), xdata.size()); resp.len = xdata.size() & 0xFF;
 			bool hasMore = false;
 			std::vector<size_t> zones;
 			if (client.queryStage == QueryStage::QueryingLostConfig && resp.parse(zones, hasMore)) {
@@ -300,7 +300,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 				}
 				XDataPtr xdata;
 				if (hasMore) { // 继续索要剩余防区
-					com::A2 req;
+					com::Req_A2 req;
 					xdata = makeXData((const char*)req.data, req.len);
 					auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0,
 													 EVENT_COM_PASSTHROUGH, 0, xdata);
@@ -327,7 +327,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 		break;
 	case com::ResponseParser::ResponseType::B1_response:
 		{			
-			com::B1R b1; memcpy(b1.data.data, xdata.data(), xdata.size());
+			com::Resp_B1 b1; memcpy(b1.data.data, xdata.data(), xdata.size());
 			client.status1 = b1.data.cmd.status1 == 0 ? MachineStatus::Arm : MachineStatus::Disarm;
 			client.status2 = b1.data.cmd.status2 == 0 ? MachineStatus::Arm : MachineStatus::Disarm;
 			client.status3 = b1.data.cmd.status3 == 0 ? MachineStatus::Arm : MachineStatus::Disarm;
@@ -367,7 +367,7 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 				if (ademco::isMachineTypeEvent(context->packet.ademcoData_.ademco_event_)) {
 					client.type = context->packet.ademcoData_.ademco_event_;
 					if (client.type == EVENT_I_AM_3_SECTION_MACHINE) { // 三区段主机需要主动索要主机状态
-						com::B0 req;
+						com::Req_B0 req;
 						auto xdata = makeXData((const char*)req.data, req.len);
 						auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0, 
 														 EVENT_COM_PASSTHROUGH, 0, xdata);
@@ -392,7 +392,7 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 				} else if (context->packet.ademcoData_.ademco_event_ == EVENT_ENTER_SET_MODE) {
 					if (client.queryStage == QueryStage::WaitingSettingsMode) {
 						client.queryStage = QueryStage::QueryingZones;
-						com::A1 req;
+						com::Req_A1 req;
 						auto xdata = makeXData((const char*)req.data, req.len);
 						auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0,
 														 EVENT_COM_PASSTHROUGH, 0, xdata);
@@ -404,7 +404,7 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 						}
 					} else if (client.queryStage == QueryStage::WaitingSettingsMode2) {
 						client.queryStage = QueryStage::QueryingTimer;
-						com::A5 req;
+						com::Req_A5 req;
 						auto xdata = makeXData((const char*)req.data, req.len);
 						auto n = context->packet.make_hb(buf, sizeof(buf), client.nextSeq(), client.acct, client.ademco_id, 0,
 														 EVENT_COM_PASSTHROUGH, 0, xdata);
