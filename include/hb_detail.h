@@ -1046,12 +1046,12 @@ struct ResponseParser {
 // fix gcc cry
 #ifdef __GNUG__
 #define DECLARE_HB_COMMON_COM_CONSTEXPR_MEMBERS \
-constexpr hb::Char hb::common::com::A1::data[]; \
-constexpr hb::Char hb::common::com::A2::data[]; \
-constexpr hb::Char hb::common::com::AC::data[]; \
-constexpr hb::Char hb::common::com::AD::data[]; \
-constexpr hb::Char hb::common::com::A5::data[]; \
-constexpr hb::Char hb::common::com::B0::data[];
+constexpr hb::Char hb::common::com::Req_A1::data[]; \
+constexpr hb::Char hb::common::com::Req_A2::data[]; \
+constexpr hb::Char hb::common::com::Req_AC::data[]; \
+constexpr hb::Char hb::common::com::Req_AD::data[]; \
+constexpr hb::Char hb::common::com::Req_A5::data[]; \
+constexpr hb::Char hb::common::com::Req_B0::data[];
 #else
 #define DECLARE_HB_COMMON_COM_CONSTEXPR_MEMBERS
 #endif
