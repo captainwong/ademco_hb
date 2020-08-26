@@ -68,15 +68,7 @@ using namespace ademco;
 using namespace hb;
 using namespace hb::common;
 
-// fix gcc cry
-#ifdef __GNUG__
-constexpr Char com::A1::data[];
-constexpr Char com::A2::data[];
-constexpr Char com::AC::data[];
-constexpr Char com::AD::data[];
-constexpr Char com::A5::data[];
-constexpr Char com::B0::data[];
-#endif
+DECLARE_HB_COMMON_COM_CONSTEXPR_MEMBERS;
 
 
 enum class QueryStage {
