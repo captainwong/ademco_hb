@@ -283,7 +283,6 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 			std::vector<size_t> zones;
 			if (client.queryStage == QueryStage::QueryingLostConfig && resp.parse(zones, hasMore)) {
 				for (const auto& zone : zones) {
-					auto& z = client.zones[zone];
 					client.zones[zone].tamper_enabled = true;
 					snprintf(buf, sizeof(buf), getZoneFormatString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)), zone);
 					printf("\t\tZone:");

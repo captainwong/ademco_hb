@@ -31,12 +31,14 @@ static common::MachineType machineTypeFromAdemcoEvent(ademco::ADEMCO_EVENT e) {
 static ademco::ADEMCO_EVENT ademcoEventFromMachineType(common::MachineType type)
 {
 	switch (type) {
+	case common::MachineType::WiFi: 	        return ademco::EVENT_I_AM_WIFI_MACHINE;
 	case common::MachineType::NetMod:	        return ademco::EVENT_I_AM_NET_MODULE;
+	case common::MachineType::TrueColor:
 	case common::MachineType::Gprs:	            return ademco::EVENT_I_AM_GPRS;
 	case common::MachineType::Lcd:		        return ademco::EVENT_I_AM_LCD_MACHINE;
 	case common::MachineType::Wired: 	        return ademco::EVENT_I_AM_WIRE_MACHINE;
-	case common::MachineType::WiFi: 	        return ademco::EVENT_I_AM_WIFI_MACHINE;
 	case common::MachineType::ThreeSection: 	return ademco::EVENT_I_AM_3_SECTION_MACHINE;
+	case common::MachineType::IoT:				return ademco::EVENT_I_AM_IOT_MACHINE;
 	default: 						            return ademco::EVENT_INVALID_EVENT;
 	}
 }

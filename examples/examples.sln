@@ -38,6 +38,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "include", "include", "{332E
 		..\include\hb_helper.h = ..\include\hb_helper.h
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server_demo_libevent_linux", "server_demo_libevent_linux\server_demo_libevent_linux.vcxproj", "{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -198,6 +200,32 @@ Global
 		{FED919A9-19E0-4D4A-972F-DDF537F5DEFE}.Release|x64.Build.0 = Release|x64
 		{FED919A9-19E0-4D4A-972F-DDF537F5DEFE}.Release|x86.ActiveCfg = Release|Win32
 		{FED919A9-19E0-4D4A-972F-DDF537F5DEFE}.Release|x86.Build.0 = Release|Win32
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|ARM.ActiveCfg = Debug|ARM
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|ARM.Build.0 = Debug|ARM
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|ARM.Deploy.0 = Debug|ARM
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|ARM64.Build.0 = Debug|ARM64
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|x64.ActiveCfg = Debug|x64
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|x64.Build.0 = Debug|x64
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|x64.Deploy.0 = Debug|x64
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|x86.ActiveCfg = Debug|x86
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|x86.Build.0 = Debug|x86
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Debug|x86.Deploy.0 = Debug|x86
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|Any CPU.ActiveCfg = Release|x86
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|ARM.ActiveCfg = Release|ARM
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|ARM.Build.0 = Release|ARM
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|ARM.Deploy.0 = Release|ARM
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|ARM64.ActiveCfg = Release|ARM64
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|ARM64.Build.0 = Release|ARM64
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|ARM64.Deploy.0 = Release|ARM64
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|x64.ActiveCfg = Release|x64
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|x64.Build.0 = Release|x64
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|x64.Deploy.0 = Release|x64
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|x86.ActiveCfg = Release|x86
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|x86.Build.0 = Release|x86
+		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
