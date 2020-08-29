@@ -301,7 +301,7 @@ struct XData
 
 	enum class DataFormat {
 		AS_IS, //! 原样打包
-		TO_ASCII, //! 一个字节的HEX值转换为两个ASCII字符，如 6 转为  00 06
+		TO_ASCII, //! 一个字节的HEX值转换为两个ASCII字符，如 6 转为 "06", '6' 转为 "36"
 	};
 
 	LengthFormat lengthFormat_ = LengthFormat::TWO_HEX;
@@ -320,10 +320,51 @@ struct XData
 
 	size_t size() const { return data_.size(); }
 	size_t rawSize() const { return rawData_.size(); }
+	bool valid() const {
+		if (data_.empty() || rawData_.empty()) { return false; }
+		size_t len = 0;
+		if (lengthFormat_ == LengthFormat::TWO_HEX) {
+			if (rawData_.size() < 4) { return false; }
+			len = (rawData_[1] << 8) | rawData_[2];
+			if (len != data_.size() || (data_.size() + 4 != rawData_.size())) { return false; }
+		} else {
+			if (rawData_.size() < 6) { return false; }
+			len = ademco::detail::HexCharArrayToDec(rawData_.data() + 1, 4);
+			if ((len != data_.size()) || (data_.size() + 6 != rawData_.size())) { return false; }
+		}
+		return true;
+	}
 
 	bool operator==(const XData& rhs) const {
 		return lengthFormat_ == rhs.lengthFormat_
 			&& data_ == rhs.data_;
+	}
+
+	bool convert(LengthFormat lengthFormat = LengthFormat::TWO_HEX) {
+		if (!valid()) { return false; }
+		if (lengthFormat_ == lengthFormat) { return true; }
+		lengthFormat_ = lengthFormat;
+		if (lengthFormat_ == LengthFormat::TWO_HEX) {
+			std::vector<char> tmp(data_.size() / 2);
+			detail::ConvertHiLoAsciiToHexCharArray(&tmp[0], data_.data(), data_.size());
+			data_ = tmp;
+			rawData_.resize(data_.size() + 4);
+			rawData_[0] = '[';
+			rawData_[1] = (data_.size() >> 8) & 0xFF;
+			rawData_[2] = data_.size() & 0xFF;
+			memcpy(&rawData_[3], data_.data(), data_.size());
+			rawData_.back() = ']';
+		} else {
+			auto tmp = detail::toString(data_, detail::ToStringOption::ALL_CHAR_AS_HEX, false, false);
+			data_.clear();
+			std::copy(tmp.begin(), tmp.end(), std::back_inserter(data_));
+			rawData_.resize(data_.size() + 6);
+			rawData_[0] = '[';
+			detail::Dec2HexCharArray_4(data_.size(), &rawData_[1], false);
+			memcpy(&rawData_[5], data_.data(), data_.size());
+			rawData_.back() = ']';
+		}
+		return true;
 	}
 };
 

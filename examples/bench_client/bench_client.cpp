@@ -63,6 +63,7 @@ struct Session {
 	int fd = 0;
 	int thread_id = 0;
 	bufferevent* bev = nullptr;
+	event* timer = nullptr;
 	int id = 0;
 	std::string acct = {};
 	size_t ademco_id = 0;
@@ -174,6 +175,7 @@ void timer_cb(evutil_socket_t fd, short what, void* arg)
 	//bufferevent_free(bev);
 	//evutil_closesocket(fd);
 
+	session->timer = nullptr;
 	bufferevent_disable(session->bev, EV_WRITE);
 	// SHUT_WR
 	shutdown(session->fd, 1);
@@ -197,14 +199,14 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 		session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->seq, session->acct, session->ademco_id);
 		evbuffer_add(bufferevent_get_output(bev), buf, session->lastTimePacketSize);
 		auto base = bufferevent_get_base(bev);
-		auto timer = event_new(base, -1, EV_TIMEOUT, timer_cb, session);
-		if (!timer) {
+		session->timer = event_new(base, -1, EV_TIMEOUT, timer_cb, session);
+		if (!session->timer) {
 			fprintf(stderr, "create timer failed\n");
 			event_base_loopbreak(base);
 			return;
 		}
 		struct timeval tv = { timeout, 0 };
-		event_add(timer, &tv);
+		event_add(session->timer, &tv);
 
 		if (++ctx->session_start < ctx->session_end) {
 			ctx->connectNext();
@@ -246,6 +248,10 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 		}
 	}
 	
+	if (session->timer) {
+		event_del(session->timer);
+		session->timer = nullptr;
+	}
 	delete session;
 	bufferevent_free(bev);
 	//event_base_loopbreak(bufferevent_get_base(bev));	
