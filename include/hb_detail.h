@@ -549,7 +549,14 @@ struct ZoneResponse {
 	};
 	typedef std::vector<ZoneAndProperty> ZoneAndProperties;
 
-	//! parser, make sure to call ResponseParser::parse first and return is A2_response to check data valid, then copy data/len to member.
+	bool assign(const char* in_data, Char in_len) {
+		if (in_len > max_len) { return false; }
+		memcpy(data, in_data, in_len);
+		len = in_len;
+		return true;
+	}
+
+	//! parser, make sure to call ResponseParser::parse first and return is A2_response to check data valid, then call assign.
 	bool parse(ZoneAndProperties& zps, bool& hasMore) {
 		if (len < min_len || data[3] != len) { return false; } // check valid again
 		Char sum_ = data[len - 1]; sum(data, len); if (sum_ != data[len - 1]) { return false; } // check sum again
