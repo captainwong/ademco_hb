@@ -17,9 +17,6 @@ constexpr int TIMES = 100000;
 
 char data[TIMES * 256];
 
-static constexpr size_t MaxAdemcoId = 999999;
-static constexpr size_t AdemcoIdSentinel = MaxAdemcoId + 1;
-
 void ademcoPacketBench()
 {
 	printf("\nademcoPacketBench...\n");

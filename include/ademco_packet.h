@@ -21,19 +21,48 @@ enum class ParseResult
 	RESULT_DATA_ERROR,
 };
 
+typedef uint32_t AdemcoId;
+typedef uint8_t  AdemcoGG;
+typedef uint32_t AdemcoZone;
+
+
+//! 安定宝ID范围
+constexpr AdemcoId AdemcoIdMin = 1;
+constexpr AdemcoId AdemcoIdMax = 999999; // 兼容性考虑，最大安定宝 ID 为 0x0F423F
+constexpr AdemcoId AdemcoIdSentinel = AdemcoIdMax + 1;
+inline bool isValidAdemcoId(AdemcoId ademcoId) { return AdemcoIdMin <= ademcoId && ademcoId <= AdemcoIdMax; }
+
+//! 防区号为0时表示主机自身
+constexpr AdemcoZone Zone4MachineSelf = 0;
+//! 主机防区号范围
+constexpr AdemcoZone ZoneMin = 1;
+//! 对任何主机类型，最大的防区号
+constexpr AdemcoZone ZoneMax = 999;
+constexpr AdemcoZone ZoneSentinel = ZoneMax + 1;
+
+//! 对任何主机类型，防区号是否合法（可以包含0防区）
+inline bool isValidZone(AdemcoZone zone) {
+	return Zone4MachineSelf <= zone && zone < ZoneSentinel;
+}
+
+//! 对任何主机类型，防区号是否合法（不可以包含0防区）
+inline bool isValidZoneStrict(AdemcoZone zone) {
+	return ZoneMin <= zone && zone < ZoneSentinel;
+}
+
 //! 安定宝数据包 data 段
 struct AdemcoData
 {
 	//! 数据
 	std::vector<char> data_ = {};
 	//! 安定宝ID
-	size_t ademco_id_ = 0;
+	AdemcoId ademco_id_ = 0;
 	//! 安定宝事件码
 	ADEMCO_EVENT ademco_event_ = ADEMCO_EVENT::EVENT_INVALID_EVENT;
 	//! gg
-	unsigned char gg_ = 0;
+	AdemcoGG gg_ = 0;
 	//! zone
-	size_t zone_ = 0;
+	AdemcoZone zone_ = 0;
 
 	AdemcoData() { make(); }
 
@@ -54,21 +83,21 @@ struct AdemcoData
 		return str;
 	}
 
-	void assignAdemcoId(size_t ademco_id) {
+	void assignAdemcoId(AdemcoId ademco_id) {
 		char aid[7] = { 0 };
-		snprintf(aid, sizeof(aid), "%06X", static_cast<int>(ademco_id % 1000000));
+		snprintf(aid, sizeof(aid), "%06X", static_cast<int>(ademco_id % AdemcoIdSentinel));
 		std::copy(aid, aid + 6, std::back_inserter(data_));
 		ademco_id_ = ademco_id;
 	}
 
 	void assignAdemcoEvent(ADEMCO_EVENT ademco_event) {
 		char aev[5] = { 0 };
-		snprintf(aev, sizeof(aev), "%04d", static_cast<int>(ademco_event % 10000));
+		snprintf(aev, sizeof(aev), "%04d", static_cast<int>(ademco_event % AdemcoEventSentinel));
 		std::copy(aev, aev + 4, std::back_inserter(data_));
 		ademco_event_ = ademco_event;
 	}
 
-	void assignGG(size_t gg) {
+	void assignGG(AdemcoGG gg) {
 		if (gg == 0xEE) {
 			data_.push_back('E');
 			data_.push_back('E');
@@ -83,15 +112,15 @@ struct AdemcoData
 		gg_ = static_cast<unsigned char>(gg);
 	}
 
-	void assignZone(size_t zone) {
+	void assignZone(AdemcoZone zone) {
 		char z[4] = { 0 };
-		snprintf(z, sizeof(z), "%03d", static_cast<int>(zone % 1000));
+		snprintf(z, sizeof(z), "%03d", static_cast<int>(zone % ZoneSentinel));
 		std::copy(z, z + 3, std::back_inserter(data_));
 		zone_ = zone;
 	}
 
 	//! 生成可用于网络传输的数据
-	void make(size_t ademco_id, size_t gg, ADEMCO_EVENT ademco_event, size_t zone) {
+	void make(AdemcoId ademco_id, AdemcoGG gg, ADEMCO_EVENT ademco_event, AdemcoZone zone) {
 		if (EVENT_INVALID_EVENT == ademco_event) { make(); return; }
 		clear();
 
@@ -111,7 +140,7 @@ struct AdemcoData
 	}
 
 	//! 生成可用于网络传输的数据
-	void make(const char* acct, size_t gg, ADEMCO_EVENT ademco_event, size_t zone) {
+	void make(const char* acct, AdemcoGG gg, ADEMCO_EVENT ademco_event, AdemcoZone zone) {
 		clear();
 
 		data_.clear();
@@ -165,12 +194,12 @@ struct AdemcoData
 			if (acct_len == 4) {
 				if (*(p + 4) != '|')
 					break;
-				ademco_id_ = detail::HexCharArrayToDec(p, 4);
+				ademco_id_ = static_cast<AdemcoId>(detail::HexCharArrayToDec(p, 4) % AdemcoIdSentinel);
 				p += 5;
 			} else if (acct_len == 6) {
 				if (*(p + 6) != '|')
 					break;
-				ademco_id_ = detail::HexCharArrayToDec(p, 6);
+				ademco_id_ = static_cast<AdemcoId>(detail::HexCharArrayToDec(p, 6) % AdemcoIdSentinel);
 				p += 7;
 			} else if (acct_len == 14) { // just ignore it
 				if (*(p + 14) != '|')
@@ -182,7 +211,7 @@ struct AdemcoData
 				p += acct_len + 1;
 			}
 
-			ademco_event_ = static_cast<ADEMCO_EVENT>(detail::NumCharArray2Dec(p, 4));
+			ademco_event_ = static_cast<ADEMCO_EVENT>(detail::NumCharArray2Dec(p, 4) % AdemcoEventSentinel);
 			p += 4;
 			if (*p++ != ' ')
 				break;
@@ -192,14 +221,14 @@ struct AdemcoData
 			} else if (*p == 'C' && *(p + 1) == 'C') {
 				gg_ = 0xCC;
 			} else {
-				gg_ = static_cast<unsigned char>((*p - '0') * 10 + (*(p + 1) - '0'));
+				gg_ = static_cast<AdemcoGG>((*p - '0') * 10 + (*(p + 1) - '0'));
 			}
 
 			p += 2;
 			if (*p++ != ' ')
 				break;
 
-			zone_ = detail::NumCharArray2Dec(p, 3);
+			zone_ = static_cast<AdemcoZone>(detail::NumCharArray2Dec(p, 3) % ZoneSentinel);
 			std::copy(pack, pack + pack_len, std::back_inserter(data_));
 			return true;
 		} while (0);
@@ -219,8 +248,8 @@ struct AdemcoData
 // 2016-11-4 16:47:51 for compatibility of congwin fe100 protocal
 struct CongwinFe100Packet
 {
-	char data_[32] = { 0 };
-	const int len_ = 31;
+	static constexpr size_t length = 31;
+	char data_[length + 1] = { 0 };
 
 	bool fromAdemcoData(const AdemcoData* data) {
 		assert(data && data->valid());
@@ -228,10 +257,9 @@ struct CongwinFe100Packet
 			return false;
 		}
 
-		size_t acct = data->ademco_id_;
+		auto acct = data->ademco_id_;
 		auto evnt = data->ademco_event_;
-		//int gg = data->_gg;
-		size_t zone = data->zone_;
+		auto zone = data->zone_;
 
 		int ndx = 0;
 		data_[ndx++] = '\n'; // LF
@@ -281,7 +309,7 @@ struct CongwinFe100Packet
 			data_[ndx++] = 'C'; // C
 		}
 
-		ndx += sprintf(data_ + ndx, "%03d", static_cast<int>(zone % 10000));
+		ndx += sprintf(data_ + ndx, "%03d", static_cast<int>(zone % ZoneSentinel));
 
 		data_[ndx++] = ' ';
 		data_[ndx++] = '\r';
@@ -350,8 +378,8 @@ struct XData
 			data_ = tmp;
 			rawData_.resize(data_.size() + 4);
 			rawData_[0] = '[';
-			rawData_[1] = (data_.size() >> 8) & 0xFF;
-			rawData_[2] = data_.size() & 0xFF;
+			rawData_[1] = (char)((data_.size() >> 8) & 0xFF);
+			rawData_[2] = (char)(data_.size() & 0xFF);
 			memcpy(&rawData_[3], data_.data(), data_.size());
 			rawData_.back() = ']';
 		} else {
@@ -688,7 +716,7 @@ static constexpr const char* AdemcoIds[ID_COUNT] = {
 	ID_REG_RSP,
 };
 
-struct AdemcoId
+struct AdemcoMsgId
 {
 	enum Enum {
 		id_null,
@@ -794,7 +822,7 @@ struct AdemcoPacket
 	static constexpr char LF = 0x0A;
 	Crc16 crc_ = {};
 	Length16 len_ = {};
-	AdemcoId id_ = {};
+	AdemcoMsgId id_ = {};
 	AdemcoSeq seq_ = {};
 	Rrcvr rrcvr_ = {};
 	Lpref lpref_ = {};
@@ -920,13 +948,13 @@ struct AdemcoPacket
 
 	// set acct to nullptr if you want to use ademco_id as acct
 	size_t make(char* pack, size_t pack_len, 
-				AdemcoId::Enum id, 
+				AdemcoMsgId::Enum id, 
 				uint16_t seq, 
 				const char* acct, 
-				size_t ademco_id, 
-				unsigned char gg, 
+				AdemcoId ademco_id, 
+				AdemcoGG gg, 
 				ADEMCO_EVENT aevnt, 
-				size_t zone, 
+				AdemcoZone zone, 
 				XDataPtr xdata = {})
 	{
 		assert(pack);
@@ -946,9 +974,9 @@ struct AdemcoPacket
 	}
 
 	// set acct to nullptr if you want to use ademco_id as acct
-	size_t make_null(char* pack, size_t pack_len, uint16_t seq, const char* acct, size_t ademco_id)
+	size_t make_null(char* pack, size_t pack_len, uint16_t seq, const char* acct, AdemcoId ademco_id)
 	{
-		id_.eid_ = AdemcoId::Enum::id_null;
+		id_.eid_ = AdemcoMsgId::Enum::id_null;
 		seq_ = seq;
 		rrcvr_.setDefault(); lpref_.setDefault();
 		acct ? acct_.setAcct(acct) : acct_.setAcct(ademco_id);
@@ -964,14 +992,14 @@ struct AdemcoPacket
 	}
 
 	// set acct to empty if you want to use ademco_id as acct
-	size_t make_null(char* pack, size_t pack_len, uint16_t seq, const std::string& acct, size_t ademco_id) {
+	size_t make_null(char* pack, size_t pack_len, uint16_t seq, const std::string& acct, AdemcoId ademco_id) {
 		return make_null(pack, pack_len, seq, acct.empty() ? nullptr : acct.data(), ademco_id);
 	}
 
 	// set acct to nullptr if you want to use ademco_id as acct
-	size_t make_ack(char* pack, size_t pack_len, uint16_t seq, const char* acct, size_t ademco_id)
+	size_t make_ack(char* pack, size_t pack_len, uint16_t seq, const char* acct, AdemcoId ademco_id)
 	{
-		id_.eid_ = AdemcoId::Enum::id_ack;
+		id_.eid_ = AdemcoMsgId::Enum::id_ack;
 		seq_ = seq;
 		rrcvr_.setDefault(); lpref_.setDefault();
 		acct ? acct_.setAcct(acct) : acct_.setAcct(ademco_id);
@@ -987,12 +1015,12 @@ struct AdemcoPacket
 	}
 
 	// set acct to nullptr if you want to use ademco_id as acct
-	size_t make_ack(char* pack, size_t pack_len, uint16_t seq, const std::string& acct, size_t ademco_id) {
+	size_t make_ack(char* pack, size_t pack_len, uint16_t seq, const std::string& acct, AdemcoId ademco_id) {
 		return make_ack(pack, pack_len, seq, acct.empty() ? nullptr : acct.data(), ademco_id);
 	}
 
-	size_t make_nak(char* pack, size_t pack_len, uint16_t seq, const std::string& acct, size_t ademco_id) {
-		id_.eid_ = AdemcoId::Enum::id_nak;
+	size_t make_nak(char* pack, size_t pack_len, uint16_t seq, const std::string& acct, AdemcoId ademco_id) {
+		id_.eid_ = AdemcoMsgId::Enum::id_nak;
 		seq_ = seq;
 		rrcvr_.setDefault(); lpref_.setDefault();
 		!acct.empty() ? acct_.setAcct(acct) : acct_.setAcct(ademco_id);
@@ -1011,13 +1039,13 @@ struct AdemcoPacket
 	size_t make_hb(char* pack, size_t pack_len, 
 				   uint16_t seq, 
 				   const char* acct, 
-				   size_t ademco_id, 
-				   unsigned char gg, 
+				   AdemcoId ademco_id,
+				   AdemcoGG gg,
 				   ADEMCO_EVENT evnt, 
-				   size_t zone, 
+				   AdemcoZone zone,
 				   XDataPtr xdata = {})
 	{
-		id_.eid_ = AdemcoId::Enum::id_hb;
+		id_.eid_ = AdemcoMsgId::Enum::id_hb;
 		seq_ = seq;
 		rrcvr_.setDefault(); lpref_.setDefault();
 		acct ? acct_.setAcct(acct) : acct_.setAcct(ademco_id);
@@ -1037,10 +1065,10 @@ struct AdemcoPacket
 	size_t make_hb(char* pack, size_t pack_len,
 				   uint16_t seq,
 				   const std::string& acct,
-				   size_t ademco_id,
-				   unsigned char gg,
+				   AdemcoId ademco_id,
+				   AdemcoGG gg,
 				   ADEMCO_EVENT evnt,
-				   size_t zone,
+				   AdemcoZone zone,
 				   XDataPtr xdata = {})
 	{
 		return make_hb(pack, pack_len, seq, acct.empty() ? nullptr : acct.data(), ademco_id, gg, evnt, zone, xdata);
@@ -1049,156 +1077,161 @@ struct AdemcoPacket
 	// parser
 	ParseResult parse(const char* pack, size_t pack_len, size_t& cb_commited) {
 		//AUTO_LOG_FUNCTION;
-		do {
-			if (pack_len < 9) { 
-				JLOG_INFO("AdemcoPacket::Parse pack_len {} < 9", pack_len); JLOG_HEX(pack, pack_len); 
-				return ParseResult::RESULT_NOT_ENOUGH;
-			}
+		try {
+			do {
+				if (pack_len < 9) {
+					JLOG_INFO("AdemcoPacket::Parse pack_len {} < 9", pack_len); JLOG_HEX(pack, pack_len);
+					return ParseResult::RESULT_NOT_ENOUGH;
+				}
 
-			// check LF
-			if (pack[0] != LF) {
-				JLOG_ERRO("AdemcoPacket::Parse pack[0] {:d} 0x{:02X} is not _LF", pack[0], pack[0]);
+				// check LF
+				if (pack[0] != LF) {
+					JLOG_ERRO("AdemcoPacket::Parse pack[0] {:d} 0x{:02X} is not _LF", pack[0], pack[0]);
 #ifdef _WIN32
-				return ParseResult::RESULT_DATA_ERROR;
+					return ParseResult::RESULT_DATA_ERROR;
 #else
-				break;
+					break;
 #endif
-			}
+				}
 
-			clear();
+				clear();
 
-			// read crc & len
-			crc_.fromCharArray(pack + 1);
-			len_.fromCharArray(pack + 5);
+				// read crc & len
+				crc_.fromCharArray(pack + 1);
+				len_.fromCharArray(pack + 5);
 
-			// read till CR
-			size_t len_to_parse = 9 + len_.value_ + 1; // 1 for CR
+				// read till CR
+				size_t len_to_parse = 9u + len_.value_ + 1; // 1 for CR
 
-			// check if packet is enough to parse
-			if (pack_len < len_to_parse) { 
-				JLOG_ERRO("AdemcoPacket::Parse pack_len {} < len_to_parse {}", pack_len, len_to_parse); 
-				return ParseResult::RESULT_NOT_ENOUGH;
-			}
+				// check if packet is enough to parse
+				if (pack_len < len_to_parse) {
+					JLOG_ERRO("AdemcoPacket::Parse pack_len {} < len_to_parse {}", pack_len, len_to_parse);
+					return ParseResult::RESULT_NOT_ENOUGH;
+				}
 
-			// check CR
-			const char* id_pos = pack + 9;
-			const char* CR_pos = id_pos + len_.value_;
-			if (*CR_pos != CR) {
-				JLOG_ERRO("AdemcoPacket::Parse ademco_len err!"); 
-				break;
-			}
-
-			// check ademco CRC
-			unsigned short crc_calc = detail::CalculateCRC(id_pos, len_.value_);
-			if (crc_.value_ != crc_calc) { 
-				JLOG_ERRO("AdemcoPacket::Parse crc failed!"); 
-				break;
-			}
-
-			// id
-			if (*id_pos != '\"') { // find first " of "id".
-				JLOG_ERRO("AdemcoPacket::Parse find left \" of \"id\" faild!"); 
-				break;
-			}
-			const char* p = id_pos + 1; // find last " of "id".
-			while (p < CR_pos && *p != '\"') { p++; } if (p >= CR_pos) { break; }
-			if (*p++ != '\"') { // " not found.
-				JLOG_ERRO("AdemcoPacket::Parse find right \" of \"id\" faild!"); 
-				break;
-			}		
-			if (!id_.checkAndSet(id_pos, p - id_pos)) {
-				JLOG_ERRO("AdemcoPacket::Parse check id faild!"); 
-				break;
-			}
-
-			// seq (and Rrcvr, it may not exists)
-			const char* seq_pos = p;
-			while (p < CR_pos && *p != 'R' && *p != 'L') { p++; } if (p >= CR_pos) { break; }
-			if (p - seq_pos != 4) {
-				JLOG_ERRO("AdemcoPacket::Parse seq len != 4"); 
-				break;
-			}
-			seq_.fromCharArray(seq_pos);
-
-			if (*p == 'R') { // Rrcvr exists
-				const char* rrcvr_pos = p;
-				while (p < CR_pos && *p != 'L' && *p != '#') { p++; } if (p >= CR_pos) { break; }
-				//ASSIGH_SEG_DATA(rrcvr);
-				rrcvr_.fromCharArray(rrcvr_pos, p - rrcvr_pos);
-			} else if (*p == 'L') { // Rrcvr not exists, pass
-				// pass
-			} else { 
-				JLOG_ERRO("AdemcoPacket::Parse Lpref and Rrcvr not found!"); 
-				break;
-			}
-
-			// Lpref
-			if (*p != 'L') { // L of Lpref not found.
-				JLOG_ERRO("AdemcoPacket::Parse Lpref not found!"); 
-				break;
-			}
-			const char* lpref_pos = p;
-			while (p < CR_pos && *p != '#') { p++; } if (p >= CR_pos) { break; }
-			lpref_.fromCharArray(lpref_pos, p - lpref_pos);
-
-			// acct
-			if (*p++ != '#') { // # of #acct not found
-				JLOG_ERRO("AdemcoPacket::Parse # of #acct not found!"); 
-				break;
-			} 
-			const char* acct_pos = p;
-			while (p < CR_pos && *p != '[') {
-				if (!isalnum(*p)) { // acct must be alphanumeric
-					JLOG_ERRO("AdemcoPacket::Parse acct check isalnum failed!");
-					p = nullptr;
+				// check CR
+				const char* id_pos = pack + 9;
+				const char* CR_pos = id_pos + len_.value_;
+				if (*CR_pos != CR) {
+					JLOG_ERRO("AdemcoPacket::Parse ademco_len err!");
 					break;
 				}
-				p++;
-			}
-			if (p == nullptr) { break; }
-			if (p >= CR_pos) { break; }
-			acct_.setAcct(acct_pos, p - acct_pos);
 
-			// data
-			if (*p != '[') { // [ of [data] not found.
-				JLOG_ERRO("AdemcoPacket::Parse [ of [data] not found!"); 
-				break;
-			}
-			const char* data_pos = p;
-			while (p < CR_pos && *p != ']') { p++; } if (p >= CR_pos) { break; }
-			if (*p != ']') { // ] of [data] not found.
-				JLOG_ERRO("AdemcoPacket::Parse ] of [data] not found!"); 
-				break;
-			} 
-			size_t ademco_data_len = ++p - data_pos;
-			if (!ademcoData_.parse(data_pos, ademco_data_len)) {
-				JLOG_ERRO("AdemcoPacket::Parse parse data failed!");
-				break;
-			}
+				// check ademco CRC
+				unsigned short crc_calc = detail::CalculateCRC(id_pos, len_.value_);
+				if (crc_.value_ != crc_calc) {
+					JLOG_ERRO("AdemcoPacket::Parse crc failed!");
+					break;
+				}
 
-			// [x...data...]
-			if (*p == '[') { // xdata exists
-				xdata_ = parseXData(p, CR_pos);
-				if (!xdata_) { break; }
-				p += xdata_->rawSize();
-			}
+				// id
+				if (*id_pos != '\"') { // find first " of "id".
+					JLOG_ERRO("AdemcoPacket::Parse find left \" of \"id\" faild!");
+					break;
+				}
+				const char* p = id_pos + 1; // find last " of "id".
+				while (p < CR_pos && *p != '\"') { p++; } if (p >= CR_pos) { break; }
+				if (*p++ != '\"') { // " not found.
+					JLOG_ERRO("AdemcoPacket::Parse find right \" of \"id\" faild!");
+					break;
+				}
+				if (!id_.checkAndSet(id_pos, p - id_pos)) {
+					JLOG_ERRO("AdemcoPacket::Parse check id faild!");
+					break;
+				}
 
-			if (*p != '_') { // _ of _timestamp not found.
-				JLOG_ERRO("AdemcoPacket::Parse _ of _timestamp not found!"); 
-				break;
-			} 
-			if (!timestamp_.parse(p, CR_pos - p)) {
-				JLOG_ERRO("AdemcoPacket::Parse parse timestamp failed!");
-				break;
-			}
-			p += timestamp_.length;
+				// seq (and Rrcvr, it may not exists)
+				const char* seq_pos = p;
+				while (p < CR_pos && *p != 'R' && *p != 'L') { p++; } if (p >= CR_pos) { break; }
+				if (p - seq_pos != 4) {
+					JLOG_ERRO("AdemcoPacket::Parse seq len != 4");
+					break;
+				}
+				seq_.fromCharArray(seq_pos);
 
-			// check CR
-			if (p++ != CR_pos) { assert(0); break; }
+				if (*p == 'R') { // Rrcvr exists
+					const char* rrcvr_pos = p;
+					while (p < CR_pos && *p != 'L' && *p != '#') { p++; } if (p >= CR_pos) { break; }
+					//ASSIGH_SEG_DATA(rrcvr);
+					rrcvr_.fromCharArray(rrcvr_pos, p - rrcvr_pos);
+				} else if (*p == 'L') { // Rrcvr not exists, pass
+					// pass
+				} else {
+					JLOG_ERRO("AdemcoPacket::Parse Lpref and Rrcvr not found!");
+					break;
+				}
 
-			cb_commited = p - pack;
-			return ParseResult::RESULT_OK;
-		} while (0);
+				// Lpref
+				if (*p != 'L') { // L of Lpref not found.
+					JLOG_ERRO("AdemcoPacket::Parse Lpref not found!");
+					break;
+				}
+				const char* lpref_pos = p;
+				while (p < CR_pos && *p != '#') { p++; } if (p >= CR_pos) { break; }
+				lpref_.fromCharArray(lpref_pos, p - lpref_pos);
+
+				// acct
+				if (*p++ != '#') { // # of #acct not found
+					JLOG_ERRO("AdemcoPacket::Parse # of #acct not found!");
+					break;
+				}
+				const char* acct_pos = p;
+				while (p < CR_pos && *p != '[') {
+					if (!isalnum(*p)) { // acct must be alphanumeric
+						JLOG_ERRO("AdemcoPacket::Parse acct check isalnum failed!");
+						p = nullptr;
+						break;
+					}
+					p++;
+				}
+				if (p == nullptr) { break; }
+				if (p >= CR_pos) { break; }
+				acct_.setAcct(acct_pos, p - acct_pos);
+
+				// data
+				if (*p != '[') { // [ of [data] not found.
+					JLOG_ERRO("AdemcoPacket::Parse [ of [data] not found!");
+					break;
+				}
+				const char* data_pos = p;
+				while (p < CR_pos && *p != ']') { p++; } if (p >= CR_pos) { break; }
+				if (*p != ']') { // ] of [data] not found.
+					JLOG_ERRO("AdemcoPacket::Parse ] of [data] not found!");
+					break;
+				}
+				size_t ademco_data_len = ++p - data_pos;
+				if (!ademcoData_.parse(data_pos, ademco_data_len)) {
+					JLOG_ERRO("AdemcoPacket::Parse parse data failed!");
+					break;
+				}
+
+				// [x...data...]
+				if (*p == '[') { // xdata exists
+					xdata_ = parseXData(p, CR_pos);
+					if (!xdata_) { break; }
+					p += xdata_->rawSize();
+				}
+
+				if (*p != '_') { // _ of _timestamp not found.
+					JLOG_ERRO("AdemcoPacket::Parse _ of _timestamp not found!");
+					break;
+				}
+				if (!timestamp_.parse(p, CR_pos - p)) {
+					JLOG_ERRO("AdemcoPacket::Parse parse timestamp failed!");
+					break;
+				}
+				p += timestamp_.length;
+
+				// check CR
+				if (p++ != CR_pos) { assert(0); break; }
+
+				cb_commited = p - pack;
+				return ParseResult::RESULT_OK;
+			} while (0);
+		} catch (std::exception& e) {
+			printf("AdemcoPacket::parse EXCEPTION: %s\n", e.what());
+			abort();
+		}
 
 		// dump data
 		JLOG_HEX(pack, pack_len);

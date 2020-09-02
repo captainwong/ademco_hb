@@ -5,13 +5,6 @@
 namespace hb
 {
 
-//! 安定宝ID范围
-static constexpr size_t MinAdemcoId = 1;
-static constexpr size_t MaxAdemcoId = 999999; // 兼容性考虑，最大安定宝 ID 为 0x0F423F
-static constexpr size_t AdemcoIdSentinel = MaxAdemcoId + 1;
-static constexpr bool isValidAdemcoId(size_t ademcoId) { return MinAdemcoId <= ademcoId && ademcoId <= MaxAdemcoId; }
-
-
 /******** 结合 hb 与 ademco ******/
 
 //! 从事件码推出主机类型
@@ -23,6 +16,7 @@ static common::MachineType machineTypeFromAdemcoEvent(ademco::ADEMCO_EVENT e) {
 	case ademco::EVENT_I_AM_WIRE_MACHINE: 	    return common::MachineType::Wired;
 	case ademco::EVENT_I_AM_WIFI_MACHINE: 	    return common::MachineType::WiFi;
 	case ademco::EVENT_I_AM_3_SECTION_MACHINE: 	return common::MachineType::ThreeSection;
+	case ademco::EVENT_I_AM_IOT_MACHINE: 		return common::MachineType::IoT;
 	default: 								    return common::MachineType::InvalidMachineType;
 	}
 }

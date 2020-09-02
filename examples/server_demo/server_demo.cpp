@@ -54,7 +54,7 @@ struct Buffer
 SOCKET clientSock = INVALID_SOCKET;
 Buffer clientBuffer = {};
 std::string clientAcct = {};
-size_t clientAdemcoId = 0;
+AdemcoId clientAdemcoId = 0;
 
 std::mutex mutex = {};
 std::vector<ADEMCO_EVENT> evntsWaiting4Send = {};
@@ -151,11 +151,11 @@ int main(int argc, char** argv)
 			//printf("id=%s\n", ap.id_.data());
 			printf("C:%s\n", ap.toString().data());
 			switch (ap.id_.eid_) {
-			case AdemcoId::id_ack:
+			case AdemcoMsgId::id_ack:
 				// success
 				break;
 
-			case AdemcoId::id_null: // reply ack				
+			case AdemcoMsgId::id_null: // reply ack				
 			{
 				char ack[1024];
 				auto len = ap.make_ack(ack, sizeof(ack), ap.seq_.value_, ap.acct_.acct(), ap.ademcoData_.ademco_id_);
@@ -164,8 +164,8 @@ int main(int argc, char** argv)
 				break;
 			}
 
-			case AdemcoId::id_hb: // event report
-			case AdemcoId::id_admcid:
+			case AdemcoMsgId::id_hb: // event report
+			case AdemcoMsgId::id_admcid:
 			{
 				clientAcct = ap.acct_.acct();
 				clientAdemcoId = ap.ademcoData_.ademco_id_;

@@ -104,6 +104,8 @@ enum ADEMCO_EVENT : uint32_t {
 	EVENT_WHAT_IS_YOUR_TYPE						= 1798, // 索要主机类型
 	EVENT_SIGNAL_STRENGTH_CHANGED				= 1799, // 主机信号强度变化
 
+	AdemcoEventSentinel							= 10000,
+
 	// -------------------接警中心内部使用事件------------------------------
 	EVENT_PRIVATE_EVENT_BASE					= 0x00010000,
 	EVENT_CLEARMSG,										// 清除报警信息

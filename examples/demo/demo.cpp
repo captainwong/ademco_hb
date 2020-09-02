@@ -32,7 +32,7 @@ void test()
 		EXPECT_EQ(cb_commited, strlen(raw));
 		EXPECT_EQ(ap.crc_.value_, 0xC5C3);
 		EXPECT_EQ(ap.len_.value_, 0x0053);
-		EXPECT_EQ(ap.id_.eid_, AdemcoId::Enum::id_hb);
+		EXPECT_EQ(ap.id_.eid_, AdemcoMsgId::Enum::id_hb);
 		EXPECT_EQ(ap.seq_.value_, 0); // 0 is not a valid seq, but...
 		EXPECT_TRUE(strncmp("R000000", ap.rrcvr_.data_.data(), 7) == 0);
 		EXPECT_TRUE(strncmp("L000000", ap.lpref_.data_.data(), 7) == 0);
@@ -64,11 +64,11 @@ void handle_network_data(const char* data_from_network)
 	{
 		printf("parse ok:\n%s\n", ap.toString().data());
 		switch (ap.id_.eid_) {
-		case AdemcoId::id_ack:
+		case AdemcoMsgId::id_ack:
 			// success
 			break;
 
-		case AdemcoId::id_hb: // event report
+		case AdemcoMsgId::id_hb: // event report
 			// reply ack
 			{
 				char ack[1024];
@@ -107,8 +107,6 @@ int main()
 	handle_network_data(data_from_network);
 	handle_network_data("\n593F0034\"ACK\"0209R123ABCL456DEF#000001[]_09:00:00,04-18-2020\r");
 	
-
-
 	char buff[1024];
 	AdemcoPacket ap; 
 
@@ -118,8 +116,8 @@ int main()
 	ap.make_ack(buff, sizeof(buff), 1, "861234567890", 123321);
 	handle_network_data(buff);
 
-	size_t ademco_id = 123456; // 主机标识
-	size_t zone = 123; // 防区标识
+	AdemcoId ademco_id = 123456; // 主机标识
+	AdemcoZone zone = 123; // 防区标识
 	auto evnt = EVENT_FIRE; // 事件码
 	ap.make_hb(buff, sizeof(buff), 1, nullptr, ademco_id, 0, evnt, zone);
 	handle_network_data(buff);

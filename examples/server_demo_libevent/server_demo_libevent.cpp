@@ -91,7 +91,7 @@ struct Client {
 	int fd = 0;
 	evbuffer* output = nullptr;
 	std::string acct = {};
-	size_t ademco_id = 0;
+	AdemcoId ademco_id = 0;
 	uint16_t seq = 0;
 	int type = -1;
 	MachineStatus status = MachineStatus::Arm;
@@ -141,10 +141,10 @@ int threads_to_handled_event = 0;
 std::mutex mutex = {};
 struct UserInput {
 	char pwd[1024] = { 0 };
-	int ademco_id = 0;
+	AdemcoId ademco_id = 0;
 	int ev = 0;
-	int gg = 0;
-	int zone = 0;
+	AdemcoGG gg = 0;
+	AdemcoZone zone = 0;
 	char xdata[1024] = { 0 };
 }userInput = {};
 
@@ -222,7 +222,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 												 EVENT_COM_PASSTHROUGH, 0, xdata);
 				evbuffer_add(output, buf, n);
 				if (!disable_data_print) {
-					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+					printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 						   context->worker_id, client.fd, client.acct.data(), client.ademco_id,
 						   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 				}
@@ -231,7 +231,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 												 EVENT_EXIT_SET_MODE, 0);
 				evbuffer_add(output, buf, n);
 				if (!disable_data_print) {
-					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+					printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 						   context->worker_id, client.fd, client.acct.data(), client.ademco_id,
 						   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 				}
@@ -262,7 +262,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 											 EVENT_EXIT_SET_MODE, 0);
 			evbuffer_add(output, buf, n);
 			if (!disable_data_print) {
-				printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+				printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 					   context->worker_id, client.fd, client.acct.data(), client.ademco_id,
 					   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 			}
@@ -297,7 +297,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 													 EVENT_COM_PASSTHROUGH, 0, xdata);
 					evbuffer_add(output, buf, n);
 					if (!disable_data_print) {
-						printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+						printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 							   context->worker_id, client.fd, client.acct.data(), client.ademco_id,
 							   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 					}
@@ -308,7 +308,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 											 EVENT_EXIT_SET_MODE, 0);
 			evbuffer_add(output, buf, n);
 			if (!disable_data_print) {
-				printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+				printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 					   context->worker_id, client.fd, client.acct.data(), client.ademco_id,
 					   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 			}
@@ -342,17 +342,17 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 	int fd = (int)bufferevent_getfd(bev);
 	auto& client = context->clients[fd];
 	if (!disable_data_print) {
-		printf("T#%d C#%d acct=%s ademco_id=%06zX :%s\n",
+		printf("T#%d C#%d acct=%s ademco_id=%06X :%s\n",
 			   context->worker_id, fd, client.acct.data(), client.ademco_id, context->packet.toString().data());
 	}
 	auto output = bufferevent_get_output(bev);
 	switch (context->packet.id_.eid_) {
-	case AdemcoId::id_null:
-	case AdemcoId::id_hb:
-	case AdemcoId::id_admcid:
+	case AdemcoMsgId::id_null:
+	case AdemcoMsgId::id_hb:
+	case AdemcoMsgId::id_admcid:
 		{
 			char buf[1024];
-			if (context->packet.id_.eid_ != AdemcoId::id_null) {
+			if (context->packet.id_.eid_ != AdemcoMsgId::id_null) {
 				client.acct = context->packet.acct_.acct();
 				client.ademco_id = context->packet.ademcoData_.ademco_id_;
 				if (ademco::isMachineTypeEvent(context->packet.ademcoData_.ademco_event_)) {
@@ -364,7 +364,7 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 														 EVENT_COM_PASSTHROUGH, 0, xdata);
 						evbuffer_add(output, buf, n);
 						if (!disable_data_print) {
-							printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+							printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 								   context->worker_id, fd, client.acct.data(), client.ademco_id, 
 								   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 						}
@@ -389,7 +389,7 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 														 EVENT_COM_PASSTHROUGH, 0, xdata);
 						evbuffer_add(output, buf, n);
 						if (!disable_data_print) {
-							printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+							printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 								   context->worker_id, fd, client.acct.data(), client.ademco_id,
 								   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 						}
@@ -401,7 +401,7 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 														 EVENT_COM_PASSTHROUGH, 0, xdata);
 						evbuffer_add(output, buf, n);
 						if (!disable_data_print) {
-							printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+							printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 								   context->worker_id, fd, client.acct.data(), client.ademco_id,
 								   context->packet.toString(detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 						}
@@ -416,7 +416,7 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 													context->packet.acct_.acct(), context->packet.ademcoData_.ademco_id_);
 				evbuffer_add(output, buf, n);
 				if (!disable_data_print) {
-					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+					printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 						   context->worker_id, fd, client.acct.data(), client.ademco_id, context->packet.toString().data());
 				}
 			}
@@ -453,7 +453,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 											userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone);
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
-					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+					printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, 
 						   context->packet.toString().data());
 				}
@@ -465,7 +465,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 											userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone);
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
-					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+					printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, 
 						   context->packet.toString().data());
 				}
@@ -478,7 +478,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 											userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone, xdata);
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
-					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+					printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, 
 						   context->packet.toString().data());
 				}
@@ -493,7 +493,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 											userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone, xdata);
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
-					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+					printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, 
 						   context->packet.toString(ademco::detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 				}
@@ -507,7 +507,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 				client.second.zones.clear();
 				client.second.queryStage = QueryStage::WaitingSettingsMode;
 				if (!disable_data_print) {
-					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+					printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id,
 						   context->packet.toString(ademco::detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 				}
@@ -522,12 +522,12 @@ void commandcb(evutil_socket_t, short, void* user_data)
 				client.second.zones.clear();
 				client.second.queryStage = QueryStage::WaitingSettingsMode2;
 				if (!disable_data_print) {
-					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+					printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id,
 						   context->packet.toString(ademco::detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 				}
 			} else if (client.second.type == EVENT_I_AM_3_SECTION_MACHINE && (e == EVENT_ARM || e == EVENT_DISARM)) {
-				for (int gg = 1; gg <= 3; gg++) {
+				for (AdemcoGG gg = 1; gg <= 3; gg++) {
 					if (e == EVENT_DISARM) {
 						auto xdata = makeXData(userInput.pwd, 6);
 						n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id, gg, e, 0, xdata);
@@ -536,7 +536,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 					}
 					evbuffer_add(client.second.output, buf, n);
 					if (!disable_data_print) {
-						printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+						printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 							   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, 
 							   context->packet.toString().data());
 					}
@@ -550,7 +550,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 				}
 				evbuffer_add(client.second.output, buf, n);
 				if (!disable_data_print) {
-					printf("T#%d S#%d acct=%s ademco_id=%06zX :%s\n",
+					printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
 						   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id, 
 						   context->packet.toString().data());
 				}
@@ -620,7 +620,7 @@ void accept_cb(evconnlistener* listener, evutil_socket_t fd, sockaddr* addr, int
 	printf("accpet TCP connection #%d from: %s:%d\n", (int)fd, str, sin->sin_port);
 	//evutil_make_socket_nonblocking(fd);
 
-	static int worker_id = 0;
+	static uint32_t worker_id = 0;
 	auto context = worker_thread_contexts[worker_id];
 	std::lock_guard<std::mutex> lg(context->mutex);
 	auto bev = bufferevent_socket_new(context->base, fd, BEV_OPT_CLOSE_ON_FREE);
@@ -637,7 +637,7 @@ void accept_cb(evconnlistener* listener, evutil_socket_t fd, sockaddr* addr, int
 
 	bufferevent_setcb(bev, readcb, nullptr, eventcb, context);
 	bufferevent_enable(bev, EV_WRITE | EV_READ);
-	worker_id = (++worker_id) % thread_count;	
+	worker_id = (worker_id + 1) % thread_count;	
 }
 
 void accpet_error_cb(evconnlistener* listener, void* context)
@@ -748,7 +748,7 @@ int main(int argc, char** argv)
 	sockaddr_in sin = { 0 };
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = htonl(INADDR_ANY);
-	sin.sin_port = htons(port);
+	sin.sin_port = htons((uint16_t)(port & 0xFFFF));
 
 	printf("using libevent %s\n", event_get_version());
 	printf("%s is listening on port %d using %d threads, disable_data_print=%d\n",
@@ -834,7 +834,7 @@ int main(int argc, char** argv)
 				int ret = 0;
 				do {
 					printf("Input [event gg zone]:");
-					ret = scanf("%d %d %d", &userInput.ev, &userInput.gg, &userInput.zone);
+					ret = scanf("%d %hhd %d", &userInput.ev, &userInput.gg, &userInput.zone);
 					clear_stdin();
 				} while (ret != 3);
 				{
@@ -851,7 +851,7 @@ int main(int argc, char** argv)
 				int ret = 0;
 				do {
 					printf("Input [ademco_id event gg zone]:");
-					ret = scanf("%d %d %d %d", &userInput.ademco_id, &userInput.ev, &userInput.gg, &userInput.zone);
+					ret = scanf("%d %d %hhd %d", &userInput.ademco_id, &userInput.ev, &userInput.gg, &userInput.zone);
 					clear_stdin();
 				} while (ret != 4);
 				{
@@ -869,7 +869,7 @@ int main(int argc, char** argv)
 				int ret = 0;
 				do {
 					printf("Input [ademco_id event gg zone xdata]:");
-					ret = scanf("%d %d %d %d %s", &userInput.ademco_id, &userInput.ev, &userInput.gg, &userInput.zone, userInput.xdata);
+					ret = scanf("%d %d %hhd %d %s", &userInput.ademco_id, &userInput.ev, &userInput.gg, &userInput.zone, userInput.xdata);
 					clear_stdin();
 				} while (ret != 5);
 				{
@@ -973,7 +973,7 @@ int main(int argc, char** argv)
 void Client::printInfo() const
 {
 	if (type == EVENT_I_AM_3_SECTION_MACHINE) {
-		printf("  fd=#%d acct=%s ademco_id=%zd type=%s\n",
+		printf("  fd=#%d acct=%s ademco_id=%d type=%s\n",
 			   fd, acct.data(), ademco_id,
 			   machineTypeToString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)type)));
 		printf("    status1: %d %s    status2: %d %s    status3: %d %s\n",
@@ -981,7 +981,7 @@ void Client::printInfo() const
 			   (int)status2, machineStatusToString(status2),
 			   (int)status3, machineStatusToString(status3));
 	} else {
-		printf("  fd=#%d acct=%s ademco_id=%zd type=%s status=%d %s\n",
+		printf("  fd=#%d acct=%s ademco_id=%d type=%s status=%d %s\n",
 			   fd, acct.data(), ademco_id,
 			   machineTypeToString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)type)),
 			   (int)status, machineStatusToString(status));

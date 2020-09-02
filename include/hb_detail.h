@@ -7,7 +7,7 @@
 #include <string>
 #include <type_traits>
 #include <iterator>
-#include "ademco_detail.h"
+#include "ademco_packet.h"
 
 namespace hb
 {
@@ -145,10 +145,6 @@ static constexpr MachineType AllMachineTypes[MachineTypeCount] = {
 	IoT,
 };
 
-//! 防区号为0时表示主机自身
-static constexpr uint16_t Zone4MachineSelf = 0;
-//! 主机防区号范围
-static constexpr uint16_t ZoneMin = 1;
 //! 最大防区号根据型号不同而不同
 static uint16_t zoneMax(MachineType type) {
 	switch (type) {
@@ -177,27 +173,15 @@ static uint16_t zoneMax(MachineType type) {
 		break;
 	}
 }
-//! 对任何主机类型，最大的防区数量
-static constexpr uint16_t MaxZoneCount = 1000;
-
-//! 对任何主机类型，防区号是否合法（可以包含0防区）
-static bool isValidZone(uint16_t zone) {
-	return Zone4MachineSelf <= zone && zone < MaxZoneCount;
-}
-
-//! 对任何主机类型，防区号是否合法（不可以包含0防区）
-static bool isValidZoneStrict(uint16_t zone) { 
-	return ZoneMin <= zone && zone < MaxZoneCount;
-}
 
 //! 防区号是否合法（可以包含0防区）
 static bool isValidZone(MachineType type, uint16_t zone) {
-	return Zone4MachineSelf <= zone && zone <= zoneMax(type);
+	return ademco::Zone4MachineSelf <= zone && zone <= zoneMax(type);
 }
 
 //! 防区号是否合法（不可以可以包含0防区）
 static bool isValidZoneStrict(MachineType type, uint16_t zone) {
-	return ZoneMin <= zone && zone <= zoneMax(type);
+	return ademco::ZoneMin <= zone && zone <= zoneMax(type);
 }
 
 //! 主机是否具有半布防功能
@@ -1776,20 +1760,15 @@ struct WirelessAddress {
 };
 
 
-//! 防区号为0时表示主机（或分主机）自身
-static constexpr uint16_t Zone4MachineSelf	= 0;
-//! 主机防区号范围1~999
-static constexpr uint16_t ZoneMin			= 1;
-static constexpr uint16_t ZoneMax			= 999;
 //! 主机有线防区范围1~7
-static constexpr uint16_t ZoneMinWired		= ZoneMin;
-static constexpr uint16_t ZoneMaxWired		= 8;
+constexpr ademco::AdemcoZone ZoneMinWired		= 1;
+constexpr ademco::AdemcoZone ZoneMaxWired		= 8;
 //! 主机无线防区最小值
-static constexpr uint16_t ZoneMinWireless	= ZoneMaxWired + 1;
-static constexpr uint16_t ZoneMaxWireless	= ZoneMax;
+constexpr ademco::AdemcoZone ZoneMinWireless	= 9;
+constexpr ademco::AdemcoZone ZoneMaxWireless	= 999;
 //! 分主机防区号范围1~99
-static constexpr uint16_t ZoneMinSubMachine = 1;
-static constexpr uint16_t ZoneMaxSubMachine = 99;
+constexpr ademco::AdemcoZone ZoneMinSubMachine  = 1;
+constexpr ademco::AdemcoZone ZoneMaxSubMachine  = 99;
 
 
 //! 以2个字节表示的防区号
@@ -1841,9 +1820,9 @@ struct ZoneInfo {
 //! 所有防区信息
 struct AllZoneInfo {
 	//! use extra 1 space, for convenience to use zone as index
-	ZoneInfo zones[ZoneMax + 1] = {};
+	ZoneInfo zones[ademco::ZoneSentinel] = {};
 
-	AllZoneInfo() { for (uint16_t i = 0; i <= ZoneMax; i++) { zones[i].zone = i; } }
+	AllZoneInfo() { for (uint16_t i = 0; i < ademco::ZoneSentinel; i++) { zones[i].zone = i; } }
 
 	bool isUniqueAddr(WirelessAddress addr) const {
 		for (const auto& z : zones) { if (z.addr == addr)return false; }
@@ -1906,7 +1885,7 @@ struct Query {
 	void setZone(ZoneAsTwoChar zone) { data[3] = zone.hi; data[4] = zone.lo; }
 
 	static Query queryMachineStatus() {
-		return queryZoneStatus(Zone4MachineSelf);
+		return queryZoneStatus(ademco::Zone4MachineSelf);
 	}
 
 	static Query queryZoneStatus(uint16_t zone) {
@@ -1918,7 +1897,7 @@ struct Query {
 	}
 
 	static Query querySubMachineStatus() {
-		return queryZoneStatusOfSubMachine(Zone4MachineSelf);
+		return queryZoneStatusOfSubMachine(ademco::Zone4MachineSelf);
 	}
 
 	static Query queryZoneStatusOfSubMachine(Char zone) {

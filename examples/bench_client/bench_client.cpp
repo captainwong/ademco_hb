@@ -66,7 +66,7 @@ struct Session {
 	event* timer = nullptr;
 	int id = 0;
 	std::string acct = {};
-	size_t ademco_id = 0;
+	AdemcoId ademco_id = 0;
 	uint16_t seq = 0;
 
 	AdemcoPacket packet = {};
@@ -97,7 +97,7 @@ void handle_ademco_msg(Session* session, bufferevent* bev)
 {
 	auto output = bufferevent_get_output(bev);
 	switch (session->packet.id_.eid_) {
-	case AdemcoId::id_ack:
+	case AdemcoMsgId::id_ack:
 		if (session->packet.seq_.value_ == session->seq) {
 			if (++session->seq == 10000) {
 				session->seq = 1;
