@@ -1087,7 +1087,7 @@ struct AdemcoPacket
 
 				// check LF
 				if (pack[0] != LF) {
-					JLOG_ERRO("AdemcoPacket::Parse pack[0] {:d} 0x{:02X} is not _LF", pack[0], pack[0]);
+					JLOG_ERRO("AdemcoPacket::Parse pack[0] {:d} 0x{:02X} is not _LF", (int)pack[0], (unsigned char)pack[0]);
 #ifdef _WIN32
 					return ParseResult::RESULT_DATA_ERROR;
 #else
@@ -1235,8 +1235,8 @@ struct AdemcoPacket
 		}
 
 		// dump data
-		JLOG_HEX(pack, std::min(pack_len, size_t(4096u)));
-		JLOG_ASC(pack, std::min(pack_len, size_t(4096u)));
+		JLOG_HEX(pack, std::min(pack_len, size_t(1024)));
+		JLOG_ASC(pack, std::min(pack_len, size_t(1024)));
 		assert(0);
 
 		return ParseResult::RESULT_DATA_ERROR;
