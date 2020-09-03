@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 #include <iterator>
+#include <algorithm>
 
 namespace ademco
 {
@@ -1234,8 +1235,8 @@ struct AdemcoPacket
 		}
 
 		// dump data
-		JLOG_HEX(pack, pack_len);
-		JLOG_ASC(pack, pack_len);
+		JLOG_HEX(pack, std::min(pack_len, 4096u));
+		JLOG_ASC(pack, std::min(pack_len, 4096u));
 		assert(0);
 
 		return ParseResult::RESULT_DATA_ERROR;

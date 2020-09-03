@@ -46,14 +46,6 @@ static inline int localtime_r(time_t* t, struct tm* tm_time) {
 	return localtime_s(tm_time, t);
 }
 
-#ifdef min
-#undef min
-#endif
-
-#ifdef max
-#undef max
-#endif
-
 #endif // __GNUG__
 
 

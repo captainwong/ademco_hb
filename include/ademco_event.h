@@ -4,6 +4,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
 #include <stdint.h>
 
 #ifdef ENABLE_ADEMCO_EVENT_TO_STRING

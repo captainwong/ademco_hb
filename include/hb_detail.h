@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "ademco_packet.h"
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
@@ -7,7 +8,6 @@
 #include <string>
 #include <type_traits>
 #include <iterator>
-#include "ademco_packet.h"
 
 namespace hb
 {

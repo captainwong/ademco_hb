@@ -6,6 +6,9 @@
 # ifndef  _CRT_SECURE_NO_WARNINGS
 #  define  _CRT_SECURE_NO_WARNINGS
 # endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <WinSock2.h>
 #pragma comment(lib, "ws2_32.lib")
 #endif

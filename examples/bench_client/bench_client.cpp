@@ -11,6 +11,9 @@
 # ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
 #  define _WINSOCK_DEPRECATED_NO_WARNINGS
 # endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <WinSock2.h>
 #pragma comment(lib, "ws2_32.lib")
 #endif
