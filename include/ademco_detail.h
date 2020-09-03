@@ -159,7 +159,7 @@ static char HexChar2Dec(char hex)
 	else if (hex == 'l' || hex == 'L')
 		return 0;
 	else {
-		JLOG_WARN("HexChar2Dec: not a hex char. ({}) (0x{:02X})", hex, hex);
+		JLOG_WARN("HexChar2Dec: not a hex char. ({}) (0x{:02X})", (int)hex, (unsigned char)hex);
 		//assert(0);
 		return 0;
 	}
@@ -212,7 +212,7 @@ static char Dec2Hex(char d)
 	} else if (0x0A <= d && d <= 0x0F) {
 		return char(d - 0x0A + (char)'A');
 	} else {
-		JLOG_ERRO("Dec2Hex: not a 0-f value. ({}) (0x{:02X})", d, d);
+		JLOG_ERRO("Dec2Hex: not a 0-f value. ({}) (0x{:02X})", (int)d, (unsigned char)d);
 		assert(0);
 		return '0';
 	}
