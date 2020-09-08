@@ -102,8 +102,10 @@ enum ADEMCO_EVENT : uint32_t {
 	EVENT_RESTORE_FACTORY_SETTINGS_710			= 1710, // 主机恢复出厂设置
 	EVENT_RESTORE_FACTORY_SETTINGS				= 1713, // 主机恢复出厂设置
 
-	EVENT_SIM_IS_IOT_CARD						= 1756, // 主机SIM卡为物联卡
-	EVENT_SIM_IS_NOT_IOT_CARD					= 3756, // 主机SIM卡为非物联卡
+	// 此处电话设置仅为主机自身支持的电话设置，与阿里语音无关
+	EVENT_SIM_IS_IOT_CARD						= 1756, // 主机SIM卡为物联卡，禁用主机侧电话设置
+	EVENT_SIM_IS_IOT_PLATFORM_CARD				= 2756, // 主机SIM卡为平台物联卡，禁用主机侧电话设置
+	EVENT_SIM_IS_NOT_IOT_CARD					= 3756, // 主机SIM卡为非物联卡，启用主机侧电话设置
 
 	EVENT_WHAT_IS_YOUR_TYPE						= 1798, // 索要主机类型
 	EVENT_SIGNAL_STRENGTH_CHANGED				= 1799, // 主机信号强度变化
@@ -184,6 +186,7 @@ static constexpr ADEMCO_EVENT AdemcoEvents[] = {
 	EVENT_I_AM_3_SECTION_MACHINE,
 	EVENT_I_AM_IOT_MACHINE,
 	EVENT_SIM_IS_IOT_CARD,
+	EVENT_SIM_IS_IOT_PLATFORM_CARD,
 	EVENT_SIM_IS_NOT_IOT_CARD,
 
 	EVENT_PHONE_USER_SOS,
@@ -258,7 +261,8 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	case EVENT_I_AM_WIFI_MACHINE:					return n_to_s(ademco_event) + "I_AM_WIFI_MACHINE";					
 	case EVENT_I_AM_3_SECTION_MACHINE:				return n_to_s(ademco_event) + "I_AM_3_SECTION_MACHINE";				
 	case EVENT_I_AM_IOT_MACHINE:					return n_to_s(ademco_event) + "I_AM_IOT_MACHINE";				
-	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + "SIM card is IOT";					
+	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + "SIM card is IOT";			
+	case EVENT_SIM_IS_IOT_PLATFORM_CARD:			return n_to_s(ademco_event) + "SIM card is Platform IOT";				
 	case EVENT_SIM_IS_NOT_IOT_CARD:					return n_to_s(ademco_event) + "SIM card is not IOT";				
 	case EVENT_ENTER_SETTING_MODE:					return n_to_s(ademco_event) + "ENTER_SETTING_MODE";					
 	case EVENT_EXIT_SETTING_MODE:					return n_to_s(ademco_event) + "EXIT_SETTING_MODE";					
@@ -336,7 +340,8 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 	case EVENT_I_AM_WIFI_MACHINE:					return n_to_s(ademco_event) + L"我是WiFi主机";				
 	case EVENT_I_AM_3_SECTION_MACHINE:				return n_to_s(ademco_event) + L"我是三区段主机";				
 	case EVENT_I_AM_IOT_MACHINE:					return n_to_s(ademco_event) + L"我是物联卡主机";
-	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + L"SIM卡为物联卡";				
+	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + L"SIM卡为物联卡";	
+	case EVENT_SIM_IS_IOT_PLATFORM_CARD:			return n_to_s(ademco_event) + L"SIM卡为平台物联卡";				
 	case EVENT_SIM_IS_NOT_IOT_CARD:					return n_to_s(ademco_event) + L"SIM卡为非物联卡";				
 	case EVENT_ENTER_SETTING_MODE:					return n_to_s(ademco_event) + L"主机进入设置状态";			
 	case EVENT_EXIT_SETTING_MODE:					return n_to_s(ademco_event) + L"主机退出设置状态";			
