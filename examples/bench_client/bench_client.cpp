@@ -70,7 +70,11 @@ struct Session {
 	int id = 0;
 	std::string acct = {};
 	AdemcoId ademco_id = 0;
+	ADEMCO_EVENT type = EVENT_I_AM_GPRS;
+	ADEMCO_EVENT status = EVENT_ARM;
 	uint16_t seq = 0;
+
+	uint16_t nextSeq() { if (++seq == 10000) { seq = 1; } return seq; }
 
 	AdemcoPacket packet = {};
 	size_t lastTimePacketSize = 0;
@@ -199,8 +203,11 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 			}
 		}
 		char buf[1024];
-		session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->seq, session->acct, session->ademco_id);
+		session->lastTimePacketSize = session->packet.make_hb(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id, 0, session->status, 0);
 		evbuffer_add(bufferevent_get_output(bev), buf, session->lastTimePacketSize);
+		session->lastTimePacketSize += session->packet.make_hb(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id, 0, session->type, 0);
+		evbuffer_add(bufferevent_get_output(bev), buf, session->lastTimePacketSize);
+
 		auto base = bufferevent_get_base(bev);
 		session->timer = event_new(base, -1, EV_TIMEOUT, timer_cb, session);
 		if (!session->timer) {
@@ -290,8 +297,8 @@ void ThreadContext::connectNext()
 	session->bev = bev;
 	session->id = session_start;
 	session->acct = std::string("861234567890") + std::to_string(session_start);
-	session->ademco_id = session_start;
-	session->seq = 1;
+	session->ademco_id = session_start + 1;
+	session->seq = 0;
 	bufferevent_setcb(bev, readcb, writecb, eventcb, session);
 	bufferevent_enable(bev, EV_READ | EV_WRITE);
 	if (bufferevent_socket_connect(bev, (const sockaddr*)(&addr), sizeof(addr)) < 0) {
@@ -368,7 +375,6 @@ int main(int argc, char** argv)
 
 	for (int i = 1; i < thread_count; i++) {
 		threads.push_back(std::thread([&sin, i, session_per_thread]() {
-			//printf("thread %lld created\n", gettid()); 
 			auto context = init_thread(i, sin, i * session_per_thread, session_per_thread);
 			event_base_dispatch(context->base);
 		}));
