@@ -1078,7 +1078,9 @@ struct AdemcoPacket
 	// parser
 	ParseResult parse(const char* pack, size_t pack_len, size_t& cb_commited) {
 		//AUTO_LOG_FUNCTION;
+#ifdef _DEBUG
 		try {
+#endif
 			do {
 				if (pack_len < 9) {
 					JLOG_INFO("AdemcoPacket::Parse pack_len {} < 9", pack_len); JLOG_HEX(pack, pack_len);
@@ -1229,10 +1231,13 @@ struct AdemcoPacket
 				cb_commited = p - pack;
 				return ParseResult::RESULT_OK;
 			} while (0);
+
+#ifdef _DEBUG
 		} catch (std::exception& e) {
 			printf("AdemcoPacket::parse EXCEPTION: %s\n", e.what());
 			abort();
 		}
+#endif
 
 		// dump data
 		JLOG_HEX(pack, std::min(pack_len, jlib::MAX_INPUT_BUFF_LEN));
