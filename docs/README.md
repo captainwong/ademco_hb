@@ -85,8 +85,8 @@
 |1113|水警|WATER|
 |1137|防拆|TAMPER|
 |1383|防区防拆|ZONE_TAMPER|
-|1570|旁路|EVENT_BY_PASS|
-|3570|解除旁路|EVENT_BY_PASS_RESUME|
+|1570|旁路|BYPASS|
+|3570|解除旁路|BYPASS_RESUME|
 
 ### 防区异常
 
@@ -145,7 +145,7 @@
 |1756|SIM卡为物联卡|SIM card is IOT|
 |2756|SIM卡为平台物联卡|SIM card is Platform IOT|
 |3756|SIM卡为非物联卡|SIM card is not IOT|
-|1798|索要主机类型|EVENT_WHAT_IS_YOUR_TYPE|
+|1798|索要主机类型|WHAT_IS_YOUR_TYPE|
 |1799|信号强度变化|SIGNAL_STRENGTH_CHANGED|
 
 ### *恒博主机类型对照表*

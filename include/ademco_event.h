@@ -40,8 +40,8 @@ enum ADEMCO_EVENT : uint32_t {
 	EVENT_WATER									= 1113, // 水警
 	EVENT_TAMPER								= 1137, // 主机防拆
 	EVENT_ZONE_TAMPER							= 1383, // 防区防拆
-	EVENT_BY_PASS								= 1570, // 旁路
-	EVENT_BY_PASS_RESUME						= 3570, // 解除旁路
+	EVENT_BYPASS								= 1570, // 旁路
+	EVENT_BYPASS_RESUME							= 3570, // 解除旁路
 
 	// 防区异常
 	EVENT_AC_BROKE								= 1301, // 主机AC掉电
@@ -145,8 +145,8 @@ static constexpr ADEMCO_EVENT AdemcoEvents[] = {
 	EVENT_WATER,
 	EVENT_TAMPER,
 	EVENT_ZONE_TAMPER,
-	EVENT_BY_PASS,
-	EVENT_BY_PASS_RESUME,
+	EVENT_BYPASS,
+	EVENT_BYPASS_RESUME,
 
 	EVENT_AC_BROKE,
 	EVENT_AC_RECOVER,
@@ -224,8 +224,8 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	case EVENT_HALFARM: case EVENT_HALFARM_1456:	return n_to_s(ademco_event) + "HALFARM";							
 	case EVENT_TAMPER:								return n_to_s(ademco_event) + "TAMPER";								
 	case EVENT_ZONE_TAMPER:							return n_to_s(ademco_event) + "ZONE_TAMPER";						
-	case EVENT_BY_PASS:								return n_to_s(ademco_event) + "EVENT_BY_PASS";						
-	case EVENT_BY_PASS_RESUME:						return n_to_s(ademco_event) + "EVENT_BY_PASS_RESUME";				
+	case EVENT_BYPASS:								return n_to_s(ademco_event) + "BYPASS";						
+	case EVENT_BYPASS_RESUME:						return n_to_s(ademco_event) + "BYPASS_RESUME";				
 
 	case EVENT_WATER:								return n_to_s(ademco_event) + "WATER";								
 	case EVENT_AC_BROKE:							return n_to_s(ademco_event) + "AC BROKE";							
@@ -278,7 +278,7 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	case EVENT_EXIT_SETTING_MODE:					return n_to_s(ademco_event) + "EXIT_SETTING_MODE";					
 	case EVENT_RESTORE_FACTORY_SETTINGS_710:
 	case EVENT_RESTORE_FACTORY_SETTINGS:			return n_to_s(ademco_event) + "RESTORE_FACTORY_SETTINGS";			
-	case EVENT_WHAT_IS_YOUR_TYPE:					return n_to_s(ademco_event) + "EVENT_WHAT_IS_YOUR_TYPE";			
+	case EVENT_WHAT_IS_YOUR_TYPE:					return n_to_s(ademco_event) + "WHAT_IS_YOUR_TYPE";			
 	case EVENT_SIGNAL_STRENGTH_CHANGED:				return n_to_s(ademco_event) + "SIGNAL_STRENGTH_CHANGED";			
 	default:			with_event_number = true;	return n_to_s(ademco_event) + "undefined";							
 	}
@@ -306,8 +306,8 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 	case EVENT_TAMPER:								return n_to_s(ademco_event) + L"防拆";						
 	case EVENT_ZONE_TAMPER:							return n_to_s(ademco_event) + L"防区防拆";					
 	case EVENT_WATER:								return n_to_s(ademco_event) + L"水警";						
-	case EVENT_BY_PASS:								return n_to_s(ademco_event) + L"旁路";						
-	case EVENT_BY_PASS_RESUME:						return n_to_s(ademco_event) + L"解除旁路";					
+	case EVENT_BYPASS:								return n_to_s(ademco_event) + L"旁路";						
+	case EVENT_BYPASS_RESUME:						return n_to_s(ademco_event) + L"解除旁路";					
 
 	case EVENT_AC_BROKE:							return n_to_s(ademco_event) + L"主机AC掉电";					
 	case EVENT_AC_RECOVER:							return n_to_s(ademco_event) + L"主机AC恢复";					
@@ -401,14 +401,16 @@ enum EventLevel
 	EVENT_LEVEL_ALARM,				// 红色报警
 };
 
-// 获取安定宝事件级别
+//! 获取安定宝事件级别
 inline EventLevel GetEventLevel(ADEMCO_EVENT ademco_event)
 {
 	switch (ademco_event) {
 	case EVENT_ARM:
 	case EVENT_DISARM:
 	case EVENT_HALFARM:
+	case EVENT_HALFARM_1456:
 		return EVENT_LEVEL_STATUS;
+
 	case EVENT_AC_RECOVER:
 	case EVENT_RECONNECT:
 	case EVENT_LOST_RECOVER:
@@ -419,6 +421,7 @@ inline EventLevel GetEventLevel(ADEMCO_EVENT ademco_event)
 	case EVENT_BATTERY_EXCEPTION_RECOVER:
 	case EVENT_OTHER_EXCEPTION_RECOVER:
 		return EVENT_LEVEL_EXCEPTION_RESUME;
+
 	case EVENT_AC_BROKE:
 	case EVENT_LOWBATTERY:
 	case EVENT_BADBATTERY:
@@ -431,6 +434,7 @@ inline EventLevel GetEventLevel(ADEMCO_EVENT ademco_event)
 	case EVENT_BATTERY_EXCEPTION:
 	case EVENT_OTHER_EXCEPTION:
 		return EVENT_LEVEL_EXCEPTION;
+
 	case EVENT_SERIAL485DIS:
 	case EVENT_BURGLAR:
 	case EVENT_DURESS:
@@ -441,6 +445,7 @@ inline EventLevel GetEventLevel(ADEMCO_EVENT ademco_event)
 	case EVENT_ZONE_TAMPER:
 	case EVENT_WATER:
 		return EVENT_LEVEL_ALARM;
+
 	default:
 		return EVENT_LEVEL_NULL;
 	}
@@ -450,16 +455,16 @@ inline EventLevel GetEventLevel(ADEMCO_EVENT ademco_event)
 inline ADEMCO_EVENT getExceptionEventByResumeEvent(ADEMCO_EVENT resume_event)
 {
 	switch (resume_event) {
-	case EVENT_RECONNECT:					return EVENT_DISCONNECT;					break;
-	case EVENT_LOST_RECOVER:				return EVENT_LOST;							break;
-	case EVENT_SERIAL485CONN:				return EVENT_SERIAL485DIS;					break;
-	case EVENT_SUB_MACHINE_SENSOR_RESUME:	return EVENT_SUB_MACHINE_SENSOR_EXCEPTION;	break;
-	case EVENT_SUB_MACHINE_POWER_RESUME:	return EVENT_SUB_MACHINE_POWER_EXCEPTION;	break;
-	case EVENT_BATTERY_RECOVER:				return EVENT_LOWBATTERY;					break;
-	case EVENT_BATTERY_EXCEPTION_RECOVER:	return EVENT_BATTERY_EXCEPTION;				break;
-	case EVENT_OTHER_EXCEPTION_RECOVER:		return EVENT_OTHER_EXCEPTION;				break;
-	case EVENT_AC_RECOVER:					return EVENT_AC_BROKE;						break;
-	default:								return EVENT_INVALID_EVENT;					break;
+	case EVENT_RECONNECT:					return EVENT_DISCONNECT;	
+	case EVENT_LOST_RECOVER:				return EVENT_LOST;						
+	case EVENT_SERIAL485CONN:				return EVENT_SERIAL485DIS;				
+	case EVENT_SUB_MACHINE_SENSOR_RESUME:	return EVENT_SUB_MACHINE_SENSOR_EXCEPTION;
+	case EVENT_SUB_MACHINE_POWER_RESUME:	return EVENT_SUB_MACHINE_POWER_EXCEPTION;
+	case EVENT_BATTERY_RECOVER:				return EVENT_LOWBATTERY;				
+	case EVENT_BATTERY_EXCEPTION_RECOVER:	return EVENT_BATTERY_EXCEPTION;			
+	case EVENT_OTHER_EXCEPTION_RECOVER:		return EVENT_OTHER_EXCEPTION;			
+	case EVENT_AC_RECOVER:					return EVENT_AC_BROKE;					
+	default:								return EVENT_INVALID_EVENT;				
 	}
 }
 
