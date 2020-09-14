@@ -212,7 +212,7 @@ void _print_machine_img(MachineType t)
 	for (auto brand : get_machine_brands(t)) {		
 		auto path = brand_to_path(brand);
 		if (!path.empty()) {
-			printf(jlib::win32::utf16_to_mbcs(LR"(<li>%s <img alt="%s" src="%s" style="max-height:80px" /></li>)").data(), brand.data(), brand.data(), path.data());
+			printf(jlib::win32::utf16_to_mbcs(LR"(<li>%s</li>)").data(), brand.data());// , brand.data(), path.data());
 		}
 		
 	}
@@ -251,9 +251,10 @@ void print_machineTypes()
 
 void print_imgs()
 {
-	printf("### 主机型号示例图片\n\n");
+	printf("\n\n### 主机型号示例图片\n\n");
 
-	printf("<ul>\n");
+	printf("|型号|示例图片|\n"
+		   "|---|--------|\n");
 	for (auto e : AdemcoEvents) {
 		if (isMachineTypeEvent(e)) {
 			auto t = hb::machineTypeFromAdemcoEvent(e);
@@ -262,13 +263,13 @@ void print_imgs()
 			for (auto brand : get_machine_brands(t)) {
 				auto path = brand_to_path(brand);
 				if (!path.empty()) {
-					printf("<li>#img-%s ![img](%s)</li>\n", brand.data(), path.data());
+					printf(R"(|%s|<img alt="%s" src="%s" style="max-height:80px" />|)" "\n", brand.data(), brand.data(), path.data());
 				}
 
 			}
 		}
 	}
-	printf("</ul>\n");
+	printf("\n\n");
 }
 
 int main()
@@ -286,5 +287,5 @@ int main()
 	printEvents(privateEvents, _countof(privateEvents));
 
 	print_machineTypes();
-	//print_imgs();
+	print_imgs();
 }
