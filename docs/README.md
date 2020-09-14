@@ -166,19 +166,19 @@
 
 |型号|示例图片|
 |---|--------|
-|HB-G250|<img alt="HB-G250" src="./主机类型/smartresize/HB-G250-web.png" style="max-height:80px" />|
-|HB-BJQ560|<img alt="HB-BJQ560" src="./主机类型/smartresize/HB-BJQ560-web.png" style="max-height:80px" />|
-|HB-BJQ560B|<img alt="HB-BJQ560B" src="./主机类型/smartresize/HB-BJQ560B-web.png" style="max-height:80px" />|
+|HB-2050|<img alt="HB-2050" src="./主机类型/smartresize/HB-2050-web.png" style="max-height:80px" />|
+|HB-2050-4G|<img alt="HB-2050-4G" src="./主机类型/smartresize/HB-2050-4G-web.png" style="max-height:80px" />|
+|HB-4040G|<img alt="HB-4040G" src="./主机类型/smartresize/HB-4040G-web.png" style="max-height:80px" />|
 |HB-4040R|<img alt="HB-4040R" src="./主机类型/smartresize/HB-4040R-web.png" style="max-height:80px" />|
-|HB-5050R|<img alt="HB-5050R" src="./主机类型/smartresize/HB-5050R-web.png" style="max-height:80px" />|
-|HB-G1000|<img alt="HB-G1000" src="./主机类型/smartresize/HB-G1000-web.png" style="max-height:80px" />|
-|HB-G1000-4G|<img alt="HB-G1000-4G" src="./主机类型/smartresize/HB-G1000-4G-web.png" style="max-height:80px" />|
-|HB-5050G-4GW|<img alt="HB-5050G-4GW" src="./主机类型/smartresize/HB-5050G-4GW-web.png" style="max-height:80px" />|
-|HB-G1000|<img alt="HB-G1000" src="./主机类型/smartresize/HB-G1000-web.png" style="max-height:80px" />|
-|HB-G1000-4G|<img alt="HB-G1000-4G" src="./主机类型/smartresize/HB-G1000-4G-web.png" style="max-height:80px" />|
 |HB-5050G|<img alt="HB-5050G" src="./主机类型/smartresize/HB-5050G-web.png" style="max-height:80px" />|
 |HB-5050G-4G|<img alt="HB-5050G-4G" src="./主机类型/smartresize/HB-5050G-4G-web.png" style="max-height:80px" />|
-|HB-2050|<img alt="HB-2050" src="./主机类型/smartresize/HB-2050-web.png" style="max-height:80px" />|
+|HB-5050G-4GW|<img alt="HB-5050G-4GW" src="./主机类型/smartresize/HB-5050G-4GW-web.png" style="max-height:80px" />|
+|HB-5050R|<img alt="HB-5050R" src="./主机类型/smartresize/HB-5050R-web.png" style="max-height:80px" />|
+|HB-BJQ560|<img alt="HB-BJQ560" src="./主机类型/smartresize/HB-BJQ560-web.png" style="max-height:80px" />|
+|HB-BJQ560B|<img alt="HB-BJQ560B" src="./主机类型/smartresize/HB-BJQ560B-web.png" style="max-height:80px" />|
+|HB-G1000|<img alt="HB-G1000" src="./主机类型/smartresize/HB-G1000-web.png" style="max-height:80px" />|
+|HB-G1000-4G|<img alt="HB-G1000-4G" src="./主机类型/smartresize/HB-G1000-4G-web.png" style="max-height:80px" />|
+|HB-G250|<img alt="HB-G250" src="./主机类型/smartresize/HB-G250-web.png" style="max-height:80px" />|
 
 ## 四、恒博扩展
 

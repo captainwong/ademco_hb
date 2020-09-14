@@ -6,6 +6,7 @@
 #include "../../include/hb_helper.h"
 #include <jlib/win32/UnicodeTool.h>
 #include <jlib/win32/path_op.h>
+#include <map>
 
 using namespace ademco;
 using namespace hb;
@@ -257,6 +258,8 @@ void print_imgs()
 
 	printf("|ÐÍºÅ|Ê¾ÀýÍ¼Æ¬|\n"
 		   "|---|--------|\n");
+
+	std::map<std::string, std::string> imgs;
 	for (auto e : AdemcoEvents) {
 		if (isMachineTypeEvent(e)) {
 			auto t = hb::machineTypeFromAdemcoEvent(e);
@@ -265,11 +268,14 @@ void print_imgs()
 			for (auto brand : get_machine_brands(t)) {
 				auto path = brand_to_path(brand);
 				if (!path.empty()) {
-					printf(R"(|%s|<img alt="%s" src="%s" style="max-height:80px" />|)" "\n", brand.data(), brand.data(), path.data());
+					imgs[brand] = path;
 				}
 
 			}
 		}
+	}
+	for (auto i : imgs) {
+		printf(R"(|%s|<img alt="%s" src="%s" style="max-height:80px" />|)" "\n", i.first.data(), i.first.data(), i.second.data());
 	}
 	printf("\n\n");
 }
