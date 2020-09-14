@@ -1,9 +1,15 @@
 
 #define ENABLE_ADEMCO_EVENT_TO_STRING
 #include "../../include/ademco_event.h"
+#define ENABLE_COMMON_MACHINE_TYPE_TO_STRING
+#include "../../include/hb_detail.h"
+#include "../../include/hb_helper.h"
 #include <jlib/win32/UnicodeTool.h>
+#include <jlib/win32/path_op.h>
 
 using namespace ademco;
+using namespace hb;
+using namespace hb::common;
 
 ADEMCO_EVENT statusEvents[] = {
 
@@ -84,6 +90,7 @@ ADEMCO_EVENT privateEvents[] = {
 	EVENT_I_AM_WIFI_MACHINE,
 	EVENT_I_AM_3_SECTION_MACHINE,
 	EVENT_I_AM_IOT_MACHINE,
+	EVENT_I_AM_GPRS_PHONE,
 
 	EVENT_PHONE_USER_SOS,
 	EVENT_PHONE_USER_CANCLE_ALARM,
@@ -113,6 +120,138 @@ void printEvents(const ADEMCO_EVENT* events, size_t len)
 	printf("\n");
 }
 
+const char* get_core_authoer(MachineType t)
+{
+	switch (t) {
+	case hb::common::WiFi:
+	case hb::common::Gprs_IoT:
+	case hb::common::Gprs:
+	case hb::common::Wired:
+		return "wuziqiang";
+		break;
+
+	case hb::common::NetMod:
+	case hb::common::Lcd:
+	case hb::common::TrueColor:
+	case hb::common::ThreeSection:
+	case hb::common::IoT:
+	case hb::common::Gprs_Phone:
+		return "jinjianfeng";
+		break;
+
+
+	default:
+		break;
+	}
+
+	return "";
+}
+
+std::vector<std::string> get_machine_brands(MachineType t)
+{
+	switch (t) {
+	case hb::common::WiFi:
+	case hb::common::Camera: return {};
+
+	case hb::common::Gprs_IoT: return { "HB-5050G", "HB-5050G-4G" };
+
+	case hb::common::NetMod: return { "HB-G250" };
+
+	case hb::common::Gprs: return { "HB-4040G.png", };
+
+	case hb::common::Lcd: return { "HB-BJQ560", "HB-BJQ560B" };
+
+	case hb::common::Wired: return { "HB-4040R", "HB-5050R" };
+
+	case hb::common::TrueColor:return { "HB-G1000", "HB-G1000-4G" };
+
+	case hb::common::ThreeSection:return { "HB-G1000", "HB-G1000-4G" };
+
+	case hb::common::IoT: return { "HB-5050G-4GW" };
+
+	case hb::common::Gprs_Phone: return { "HB-2050" };
+
+	default: return {};
+		break;
+	}
+}
+
+std::string brand_to_path(const std::string& brand)
+{
+	std::vector<std::string> exts = { "png", "jpg" };
+	std::string path = jlib::win32::utf16_to_mbcs(L"..\\..\\docs\\主机类型\\") + brand;
+	for (auto ext : exts) {
+		if (jlib::win32::fileExists(path + "." + ext)) {
+			return jlib::win32::utf16_to_mbcs(L"./主机类型/") + brand + "." + ext;
+		}
+	}
+	return {};
+}
+
+void _print_machine_img(MachineType t)
+{
+	printf("|<ul>");
+	for (auto brand : get_machine_brands(t)) {		
+		auto path = brand_to_path(brand);
+		if (!path.empty()) {
+			printf(jlib::win32::utf16_to_mbcs(LR"(<li>%s <img alt="%s" src="%s" style="max-height:80px" /></li>)").data(), brand.data(), brand.data(), path.data());
+		}
+		
+	}
+	printf("</ul>");
+}
+
+void print_machineTypes()
+{
+	printf("### 主机类型详解\n\n");
+
+	printf("|安定宝事件码类型|主机类型|防区范围|有线防区范围|支持电话报警|内核负责人|在售主机型号与图标|\n"
+		   "|---------------|-------|-------|-----------|-----------|---------|----------------|\n");
+
+	for (auto e : AdemcoEvents) {
+		if (isMachineTypeEvent(e)) {
+			auto t = hb::machineTypeFromAdemcoEvent(e);
+			if(!machineIsSelling(t)) continue;
+
+			printf("|%s", jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(e)).data());
+			printf("|%s", jlib::win32::utf16_to_mbcs(machineTypeToWString(t)).data());
+			printf("|1~%d", zoneMax(t));
+			if (machineHasWiredZone(t)) {
+				printf("|%d~%d", wiredZoneMin(t), wiredZoneMax(t));
+			} else {
+				printf("|");
+			}
+			printf("|%s", machineCanReportBySMS(t) ? "Yes" : "");
+			printf("|%s", get_core_authoer(t));
+			_print_machine_img(t);
+			printf("|\n");
+		}
+	}
+
+}
+
+void print_imgs()
+{
+	printf("### 主机型号示例图片\n\n");
+
+	printf("<ul>\n");
+	for (auto e : AdemcoEvents) {
+		if (isMachineTypeEvent(e)) {
+			auto t = hb::machineTypeFromAdemcoEvent(e);
+			if (!machineIsSelling(t)) continue;
+
+			for (auto brand : get_machine_brands(t)) {
+				auto path = brand_to_path(brand);
+				if (!path.empty()) {
+					printf("<li>#img-%s ![img](%s)</li>\n", brand.data(), path.data());
+				}
+
+			}
+		}
+	}
+	printf("</ul>\n");
+}
+
 int main()
 {
 	printf("### 主机状态\n\n");
@@ -126,4 +265,7 @@ int main()
 
 	printf("### *恒博私有事件码*\n\n");
 	printEvents(privateEvents, _countof(privateEvents));
+
+	print_machineTypes();
+	//print_imgs();
 }

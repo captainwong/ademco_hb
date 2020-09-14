@@ -99,25 +99,27 @@ static const wchar_t* machineStatusToWString(MachineStatus status) {
 //! 主机类型
 enum MachineType : Char {
 	//! WiFi主机 （已停用）
-	WiFi		= 0x00,
+	WiFi		= 0,
 	//! 网络摄像机 （未启用）
-	Camera		= 0x01,
-	//! 3G模块主机 （未启用）
-	T_3G		= 0x02,
+	Camera		= 1,
+	//! 物联卡主机 [HB-5050G HB-5050-4G]
+	Gprs_IoT	= 2,
 	//! 网络模块主机 [ HB-G250 ]
-	NetMod		= 0x03,
-	//! 改造的卧式主机 [ HB-4040G HB-5050G HB-5050-4G ]
-	Gprs		= 0x04,
+	NetMod		= 3,
+	//! 改进型卧式主机 [ HB-4040G HB-5050G HB-5050-4G ]
+	Gprs		= 4,
 	//! 液晶主机 [ HB-BJQ-560B ]
-	Lcd			= 0x05,
+	Lcd			= 5,
 	//! 网线主机 [ HB-4040R HB-5050R ]
-	Wired		= 0x06,
-	//! 真彩主机 [ HB-2050G ]
-	TrueColor	= 0x07,
-	//! 三区段主机 [ HTZ-G1000 HTZ-G1000-4G ]
-	ThreeSection = 0x08,
-	//! 物联卡主机（基本上是GRPS主机砍掉了短信、电话功能）
-	IoT			= 0x09,
+	Wired		= 6,
+	//! 真彩主机 [ HTZ-G1000-2G HTZ-G1000-4G ]
+	TrueColor	= 7,
+	//! 三区段主机 [ HTZ-G1000-2G HTZ-G1000-4G ]
+	ThreeSection = 8,
+	//! 物联卡主机 [ HB-5050-4GW ]
+	IoT			= 9,
+	//! GPRS主机可以打电话 [ HB-2050-2G ] 防区 [1-60]
+	Gprs_Phone  = 10,
 
 	MachineTypeCount,
 	InvalidMachineType = 0xFF,
@@ -135,7 +137,7 @@ static MachineType machineTypeFromChar(Char t) {
 static constexpr MachineType AllMachineTypes[MachineTypeCount] = {
 	WiFi,
 	Camera,
-	T_3G,
+	Gprs_IoT,
 	NetMod,
 	Gprs,
 	Lcd,
@@ -143,31 +145,35 @@ static constexpr MachineType AllMachineTypes[MachineTypeCount] = {
 	TrueColor,
 	ThreeSection,
 	IoT,
+	Gprs_Phone,
 };
 
 //! 最大防区号根据型号不同而不同
 static uint16_t zoneMax(MachineType type) {
 	switch (type) {
-	case MachineType::Gprs: // HB-4040G HB-5050G HB-5050-4G
-	case MachineType::Wired: // HB-4040R HB-5050R
+	case MachineType::Gprs: 
+	case MachineType::Wired:
 	case MachineType::IoT:
 		return 99;
 
-	case MachineType::NetMod: // HB-G250
+	case MachineType::NetMod: 
 		return 999;
 
-	case MachineType::Lcd: // HB-BJQ-560B
+	case MachineType::Lcd: 
 		return 249;
 
-	case MachineType::TrueColor: // HB-2050G
+	case MachineType::Gprs_IoT:
+	case MachineType::TrueColor:
 		return 68;
 
-	case MachineType::ThreeSection: // HTZ-G1000 HTZ-G1000-4G
+	case MachineType::ThreeSection: 
 		return 191;
+
+	case MachineType::Gprs_Phone:
+		return 60;
 
 	case MachineType::WiFi:
 	case MachineType::Camera:
-	case MachineType::T_3G:
 	default:
 		return 0;
 		break;
@@ -194,10 +200,12 @@ static bool machineCanHalfArm(MachineType type) {
 //! 主机是否可以报告信号强度
 static bool machineCanReportSignalStrength(MachineType type) {
 	return type == MachineType::Gprs
+		|| type == MachineType::Gprs_IoT
 		|| type == MachineType::IoT
 		|| type == MachineType::Lcd
 		|| type == MachineType::TrueColor
 		|| type == MachineType::ThreeSection
+		|| type == MachineType::Gprs_Phone
 		;
 }
 
@@ -207,19 +215,92 @@ static bool machineCanReportBySMS(MachineType type) {
 		|| type == MachineType::Lcd
 		|| type == MachineType::TrueColor
 		|| type == MachineType::ThreeSection
+		|| type == MachineType::Gprs_Phone
 		;
 }
 
 //! 主机是否已投产使用
-static bool machineIsSolding(MachineType type) {
+static bool machineIsSelling(MachineType type) {
 	return type == MachineType::NetMod
 		|| type == MachineType::Gprs
+		|| type == MachineType::Gprs_IoT
 		|| type == MachineType::IoT
 		|| type == MachineType::Lcd
 		|| type == MachineType::Wired
 		|| type == MachineType::TrueColor
 		|| type == MachineType::ThreeSection
+		|| type == MachineType::Gprs_Phone
 		;
+}
+
+//! 主机是否支持有线防区
+static bool machineHasWiredZone(MachineType type) {
+	return type == MachineType::NetMod
+		|| type == MachineType::TrueColor
+		|| type == MachineType::ThreeSection;
+}
+
+//! 主机最小有线防区号
+static ademco::AdemcoZone wiredZoneMin(MachineType type) {
+	switch (type) {
+	case hb::common::NetMod: return 1;
+
+	case hb::common::Gprs:
+		break;
+	case hb::common::Lcd:
+		break;
+	case hb::common::Wired:
+		break;
+	case hb::common::TrueColor: return 1;
+		break;
+	case hb::common::ThreeSection: return 1;
+		break;
+	case hb::common::IoT:
+		break;
+	case hb::common::Gprs_Phone:
+		break;
+	case hb::common::MachineTypeCount:
+		break;
+	case hb::common::InvalidMachineType:
+		break;
+	default:
+		
+		break;
+	}
+
+	return 0;
+}
+
+//! 主机最大有线防区号
+static ademco::AdemcoZone wiredZoneMax(MachineType type) {
+	switch (type) {
+	case hb::common::Gprs_IoT:
+		break;
+	case hb::common::NetMod: return 8;
+		break;
+	case hb::common::Gprs:
+		break;
+	case hb::common::Lcd:
+		break;
+	case hb::common::Wired:
+		break;
+	case hb::common::TrueColor:return 8;
+		break;
+	case hb::common::ThreeSection:return 8;
+		break;
+	case hb::common::IoT:
+		break;
+	case hb::common::Gprs_Phone:
+		break;
+	case hb::common::MachineTypeCount:
+		break;
+	case hb::common::InvalidMachineType:
+		break;
+	default:
+		break;
+	}
+
+	return 0;
 }
 
 //! 主机是否可以直接写入防区数据（无需对码）
@@ -237,7 +318,7 @@ static const char* machineTypeToString(MachineType type) {
 	switch (type) {
 	case MachineType::WiFi:		return "0 WiFi";
 	case MachineType::Camera:	return "1 Camera";
-	case MachineType::T_3G:		return "2 3G";
+	case MachineType::Gprs_IoT:	return "2 Gprs_IoT";
 	case MachineType::NetMod:	return "3 NetMod";
 	case MachineType::Gprs:		return "4 GPRS";
 	case MachineType::Lcd:		return "5 LCD";
@@ -245,6 +326,7 @@ static const char* machineTypeToString(MachineType type) {
 	case MachineType::TrueColor:return "7 TrueColor";
 	case MachineType::ThreeSection:return "8 ThreeSection";
 	case MachineType::IoT:		return "9 IoT";
+	case MachineType::Gprs_Phone:	return "10 Gprs_Phone";
 	default:					return "Unknown MachineType";
 	}
 }
@@ -253,7 +335,7 @@ static const wchar_t* machineTypeToWString(MachineType type) {
 	switch (type) {
 	case MachineType::WiFi:		return L"0 WiFi主机";
 	case MachineType::Camera:	return L"1 摄像头主机";
-	case MachineType::T_3G:		return L"2 3G主机";
+	case MachineType::Gprs_IoT:	return L"2 物联卡主机";
 	case MachineType::NetMod:	return L"3 网络模块+工程主机";
 	case MachineType::Gprs:		return L"4 GPRS主机";
 	case MachineType::Lcd:		return L"5 液晶主机";
@@ -261,6 +343,7 @@ static const wchar_t* machineTypeToWString(MachineType type) {
 	case MachineType::TrueColor:return L"7 真彩主机";
 	case MachineType::ThreeSection:return L"8 三区段主机";
 	case MachineType::IoT:		return L"9 物联卡主机";
+	case MachineType::Gprs_Phone:	return L"10 GPRS主机能打电话";
 	default:					return L"未知主机";
 	}
 }

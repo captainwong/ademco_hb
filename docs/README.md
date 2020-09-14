@@ -133,6 +133,7 @@
 |1747|我是WiFi主机|I_AM_WIFI_MACHINE|
 |1757|我是三区段主机|I_AM_3_SECTION_MACHINE|
 |1767|我是物联卡主机|I_AM_IOT_MACHINE|
+|1797|我是能打电话的GPRS主机|I_AM_GPRS_PHONE|
 |1709|手机用户SOS|SOS|
 |1711|手机用户消警|PHONE_USER_CANCLE_ALARM|
 |1712|主机进入设置状态|ENTER_SETTING_MODE|
@@ -144,6 +145,19 @@
 |3756|SIM卡为非物联卡|SIM card is not IOT|
 |1798|索要主机类型|EVENT_WHAT_IS_YOUR_TYPE|
 |1799|信号强度变化|SIGNAL_STRENGTH_CHANGED|
+
+### 主机类型详解
+
+|安定宝事件码类型|主机类型|防区范围|有线防区范围|支持电话报警|内核负责人|在售主机型号与图标|
+|---------------|-------|-------|-----------|-----------|---------|----------------|
+|1707--我是网络模块|3 网络模块+工程主机|1~999|1~8||jinjianfeng|<ul><li>HB-G250 <img alt="HB-G250" src="./主机类型/HB-G250.jpg" style="max-height:80px" /></li></ul>|
+|1717--我是GPRS主机|4 GPRS主机|1~99||Yes|wuziqiang|<ul></ul>|
+|1727--我是液晶主机|5 液晶主机|1~249||Yes|jinjianfeng|<ul><li>HB-BJQ560 <img alt="HB-BJQ560" src="./主机类型/HB-BJQ560.png" style="max-height:80px" /></li><li>HB-BJQ560B <img alt="HB-BJQ560B" src="./主机类型/HB-BJQ560B.png" style="max-height:80px" /></li></ul>|
+|1737--我是网线主机|6 网线主机|1~99|||wuziqiang|<ul><li>HB-4040R <img alt="HB-4040R" src="./主机类型/HB-4040R.png" style="max-height:80px" /></li><li>HB-5050R <img alt="HB-5050R" src="./主机类型/HB-5050R.png" style="max-height:80px" /></li></ul>|
+|1757--我是三区段主机|8 三区段主机|1~191|1~8|Yes|jinjianfeng|<ul><li>HB-G1000 <img alt="HB-G1000" src="./主机类型/HB-G1000.png" style="max-height:80px" /></li><li>HB-G1000-4G <img alt="HB-G1000-4G" src="./主机类型/HB-G1000-4G.png" style="max-height:80px" /></li></ul>|
+|1767--我是物联卡主机|9 物联卡主机|1~99|||jinjianfeng|<ul><li>HB-5050G-4GW <img alt="HB-5050G-4GW" src="./主机类型/HB-5050G-4GW.png" style="max-height:80px" /></li></ul>|
+|1787--我是简化版物联卡主机|2 物联卡主机|1~68|||wuziqiang|<ul><li>HB-5050G <img alt="HB-5050G" src="./主机类型/HB-5050G.png" style="max-height:80px" /></li><li>HB-5050G-4G <img alt="HB-5050G-4G" src="./主机类型/HB-5050G-4G.png" style="max-height:80px" /></li></ul>|
+|1797--我是能打电话的GPRS主机|10 GPRS主机能打电话|1~60||Yes|jinjianfeng|<ul><li>HB-2050 <img alt="HB-2050" src="./主机类型/HB-2050.jpg" style="max-height:80px" /></li></ul>|
 
 ## 四、恒博扩展
 
