@@ -152,7 +152,7 @@
 |事件码类型|主机类型|防区|有线防区|SMS|内核|网络|在售型号|
 |---------|-------|----|-------|---|----|----|-------|
 |1707 我是网络模块|3 网络模块+工程主机|1~999|1~8||jjf|wzq|<ul><li>HB-G250</li></ul>|
-|1717 我是GPRS主机|4 GPRS主机|1~99||Yes|wzq|qfm|<ul></ul>|
+|1717 我是GPRS主机|4 GPRS主机|1~99||Yes|wzq|qfm|<ul><li>HB-2050</li><li>HB-2050-4G</li><li>HB-4040G</li><li>HB-5050G</li><li>HB-5050G-4G</li><li>HB-5050G-4GW</li><li>HB-G1000</li><li>HB-G1000-4G</li></ul>|
 |1727 我是液晶主机|5 液晶主机|1~249||Yes|jjf|qfm|<ul><li>HB-BJQ560</li><li>HB-BJQ560B</li></ul>|
 |1737 我是网线主机|6 网线主机|1~99|||wzq|wzq|<ul><li>HB-4040R</li><li>HB-5050R</li></ul>|
 |1757 我是三区段主机|8 三区段主机|1~191|1~8|Yes|jjf|qfm|<ul><li>HB-G1000</li><li>HB-G1000-4G</li></ul>|
