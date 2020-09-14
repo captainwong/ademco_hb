@@ -179,10 +179,10 @@ std::vector<std::string> get_machine_brands(MachineType t)
 std::string brand_to_path(const std::string& brand)
 {
 	std::vector<std::string> exts = { "png", "jpg" };
-	std::string path = jlib::win32::utf16_to_mbcs(L"..\\..\\docs\\主机类型\\") + brand;
+	std::string path = jlib::win32::utf16_to_mbcs(L"..\\..\\docs\\主机类型\\smartresize\\") + brand;
 	for (auto ext : exts) {
-		if (jlib::win32::fileExists(path + "." + ext)) {
-			return jlib::win32::utf16_to_mbcs(L"./主机类型/") + brand + "." + ext;
+		if (jlib::win32::fileExists(path + "-web." + ext)) {
+			return jlib::win32::utf16_to_mbcs(L"./主机类型/smartresize/") + brand + "-web." + ext;
 		}
 	}
 	return {};
