@@ -17,6 +17,7 @@ static common::MachineType machineTypeFromAdemcoEvent(ademco::ADEMCO_EVENT e) {
 	case ademco::EVENT_I_AM_WIFI_MACHINE: 	    return common::MachineType::WiFi;
 	case ademco::EVENT_I_AM_3_SECTION_MACHINE: 	return common::MachineType::ThreeSection;
 	case ademco::EVENT_I_AM_IOT_MACHINE: 		return common::MachineType::IoT;
+	case ademco::EVENT_I_AM_TRUE_COLOR:			return common::MachineType::TrueColor;
 	case ademco::EVENT_I_AM_GPRS_IOT:			return common::MachineType::Gprs_IoT;
 	case ademco::EVENT_I_AM_GPRS_PHONE:			return common::MachineType::Gprs_Phone;
 	default: 								    return common::MachineType::InvalidMachineType;
@@ -28,14 +29,14 @@ static ademco::ADEMCO_EVENT ademcoEventFromMachineType(common::MachineType type)
 {
 	switch (type) {
 	case common::MachineType::WiFi: 	        return ademco::EVENT_I_AM_WIFI_MACHINE;
+	case common::MachineType::Gprs_IoT:			return ademco::EVENT_I_AM_GPRS_IOT;
 	case common::MachineType::NetMod:	        return ademco::EVENT_I_AM_NET_MODULE;
-	case common::MachineType::TrueColor:
 	case common::MachineType::Gprs:	            return ademco::EVENT_I_AM_GPRS;
 	case common::MachineType::Lcd:		        return ademco::EVENT_I_AM_LCD_MACHINE;
 	case common::MachineType::Wired: 	        return ademco::EVENT_I_AM_WIRE_MACHINE;
+	case common::MachineType::TrueColor:		return ademco::EVENT_I_AM_TRUE_COLOR;
 	case common::MachineType::ThreeSection: 	return ademco::EVENT_I_AM_3_SECTION_MACHINE;
 	case common::MachineType::IoT:				return ademco::EVENT_I_AM_IOT_MACHINE;
-	case common::MachineType::Gprs_IoT:			return ademco::EVENT_I_AM_GPRS_IOT;
 	case common::MachineType::Gprs_Phone:		return ademco::EVENT_I_AM_GPRS_PHONE;
 	default: 						            return ademco::EVENT_INVALID_EVENT;
 	}

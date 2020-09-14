@@ -93,6 +93,7 @@ enum ADEMCO_EVENT : uint32_t {
 	EVENT_I_AM_WIFI_MACHINE						= 1747, // 主机类型--WiFi主机
 	EVENT_I_AM_3_SECTION_MACHINE				= 1757, // 主机类型--三区段主机
 	EVENT_I_AM_IOT_MACHINE						= 1767, // 主机类型--物联卡主机
+	EVENT_I_AM_TRUE_COLOR						= 1777, // 主机类型--真彩主机
 	EVENT_I_AM_GPRS_IOT							= 1787, // 主机类型--物联卡主机
 	EVENT_I_AM_GPRS_PHONE						= 1797, // 主机类型--GRPS主机带电话功能
 
@@ -187,6 +188,7 @@ static constexpr ADEMCO_EVENT AdemcoEvents[] = {
 	EVENT_I_AM_WIFI_MACHINE,
 	EVENT_I_AM_3_SECTION_MACHINE,
 	EVENT_I_AM_IOT_MACHINE,
+	EVENT_I_AM_TRUE_COLOR,
 	EVENT_I_AM_GPRS_IOT,
 	EVENT_I_AM_GPRS_PHONE,
 
@@ -265,7 +267,8 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	case EVENT_I_AM_WIRE_MACHINE:					return n_to_s(ademco_event) + "I_AM_WIRE_MACHINE";					
 	case EVENT_I_AM_WIFI_MACHINE:					return n_to_s(ademco_event) + "I_AM_WIFI_MACHINE";					
 	case EVENT_I_AM_3_SECTION_MACHINE:				return n_to_s(ademco_event) + "I_AM_3_SECTION_MACHINE";				
-	case EVENT_I_AM_IOT_MACHINE:					return n_to_s(ademco_event) + "I_AM_IOT_MACHINE";			
+	case EVENT_I_AM_IOT_MACHINE:					return n_to_s(ademco_event) + "I_AM_IOT_MACHINE";					
+	case EVENT_I_AM_TRUE_COLOR:						return n_to_s(ademco_event) + "I_AM_TRUE_COLOR";
 	case EVENT_I_AM_GPRS_IOT:						return n_to_s(ademco_event) + "I_AM_GPRS_IOT";
 	case EVENT_I_AM_GPRS_PHONE:						return n_to_s(ademco_event) + "I_AM_GPRS_PHONE";
 	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + "SIM card is IOT";			
@@ -346,7 +349,8 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 	case EVENT_I_AM_WIRE_MACHINE:					return n_to_s(ademco_event) + L"我是网线主机";				
 	case EVENT_I_AM_WIFI_MACHINE:					return n_to_s(ademco_event) + L"我是WiFi主机";				
 	case EVENT_I_AM_3_SECTION_MACHINE:				return n_to_s(ademco_event) + L"我是三区段主机";				
-	case EVENT_I_AM_IOT_MACHINE:					return n_to_s(ademco_event) + L"我是物联卡主机";
+	case EVENT_I_AM_IOT_MACHINE:					return n_to_s(ademco_event) + L"我是物联卡主机";	
+	case EVENT_I_AM_TRUE_COLOR:						return n_to_s(ademco_event) + L"我是真彩主机";
 	case EVENT_I_AM_GPRS_IOT:						return n_to_s(ademco_event) + L"我是简化版物联卡主机";
 	case EVENT_I_AM_GPRS_PHONE:						return n_to_s(ademco_event) + L"我是能打电话的GPRS主机";
 	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + L"SIM卡为物联卡";	
@@ -382,6 +386,7 @@ static inline bool isMachineTypeEvent(ADEMCO_EVENT ademco_event)
 		|| ademco_event == EVENT_I_AM_WIFI_MACHINE
 		|| ademco_event == EVENT_I_AM_3_SECTION_MACHINE
 		|| ademco_event == EVENT_I_AM_IOT_MACHINE
+		|| ademco_event == EVENT_I_AM_TRUE_COLOR
 		|| ademco_event == EVENT_I_AM_GPRS_IOT
 		|| ademco_event == EVENT_I_AM_GPRS_PHONE;
 }

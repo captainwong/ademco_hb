@@ -316,35 +316,35 @@ static bool machineCanLinkSubMachine(MachineType type) {
 #ifdef ENABLE_COMMON_MACHINE_TYPE_TO_STRING
 static const char* machineTypeToString(MachineType type) {
 	switch (type) {
-	case MachineType::WiFi:		return "0 WiFi";
-	case MachineType::Camera:	return "1 Camera";
-	case MachineType::Gprs_IoT:	return "2 Gprs_IoT";
-	case MachineType::NetMod:	return "3 NetMod";
-	case MachineType::Gprs:		return "4 GPRS";
-	case MachineType::Lcd:		return "5 LCD";
-	case MachineType::Wired:	return "6 Wired";
-	case MachineType::TrueColor:return "7 TrueColor";
-	case MachineType::ThreeSection:return "8 ThreeSection";
-	case MachineType::IoT:		return "9 IoT";
+	case MachineType::WiFi:			return "0 WiFi";
+	case MachineType::Camera:		return "1 Camera";
+	case MachineType::Gprs_IoT:		return "2 Gprs_IoT";
+	case MachineType::NetMod:		return "3 NetMod";
+	case MachineType::Gprs:			return "4 GPRS";
+	case MachineType::Lcd:			return "5 LCD";
+	case MachineType::Wired:		return "6 Wired";
+	case MachineType::TrueColor:	return "7 TrueColor";
+	case MachineType::ThreeSection:	return "8 ThreeSection";
+	case MachineType::IoT:			return "9 IoT";
 	case MachineType::Gprs_Phone:	return "10 Gprs_Phone";
-	default:					return "Unknown MachineType";
+	default:						return "Unknown MachineType";
 	}
 }
 
 static const wchar_t* machineTypeToWString(MachineType type) {
 	switch (type) {
-	case MachineType::WiFi:		return L"0 WiFi主机";
-	case MachineType::Camera:	return L"1 摄像头主机";
-	case MachineType::Gprs_IoT:	return L"2 物联卡主机";
-	case MachineType::NetMod:	return L"3 网络模块+工程主机";
-	case MachineType::Gprs:		return L"4 GPRS主机";
-	case MachineType::Lcd:		return L"5 液晶主机";
-	case MachineType::Wired:	return L"6 网线主机";
-	case MachineType::TrueColor:return L"7 真彩主机";
-	case MachineType::ThreeSection:return L"8 三区段主机";
-	case MachineType::IoT:		return L"9 物联卡主机";
+	case MachineType::WiFi:			return L"0 WiFi主机";
+	case MachineType::Camera:		return L"1 摄像头主机";
+	case MachineType::Gprs_IoT:		return L"2 简化的物联卡主机";
+	case MachineType::NetMod:		return L"3 网络模块+工程主机";
+	case MachineType::Gprs:			return L"4 GPRS主机";
+	case MachineType::Lcd:			return L"5 液晶主机";
+	case MachineType::Wired:		return L"6 网线主机";
+	case MachineType::TrueColor:	return L"7 真彩主机";
+	case MachineType::ThreeSection:	return L"8 三区段主机";
+	case MachineType::IoT:			return L"9 物联卡主机";
 	case MachineType::Gprs_Phone:	return L"10 GPRS主机能打电话";
-	default:					return L"未知主机";
+	default:						return L"未知主机";
 	}
 }
 #endif // ENABLE_COMMON_MACHINE_TYPE_TO_STRING

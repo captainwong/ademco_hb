@@ -156,6 +156,7 @@
 |1737--我是网线主机|6 网线主机|1~99|||wzq|<ul><li>HB-4040R <img alt="HB-4040R" src="./主机类型/smartresize/HB-4040R-web.png" style="max-height:80px" /></li><li>HB-5050R <img alt="HB-5050R" src="./主机类型/smartresize/HB-5050R-web.png" style="max-height:80px" /></li></ul>|
 |1757--我是三区段主机|8 三区段主机|1~191|1~8|Yes|jjf|<ul><li>HB-G1000 <img alt="HB-G1000" src="./主机类型/smartresize/HB-G1000-web.png" style="max-height:80px" /></li><li>HB-G1000-4G <img alt="HB-G1000-4G" src="./主机类型/smartresize/HB-G1000-4G-web.png" style="max-height:80px" /></li></ul>|
 |1767--我是物联卡主机|9 物联卡主机|1~99|||jjf|<ul><li>HB-5050G-4GW <img alt="HB-5050G-4GW" src="./主机类型/smartresize/HB-5050G-4GW-web.png" style="max-height:80px" /></li></ul>|
+|1777--我是真彩主机|7 真彩主机|1~68|1~8|Yes|jjf|<ul><li>HB-G1000 <img alt="HB-G1000" src="./主机类型/smartresize/HB-G1000-web.png" style="max-height:80px" /></li><li>HB-G1000-4G <img alt="HB-G1000-4G" src="./主机类型/smartresize/HB-G1000-4G-web.png" style="max-height:80px" /></li></ul>|
 |1787--我是简化版物联卡主机|2 物联卡主机|1~68|||wzq|<ul><li>HB-5050G <img alt="HB-5050G" src="./主机类型/smartresize/HB-5050G-web.png" style="max-height:80px" /></li><li>HB-5050G-4G <img alt="HB-5050G-4G" src="./主机类型/smartresize/HB-5050G-4G-web.png" style="max-height:80px" /></li></ul>|
 |1797--我是能打电话的GPRS主机|10 GPRS主机能打电话|1~60||Yes|jjf|<ul><li>HB-2050 <img alt="HB-2050" src="./主机类型/smartresize/HB-2050-web.png" style="max-height:80px" /></li></ul>|
 

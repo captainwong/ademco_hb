@@ -90,6 +90,8 @@ ADEMCO_EVENT privateEvents[] = {
 	EVENT_I_AM_WIFI_MACHINE,
 	EVENT_I_AM_3_SECTION_MACHINE,
 	EVENT_I_AM_IOT_MACHINE,
+	EVENT_I_AM_TRUE_COLOR,
+	EVENT_I_AM_GPRS_IOT,
 	EVENT_I_AM_GPRS_PHONE,
 
 	EVENT_PHONE_USER_SOS,
@@ -120,7 +122,8 @@ void printEvents(const ADEMCO_EVENT* events, size_t len)
 	printf("\n");
 }
 
-const char* get_core_authoer(MachineType t)
+
+const char* get_core_author(MachineType t)
 {
 	switch (t) {
 	case hb::common::WiFi:
@@ -128,7 +131,6 @@ const char* get_core_authoer(MachineType t)
 	case hb::common::Gprs:
 	case hb::common::Wired:
 		return "wzq";
-		break;
 
 	case hb::common::NetMod:
 	case hb::common::Lcd:
@@ -137,11 +139,27 @@ const char* get_core_authoer(MachineType t)
 	case hb::common::IoT:
 	case hb::common::Gprs_Phone:
 		return "jjf";
-		break;
+	}
 
+	return "";
+}
 
-	default:
-		break;
+const char* get_net_author(MachineType t)
+{
+	switch (t) {
+	case hb::common::WiFi:
+	case hb::common::Wired:
+	case hb::common::NetMod:
+		return "wzq";
+
+	case hb::common::Gprs_IoT:
+	case hb::common::Gprs:
+	case hb::common::Lcd:
+	case hb::common::TrueColor:
+	case hb::common::ThreeSection:
+	case hb::common::IoT:
+	case hb::common::Gprs_Phone:
+		return "qfm";
 	}
 
 	return "";
@@ -205,8 +223,8 @@ void print_machineTypes()
 {
 	printf("### 主机类型详解\n\n");
 
-	printf("|事件码类型|主机类型|防区|有线防区|电话报警|内核负责人|在售主机型号与图标|\n"
-		   "|---------|-------|----|-------|-------|---------|----------------|\n");
+	printf("|事件码类型|主机类型|防区|有线防区|电话报警|内核|网络|在售型号|\n"
+		   "|---------|-------|----|-------|-------|----|----|-------|\n");
 
 	for (auto e : AdemcoEvents) {
 		if (isMachineTypeEvent(e)) {
@@ -222,7 +240,8 @@ void print_machineTypes()
 				printf("|");
 			}
 			printf("|%s", machineCanReportBySMS(t) ? "Yes" : "");
-			printf("|%s", get_core_authoer(t));
+			printf("|%s", get_core_author(t));
+			printf("|%s", get_net_author(t));
 			_print_machine_img(t);
 			printf("|\n");
 		}
