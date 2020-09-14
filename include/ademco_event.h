@@ -359,6 +359,7 @@ static inline bool isMachineStatusEvent(ADEMCO_EVENT ademco_event)
 {
 	return ademco_event == EVENT_ARM
 		|| ademco_event == EVENT_HALFARM
+		|| ademco_event == EVENT_HALFARM_1456
 		|| ademco_event == EVENT_DISARM;
 }
 

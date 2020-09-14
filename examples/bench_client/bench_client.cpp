@@ -53,6 +53,7 @@ int thread_count = 0;
 int session_count = 0;
 int session_connected = 0;
 int timeout = 0;
+int load_test = 0;
 
 std::mutex mutex = {};
 int64_t totalBytesRead = 0;
@@ -66,7 +67,7 @@ struct Session {
 	int fd = 0;
 	int thread_id = 0;
 	bufferevent* bev = nullptr;
-	event* timer = nullptr;
+	event* timer = nullptr; // life or heartbeat timer
 	int id = 0;
 	std::string acct = {};
 	AdemcoId ademco_id = 0;
@@ -105,15 +106,10 @@ void handle_ademco_msg(Session* session, bufferevent* bev)
 	auto output = bufferevent_get_output(bev);
 	switch (session->packet.id_.eid_) {
 	case AdemcoMsgId::id_ack:
-		if (session->packet.seq_.value_ == session->seq) {
-			if (++session->seq == 10000) {
-				session->seq = 1;
-			}
-		}
-		{
+		if (load_test) {
 			auto now = std::chrono::steady_clock::now();
 			char buf[1024];
-			session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->seq, session->acct, session->ademco_id);
+			session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id);
 			evbuffer_add(output, buf, session->lastTimePacketSize);
 			auto us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - now).count();
 			session->encodeTime += us;
@@ -168,24 +164,33 @@ void writecb(struct bufferevent* bev, void* user_data)
 		session->bytesWritten += session->lastTimePacketSize;
 		session->msgWritten++;
 	}
-
 }
 
-void timer_cb(evutil_socket_t fd, short what, void* arg)
+void timer_cb(evutil_socket_t, short, void* arg)
 {
 	auto session = (Session*)arg;
-	//Session* session = nullptr;
-	//bufferevent_getcb(bev, nullptr, nullptr, nullptr, (void**)&session);
-	printf("session #%d timeout\n", session->id);
 
-	//auto bev = (bufferevent*)arg;
-	//bufferevent_free(bev);
-	//evutil_closesocket(fd);
+	if (load_test) {
+		printf("session #%d timeout\n", session->id);
+		session->timer = nullptr;
+		bufferevent_disable(session->bev, EV_WRITE);
+		// SHUT_WR
+		shutdown(session->fd, 1);
+	} else {
+		printf("session #%d heartbeat\n", session->id);
+		session->timer = event_new(threadContexts[session->thread_id]->base, -1, 0, timer_cb, session);
+		if (!session->timer) {
+			fprintf(stderr, "create heartbeat_timer failed\n");
+			event_base_loopbreak(threadContexts[session->thread_id]->base);
+			return;
+		}
+		struct timeval heartbeat_tv = { timeout, 0 };
+		event_add(session->timer, &heartbeat_tv);
 
-	session->timer = nullptr;
-	bufferevent_disable(session->bev, EV_WRITE);
-	// SHUT_WR
-	shutdown(session->fd, 1);
+		char buf[1024];
+		session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id);
+		evbuffer_add(bufferevent_get_output(session->bev), buf, session->lastTimePacketSize);
+	}	
 }
 
 void eventcb(struct bufferevent* bev, short events, void* user_data)
@@ -203,9 +208,10 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 			}
 		}
 		char buf[1024];
-		session->lastTimePacketSize = session->packet.make_hb(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id, 0, session->status, 0);
-		evbuffer_add(bufferevent_get_output(bev), buf, session->lastTimePacketSize);
-		session->lastTimePacketSize += session->packet.make_hb(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id, 0, session->type, 0);
+		session->lastTimePacketSize = session->packet.make_hb(buf, sizeof(buf), 
+															  session->nextSeq(), session->acct, session->ademco_id, 0, session->status, 0);
+		session->lastTimePacketSize += session->packet.make_hb(buf + session->lastTimePacketSize, sizeof(buf) - session->lastTimePacketSize, 
+															   session->nextSeq(), session->acct, session->ademco_id, 0, session->type, 0);
 		evbuffer_add(bufferevent_get_output(bev), buf, session->lastTimePacketSize);
 
 		auto base = bufferevent_get_base(bev);
@@ -324,8 +330,11 @@ int main(int argc, char** argv)
 	}
 #endif
 
-	if (argc < 6) {
-		printf("Usage: %s ip port thread_count session_count timeout\ntimeout is in seconds\n", argv[0]);
+	if (argc < 7) {
+		printf("Usage: %s ip port thread_count session_count load_test timeout\n"
+			   "  load_test: 0 or 1:\n"
+			   "    0 to disable load test mode, timeout is client's heartbeat timeout in seconds\n"
+			   "    1 to enable load test mode, timeout is client's lifecycle timeout in seconds\n", argv[0]);
 		return 1;
 	}
 
@@ -353,8 +362,8 @@ int main(int argc, char** argv)
 		puts("session_count must times thread_count");
 		return 1;
 	}
-
-	timeout = atoi(argv[5]);
+	load_test = atoi(argv[5]) == 1;
+	timeout = atoi(argv[6]);
 	if (timeout <= 0) {
 		puts("Invalid timeout");
 		return 1;
@@ -362,8 +371,8 @@ int main(int argc, char** argv)
 
 	printf("using libevent %s\n", event_get_version());
 	int session_per_thread = session_count / thread_count;
-	printf("starting %s to %s:%d with %d threads, %d sessions, %d sessions per thread, timeout=%ds\n",
-		   argv[0], ip, port, thread_count, session_count, session_per_thread, timeout);
+	printf("starting %s to %s:%d with %d threads, %d sessions, %d sessions per thread, load_test is %s, timeout=%ds\n",
+		   argv[0], ip, port, thread_count, session_count, session_per_thread, load_test ? "on" : "off", timeout);
 
 	sockaddr_in sin = { 0 };
 	sin.sin_family = AF_INET;
