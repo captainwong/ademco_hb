@@ -223,15 +223,17 @@ void print_machineTypes()
 {
 	printf("### *恒博主机类型对照表*\n\n");
 
-	printf("|事件码类型|主机类型|防区|有线防区|电话报警|内核|网络|在售型号|\n"
-		   "|---------|-------|----|-------|-------|----|----|-------|\n");
+	printf("*SMS指主机自身是否可以拨打电话、发送短信，不是指通过阿里语音打电话*\n");
+
+	printf("|事件码类型|主机类型|防区|有线防区|SMS|内核|网络|在售型号|\n"
+		   "|---------|-------|----|-------|---|----|----|-------|\n");
 
 	for (auto e : AdemcoEvents) {
 		if (isMachineTypeEvent(e)) {
 			auto t = hb::machineTypeFromAdemcoEvent(e);
 			if(!machineIsSelling(t)) continue;
 
-			printf("|%s", jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(e)).data());
+			printf("|%04d %s", (int)e, jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(e, false)).data());
 			printf("|%s", jlib::win32::utf16_to_mbcs(machineTypeToWString(t)).data());
 			printf("|1~%d", zoneMax(t));
 			if (machineHasWiredZone(t)) {

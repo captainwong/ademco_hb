@@ -352,7 +352,7 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 	case EVENT_I_AM_IOT_MACHINE:					return n_to_s(ademco_event) + L"我是物联卡主机";	
 	case EVENT_I_AM_TRUE_COLOR:						return n_to_s(ademco_event) + L"我是真彩主机";
 	case EVENT_I_AM_GPRS_IOT:						return n_to_s(ademco_event) + L"我是简化版物联卡主机";
-	case EVENT_I_AM_GPRS_PHONE:						return n_to_s(ademco_event) + L"我是能打电话的GPRS主机";
+	case EVENT_I_AM_GPRS_PHONE:						return n_to_s(ademco_event) + L"我是GPRS主机能打电话";
 	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + L"SIM卡为物联卡";	
 	case EVENT_SIM_IS_IOT_PLATFORM_CARD:			return n_to_s(ademco_event) + L"SIM卡为平台物联卡";				
 	case EVENT_SIM_IS_NOT_IOT_CARD:					return n_to_s(ademco_event) + L"SIM卡为非物联卡";				
