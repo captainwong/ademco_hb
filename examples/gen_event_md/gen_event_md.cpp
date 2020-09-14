@@ -221,7 +221,7 @@ void _print_machine_img(MachineType t)
 
 void print_machineTypes()
 {
-	printf("### 主机类型详解\n\n");
+	printf("### *恒博主机类型对照表*\n\n");
 
 	printf("|事件码类型|主机类型|防区|有线防区|电话报警|内核|网络|在售型号|\n"
 		   "|---------|-------|----|-------|-------|----|----|-------|\n");
@@ -251,7 +251,7 @@ void print_machineTypes()
 
 void print_imgs()
 {
-	printf("\n\n### 主机型号示例图片\n\n");
+	printf("\n\n### *恒博主机型号示例图片*\n\n");
 
 	printf("|型号|示例图片|\n"
 		   "|---|--------|\n");
