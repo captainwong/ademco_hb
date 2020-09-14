@@ -127,7 +127,7 @@ const char* get_core_authoer(MachineType t)
 	case hb::common::Gprs_IoT:
 	case hb::common::Gprs:
 	case hb::common::Wired:
-		return "wuziqiang";
+		return "wzq";
 		break;
 
 	case hb::common::NetMod:
@@ -136,7 +136,7 @@ const char* get_core_authoer(MachineType t)
 	case hb::common::ThreeSection:
 	case hb::common::IoT:
 	case hb::common::Gprs_Phone:
-		return "jinjianfeng";
+		return "jjf";
 		break;
 
 
@@ -205,8 +205,8 @@ void print_machineTypes()
 {
 	printf("### 主机类型详解\n\n");
 
-	printf("|安定宝事件码类型|主机类型|防区范围|有线防区范围|支持电话报警|内核负责人|在售主机型号与图标|\n"
-		   "|---------------|-------|-------|-----------|-----------|---------|----------------|\n");
+	printf("|事件码类型|主机类型|防区|有线防区|电话报警|内核负责人|在售主机型号与图标|\n"
+		   "|---------|-------|----|-------|-------|---------|----------------|\n");
 
 	for (auto e : AdemcoEvents) {
 		if (isMachineTypeEvent(e)) {
