@@ -2,15 +2,21 @@
 #define ENABLE_ADEMCO_EVENT_TO_STRING
 #include "../../include/ademco_event.h"
 #define ENABLE_COMMON_MACHINE_TYPE_TO_STRING
+#define ENABLE_COMMON_ZONE_PROPERTY_TO_STRING
 #include "../../include/hb_detail.h"
 #include "../../include/hb_helper.h"
 #include <jlib/win32/UnicodeTool.h>
 #include <jlib/win32/path_op.h>
+#include <jlib/util/std_util.h>
 #include <map>
 
 using namespace ademco;
 using namespace hb;
 using namespace hb::common;
+
+const char* print_bool(bool b) {
+	return b ? "√" : " "; // "×";
+}
 
 ADEMCO_EVENT statusEvents[] = {
 
@@ -236,15 +242,15 @@ void print_machineTypes()
 
 			printf("|%04d %s", (int)e, jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(e, false)).data());
 			printf("|%s", jlib::win32::utf16_to_mbcs(machineTypeToWString(t)).data());
-			printf("|%s", machineCanHalfArm(t) ? "Yes" : "No");
-			printf("|%s", machineCanReportSignalStrength(t) ? "Yes" : "No");
+			printf("|%s", print_bool(machineCanHalfArm(t)));
+			printf("|%s", print_bool(machineCanReportSignalStrength(t)));
 			printf("|1~%d", zoneMax(t));
 			if (machineHasWiredZone(t)) {
 				printf("|%d~%d", wiredZoneMin(t), wiredZoneMax(t));
 			} else {
-				printf("|None");
+				printf("| ");
 			}
-			printf("|%s", machineCanReportBySMS(t) ? "Yes" : "No");
+			printf("|%s", print_bool(machineCanReportBySMS(t)));
 			printf("|%s", get_core_author(t));
 			printf("|%s", get_net_author(t));
 			_print_machine_img(t);
@@ -277,9 +283,47 @@ void print_imgs()
 		}
 	}
 	for (auto i : imgs) {
-		printf(R"(|%s|<img alt="%s" src="%s" style="max-height:80px" />|)" "\n", i.first.data(), i.first.data(), i.second.data());
+		printf(R"(|%s|<img alt="%s" src="%s" />|)" "\n", i.first.data(), i.first.data(), i.second.data());
 	}
 	printf("\n\n");
+}
+
+void print_available_zone_props()
+{
+	printf("### *恒博主机类型与支持的防区属性对照表*\n\n");
+
+	auto all_props = getAvailableZoneProperties();
+
+	auto print_prop = [](ZoneProperty zp) {
+		printf("%02X %s", (Char)zp, jlib::win32::utf16_to_mbcs(zonePropertyToStringChinese(zp)).data());
+	};
+
+	printf("|事件码类型|主机类型");
+	for (auto zp : all_props) {
+		printf("|"); print_prop(zp);
+	}
+	printf("|\n");
+
+	printf("|---------|-------");
+	for (size_t i = 0; i < all_props.size(); i++) {
+		printf("|----");
+	}
+	printf("|\n");
+
+	for (auto e : AdemcoEvents) {
+		if (isMachineTypeEvent(e)) {
+			auto t = hb::machineTypeFromAdemcoEvent(e);
+			if (!machineIsSelling(t)) continue;
+			printf("|%04d %s", (int)e, jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(e, false)).data());
+			printf("|%s", jlib::win32::utf16_to_mbcs(machineTypeToWString(t)).data());
+			auto avail_props = getAvailableZoneProperties(t);
+			for (auto zp : all_props) {
+				printf("|%s", print_bool(jlib::is_contain(avail_props, zp)));
+			}
+			printf("|\n");
+		}
+	}
+
 }
 
 int main()
@@ -298,4 +342,6 @@ int main()
 
 	print_machineTypes();
 	print_imgs();
+
+	print_available_zone_props();
 }

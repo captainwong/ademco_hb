@@ -153,34 +153,49 @@
 *SMS指主机自身是否可以拨打电话、发送短信，不是指通过阿里语音打电话*
 |事件码类型|主机类型|半布防|信号强度|防区|有线防区|SMS|内核|网络|型号|
 |---------|-------|------|-------|----|-------|---|---|---|----|
-|1707 我是网络模块|3 网络模块+工程主机|Yes|No|1~999|1~8|No|jjf|wzq|<ul><li>HB-G250</li></ul>|
-|1717 我是GPRS主机|4 GPRS主机|No|Yes|1~99|None|Yes|wzq|qfm|<ul><li>HB-4040G</li><li>HB-5050G</li><li>HB-5050G-4G</li></ul>|
-|1727 我是液晶主机|5 液晶主机|Yes|Yes|1~249|None|Yes|jjf|qfm|<ul><li>HB-BJQ560</li><li>HB-BJQ560B</li></ul>|
-|1737 我是网线主机|6 网线主机|No|No|1~99|None|No|wzq|wzq|<ul><li>HB-4040R</li><li>HB-5050R</li></ul>|
-|1757 我是三区段主机|8 三区段主机|No|Yes|1~191|61~68|Yes|jjf|qfm|<ul><li>HB-G1000</li><li>HB-G1000-4G</li></ul>|
-|1767 我是物联卡主机|9 物联卡主机|No|Yes|1~60|None|No|jjf|qfm|<ul><li>HB-2050-4GW</li></ul>|
-|1777 我是真彩主机|7 真彩主机|No|Yes|1~68|1~8|Yes|jjf|qfm|<ul><li>HB-G1000</li><li>HB-G1000-4G</li></ul>|
-|1787 我是简化版物联卡主机|2 简化的物联卡主机|No|Yes|1~99|None|No|wzq|qfm|<ul><li>HB-5050G-4GW</li></ul>|
-|1797 我是GPRS主机能打电话|10 GPRS主机能打电话|No|Yes|1~60|None|Yes|jjf|qfm|<ul><li>HB-2050</li></ul>|
+|1707 我是网络模块|3 网络模块+工程主机|√| |1~999|1~8| |jjf|wzq|<ul><li>HB-G250</li></ul>|
+|1717 我是GPRS主机|4 GPRS主机| |√|1~99| |√|wzq|qfm|<ul><li>HB-4040G</li><li>HB-5050G</li><li>HB-5050G-4G</li></ul>|
+|1727 我是液晶主机|5 液晶主机|√|√|1~249| |√|jjf|qfm|<ul><li>HB-BJQ560</li><li>HB-BJQ560B</li></ul>|
+|1737 我是网线主机|6 网线主机| | |1~99| | |wzq|wzq|<ul><li>HB-4040R</li><li>HB-5050R</li></ul>|
+|1757 我是三区段主机|8 三区段主机| |√|1~191|61~68|√|jjf|qfm|<ul><li>HB-G1000</li><li>HB-G1000-4G</li></ul>|
+|1767 我是物联卡主机|9 物联卡主机| |√|1~60| | |jjf|qfm|<ul><li>HB-2050-4GW</li></ul>|
+|1777 我是真彩主机|7 真彩主机| |√|1~68|1~8|√|jjf|qfm|<ul><li>HB-G1000</li><li>HB-G1000-4G</li></ul>|
+|1787 我是简化版物联卡主机|2 简化的物联卡主机| |√|1~99| | |wzq|qfm|<ul><li>HB-5050G-4GW</li></ul>|
+|1797 我是GPRS主机能打电话|10 GPRS主机能打电话| |√|1~60| |√|jjf|qfm|<ul><li>HB-2050</li></ul>|
 
 
 ### *恒博主机型号示例图片*
 
 |型号|示例图片|
 |---|--------|
-|HB-2050|<img alt="HB-2050" src="./主机类型/smartresize/HB-2050-web.png" style="max-height:80px" />|
-|HB-2050-4GW|<img alt="HB-2050-4GW" src="./主机类型/smartresize/HB-2050-4GW-web.png" style="max-height:80px" />|
-|HB-4040G|<img alt="HB-4040G" src="./主机类型/smartresize/HB-4040G-web.png" style="max-height:80px" />|
-|HB-4040R|<img alt="HB-4040R" src="./主机类型/smartresize/HB-4040R-web.png" style="max-height:80px" />|
-|HB-5050G|<img alt="HB-5050G" src="./主机类型/smartresize/HB-5050G-web.png" style="max-height:80px" />|
-|HB-5050G-4G|<img alt="HB-5050G-4G" src="./主机类型/smartresize/HB-5050G-4G-web.png" style="max-height:80px" />|
-|HB-5050G-4GW|<img alt="HB-5050G-4GW" src="./主机类型/smartresize/HB-5050G-4GW-web.png" style="max-height:80px" />|
-|HB-5050R|<img alt="HB-5050R" src="./主机类型/smartresize/HB-5050R-web.png" style="max-height:80px" />|
-|HB-BJQ560|<img alt="HB-BJQ560" src="./主机类型/smartresize/HB-BJQ560-web.png" style="max-height:80px" />|
-|HB-BJQ560B|<img alt="HB-BJQ560B" src="./主机类型/smartresize/HB-BJQ560B-web.png" style="max-height:80px" />|
-|HB-G1000|<img alt="HB-G1000" src="./主机类型/smartresize/HB-G1000-web.png" style="max-height:80px" />|
-|HB-G1000-4G|<img alt="HB-G1000-4G" src="./主机类型/smartresize/HB-G1000-4G-web.png" style="max-height:80px" />|
-|HB-G250|<img alt="HB-G250" src="./主机类型/smartresize/HB-G250-web.png" style="max-height:80px" />|
+|HB-2050|<img alt="HB-2050" src="./主机类型/smartresize/HB-2050-web.png" />|
+|HB-2050-4GW|<img alt="HB-2050-4GW" src="./主机类型/smartresize/HB-2050-4GW-web.png" />|
+|HB-4040G|<img alt="HB-4040G" src="./主机类型/smartresize/HB-4040G-web.png" />|
+|HB-4040R|<img alt="HB-4040R" src="./主机类型/smartresize/HB-4040R-web.png" />|
+|HB-5050G|<img alt="HB-5050G" src="./主机类型/smartresize/HB-5050G-web.png" />|
+|HB-5050G-4G|<img alt="HB-5050G-4G" src="./主机类型/smartresize/HB-5050G-4G-web.png" />|
+|HB-5050G-4GW|<img alt="HB-5050G-4GW" src="./主机类型/smartresize/HB-5050G-4GW-web.png" />|
+|HB-5050R|<img alt="HB-5050R" src="./主机类型/smartresize/HB-5050R-web.png" />|
+|HB-BJQ560|<img alt="HB-BJQ560" src="./主机类型/smartresize/HB-BJQ560-web.png" />|
+|HB-BJQ560B|<img alt="HB-BJQ560B" src="./主机类型/smartresize/HB-BJQ560B-web.png" />|
+|HB-G1000|<img alt="HB-G1000" src="./主机类型/smartresize/HB-G1000-web.png" />|
+|HB-G1000-4G|<img alt="HB-G1000-4G" src="./主机类型/smartresize/HB-G1000-4G-web.png" />|
+|HB-G250|<img alt="HB-G250" src="./主机类型/smartresize/HB-G250-web.png" />|
+
+
+### *恒博主机类型与支持的防区属性对照表*
+
+|事件码类型|主机类型|00 匪警全局|01 匪警紧急|02 火警防区|03 胁迫防区|04 燃气防区|05 淹水防区|06 分机|07 遥控器|08 匪警半局|09 屏蔽防区|0A 门铃防区|0F 旁路防区|
+|---------|-------|----|----|----|----|----|----|----|----|----|----|----|----|
+|1707 我是网络模块|3 网络模块+工程主机|√|√|√|√|√|√|√|√|√|√|√| |
+|1717 我是GPRS主机|4 GPRS主机|√|√|√|√|√|√| |√| | | | |
+|1727 我是液晶主机|5 液晶主机|√|√|√|√|√|√|√|√|√|√|√| |
+|1737 我是网线主机|6 网线主机|√|√|√|√|√|√| |√| | | | |
+|1757 我是三区段主机|8 三区段主机|√|√|√|√|√|√| |√| |√|√|√|
+|1767 我是物联卡主机|9 物联卡主机|√|√|√|√|√|√| |√| |√|√|√|
+|1777 我是真彩主机|7 真彩主机|√|√|√|√|√|√| |√| |√|√|√|
+|1787 我是简化版物联卡主机|2 简化的物联卡主机|√|√|√|√|√|√| |√| | | | |
+|1797 我是GPRS主机能打电话|10 GPRS主机能打电话|√|√|√|√|√|√| |√| | | | |
 
 ## 四、恒博扩展
 

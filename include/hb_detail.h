@@ -397,16 +397,35 @@ static ZoneProperty zonePropertyFromChar(Char zp) {
 	return ZoneProperty::InvalidZoneProperty;
 }
 
+static std::vector<ZoneProperty> getAvailableZoneProperties() {
+	return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing, Bypass };
+}
+
 static std::vector<ZoneProperty> getAvailableZoneProperties(MachineType type) {
 	switch (type) {
-	case NetMod:	return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing };
-	case Gprs:		return { Buglar, Emergency, Fire, Duress, Gas, Water, };
-	case Lcd:		return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing };
-	case Wired:		return { Buglar, Emergency, Fire, Duress, Gas, Water, };
-	case TrueColor:	return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, Shield, DoorRing, Bypass };
-	case ThreeSection:return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, Shield, DoorRing, Bypass };
-	default:		return {};
-	}
+	case hb::common::WiFi:
+		break;
+	case hb::common::Camera:
+		break;
+	case hb::common::Gprs_IoT:
+	case hb::common::Gprs:
+		return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, };
+	case hb::common::NetMod:
+		return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing };
+	case hb::common::Lcd:
+		return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing };
+	case hb::common::Wired:
+		return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, };
+	case hb::common::TrueColor:
+		return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, Shield, DoorRing, Bypass };
+	case hb::common::ThreeSection:
+		return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, Shield, DoorRing, Bypass };
+	case hb::common::IoT:
+		return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, Shield, DoorRing, Bypass };
+	case hb::common::Gprs_Phone:
+		return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, };
+	}	
+	return {};
 }
 
 #ifdef ENABLE_COMMON_ZONE_PROPERTY_TO_STRING
