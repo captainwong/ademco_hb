@@ -253,7 +253,7 @@ static ademco::AdemcoZone wiredZoneMin(MachineType type) {
 		break;
 	case hb::common::TrueColor: return 1;
 		break;
-	case hb::common::ThreeSection: return 1;
+	case hb::common::ThreeSection: return 61;
 		break;
 	case hb::common::IoT:
 		break;
@@ -286,7 +286,7 @@ static ademco::AdemcoZone wiredZoneMax(MachineType type) {
 		break;
 	case hb::common::TrueColor:return 8;
 		break;
-	case hb::common::ThreeSection:return 8;
+	case hb::common::ThreeSection:return 68;
 		break;
 	case hb::common::IoT:
 		break;
