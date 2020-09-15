@@ -176,7 +176,7 @@ std::vector<std::string> get_machine_brands(MachineType t)
 
 	case hb::common::NetMod: return { "HB-G250" };
 
-	case hb::common::Gprs: return { "HB-2050", "HB-2050-4G", "HB-4040G", "HB-5050G", "HB-5050G-4G", "HB-5050G-4GW", "HB-G1000", "HB-G1000-4G", };
+	case hb::common::Gprs: return { "HB-4040G", "HB-5050G", "HB-5050G-4G",  };
 
 	case hb::common::Lcd: return { "HB-BJQ560", "HB-BJQ560B" };
 
