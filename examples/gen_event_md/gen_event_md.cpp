@@ -213,7 +213,7 @@ std::string brand_to_path(const std::string& brand)
 	return {};
 }
 
-void _print_machine_img(MachineType t)
+void print_machine_brands(MachineType t)
 {
 	printf("|<ul>");
 	for (auto brand : get_machine_brands(t)) {		
@@ -253,7 +253,7 @@ void print_machineTypes()
 			printf("|%s", print_bool(machineCanReportBySMS(t)));
 			printf("|%s", get_core_author(t));
 			printf("|%s", get_net_author(t));
-			_print_machine_img(t);
+			print_machine_brands(t);
 			printf("|\n");
 		}
 	}
@@ -320,13 +320,13 @@ void print_available_zone_props()
 
 
 	printf("* 主机类型与支持的防区属性对照表\n\n");
-	printf("|事件码类型|主机类型");
+	printf("|事件码类型|主机类型|型号");
 	for (auto zp : all_props) {
 		printf("|"); print_prop(zp);
 	}
 	printf("|\n");
 
-	printf("|---------|-------");
+	printf("|----|----|----");
 	for (size_t i = 0; i < all_props.size(); i++) {
 		printf("|----");
 	}
@@ -339,6 +339,7 @@ void print_available_zone_props()
 			if (!machineIsSelling(t)) continue;
 			printf("|%04d %s", (int)e, jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(e, false)).data());
 			printf("|%s", jlib::win32::utf16_to_mbcs(machineTypeToWString(t)).data());
+			print_machine_brands(t);
 			auto avail_props = getAvailableZoneProperties(t);
 			for (auto zp : all_props) {
 				printf("|%s", print_bool(jlib::is_contain(avail_props, zp)));
