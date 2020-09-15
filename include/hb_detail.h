@@ -403,6 +403,7 @@ static bool zonePropCanReportTamper(ZoneProperty zp) {
 	case hb::common::Buglar: 
 	case hb::common::Emergency:
 	case hb::common::Duress:
+	case hb::common::SubMachine:
 	case hb::common::BuglarHalf:
 	case hb::common::Bypass:
 		return true;
