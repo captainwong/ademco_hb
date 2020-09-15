@@ -158,9 +158,9 @@
 |1727 我是液晶主机|5 液晶主机|1~249||Yes|jjf|qfm|<ul><li>HB-BJQ560</li><li>HB-BJQ560B</li></ul>|
 |1737 我是网线主机|6 网线主机|1~99|||wzq|wzq|<ul><li>HB-4040R</li><li>HB-5050R</li></ul>|
 |1757 我是三区段主机|8 三区段主机|1~191|61~68|Yes|jjf|qfm|<ul><li>HB-G1000</li><li>HB-G1000-4G</li></ul>|
-|1767 我是物联卡主机|9 物联卡主机|1~99|||jjf|qfm|<ul><li>HB-2050-4GW</li></ul>|
+|1767 我是物联卡主机|9 物联卡主机|1~60|||jjf|qfm|<ul><li>HB-2050-4GW</li></ul>|
 |1777 我是真彩主机|7 真彩主机|1~68|1~8|Yes|jjf|qfm|<ul><li>HB-G1000</li><li>HB-G1000-4G</li></ul>|
-|1787 我是简化版物联卡主机|2 简化的物联卡主机|1~68|||wzq|qfm|<ul><li>HB-5050G-4GW</li></ul>|
+|1787 我是简化版物联卡主机|2 简化的物联卡主机|1~99|||wzq|qfm|<ul><li>HB-5050G-4GW</li></ul>|
 |1797 我是GPRS主机能打电话|10 GPRS主机能打电话|1~60||Yes|jjf|qfm|<ul><li>HB-2050</li></ul>|
 
 

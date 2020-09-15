@@ -151,9 +151,9 @@ static constexpr MachineType AllMachineTypes[MachineTypeCount] = {
 //! 最大防区号根据型号不同而不同
 static uint16_t zoneMax(MachineType type) {
 	switch (type) {
+	case MachineType::Gprs_IoT:
 	case MachineType::Gprs: 
 	case MachineType::Wired:
-	case MachineType::IoT:
 		return 99;
 
 	case MachineType::NetMod: 
@@ -162,13 +162,13 @@ static uint16_t zoneMax(MachineType type) {
 	case MachineType::Lcd: 
 		return 249;
 
-	case MachineType::Gprs_IoT:
 	case MachineType::TrueColor:
 		return 68;
 
 	case MachineType::ThreeSection: 
 		return 191;
 
+	case MachineType::IoT:
 	case MachineType::Gprs_Phone:
 		return 60;
 
