@@ -172,7 +172,7 @@ std::vector<std::string> get_machine_brands(MachineType t)
 	case hb::common::WiFi:
 	case hb::common::Camera: return {};
 
-	case hb::common::Gprs_IoT: return { "HB-5050G", "HB-5050G-4G" };
+	case hb::common::Gprs_IoT: return { "HB-5050G-4G", };
 
 	case hb::common::NetMod: return { "HB-G250" };
 
@@ -186,7 +186,7 @@ std::vector<std::string> get_machine_brands(MachineType t)
 
 	case hb::common::ThreeSection:return { "HB-G1000", "HB-G1000-4G" };
 
-	case hb::common::IoT: return { "HB-5050G-4GW" };
+	case hb::common::IoT: return { "HB-2050G-4GW" };
 
 	case hb::common::Gprs_Phone: return { "HB-2050" };
 
