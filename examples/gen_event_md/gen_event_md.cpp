@@ -299,10 +299,35 @@ void print_available_zone_props()
 	};
 
 
+
+
+	printf("* 防区属性是否支持防拆\n\n");
+	printf("|");
+	for (auto zp : all_props) {
+		printf("|"); print_prop(zp);
+	}
+	printf("|\n");
+
+	printf("|----");
+	for (size_t i = 0; i < all_props.size(); i++) {
+		printf("|----");
+	}
+	printf("|\n");
+
+	printf("|防拆支持");
+	for (auto zp : all_props) {
+		printf("|%s", print_bool(zonePropCanReportTamper(zp)));
+	}
+	printf("|\n\n");
+
+
+
+
 	printf("* 主机类型与支持的防区属性对照表\n\n");
 	printf("|事件码|类型|型号");
 	for (auto zp : all_props) {
-		printf("|"); print_prop(zp);
+		//printf("|"); print_prop(zp);
+		printf("|%02X", (int)zp);
 	}
 	printf("|\n");
 
@@ -328,26 +353,6 @@ void print_available_zone_props()
 		}
 	}
 
-
-
-	printf("* 防区属性是否支持防拆\n\n");
-	printf("|");
-	for (auto zp : all_props) {
-		printf("|"); print_prop(zp);
-	}
-	printf("|\n");
-
-	printf("|----");
-	for (size_t i = 0; i < all_props.size(); i++) {
-		printf("|----");
-	}
-	printf("|\n");
-
-	printf("|防拆支持");
-	for (auto zp : all_props) {
-		printf("|%s", print_bool(zonePropCanReportTamper(zp)));
-	}
-	printf("|\n\n");
 
 }
 
