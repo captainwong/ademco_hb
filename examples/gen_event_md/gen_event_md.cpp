@@ -226,8 +226,8 @@ void print_machineTypes()
 
 	printf("*SMS指主机自身是否可以拨打电话、发送短信，不是指通过阿里语音打电话*\n");
 
-	printf("|事件码类型|主机类型|防区|有线防区|SMS|内核|网络|在售型号|\n"
-		   "|---------|-------|----|-------|---|----|----|-------|\n");
+	printf("|事件码类型|主机类型|半布防|信号强度|防区|有线防区|SMS|内核|网络|型号|\n"
+		   "|---------|-------|------|-------|----|-------|---|---|---|----|\n");
 
 	for (auto e : AdemcoEvents) {
 		if (isMachineTypeEvent(e)) {
@@ -236,13 +236,15 @@ void print_machineTypes()
 
 			printf("|%04d %s", (int)e, jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(e, false)).data());
 			printf("|%s", jlib::win32::utf16_to_mbcs(machineTypeToWString(t)).data());
+			printf("|%s", machineCanHalfArm(t) ? "Yes" : "No");
+			printf("|%s", machineCanReportSignalStrength(t) ? "Yes" : "No");
 			printf("|1~%d", zoneMax(t));
 			if (machineHasWiredZone(t)) {
 				printf("|%d~%d", wiredZoneMin(t), wiredZoneMax(t));
 			} else {
-				printf("|");
+				printf("|None");
 			}
-			printf("|%s", machineCanReportBySMS(t) ? "Yes" : "");
+			printf("|%s", machineCanReportBySMS(t) ? "Yes" : "No");
 			printf("|%s", get_core_author(t));
 			printf("|%s", get_net_author(t));
 			_print_machine_img(t);

@@ -102,23 +102,23 @@ enum MachineType : Char {
 	WiFi		= 0,
 	//! 网络摄像机 （未启用）
 	Camera		= 1,
-	//! 物联卡主机 [HB-5050G HB-5050-4G]
+	//! 简化的物联卡主机 [ HB-5050G-4GW ]
 	Gprs_IoT	= 2,
 	//! 网络模块主机 [ HB-G250 ]
 	NetMod		= 3,
 	//! 改进型卧式主机 [ HB-4040G HB-5050G HB-5050-4G ]
 	Gprs		= 4,
-	//! 液晶主机 [ HB-BJQ-560B ]
+	//! 液晶主机 [ HB-BJQ560 HB-BJQ-560B ]
 	Lcd			= 5,
 	//! 网线主机 [ HB-4040R HB-5050R ]
 	Wired		= 6,
-	//! 真彩主机 [ HTZ-G1000-2G HTZ-G1000-4G ]
+	//! 真彩主机 [ HTZ-G1000 HTZ-G1000-4G ]
 	TrueColor	= 7,
-	//! 三区段主机 [ HTZ-G1000-2G HTZ-G1000-4G ]
+	//! 三区段主机 [ HTZ-G1000 HTZ-G1000-4G ]
 	ThreeSection = 8,
-	//! 物联卡主机 [ HB-5050-4GW ]
+	//! 物联卡主机 [ HB-2050-4GW ]
 	IoT			= 9,
-	//! GPRS主机可以打电话 [ HB-2050-2G ] 防区 [1-60]
+	//! GPRS主机可以打电话 [ HB-2050 ]
 	Gprs_Phone  = 10,
 
 	MachineTypeCount,
