@@ -298,6 +298,28 @@ void print_available_zone_props()
 		printf("%02X %s", (Char)zp, jlib::win32::utf16_to_mbcs(zonePropertyToStringChinese(zp)).data());
 	};
 
+	printf("* 防区属性是否支持防拆\n\n");
+	printf("|");
+	for (auto zp : all_props) {
+		printf("|"); print_prop(zp);
+	}
+	printf("|\n");
+
+	printf("|----");
+	for (size_t i = 0; i < all_props.size(); i++) {
+		printf("|----");
+	}
+	printf("|\n");
+
+	printf("|防拆支持");
+	for (auto zp : all_props) {
+		printf("|%s", print_bool(zonePropCanReportTamper(zp)));
+	}
+	printf("|\n\n");
+
+
+
+	printf("* 主机类型与支持的防区属性对照表\n\n");
 	printf("|事件码类型|主机类型");
 	for (auto zp : all_props) {
 		printf("|"); print_prop(zp);
@@ -309,6 +331,7 @@ void print_available_zone_props()
 		printf("|----");
 	}
 	printf("|\n");
+
 
 	for (auto e : AdemcoEvents) {
 		if (isMachineTypeEvent(e)) {

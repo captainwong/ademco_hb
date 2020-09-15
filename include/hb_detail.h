@@ -397,6 +397,20 @@ static ZoneProperty zonePropertyFromChar(Char zp) {
 	return ZoneProperty::InvalidZoneProperty;
 }
 
+//! 根据防区属性判断是否支持报告防拆报警
+static bool zonePropCanReportTamper(ZoneProperty zp) {
+	switch (zp) {
+	case hb::common::Buglar: 
+	case hb::common::Emergency:
+	case hb::common::Duress:
+	case hb::common::BuglarHalf:
+	case hb::common::Bypass:
+		return true;
+	default:
+		return false;
+	}
+}
+
 static std::vector<ZoneProperty> getAvailableZoneProperties() {
 	return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing, Bypass };
 }
