@@ -411,9 +411,9 @@ static std::vector<ZoneProperty> getAvailableZoneProperties(MachineType type) {
 	case hb::common::Gprs:
 		return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, };
 	case hb::common::NetMod:
-		return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing };
+		return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing, Bypass };
 	case hb::common::Lcd:
-		return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing };
+		return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing, Bypass };
 	case hb::common::Wired:
 		return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, };
 	case hb::common::TrueColor:
