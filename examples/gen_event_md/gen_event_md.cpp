@@ -178,23 +178,23 @@ std::vector<std::string> get_machine_brands(MachineType t)
 	case hb::common::WiFi:
 	case hb::common::Camera: return {};
 
-	case hb::common::Gprs_IoT: return { "HB-5050G-4GW", };
+	case hb::common::Gprs_IoT: return { "5050G-4GW", };
 
-	case hb::common::NetMod: return { "HB-G250" };
+	case hb::common::NetMod: return { "G250" };
 
-	case hb::common::Gprs: return { "HB-4040G", "HB-5050G", "HB-5050G-4G",  };
+	case hb::common::Gprs: return { "4040G", "5050G", "5050G-4G",  };
 
-	case hb::common::Lcd: return { "HB-BJQ560", "HB-BJQ560B" };
+	case hb::common::Lcd: return { "BJQ560", "BJQ560B" };
 
-	case hb::common::Wired: return { "HB-4040R", "HB-5050R" };
+	case hb::common::Wired: return { "4040R", "5050R" };
 
-	case hb::common::TrueColor:return { "HB-G1000", "HB-G1000-4G" };
+	case hb::common::TrueColor:return { "G1000", "G1000-4G" };
 
-	case hb::common::ThreeSection:return { "HB-G1000", "HB-G1000-4G" };
+	case hb::common::ThreeSection:return { "G1000", "G1000-4G" };
 
-	case hb::common::IoT: return { "HB-2050-4GW" };
+	case hb::common::IoT: return { "2050-4GW" };
 
-	case hb::common::Gprs_Phone: return { "HB-2050" };
+	case hb::common::Gprs_Phone: return { "2050" };
 
 	default: return {};
 		break;
@@ -204,10 +204,10 @@ std::vector<std::string> get_machine_brands(MachineType t)
 std::string brand_to_path(const std::string& brand)
 {
 	std::vector<std::string> exts = { "png", "jpg" };
-	std::string path = jlib::win32::utf16_to_mbcs(L"..\\..\\docs\\主机类型\\smartresize\\") + brand;
+	std::string path = jlib::win32::utf16_to_mbcs(L"..\\..\\docs\\主机类型\\smartresize\\HB-") + brand;
 	for (auto ext : exts) {
 		if (jlib::win32::fileExists(path + "-web." + ext)) {
-			return jlib::win32::utf16_to_mbcs(L"./主机类型/smartresize/") + brand + "-web." + ext;
+			return jlib::win32::utf16_to_mbcs(L"./主机类型/smartresize/HB-") + brand + "-web." + ext;
 		}
 	}
 	return {};
@@ -298,6 +298,38 @@ void print_available_zone_props()
 		printf("%02X %s", (Char)zp, jlib::win32::utf16_to_mbcs(zonePropertyToStringChinese(zp)).data());
 	};
 
+
+	printf("* 主机类型与支持的防区属性对照表\n\n");
+	printf("|事件码|类型|型号");
+	for (auto zp : all_props) {
+		printf("|"); print_prop(zp);
+	}
+	printf("|\n");
+
+	printf("|----|----|----");
+	for (size_t i = 0; i < all_props.size(); i++) {
+		printf("|----");
+	}
+	printf("|\n");
+
+
+	for (auto e : AdemcoEvents) {
+		if (isMachineTypeEvent(e)) {
+			auto t = hb::machineTypeFromAdemcoEvent(e);
+			if (!machineIsSelling(t)) continue;
+			printf("|%04d", (int)e);
+			printf("|%d", (int)t);
+			print_machine_brands(t);
+			auto avail_props = getAvailableZoneProperties(t);
+			for (auto zp : all_props) {
+				printf("|%s", print_bool(jlib::is_contain(avail_props, zp)));
+			}
+			printf("|\n");
+		}
+	}
+
+
+
 	printf("* 防区属性是否支持防拆\n\n");
 	printf("|");
 	for (auto zp : all_props) {
@@ -316,37 +348,6 @@ void print_available_zone_props()
 		printf("|%s", print_bool(zonePropCanReportTamper(zp)));
 	}
 	printf("|\n\n");
-
-
-
-	printf("* 主机类型与支持的防区属性对照表\n\n");
-	printf("|事件码类型|主机类型|型号");
-	for (auto zp : all_props) {
-		printf("|"); print_prop(zp);
-	}
-	printf("|\n");
-
-	printf("|----|----|----");
-	for (size_t i = 0; i < all_props.size(); i++) {
-		printf("|----");
-	}
-	printf("|\n");
-
-
-	for (auto e : AdemcoEvents) {
-		if (isMachineTypeEvent(e)) {
-			auto t = hb::machineTypeFromAdemcoEvent(e);
-			if (!machineIsSelling(t)) continue;
-			printf("|%04d %s", (int)e, jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(e, false)).data());
-			printf("|%s", jlib::win32::utf16_to_mbcs(machineTypeToWString(t)).data());
-			print_machine_brands(t);
-			auto avail_props = getAvailableZoneProperties(t);
-			for (auto zp : all_props) {
-				printf("|%s", print_bool(jlib::is_contain(avail_props, zp)));
-			}
-			printf("|\n");
-		}
-	}
 
 }
 
