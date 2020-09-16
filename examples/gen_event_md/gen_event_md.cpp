@@ -301,7 +301,7 @@ void print_available_zone_props()
 
 
 
-	printf("* 防区属性是否支持防拆\n\n");
+	printf("* 防区属性是否支持失联报告\n\n");
 	printf("|");
 	for (auto zp : all_props) {
 		printf("|"); print_prop(zp);
@@ -314,9 +314,9 @@ void print_available_zone_props()
 	}
 	printf("|\n");
 
-	printf("|防拆支持");
+	printf("|失联支持");
 	for (auto zp : all_props) {
-		printf("|%s", print_bool(zonePropCanReportTamper(zp)));
+		printf("|%s", print_bool(zonePropCanReportLost(zp)));
 	}
 	printf("|\n\n");
 

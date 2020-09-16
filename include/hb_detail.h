@@ -397,8 +397,9 @@ static ZoneProperty zonePropertyFromChar(Char zp) {
 	return ZoneProperty::InvalidZoneProperty;
 }
 
-//! 根据防区属性判断是否支持报告防拆报警
-static bool zonePropCanReportTamper(ZoneProperty zp) {
+//! 根据防区属性判断是否支持失联报告
+//! 失联报告是主机侧实现的跟防区属性没关系，但是人为限制了只有以下属性的才可以设置
+static bool zonePropCanReportLost(ZoneProperty zp) {
 	switch (zp) {
 	case hb::common::Buglar: 
 	case hb::common::Emergency:
@@ -426,7 +427,7 @@ static std::vector<ZoneProperty> getAvailableZoneProperties(MachineType type) {
 	case hb::common::Gprs:
 		return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, };
 	case hb::common::NetMod:
-		return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing, Bypass };
+		return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing, };
 	case hb::common::Lcd:
 		return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing, Bypass };
 	case hb::common::Wired:
