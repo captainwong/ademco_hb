@@ -87,7 +87,7 @@ enum class QueryStage {
 
 struct ZonePropertyAndLostConfig {
 	ZoneProperty prop = ZoneProperty::InvalidZoneProperty;
-	bool tamper_enabled = false; // 失联开关
+	bool lost_report_enabled = false; // 失联开关
 };
 
 struct Client {
@@ -204,7 +204,7 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 				for (const auto& zp : zps) {
 					ZonePropertyAndLostConfig zplc;
 					zplc.prop = zp.prop;
-					zplc.tamper_enabled = false;
+					zplc.lost_report_enabled = false;
 					client.zones[zp.zone] = zplc;
 					snprintf(buf, sizeof(buf), getZoneFormatString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)), zp.zone);
 					printf("\t\tZone:");
@@ -286,11 +286,11 @@ void handle_com_passthrough(ThreadContext* context, Client& client, evbuffer* ou
 			std::vector<size_t> zones;
 			if (client.queryStage == QueryStage::QueryingLostConfig && resp.parse(zones, hasMore)) {
 				for (const auto& zone : zones) {
-					client.zones[zone].tamper_enabled = true;
+					client.zones[zone].lost_report_enabled = true;
 					snprintf(buf, sizeof(buf), getZoneFormatString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)client.type)), zone);
 					printf("\t\tZone:");
 					printf("%s", buf);
-					printf("  Tamper Enabled: true\n");
+					printf("  Lost Report Enabled: true\n");
 				}
 				XDataPtr xdata;
 				if (hasMore) { // 继续索要剩余防区
@@ -994,9 +994,9 @@ void Client::printInfo() const
 		snprintf(buf, sizeof(buf), getZoneFormatString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)type)), zp.first);
 		printf("    Zone:");
 		printf("%s", buf);
-		printf("  Prop:0x%02X %s     \tTamper Enabled:%s\n",
+		printf("  Prop:0x%02X %s     \tLost Report Enabled:%s\n",
 			   zp.second.prop, zonePropertyToStringEn(zp.second.prop),
-			   zp.second.tamper_enabled ? "true" : "false");
+			   zp.second.lost_report_enabled ? "true" : "false");
 	}
 	for (int i = 0; i < 2; i++) {
 		if (com::isValidMachineTimer(timer.timer[i])) {
