@@ -26,7 +26,7 @@
 
 ## examples
 
-* `Windows` 下使用 `VS 2019 Community` 打开 `ademco_hb.sln` 进行编译。
+* `Windows` 下使用 `VS 2019 Community` 打开 `examples.sln` 进行编译。
 * `Linux/MacOS` 下执行 `build.sh` 编译示例程序，结果放在 `build` 文件夹内。
 * 如需编译 `javademo` 请阅读 [javademo-README.md](examples/javademo-README.md)
 
