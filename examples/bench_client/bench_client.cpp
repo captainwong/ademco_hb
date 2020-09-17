@@ -52,8 +52,9 @@ uint64_t gettid() {
 int thread_count = 0;
 int session_count = 0;
 int session_connected = 0;
-int timeout = 0;
 int load_test = 0;
+int timeout = 0;
+int print_data = 0;
 
 std::mutex mutex = {};
 int64_t totalBytesRead = 0;
@@ -103,6 +104,9 @@ ThreadContextPtr* threadContexts = nullptr;
 
 void handle_ademco_msg(Session* session, bufferevent* bev)
 {
+	if (print_data) {
+		printf("session #%d recv:%s\n", session->id, session->packet.toString().data());
+	}
 	auto output = bufferevent_get_output(bev);
 	switch (session->packet.id_.eid_) {
 	case AdemcoMsgId::id_ack:
@@ -176,8 +180,7 @@ void timer_cb(evutil_socket_t, short, void* arg)
 		bufferevent_disable(session->bev, EV_WRITE);
 		// SHUT_WR
 		shutdown(session->fd, 1);
-	} else {
-		printf("session #%d heartbeat\n", session->id);
+	} else {		
 		session->timer = event_new(threadContexts[session->thread_id]->base, -1, 0, timer_cb, session);
 		if (!session->timer) {
 			fprintf(stderr, "create heartbeat_timer failed\n");
@@ -190,6 +193,10 @@ void timer_cb(evutil_socket_t, short, void* arg)
 		char buf[1024];
 		session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id);
 		evbuffer_add(bufferevent_get_output(session->bev), buf, session->lastTimePacketSize);
+
+		if (print_data) {
+			printf("session #%d send:%s\n", session->id, session->packet.toString().data());
+		}
 	}	
 }
 
@@ -199,7 +206,7 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 	printf("eventcb on session #%d events=%04X\n", session->id, events);
 	if (events & BEV_EVENT_CONNECTED) {
 		auto ctx = threadContexts[session->thread_id];
-		printf("session #%d connected fd=%d\n", session->id, session->fd);
+		printf("session #%d acct=%s ademco_id=%06X connected fd=%d\n", session->id, session->acct.data(), session->ademco_id, session->fd);
 		{
 			std::lock_guard<std::mutex> lg(mutex);
 			printf("live connections %d\n", ++session_connected);
@@ -210,8 +217,14 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 		char buf[1024];
 		session->lastTimePacketSize = session->packet.make_hb(buf, sizeof(buf), 
 															  session->nextSeq(), session->acct, session->ademco_id, 0, session->status, 0);
+		if (print_data) {
+			printf("session #%d send:%s\n", session->id, session->packet.toString().data());
+		}
 		session->lastTimePacketSize += session->packet.make_hb(buf + session->lastTimePacketSize, sizeof(buf) - session->lastTimePacketSize, 
 															   session->nextSeq(), session->acct, session->ademco_id, 0, session->type, 0);
+		if (print_data) {
+			printf("session #%d send:%s\n", session->id, session->packet.toString().data());
+		}
 		evbuffer_add(bufferevent_get_output(bev), buf, session->lastTimePacketSize);
 
 		auto base = bufferevent_get_base(bev);
@@ -230,7 +243,7 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 
 		return;
 	} else if (events & (BEV_EVENT_EOF)) {
-		printf("session #%d closed.\n", session->id);
+		printf("session #%d fd=%d acct=%s ademco_id=%06X closed.\n", session->id, session->fd, session->acct.data(), session->ademco_id);
 	} else if (events & BEV_EVENT_ERROR) {
 		printf("Got an error on session #%d: %s\n",
 			   session->id, strerror(errno));
@@ -331,7 +344,7 @@ int main(int argc, char** argv)
 #endif
 
 	if (argc < 7) {
-		printf("Usage: %s ip port thread_count session_count load_test timeout\n"
+		printf("Usage: %s ip port thread_count session_count load_test timeout [print_data]\n"
 			   "  load_test: 0 or 1:\n"
 			   "    0 to disable load test mode, timeout is client's heartbeat timeout in seconds\n"
 			   "    1 to enable load test mode, timeout is client's lifecycle timeout in seconds\n", argv[0]);
@@ -367,6 +380,9 @@ int main(int argc, char** argv)
 	if (timeout <= 0) {
 		puts("Invalid timeout");
 		return 1;
+	}
+	if (argc > 7) {
+		print_data = atoi(argv[7]) == 1;
 	}
 
 	printf("using libevent %s\n", event_get_version());
