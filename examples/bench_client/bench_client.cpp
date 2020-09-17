@@ -71,8 +71,8 @@ struct Session {
 	int id = 0;
 	std::string acct = {};
 	AdemcoId ademco_id = 0;
-	ADEMCO_EVENT type = EVENT_I_AM_GPRS;
-	ADEMCO_EVENT status = EVENT_ARM;
+	//ADEMCO_EVENT type = EVENT_I_AM_GPRS;
+	//ADEMCO_EVENT status = EVENT_ARM;
 	uint16_t seq = 0;
 
 	uint16_t nextSeq() { if (++seq == 10000) { seq = 1; } return seq; }
@@ -106,21 +106,6 @@ void handle_ademco_msg(Session* session, bufferevent* bev)
 	if (print_data) {
 		printf("session #%d recv:%s\n", session->id, session->packet.toString().data());
 	}
-	auto output = bufferevent_get_output(bev);
-	switch (session->packet.id_.eid_) {
-	case AdemcoMsgId::id_ack:
-		{
-			auto now = std::chrono::steady_clock::now();
-			char buf[1024];
-			session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id);
-			evbuffer_add(output, buf, session->lastTimePacketSize);
-			auto us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - now).count();
-			session->encodeTime += us;
-		}
-		break;
-	default:
-		break;
-	}
 }
 
 void readcb(struct bufferevent* bev, void* user_data)
@@ -131,11 +116,12 @@ void readcb(struct bufferevent* bev, void* user_data)
 	while (1) {
 		size_t len = evbuffer_get_length(input);
 		if (len < 9) { return; }
-		char buff[1024] = { 0 };
-		evbuffer_copyout(input, buff, std::min(len, sizeof(buff)));
+		char buff[4096] = { 0 };
+		len = std::min(len, sizeof(buff));
+		evbuffer_copyout(input, buff, len);
 		size_t cb_commited = 0;
 		auto now = std::chrono::steady_clock::now();
-		auto res = session->packet.parse(buff, 1024, cb_commited);
+		auto res = session->packet.parse(buff, len, cb_commited);
 		auto us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - now).count();
 		session->decodeTime += us;
 		bool done = false;
@@ -163,9 +149,20 @@ void readcb(struct bufferevent* bev, void* user_data)
 void writecb(struct bufferevent* bev, void* user_data)
 {
 	auto session = (Session*)user_data;
-	if (0 == evbuffer_get_length(bufferevent_get_output(bev))) {
+	auto output = bufferevent_get_output(bev);
+	if (0 == evbuffer_get_length(output)) {
 		session->bytesWritten += session->lastTimePacketSize;
 		session->msgWritten++;
+
+		auto now = std::chrono::steady_clock::now();
+		char buf[1024];
+		session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id);
+		evbuffer_add(output, buf, session->lastTimePacketSize);
+		auto us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - now).count();
+		session->encodeTime += us;
+		if (print_data) {
+			printf("session #%d send:%s\n", session->id, session->packet.toString().data());
+		}
 	}
 }
 
@@ -194,7 +191,7 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 				printf("All connected\n");
 			}
 		}
-		char buf[1024];
+		/*char buf[1024];
 		session->lastTimePacketSize = session->packet.make_hb(buf, sizeof(buf), 
 															  session->nextSeq(), session->acct, session->ademco_id, 0, session->status, 0);
 		if (print_data) {
@@ -205,7 +202,14 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 		if (print_data) {
 			printf("session #%d send:%s\n", session->id, session->packet.toString().data());
 		}
+		evbuffer_add(bufferevent_get_output(bev), buf, session->lastTimePacketSize);*/
+		char buf[1024];
+		session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf),
+																session->nextSeq(), session->acct, session->ademco_id);
 		evbuffer_add(bufferevent_get_output(bev), buf, session->lastTimePacketSize);
+		if (print_data) {
+			printf("session #%d send:%s\n", session->id, session->packet.toString().data());
+		}
 
 		auto base = bufferevent_get_base(bev);
 		session->timer = event_new(base, -1, EV_TIMEOUT, timer_cb, session);
@@ -251,7 +255,7 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 				   "Decode average time %.2f us, %.2f packets/s\n",
 				   totalBytesRead / 1024.0 / 1024, totalMsgRead, totalBytesWrite / 1024.0 / 1024, totalMsgWritten,
 				   (totalBytesRead + totalBytesWrite) * 1.0 / (totalMsgRead + totalMsgWritten),
-				   totalBytesRead * 1.0 / (timeout * 1024.0 * 1024), totalMsgRead * 1.0 / timeout,
+				   (totalBytesRead + totalBytesWrite) * 1.0 / (timeout * 1024.0 * 1024), (totalBytesRead + totalBytesWrite) * 1.0 / timeout,
 				   encodeSpeed, 1000000.0 / encodeSpeed,
 				   decodeSpeed, 1000000.0 / decodeSpeed);
 		}

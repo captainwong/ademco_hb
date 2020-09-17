@@ -139,10 +139,11 @@ void readcb(struct bufferevent* bev, void* user_data)
 		size_t len = evbuffer_get_length(input);
 		if (len < 9) { return; }
 		char buff[1024] = { 0 };
-		evbuffer_copyout(input, buff, std::min(len, sizeof(buff)));
+		len = std::min(len, sizeof(buff));
+		evbuffer_copyout(input, buff, len);
 		size_t cb_commited = 0;
 		auto now = std::chrono::steady_clock::now();
-		auto res = session->packet.parse(buff, 1024, cb_commited);
+		auto res = session->packet.parse(buff, len, cb_commited);
 		auto us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - now).count();
 		session->decodeTime += us;
 		bool done = false;
