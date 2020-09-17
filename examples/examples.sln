@@ -40,6 +40,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "include", "include", "{332E
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server_demo_libevent_linux", "server_demo_libevent_linux\server_demo_libevent_linux.vcxproj", "{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bench_client_ex", "bench_client_ex\bench_client_ex.vcxproj", "{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -226,6 +228,20 @@ Global
 		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|x86.ActiveCfg = Release|x86
 		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|x86.Build.0 = Release|x86
 		{7657FAE6-1ABF-45C3-AA89-ACAC1110C228}.Release|x86.Deploy.0 = Release|x86
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Debug|ARM.ActiveCfg = Debug|Win32
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Debug|ARM64.ActiveCfg = Debug|Win32
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Debug|x64.ActiveCfg = Debug|x64
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Debug|x64.Build.0 = Debug|x64
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Debug|x86.ActiveCfg = Debug|Win32
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Debug|x86.Build.0 = Debug|Win32
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Release|Any CPU.ActiveCfg = Release|Win32
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Release|ARM.ActiveCfg = Release|Win32
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Release|ARM64.ActiveCfg = Release|Win32
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Release|x64.ActiveCfg = Release|x64
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Release|x64.Build.0 = Release|x64
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Release|x86.ActiveCfg = Release|Win32
+		{12E806BE-BA3E-452A-AB9D-09F4B379DEB2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

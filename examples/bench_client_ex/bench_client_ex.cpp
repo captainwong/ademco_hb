@@ -37,21 +37,25 @@
 #include <event2/thread.h>
 
 #define DISABLE_JLIB_LOG2
-#include <ademco_packet.h>
+#define ENABLE_COMMON_MACHINE_TYPE_TO_STRING
+#include <hb_helper.h>
 
 using namespace ademco;
+using namespace hb;
+using namespace hb::common;
 
 uint64_t gettid() {
 #ifdef _WIN32
 	return static_cast<uint64_t>(GetCurrentThreadId());
 #else
-	return static_cast<uint64_t>(::syscall(SYS_gettid));	
+	return static_cast<uint64_t>(::syscall(SYS_gettid));
 #endif
 }
 
 int thread_count = 0;
 int session_count = 0;
 int session_connected = 0;
+int load_test = 0;
 int timeout = 0;
 int print_data = 0;
 
@@ -67,12 +71,15 @@ struct Session {
 	int fd = 0;
 	int thread_id = 0;
 	bufferevent* bev = nullptr;
-	event* timer = nullptr; // life timer
+	event* timer = nullptr; // life or heartbeat timer
 	int id = 0;
 	std::string acct = {};
 	AdemcoId ademco_id = 0;
-	ADEMCO_EVENT type = EVENT_I_AM_GPRS;
-	ADEMCO_EVENT status = EVENT_ARM;
+	MachineType type = MachineType::Gprs;
+	MachineStatus status = MachineStatus::Arm;
+	MachineStatus status1 = MachineStatus::Arm;
+	MachineStatus status2 = MachineStatus::Arm;
+	MachineStatus status3 = MachineStatus::Arm;
 	uint16_t seq = 0;
 
 	uint16_t nextSeq() { if (++seq == 10000) { seq = 1; } return seq; }
@@ -109,7 +116,7 @@ void handle_ademco_msg(Session* session, bufferevent* bev)
 	auto output = bufferevent_get_output(bev);
 	switch (session->packet.id_.eid_) {
 	case AdemcoMsgId::id_ack:
-		{
+		if (load_test) {
 			auto now = std::chrono::steady_clock::now();
 			char buf[1024];
 			session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id);
@@ -127,7 +134,7 @@ void readcb(struct bufferevent* bev, void* user_data)
 {
 	auto input = bufferevent_get_input(bev);
 	auto session = (Session*)user_data;
-	
+
 	while (1) {
 		size_t len = evbuffer_get_length(input);
 		if (len < 9) { return; }
@@ -173,11 +180,30 @@ void timer_cb(evutil_socket_t, short, void* arg)
 {
 	auto session = (Session*)arg;
 
-	printf("session #%d timeout\n", session->id);
-	session->timer = nullptr;
-	bufferevent_disable(session->bev, EV_WRITE);
-	// SHUT_WR
-	shutdown(session->fd, 1);
+	if (load_test) {
+		printf("session #%d timeout\n", session->id);
+		session->timer = nullptr;
+		bufferevent_disable(session->bev, EV_WRITE);
+		// SHUT_WR
+		shutdown(session->fd, 1);
+	} else {
+		session->timer = event_new(threadContexts[session->thread_id]->base, -1, 0, timer_cb, session);
+		if (!session->timer) {
+			fprintf(stderr, "create heartbeat_timer failed\n");
+			event_base_loopbreak(threadContexts[session->thread_id]->base);
+			return;
+		}
+		struct timeval heartbeat_tv = { timeout, 0 };
+		event_add(session->timer, &heartbeat_tv);
+
+		char buf[1024];
+		session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id);
+		evbuffer_add(bufferevent_get_output(session->bev), buf, session->lastTimePacketSize);
+
+		if (print_data) {
+			printf("session #%d send:%s\n", session->id, session->packet.toString().data());
+		}
+	}
 }
 
 void eventcb(struct bufferevent* bev, short events, void* user_data)
@@ -195,13 +221,13 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 			}
 		}
 		char buf[1024];
-		session->lastTimePacketSize = session->packet.make_hb(buf, sizeof(buf), 
-															  session->nextSeq(), session->acct, session->ademco_id, 0, session->status, 0);
+		session->lastTimePacketSize = session->packet.make_hb(buf, sizeof(buf),
+															  session->nextSeq(), session->acct, session->ademco_id, 0, ademcoEventFromMachineStatus(session->status), 0);
 		if (print_data) {
 			printf("session #%d send:%s\n", session->id, session->packet.toString().data());
 		}
-		session->lastTimePacketSize += session->packet.make_hb(buf + session->lastTimePacketSize, sizeof(buf) - session->lastTimePacketSize, 
-															   session->nextSeq(), session->acct, session->ademco_id, 0, session->type, 0);
+		session->lastTimePacketSize += session->packet.make_hb(buf + session->lastTimePacketSize, sizeof(buf) - session->lastTimePacketSize,
+															   session->nextSeq(), session->acct, session->ademco_id, 0, ademcoEventFromMachineType(session->type), 0);
 		if (print_data) {
 			printf("session #%d send:%s\n", session->id, session->packet.toString().data());
 		}
@@ -256,7 +282,7 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 				   decodeSpeed, 1000000.0 / decodeSpeed);
 		}
 	}
-	
+
 	if (session->timer) {
 		event_del(session->timer);
 		session->timer = nullptr;
@@ -323,8 +349,11 @@ int main(int argc, char** argv)
 	}
 #endif
 
-	if (argc < 6) {
-		printf("Usage: %s ip port thread_count session_count timeout [print_data]\n", argv[0]);
+	if (argc < 7) {
+		printf("Usage: %s ip port thread_count session_count load_test timeout [print_data]\n"
+			   "  load_test: 0 or 1:\n"
+			   "    0 to disable load test mode, timeout is client's heartbeat timeout in seconds\n"
+			   "    1 to enable load test mode, timeout is client's lifecycle timeout in seconds\n", argv[0]);
 		return 1;
 	}
 
@@ -352,19 +381,20 @@ int main(int argc, char** argv)
 		puts("session_count must times thread_count");
 		return 1;
 	}
-	timeout = atoi(argv[5]);
+	load_test = atoi(argv[5]) == 1;
+	timeout = atoi(argv[6]);
 	if (timeout <= 0) {
 		puts("Invalid timeout");
 		return 1;
 	}
-	if (argc > 6) {
-		print_data = atoi(argv[6]) == 1;
+	if (argc > 7) {
+		print_data = atoi(argv[7]) == 1;
 	}
 
 	printf("using libevent %s\n", event_get_version());
 	int session_per_thread = session_count / thread_count;
-	printf("starting %s to %s:%d with %d threads, %d sessions, %d sessions per thread, timeout=%ds\n",
-		   argv[0], ip, port, thread_count, session_count, session_per_thread, timeout);
+	printf("starting %s to %s:%d with %d threads, %d sessions, %d sessions per thread, load_test is %s, timeout=%ds\n",
+		   argv[0], ip, port, thread_count, session_count, session_per_thread, load_test ? "on" : "off", timeout);
 
 	sockaddr_in sin = { 0 };
 	sin.sin_family = AF_INET;
