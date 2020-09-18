@@ -53,11 +53,14 @@ uint64_t gettid() {
 }
 
 int thread_count = 0;
+std::string acct_base = {};
 int session_count = 0;
 int session_connected = 0;
-int load_test = 0;
+size_t max_acct_len = 0;
+int machine_type = 255;
+int heartbeat_gap = 5;
 int timeout = 0;
-int print_data = 0;
+int print_data = 1;
 
 std::mutex mutex = {};
 int64_t totalBytesRead = 0;
@@ -116,14 +119,14 @@ void handle_ademco_msg(Session* session, bufferevent* bev)
 	auto output = bufferevent_get_output(bev);
 	switch (session->packet.id_.eid_) {
 	case AdemcoMsgId::id_ack:
-		if (load_test) {
+		/*if (load_test) {
 			auto now = std::chrono::steady_clock::now();
 			char buf[1024];
 			session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id);
 			evbuffer_add(output, buf, session->lastTimePacketSize);
 			auto us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - now).count();
 			session->encodeTime += us;
-		}
+		}*/
 		break;
 	default:
 		break;
@@ -177,34 +180,35 @@ void writecb(struct bufferevent* bev, void* user_data)
 	}
 }
 
+void heartbeat_timer_cb(evutil_socket_t fd, short what, void* user_data)
+{
+	auto session = (Session*)user_data;
+	session->timer = event_new(threadContexts[session->thread_id]->base, -1, 0, heartbeat_timer_cb, session);
+	if (!session->timer) {
+		fprintf(stderr, "create heartbeat_timer failed\n");
+		event_base_loopbreak(threadContexts[session->thread_id]->base);
+		return;
+	}
+	struct timeval heartbeat_tv = { timeout, 0 };
+	event_add(session->timer, &heartbeat_tv);
+
+	char buf[1024];
+	session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id);
+	evbuffer_add(bufferevent_get_output(session->bev), buf, session->lastTimePacketSize);
+
+	if (print_data) {
+		printf("session #%d send:%s\n", session->id, session->packet.toString().data());
+	}
+}
+
 void timer_cb(evutil_socket_t, short, void* arg)
 {
 	auto session = (Session*)arg;
-
-	if (load_test) {
-		printf("session #%d timeout\n", session->id);
-		session->timer = nullptr;
-		bufferevent_disable(session->bev, EV_WRITE);
-		// SHUT_WR
-		shutdown(session->fd, 1);
-	} else {
-		session->timer = event_new(threadContexts[session->thread_id]->base, -1, 0, timer_cb, session);
-		if (!session->timer) {
-			fprintf(stderr, "create heartbeat_timer failed\n");
-			event_base_loopbreak(threadContexts[session->thread_id]->base);
-			return;
-		}
-		struct timeval heartbeat_tv = { timeout, 0 };
-		event_add(session->timer, &heartbeat_tv);
-
-		char buf[1024];
-		session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id);
-		evbuffer_add(bufferevent_get_output(session->bev), buf, session->lastTimePacketSize);
-
-		if (print_data) {
-			printf("session #%d send:%s\n", session->id, session->packet.toString().data());
-		}
-	}
+	printf("session #%d timeout\n", session->id);
+	session->timer = nullptr;
+	bufferevent_disable(session->bev, EV_WRITE);
+	// SHUT_WR
+	shutdown(session->fd, 1);
 }
 
 void eventcb(struct bufferevent* bev, short events, void* user_data)
@@ -334,6 +338,26 @@ void ThreadContext::connectNext()
 	session->fd = (int)bufferevent_getfd(bev);
 }
 
+void usage(const char* argv0)
+{
+	printf("Simulate alarm machines to connect to direct server, while connected, machines will start send heartbeats, user can also input commands to test."
+		   "After timeout passed, simulation will stop and show stats\n"
+		   "Usage: %s ip port thread_count session_count acct_base machine_type heartbeat_gap timeout [print_data]\n"
+		   "  ip           : transmit server' ip\n"
+		   "  port         : transmit server's port\n"
+		   "  thread_count : threads to use\n"
+		   "  session_count: alarm machines to simulate\n"
+		   "  acct_base    : simulated alarm machines account base, their accounts will be in acct_base + to_string(session_id) form\n", argv0);
+	printf("  machine_type : -1 for random type, valid types are:\n");
+	for (auto type : AllMachineTypes) {
+		if (machineIsSelling(type))
+			printf("                 %s\n", machineTypeToString(type));
+	}
+	printf("  heartbeat_gap: secends between two heatbeats\n"
+		   "  timeout      : close clients after seconds\n"
+		   "  print_data   : print sent/recved data\n");
+}
+
 int main(int argc, char** argv)
 {
 #ifdef _WIN32
@@ -350,11 +374,8 @@ int main(int argc, char** argv)
 	}
 #endif
 
-	if (argc < 7) {
-		printf("Usage: %s ip port thread_count session_count load_test timeout [print_data]\n"
-			   "  load_test: 0 or 1:\n"
-			   "    0 to disable load test mode, timeout is client's heartbeat timeout in seconds\n"
-			   "    1 to enable load test mode, timeout is client's lifecycle timeout in seconds\n", argv[0]);
+	if (argc < 9) {
+		usage(argv[0]);
 		return 1;
 	}
 
@@ -362,40 +383,93 @@ int main(int argc, char** argv)
 	int port = atoi(argv[2]);
 	if (port <= 0 || port > 65535) {
 		puts("Invalid port");
+		usage(argv[0]);
 		return 1;
 	}
 	thread_count = atoi(argv[3]);
 	if (thread_count <= 0) {
 		puts("Invalid thread_count");
+		usage(argv[0]);
 		return 1;
 	}
 	session_count = atoi(argv[4]);
 	if (session_count <= 0) {
 		puts("Invalid session_count");
+		usage(argv[0]);
 		return 1;
 	}
 	if (thread_count > session_count) {
 		puts("thread_count must not bigger than session_count");
+		usage(argv[0]);
 		return 1;
 	}
 	if (session_count % thread_count) {
 		puts("session_count must times thread_count");
+		usage(argv[0]);
 		return 1;
 	}
-	load_test = atoi(argv[5]) == 1;
-	timeout = atoi(argv[6]);
+	acct_base = argv[5];
+	if (acct_base.size() > 18) {
+		puts("acct_base is too long, max acct length is 18");
+		usage(argv[0]);
+		return 1;
+	}
+	if (session_count == 1) {
+		max_acct_len = acct_base.size();
+	} else {
+		max_acct_len = acct_base.size() + std::to_string(session_count - 1).size();
+	}
+	if (18 < max_acct_len) {
+		puts("acct_base is too long or session_count is too large/invalid, max acct length is 18");
+		usage(argv[0]);
+		return 1;
+	}
+	machine_type = atoi(argv[6]);
+	if (machine_type != -1 && !machineIsSelling(MachineType(machine_type))) {
+		puts("Invalid machine type");
+		usage(argv[0]);
+		return 1;
+	}
+	heartbeat_gap = atoi(argv[7]);
+	if (heartbeat_gap <= 0) {
+		puts("Invalid heartbeat_gap");
+		usage(argv[0]);
+		return 1;
+	}
+	timeout = atoi(argv[8]);
 	if (timeout <= 0) {
 		puts("Invalid timeout");
+		usage(argv[0]);
 		return 1;
 	}
-	if (argc > 7) {
-		print_data = atoi(argv[7]) == 1;
+	if (argc > 9) {
+		print_data = atoi(argv[9]) == 1;
 	}
 
 	printf("using libevent %s\n", event_get_version());
-	int session_per_thread = session_count / thread_count;
-	printf("starting %s to %s:%d with %d threads, %d sessions, %d sessions per thread, load_test is %s, timeout=%ds\n",
-		   argv[0], ip, port, thread_count, session_count, session_per_thread, load_test ? "on" : "off", timeout);
+	size_t session_per_thread = session_count / thread_count;
+	std::string acct_session_min = acct_base;
+	while (acct_session_min.size() < max_acct_len) {
+		acct_session_min.push_back('0');
+	}
+
+	std::string acct_session_max;
+	if (session_count == 1) {
+		acct_session_max = acct_session_min;
+	} else {
+		acct_session_max = std::to_string(session_count - 1);
+		size_t acct_session_len = max_acct_len - acct_base.size();
+		while (acct_session_max.size() < acct_session_len) {
+			acct_session_max.insert(acct_session_max.begin(), '0');
+		}
+		acct_session_max = acct_base + acct_session_max;
+	}
+	printf("starting %s to %s:%d with %d threads, %d sessions, machine_type is %s, %zd sessions per thread, heartbeat_gap=%ds, timeout=%ds\n"
+		   "acct_base=%s, acct range is %s to %s\n",
+		   argv[0], ip, port, thread_count, session_count,
+		   machine_type == -1 ? "random type" : machineTypeToString((MachineType)machine_type),
+		   session_per_thread, heartbeat_gap, timeout,
+		   acct_base.data(), acct_session_min.data(), acct_session_max.data());
 
 	sockaddr_in sin = { 0 };
 	sin.sin_family = AF_INET;
@@ -407,12 +481,12 @@ int main(int argc, char** argv)
 
 	for (int i = 1; i < thread_count; i++) {
 		threads.push_back(std::thread([&sin, i, session_per_thread]() {
-			auto context = init_thread(i, sin, i * session_per_thread, session_per_thread);
+			auto context = init_thread(i, sin, i * (int)session_per_thread, (int)session_per_thread);
 			event_base_dispatch(context->base);
 		}));
 	}
 
-	auto main_thread_context = init_thread(0, sin, 0, session_per_thread);
+	auto main_thread_context = init_thread(0, sin, 0, (int)session_per_thread);
 	event_base_dispatch(main_thread_context->base);
 
 	for (auto& t : threads) {
