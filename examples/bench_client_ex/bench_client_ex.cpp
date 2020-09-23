@@ -186,11 +186,95 @@ void handle_ademco_msg(Session* session, bufferevent* bev)
 				}
 
 			case EVENT_ARM:
+			case EVENT_HALFARM:
+			case EVENT_HALFARM_1456:
 				{
-					if (session->type == MachineType::ThreeSection && 1 <= session->packet.ademcoData_.gg_ && session->packet.ademcoData_.gg_ <= 3) {
+					do {
+						if (session->packet.ademcoData_.ademco_event_ != EVENT_ARM) {
+							if (!machineCanHalfArm(session->type)) {
+								break;
+							}
+						}
+						if (session->type == MachineType::ThreeSection) {
+							if (1 == session->packet.ademcoData_.gg_) {
+								session->status1 = machineStatusFromAdemcoEvent(session->packet.ademcoData_.ademco_event_);
+							} else if (2 == session->packet.ademcoData_.gg_) {
+								session->status2 = machineStatusFromAdemcoEvent(session->packet.ademcoData_.ademco_event_);
+							} else if (3 == session->packet.ademcoData_.gg_) {
+								session->status3 = machineStatusFromAdemcoEvent(session->packet.ademcoData_.ademco_event_);
+							} else { break; }
+						} else if (0 == session->packet.ademcoData_.gg_) {
+							session->status = machineStatusFromAdemcoEvent(session->packet.ademcoData_.ademco_event_);
+						} else { break; }
+						auto n = session->packet.make_hb(buf, sizeof(buf),
+														 session->packet.seq_.value_, session->acct, session->ademco_id,
+														 session->packet.ademcoData_.gg_, session->packet.ademcoData_.ademco_event_, session->packet.ademcoData_.zone_);
+						if (print_data) {
+							printf("T#%d C#%d send:%s\n", session->thread_id, session->id, session->packet.toString().data());
+						}
+						evbuffer_add(output, buf, n);
+						return;
+					} while (0);
 
+					// nak
+					{
+						auto n = session->packet.make_nak(buf, sizeof(buf),
+														  session->packet.seq_.value_, session->acct, session->ademco_id);
+						if (print_data) {
+							printf("T#%d C#%d send:%s\n", session->thread_id, session->id, session->packet.toString().data());
+						}
+						evbuffer_add(output, buf, n);
 					}
+					break;
 				}
+
+			case EVENT_DISARM:
+				{
+					if (!session->packet.xdata_ || ademco::detail::toString(session->packet.xdata_->data_) != "123456") {
+						printf("Wrong disarm password: %s\n", ademco::detail::toString(session->packet.xdata_->data_).data());
+						auto n = session->packet.make_hb(buf, sizeof(buf),
+														 session->packet.seq_.value_, session->acct, session->ademco_id,
+														 session->packet.ademcoData_.gg_, EVENT_DISARM_PWD_ERR, session->packet.ademcoData_.zone_);
+						if (print_data) {
+							printf("T#%d C#%d send:%s\n", session->thread_id, session->id, session->packet.toString().data());
+						}
+						evbuffer_add(output, buf, n);
+						break;
+					}
+					do {
+						if (session->type == MachineType::ThreeSection) {
+							if (1 == session->packet.ademcoData_.gg_) {
+								session->status1 = MachineStatus::Disarm;
+							} else if (2 == session->packet.ademcoData_.gg_) {
+								session->status2 = MachineStatus::Disarm;
+							} else if (3 == session->packet.ademcoData_.gg_) {
+								session->status3 = MachineStatus::Disarm;
+							} else { break; }
+						} else if (0 == session->packet.ademcoData_.gg_) {
+							session->status = MachineStatus::Disarm;
+						} else { break; }
+						auto n = session->packet.make_hb(buf, sizeof(buf),
+														 session->packet.seq_.value_, session->acct, session->ademco_id,
+														 session->packet.ademcoData_.gg_, EVENT_DISARM, session->packet.ademcoData_.zone_);
+						if (print_data) {
+							printf("T#%d C#%d send:%s\n", session->thread_id, session->id, session->packet.toString().data());
+						}
+						evbuffer_add(output, buf, n);
+						return;
+					} while (0);
+
+					// nak
+					{
+						auto n = session->packet.make_nak(buf, sizeof(buf),
+														  session->packet.seq_.value_, session->acct, session->ademco_id);
+						if (print_data) {
+							printf("T#%d C#%d send:%s\n", session->thread_id, session->id, session->packet.toString().data());
+						}
+						evbuffer_add(output, buf, n);
+					}
+					break;
+				}
+
 			}
 		}
 

@@ -43,7 +43,7 @@ static ademco::ADEMCO_EVENT ademcoEventFromMachineType(common::MachineType type)
 }
 
 //! 从事件码推出主机状态
-static common::MachineStatus machienStatusFromAdemcoEvent(ademco::ADEMCO_EVENT e)
+static common::MachineStatus machineStatusFromAdemcoEvent(ademco::ADEMCO_EVENT e)
 {
 	switch (e) {
 	case ademco::EVENT_ARM:		return common::MachineStatus::Arm;
