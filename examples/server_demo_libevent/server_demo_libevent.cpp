@@ -59,12 +59,9 @@ static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
 
 
 #define DISABLE_JLIB_LOG2
-#include <ademco_packet.h>
-
 #define ENABLE_COMMON_MACHINE_STATUS_TO_STRING
 #define ENABLE_COMMON_MACHINE_TYPE_TO_STRING
 #define ENABLE_COMMON_ZONE_PROPERTY_TO_STRING
-#include <hb_detail.h>
 #include <hb_helper.h>
 
 using namespace ademco;

@@ -30,6 +30,8 @@
 #include <thread>
 #include <mutex>
 #include <unordered_set>
+#include <condition_variable>
+#include <unordered_map>
 
 #include <event2/listener.h>
 #include <event2/buffer.h>
@@ -37,12 +39,16 @@
 #include <event2/thread.h>
 
 #define DISABLE_JLIB_LOG2
+#define ENABLE_COMMON_MACHINE_STATUS_TO_STRING
 #define ENABLE_COMMON_MACHINE_TYPE_TO_STRING
+#define ENABLE_COMMON_ZONE_PROPERTY_TO_STRING
 #include <hb_helper.h>
 
 using namespace ademco;
 using namespace hb;
 using namespace hb::common;
+
+DECLARE_HB_COMMON_COM_CONSTEXPR_MEMBERS;
 
 uint64_t gettid() {
 #ifdef _WIN32
@@ -61,20 +67,59 @@ int machine_type = 255;
 int heartbeat_gap = 5;
 int timeout = 0;
 int print_data = 1;
+std::mutex gmutex{};
 
-std::mutex mutex = {};
-int64_t totalBytesRead = 0;
-int64_t totalBytesWrite = 0;
-int64_t totalMsgRead = 0;
-int64_t totalMsgWritten = 0;
-int64_t totalEncodeTime = 0;
-int64_t totalDecodeTime = 0;
+
+// Commands
+// M
+#define COMMAND_M_EGZ EVENT_INVALID_EVENT
+// C
+#define COMMAND_C_AEGZ ((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 1))
+// X
+#define COMMAND_X_AEGZX ((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 2))
+// Y
+#define COMMAND_Y_AEGZX ((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 3))
+// Z
+#define COMMAND_Z_QUERY_ZONE ((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 4))
+// F 
+#define COMMAND_F_QUERY_TIMER ((ADEMCO_EVENT)(EVENT_INVALID_EVENT + 5))
+
+
+// events will be sent to all clients
+std::vector<ADEMCO_EVENT> commands = {};
+int threads_to_handled_event = 0;
+struct UserInput {
+	char pwd[1024] = { 0 };
+	AdemcoId ademco_id = 0;
+	int ev = 0;
+	AdemcoGG gg = 0;
+	AdemcoZone zone = 0;
+	char xdata[1024] = { 0 };
+}userInput = {};
+
+void op_usage()
+{
+	printf("Press a key and hit <enter>:\n"
+		   "A: Arm\n"
+		   "D: Disarm\n"
+		   "E: Emergency\n"
+		   "M: Mannualy input [event gg zone], Exampel Input: 'M' <enter> 3400 1 0 <enter>\n"
+		   "C: Like M, not send to all clients, but send to specific client with ademco_id: [ademco_id event gg zone]\n"
+		   "X: Like C, with xdata: [ademco_id event gg zone xdata]\n"
+		   "Y: Like X, with xdata, but xdata is hex: [ademco_id event gg zone xdata], example: [1 1704 0 0 EBAB3FA176]\n"
+		   "\n"
+		   "I: Print clients info\n"
+		   "P: Toggle enable/disable data print\n"
+		   "Q: Quit\n"
+	);
+}
 
 struct Session {
 	int fd = 0;
 	int thread_id = 0;
 	bufferevent* bev = nullptr;
-	event* timer = nullptr; // life or heartbeat timer
+	event* life_timer = nullptr;
+	event* heartbeat_timer = nullptr;
 	int id = 0;
 	std::string acct = {};
 	AdemcoId ademco_id = 0;
@@ -84,18 +129,10 @@ struct Session {
 	MachineStatus status2 = MachineStatus::Arm;
 	MachineStatus status3 = MachineStatus::Arm;
 	uint16_t seq = 0;
+	AdemcoPacket packet = {};
 
 	uint16_t nextSeq() { if (++seq == 10000) { seq = 1; } return seq; }
-
-	AdemcoPacket packet = {};
-	size_t lastTimePacketSize = 0;
-
-	int64_t bytesRead = 0;
-	int64_t bytesWritten = 0;
-	int64_t msgRead = 0;
-	int64_t msgWritten = 0;
-	int64_t encodeTime = 0;
-	int64_t decodeTime = 0;
+	void printInfo() const;
 };
 
 struct ThreadContext {
@@ -104,18 +141,21 @@ struct ThreadContext {
 	sockaddr_in addr = {};
 	int session_start = 0;
 	int session_end = 0;
+	std::unordered_map<int, Session*> clients{};
+	std::mutex mutex{};
 
 	void connectNext();
 };
 typedef ThreadContext* ThreadContextPtr;
 
-ThreadContextPtr* threadContexts = nullptr;
+std::vector<ThreadContextPtr> threadContexts{};
 
 void handle_ademco_msg(Session* session, bufferevent* bev)
 {
 	if (print_data) {
-		printf("session #%d recv:%s\n", session->id, session->packet.toString().data());
+		printf("T#%d C#%d recv:%s\n",session->thread_id, session->id, session->packet.toString().data());
 	}
+	char buf[1024];
 	auto output = bufferevent_get_output(bev);
 	switch (session->packet.id_.eid_) {
 	case AdemcoMsgId::id_ack:
@@ -128,6 +168,32 @@ void handle_ademco_msg(Session* session, bufferevent* bev)
 			session->encodeTime += us;
 		}*/
 		break;
+
+	case AdemcoMsgId::id_hb:
+	case AdemcoMsgId::id_admcid:
+		{
+			switch (session->packet.ademcoData_.ademco_event_) {
+			case EVENT_WHAT_IS_YOUR_TYPE:
+				{
+					auto n = session->packet.make_hb(buf, sizeof(buf),
+													 session->packet.seq_.value_, session->acct, session->ademco_id, 0,
+													 ademcoEventFromMachineType(session->type), 0);
+					if (print_data) {
+						printf("T#%d C#%d send:%s\n", session->thread_id, session->id, session->packet.toString().data());
+					}
+					evbuffer_add(output, buf, n);
+					break;
+				}
+
+			case EVENT_ARM:
+				{
+					if (session->type == MachineType::ThreeSection && 1 <= session->packet.ademcoData_.gg_ && session->packet.ademcoData_.gg_ <= 3) {
+
+					}
+				}
+			}
+		}
+
 	default:
 		break;
 	}
@@ -145,16 +211,11 @@ void readcb(struct bufferevent* bev, void* user_data)
 		len = std::min(len, sizeof(buff));
 		evbuffer_copyout(input, buff, len);
 		size_t cb_commited = 0;
-		auto now = std::chrono::steady_clock::now();
 		auto res = session->packet.parse(buff, len, cb_commited);
-		auto us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - now).count();
-		session->decodeTime += us;
 		bool done = false;
 		switch (res) {
 		case ademco::ParseResult::RESULT_OK:
 			evbuffer_drain(input, cb_commited);
-			session->bytesRead += cb_commited;
-			session->msgRead++;
 			handle_ademco_msg(session, bev);
 			break;
 		case ademco::ParseResult::RESULT_NOT_ENOUGH:
@@ -174,38 +235,39 @@ void readcb(struct bufferevent* bev, void* user_data)
 void writecb(struct bufferevent* bev, void* user_data)
 {
 	auto session = (Session*)user_data;
-	if (0 == evbuffer_get_length(bufferevent_get_output(bev))) {
-		session->bytesWritten += session->lastTimePacketSize;
-		session->msgWritten++;
-	}
+	
 }
 
 void heartbeat_timer_cb(evutil_socket_t fd, short what, void* user_data)
 {
 	auto session = (Session*)user_data;
-	session->timer = event_new(threadContexts[session->thread_id]->base, -1, 0, heartbeat_timer_cb, session);
-	if (!session->timer) {
+	session->heartbeat_timer = event_new(threadContexts[session->thread_id]->base, -1, 0, heartbeat_timer_cb, session);
+	if (!session->heartbeat_timer) {
 		fprintf(stderr, "create heartbeat_timer failed\n");
 		event_base_loopbreak(threadContexts[session->thread_id]->base);
 		return;
 	}
-	struct timeval heartbeat_tv = { timeout, 0 };
-	event_add(session->timer, &heartbeat_tv);
+	struct timeval heartbeat_tv = { heartbeat_gap, 0 };
+	event_add(session->heartbeat_timer, &heartbeat_tv);
 
 	char buf[1024];
-	session->lastTimePacketSize = session->packet.make_null(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id);
-	evbuffer_add(bufferevent_get_output(session->bev), buf, session->lastTimePacketSize);
+	auto n = session->packet.make_null(buf, sizeof(buf), session->nextSeq(), session->acct, session->ademco_id);
+	evbuffer_add(bufferevent_get_output(session->bev), buf, n);
 
 	if (print_data) {
-		printf("session #%d send:%s\n", session->id, session->packet.toString().data());
+		printf("T#%d C#%d send:%s\n", session->thread_id, session->id, session->packet.toString().data());
 	}
 }
 
 void timer_cb(evutil_socket_t, short, void* arg)
 {
 	auto session = (Session*)arg;
-	printf("session #%d timeout\n", session->id);
-	session->timer = nullptr;
+	printf("T#%d C#%d timeout\n", session->thread_id, session->id);
+	session->life_timer = nullptr;
+	if (session->heartbeat_timer) {
+		event_del(session->heartbeat_timer);
+		session->heartbeat_timer = nullptr;
+	}
 	bufferevent_disable(session->bev, EV_WRITE);
 	// SHUT_WR
 	shutdown(session->fd, 1);
@@ -215,38 +277,55 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 {
 	auto session = (Session*)user_data;
 	printf("eventcb on session #%d events=%04X\n", session->id, events);
+	auto ctx = threadContexts[session->thread_id];
 	if (events & BEV_EVENT_CONNECTED) {
-		auto ctx = threadContexts[session->thread_id];
-		printf("session #%d acct=%s ademco_id=%06X connected fd=%d\n", session->id, session->acct.data(), session->ademco_id, session->fd);
 		{
-			std::lock_guard<std::mutex> lg(mutex);
+			std::lock_guard<std::mutex> lg(ctx->mutex);
+			ctx->clients[session->ademco_id] = session;
+		}
+		printf("T#%d C#%d ademco_id=%06X connected, fd=%d\n", session->thread_id, session->id, session->ademco_id, session->fd);
+		{
+			std::lock_guard<std::mutex> lg(gmutex);
 			printf("live connections %d\n", ++session_connected);
 			if (session_connected == session_count) {
 				printf("All connected\n");
 			}
 		}
 		char buf[1024];
-		session->lastTimePacketSize = session->packet.make_hb(buf, sizeof(buf),
-															  session->nextSeq(), session->acct, session->ademco_id, 0, ademcoEventFromMachineStatus(session->status), 0);
+		auto n = session->packet.make_hb(buf, sizeof(buf),
+										 session->nextSeq(), session->acct, session->ademco_id, 0, 
+										 ademcoEventFromMachineStatus(session->status), 0);
 		if (print_data) {
-			printf("session #%d send:%s\n", session->id, session->packet.toString().data());
+			printf("T#%d C#%d send:%s\n", session->thread_id, session->id, session->packet.toString().data());
 		}
-		session->lastTimePacketSize += session->packet.make_hb(buf + session->lastTimePacketSize, sizeof(buf) - session->lastTimePacketSize,
-															   session->nextSeq(), session->acct, session->ademco_id, 0, ademcoEventFromMachineType(session->type), 0);
+		n += session->packet.make_hb(buf + n, sizeof(buf) - n,
+									 session->nextSeq(), session->acct, session->ademco_id, 0, 
+									 ademcoEventFromMachineType(session->type), 0);
 		if (print_data) {
-			printf("session #%d send:%s\n", session->id, session->packet.toString().data());
+			printf("T#%d C#%d send:%s\n", session->thread_id, session->id, session->packet.toString().data());
 		}
-		evbuffer_add(bufferevent_get_output(bev), buf, session->lastTimePacketSize);
+		evbuffer_add(bufferevent_get_output(bev), buf, n);
 
 		auto base = bufferevent_get_base(bev);
-		session->timer = event_new(base, -1, EV_TIMEOUT, timer_cb, session);
-		if (!session->timer) {
-			fprintf(stderr, "create timer failed\n");
+		session->life_timer = event_new(base, -1, EV_TIMEOUT, timer_cb, session);
+		if (!session->life_timer) {
+			fprintf(stderr, "create life_timer failed\n");
 			event_base_loopbreak(base);
 			return;
 		}
 		struct timeval tv = { timeout, 0 };
-		event_add(session->timer, &tv);
+		event_add(session->life_timer, &tv);
+
+		session->heartbeat_timer = event_new(base, -1, EV_TIMEOUT, heartbeat_timer_cb, session);
+		if (!session->heartbeat_timer) {
+			fprintf(stderr, "create heartbeat_timer failed\n");
+			event_base_loopbreak(base);
+			return;
+		}
+		tv.tv_sec = heartbeat_gap;
+		event_add(session->heartbeat_timer, &tv);
+
+		
 
 		if (++ctx->session_start < ctx->session_end) {
 			ctx->connectNext();
@@ -254,43 +333,33 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 
 		return;
 	} else if (events & (BEV_EVENT_EOF)) {
-		printf("session #%d fd=%d acct=%s ademco_id=%06X closed.\n", session->id, session->fd, session->acct.data(), session->ademco_id);
+		printf("T#%d C#%d fd=%d acct=%s ademco_id=%06X closed.\n", session->thread_id, session->id, session->fd, session->acct.data(), session->ademco_id);
 	} else if (events & BEV_EVENT_ERROR) {
-		printf("Got an error on session #%d: %s\n",
-			   session->id, strerror(errno));
+		printf("T#%d C#%d ERROR: %s\n",
+			   session->thread_id, session->id, strerror(errno));
 	}
 
 	{
-		std::lock_guard<std::mutex> lg(mutex);
-		totalBytesRead += session->bytesRead;
-		totalBytesWrite += session->bytesWritten;
-		totalMsgRead += session->msgRead;
-		totalMsgWritten += session->msgWritten;
-		totalEncodeTime += session->encodeTime;
-		totalDecodeTime += session->decodeTime;
+		std::lock_guard<std::mutex> lg(ctx->mutex);
+		ctx->clients.erase(session->ademco_id);
+	}
 
+	{
+		std::lock_guard<std::mutex> lg(gmutex);
 		--session_connected;
 		printf("live connections %d\n", session_connected);
 		if (session_connected == 0) {
-			printf("All disconnected\n");
-			double encodeSpeed = totalEncodeTime * 1.0 / totalMsgWritten;
-			double decodeSpeed = totalDecodeTime * 1.0 / totalMsgRead;
-			printf("Read %.2f MiB %" PRId64 " packets, Write %.2f MiB %" PRId64 " packets\n"
-				   "Average msg size is %.2f bytes\n"
-				   "Throughput is %.2f MiB/s %.2f packets/s\n"
-				   "Encode average time %.2f us, %.2f packets/s\n"
-				   "Decode average time %.2f us, %.2f packets/s\n",
-				   totalBytesRead / 1024.0 / 1024, totalMsgRead, totalBytesWrite / 1024.0 / 1024, totalMsgWritten,
-				   (totalBytesRead + totalBytesWrite) * 1.0 / (totalMsgRead + totalMsgWritten),
-				   totalBytesRead * 1.0 / (timeout * 1024.0 * 1024), totalMsgRead * 1.0 / timeout,
-				   encodeSpeed, 1000000.0 / encodeSpeed,
-				   decodeSpeed, 1000000.0 / decodeSpeed);
+			printf("All disconnected\n");			
 		}
 	}
 
-	if (session->timer) {
-		event_del(session->timer);
-		session->timer = nullptr;
+	if (session->heartbeat_timer) {
+		event_del(session->heartbeat_timer);
+		session->heartbeat_timer = nullptr;
+	}
+	if (session->life_timer) {
+		event_del(session->life_timer);
+		session->life_timer = nullptr;
 	}
 	delete session;
 	bufferevent_free(bev);
@@ -299,6 +368,7 @@ void eventcb(struct bufferevent* bev, short events, void* user_data)
 
 ThreadContext* init_thread(int thread_id, const sockaddr_in& sin, int session_start, int session_per_thread)
 {
+	printf("init_thread T#%d session_start=%d, session_end=%d\n", thread_id, session_start, session_start + session_per_thread);
 	ThreadContext* context = new ThreadContext();
 	context->thread_id = thread_id;
 	context->base = event_base_new();
@@ -310,6 +380,7 @@ ThreadContext* init_thread(int thread_id, const sockaddr_in& sin, int session_st
 	context->session_start = session_start;
 	context->session_end = session_start + session_per_thread;
 	threadContexts[thread_id] = context;
+	srand(session_start);
 	context->connectNext();
 
 	return context;
@@ -326,10 +397,27 @@ void ThreadContext::connectNext()
 	session->thread_id = thread_id;
 	session->bev = bev;
 	session->id = session_start;
-	session->acct = std::string("861234567890") + std::to_string(session_start);
 	session->ademco_id = session_start + 1;
 	session->seq = 0;
+	if (machine_type == -1) {
+		do {
+			session->type = (MachineType)(rand() % MachineType::MachineTypeCount);
+		} while (!machineIsSelling(session->type));
+	} else {
+		session->type = (MachineType)machine_type;
+	}
+	if (session_count == 1) {
+		session->acct = acct_base;
+	} else {
+		std::string acct_session = std::to_string(session_start);
+		size_t acct_session_len = max_acct_len - acct_base.size();
+		while (acct_session.size() < acct_session_len) {
+			acct_session.insert(acct_session.begin(), '0');
+		}
+		session->acct = acct_base + acct_session;
+	}
 	bufferevent_setcb(bev, readcb, writecb, eventcb, session);
+	printf("T#%d C#%d ademco_id=%06X connecting...\n", thread_id, session->id, session->ademco_id);
 	bufferevent_enable(bev, EV_READ | EV_WRITE);
 	if (bufferevent_socket_connect(bev, (const sockaddr*)(&addr), sizeof(addr)) < 0) {
 		fprintf(stderr, "error starting connection\n");
@@ -358,6 +446,132 @@ void usage(const char* argv0)
 		   "  print_data   : print sent/recved data\n");
 }
 
+void clear_stdin()
+{
+	int ret = scanf("%*[^\n]%*c");
+	(void)ret;
+}
+
+// send all buffered events to all clients
+void commandcb(evutil_socket_t, short, void* user_data)
+{
+	auto context = (ThreadContext*)user_data;
+	std::vector<ADEMCO_EVENT> evs;
+
+	{
+		std::lock_guard<std::mutex> lg(gmutex);
+		if (--threads_to_handled_event == 0) {
+			evs = std::move(commands);
+		} else {
+			evs = commands;
+		}
+	}
+
+	char buf[1024];
+
+	std::lock_guard<std::mutex> lg(context->mutex);
+	for (auto iter : context->clients) {
+		auto client = iter.second;
+		auto output = bufferevent_get_output(client->bev);
+		for (auto e : evs) {
+			size_t n = 0;
+			//if (e == COMMAND_M_EGZ) { // M
+			//	n = client->packet.make_hb(buf, sizeof(buf), client->nextSeq(), client->acct, client->ademco_id,
+			//								userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone);
+			//	evbuffer_add(client.second.output, buf, n);
+			//	if (!disable_data_print) {
+			//		printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
+			//			   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id,
+			//			   context->packet.toString().data());
+			//	}
+			//} else if (e == (COMMAND_C_AEGZ)) { // C
+			//	if (client.second.ademco_id != userInput.ademco_id) {
+			//		continue;
+			//	}
+			//	n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id,
+			//								userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone);
+			//	evbuffer_add(client.second.output, buf, n);
+			//	if (!disable_data_print) {
+			//		printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
+			//			   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id,
+			//			   context->packet.toString().data());
+			//	}
+			//} else if (e == (COMMAND_X_AEGZX)) { // X
+			//	if (client.second.ademco_id != userInput.ademco_id) {
+			//		continue;
+			//	}
+			//	auto xdata = makeXData(userInput.xdata, strlen(userInput.xdata));
+			//	n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id,
+			//								userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone, xdata);
+			//	evbuffer_add(client.second.output, buf, n);
+			//	if (!disable_data_print) {
+			//		printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
+			//			   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id,
+			//			   context->packet.toString().data());
+			//	}
+			//} else if (e == (COMMAND_Y_AEGZX)) { // Y
+			//	if (client.second.ademco_id != userInput.ademco_id) {
+			//		continue;
+			//	}
+			//	std::vector<char> data(strlen(userInput.xdata) / 2);
+			//	ademco::detail::ConvertHiLoAsciiToHexCharArray(&data[0], userInput.xdata, strlen(userInput.xdata));
+			//	auto xdata = makeXData(data);
+			//	n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id,
+			//								userInput.gg, (ADEMCO_EVENT)userInput.ev, userInput.zone, xdata);
+			//	evbuffer_add(client.second.output, buf, n);
+			//	if (!disable_data_print) {
+			//		printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
+			//			   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id,
+			//			   context->packet.toString(ademco::detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+			//	}
+			//} else if (e == COMMAND_Z_QUERY_ZONE) {
+			//	if (client.second.ademco_id != userInput.ademco_id) {
+			//		continue;
+			//	}
+			//	n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id, 0,
+			//								EVENT_ENTER_SET_MODE, 0);
+			//	evbuffer_add(client.second.output, buf, n);
+			//	client.second.zones.clear();
+			//	client.second.queryStage = QueryStage::WaitingSettingsMode;
+			//	if (!disable_data_print) {
+			//		printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
+			//			   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id,
+			//			   context->packet.toString(ademco::detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+			//	}
+
+			//} else if (e == COMMAND_F_QUERY_TIMER) { // F
+			//	if (client.second.ademco_id != userInput.ademco_id) {
+			//		continue;
+			//	}
+			//	n = context->packet.make_hb(buf, sizeof(buf), client.second.nextSeq(), client.second.acct, client.second.ademco_id, 0,
+			//								EVENT_ENTER_SET_MODE, 0);
+			//	evbuffer_add(client.second.output, buf, n);
+			//	client.second.zones.clear();
+			//	client.second.queryStage = QueryStage::WaitingSettingsMode2;
+			//	if (!disable_data_print) {
+			//		printf("T#%d S#%d acct=%s ademco_id=%06X :%s\n",
+			//			   context->worker_id, client.second.fd, client.second.acct.data(), client.second.ademco_id,
+			//			   context->packet.toString(ademco::detail::ToStringOption::ALL_CHAR_AS_HEX).data());
+			//	}
+			//} else 
+			if (client->type == EVENT_I_AM_3_SECTION_MACHINE && (e == EVENT_ARM || e == EVENT_DISARM)) {
+				for (AdemcoGG gg = 1; gg <= 3; gg++) {
+					n = client->packet.make_hb(buf, sizeof(buf), client->nextSeq(), client->acct, client->ademco_id, gg, e, 0);
+					evbuffer_add(output, buf, n);
+					if (print_data) {
+						printf("T#%d C#%d send:%s\n", context->thread_id, client->id,  client->packet.toString().data());
+					}
+				}
+			} else {
+				n = client->packet.make_hb(buf, sizeof(buf), client->nextSeq(), client->acct, client->ademco_id, 0, e, 0);
+				evbuffer_add(output, buf, n);
+				if (print_data) {
+					printf("T#%d C#%d send:%s\n", context->thread_id, client->id, client->packet.toString().data());
+				}
+			}
+		}
+	}
+}
 int main(int argc, char** argv)
 {
 #ifdef _WIN32
@@ -429,7 +643,7 @@ int main(int argc, char** argv)
 		puts("Invalid machine type");
 		usage(argv[0]);
 		return 1;
-	}
+	} 
 	heartbeat_gap = atoi(argv[7]);
 	if (heartbeat_gap <= 0) {
 		puts("Invalid heartbeat_gap");
@@ -477,21 +691,142 @@ int main(int argc, char** argv)
 	sin.sin_port = htons(port);
 
 	std::vector<std::thread> threads;
-	threadContexts = new ThreadContextPtr[thread_count];
+	//threadContexts = new ThreadContextPtr[thread_count];
 
-	for (int i = 1; i < thread_count; i++) {
-		threads.push_back(std::thread([&sin, i, session_per_thread]() {
+	threadContexts.resize(thread_count);
+	for (int i = 0; i < thread_count; i++) {
+		threads.emplace_back(std::thread([&sin, i, session_per_thread]() {
 			auto context = init_thread(i, sin, i * (int)session_per_thread, (int)session_per_thread);
 			event_base_dispatch(context->base);
 		}));
 	}
 
-	auto main_thread_context = init_thread(0, sin, 0, (int)session_per_thread);
-	event_base_dispatch(main_thread_context->base);
+	auto fire_command = []() {
+		struct timeval tv = { 0, 1000 };
+		for (int i = 0; i < thread_count; i++) {
+			event_add(event_new(threadContexts[i]->base, -1, 0, commandcb, threadContexts[i]), &tv);
+		}
+	};
 
-	for (auto& t : threads) {
-		t.join();
+	bool running = true;
+	while (running) {
+		int cmd = getchar();
+		if ('a' <= cmd && cmd <= 'z') {
+			cmd -= 32;
+		}
+
+		switch (cmd) {
+		case 'A':
+			{
+				std::lock_guard<std::mutex> lg(gmutex);
+				commands.push_back(EVENT_ARM);
+				threads_to_handled_event = thread_count;
+			}
+			fire_command();
+			break;
+
+		case 'D':
+			{
+				std::lock_guard<std::mutex> lg(gmutex);
+				commands.push_back(EVENT_DISARM);
+				threads_to_handled_event = thread_count;
+			}
+			fire_command();
+			break;
+
+		case 'E':
+			{
+				std::lock_guard<std::mutex> lg(gmutex);
+				commands.push_back(EVENT_EMERGENCY);
+				threads_to_handled_event = thread_count;
+			}
+			fire_command();
+			break;
+
+		case 'I':
+			{
+				std::vector<Session> copiedClients;
+				for (int i = 0; i < thread_count; i++) {
+					auto context = threadContexts[i];
+					std::lock_guard<std::mutex> lg(context->mutex);
+					for (const auto& client : context->clients) {
+						copiedClients.push_back(*client.second);
+					}
+				}
+				printf("Total connnected %zd clients:\n", copiedClients.size());
+
+				for (const auto& client : copiedClients) {
+					client.printInfo();
+				}
+			}
+			break;
+
+		case 'P':
+			print_data = !print_data;
+			printf("Data print is %s\n", print_data ? "Off" : "On");
+			break;
+
+		case 'Q':
+			{
+				timeval tv{ 0, 1000 };
+				for (int i = 0; i < thread_count; i++) {
+					event_base_loopexit(threadContexts[i]->base, &tv);
+					threads[i].join();
+					printf("worker_thread #%d exited\n", i);
+				}
+				running = false;
+				break;
+			}
+
+		case '\r':
+		case '\n':
+			break;
+
+		default:
+			clear_stdin();
+			printf("Invalid command\n");
+			op_usage();
+			break;
+		}
 	}
 
+	printf("Bye\n");
+
 	return 0;
+}
+
+void Session::printInfo() const
+{
+	if (type == MachineType::ThreeSection) {
+		printf("  T#%d C#%d fd=#%d acct=%s ademco_id=%d type=%s\n",
+			   thread_id, id, fd, acct.data(), ademco_id,
+			   machineTypeToString(type));
+		printf("    status1: %d %s    status2: %d %s    status3: %d %s\n",
+			   (int)status1, machineStatusToString(status1),
+			   (int)status2, machineStatusToString(status2),
+			   (int)status3, machineStatusToString(status3));
+	} else {
+		printf("  T#%d C#%d fd=#%d acct=%s ademco_id=%d type=%s status=%d %s\n",
+			   thread_id, id, fd, acct.data(), ademco_id,
+			   machineTypeToString(type),
+			   (int)status, machineStatusToString(status));
+	}
+	/*for (const auto& zp : zones) {
+		char buf[512];
+		snprintf(buf, sizeof(buf), getZoneFormatString(machineTypeFromAdemcoEvent((ADEMCO_EVENT)type)), zp.first);
+		printf("    Zone:");
+		printf("%s", buf);
+		printf("  Prop:0x%02X %s     \tLost Report Enabled:%s\n",
+			   zp.second.prop, zonePropertyToStringEn(zp.second.prop),
+			   zp.second.lost_report_enabled ? "true" : "false");
+	}
+	for (int i = 0; i < 2; i++) {
+		if (com::isValidMachineTimer(timer.timer[i])) {
+			printf("    Machine Timer#%d: Arm at %02d:%02d, Disarm at %02d:%02d\n", i + 1,
+				   timer.timer[i].armAt.hour, timer.timer[i].armAt.minute,
+				   timer.timer[i].disarmAt.hour, timer.timer[i].disarmAt.minute);
+		} else {
+			printf("    Machine Timer#%d: Not Set\n", i + 1);
+		}
+	}*/
 }
