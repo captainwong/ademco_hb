@@ -157,6 +157,16 @@ void handle_ademco_msg(Session* session, bufferevent* bev)
 	}
 	char buf[1024];
 	auto output = bufferevent_get_output(bev);
+
+	auto ack = [&]() {		
+		AdemcoPacket pkt;
+		auto n = pkt.make_ack(buf, sizeof(buf), session->packet.seq_.value_, session->acct, session->ademco_id);
+		if (print_data) {
+			printf("T#%d C#%d send:%s\n", session->thread_id, session->id, pkt.toString().data());
+		}
+		evbuffer_add(output, buf, n);
+	};
+
 	switch (session->packet.id_.eid_) {
 	case AdemcoMsgId::id_ack:
 		/*if (load_test) {
@@ -175,6 +185,7 @@ void handle_ademco_msg(Session* session, bufferevent* bev)
 			switch (session->packet.ademcoData_.ademco_event_) {
 			case EVENT_WHAT_IS_YOUR_TYPE:
 				{
+					ack();
 					auto n = session->packet.make_hb(buf, sizeof(buf),
 													 session->packet.seq_.value_, session->acct, session->ademco_id, 0,
 													 ademcoEventFromMachineType(session->type), 0);
@@ -206,6 +217,7 @@ void handle_ademco_msg(Session* session, bufferevent* bev)
 						} else if (0 == session->packet.ademcoData_.gg_) {
 							session->status = machineStatusFromAdemcoEvent(session->packet.ademcoData_.ademco_event_);
 						} else { break; }
+						ack();
 						auto n = session->packet.make_hb(buf, sizeof(buf),
 														 session->packet.seq_.value_, session->acct, session->ademco_id,
 														 session->packet.ademcoData_.gg_, session->packet.ademcoData_.ademco_event_, session->packet.ademcoData_.zone_);
@@ -253,6 +265,7 @@ void handle_ademco_msg(Session* session, bufferevent* bev)
 						} else if (0 == session->packet.ademcoData_.gg_) {
 							session->status = MachineStatus::Disarm;
 						} else { break; }
+						ack();
 						auto n = session->packet.make_hb(buf, sizeof(buf),
 														 session->packet.seq_.value_, session->acct, session->ademco_id,
 														 session->packet.ademcoData_.gg_, EVENT_DISARM, session->packet.ademcoData_.zone_);
@@ -273,6 +286,17 @@ void handle_ademco_msg(Session* session, bufferevent* bev)
 						evbuffer_add(output, buf, n);
 					}
 					break;
+				}
+
+			case EVENT_EMERGENCY:
+				{
+					ack();
+					auto n = session->packet.make_hb(buf, sizeof(buf),
+													  session->packet.seq_.value_, session->acct, session->ademco_id, 0, EVENT_EMERGENCY, 0);
+					if (print_data) {
+						printf("T#%d C#%d send:%s\n", session->thread_id, session->id, session->packet.toString().data());
+					}
+					evbuffer_add(output, buf, n);
 				}
 
 			}
@@ -638,7 +662,7 @@ void commandcb(evutil_socket_t, short, void* user_data)
 			//			   context->packet.toString(ademco::detail::ToStringOption::ALL_CHAR_AS_HEX).data());
 			//	}
 			//} else 
-			if (client->type == EVENT_I_AM_3_SECTION_MACHINE && (e == EVENT_ARM || e == EVENT_DISARM)) {
+			if (client->type == MachineType::ThreeSection && (e == EVENT_ARM || e == EVENT_DISARM)) {
 				for (AdemcoGG gg = 1; gg <= 3; gg++) {
 					n = client->packet.make_hb(buf, sizeof(buf), client->nextSeq(), client->acct, client->ademco_id, gg, e, 0);
 					evbuffer_add(output, buf, n);

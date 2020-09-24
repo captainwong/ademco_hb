@@ -371,7 +371,7 @@ void handle_ademco_msg(ThreadContext* context, bufferevent* bev)
 						break;
 					}
 				} else if (ademco::isMachineStatusEvent(context->packet.ademcoData_.ademco_event_)) {
-					auto status = machienStatusFromAdemcoEvent(context->packet.ademcoData_.ademco_event_);
+					auto status = machineStatusFromAdemcoEvent(context->packet.ademcoData_.ademco_event_);
 					if (context->packet.ademcoData_.gg_ == 0) { client.status = status; }
 					else if (context->packet.ademcoData_.gg_ == 1) { client.status1 = status; } 
 					else if (context->packet.ademcoData_.gg_ == 2) { client.status2 = status; } 
