@@ -1050,7 +1050,7 @@ struct AdemcoPacket
 		seq_ = seq;
 		rrcvr_.setDefault(); lpref_.setDefault();
 		acct ? acct_.setAcct(acct) : acct_.setAcct(ademco_id);
-		ademcoData_.make(ademco_id, gg, evnt, zone);
+		(ademco_id == 0 && acct) ? ademcoData_.make(acct, gg, evnt, zone) : ademcoData_.make(ademco_id, gg, evnt, zone);
 		
 		xdata_ = xdata;
 		timestamp_.make();
