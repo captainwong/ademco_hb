@@ -51,6 +51,11 @@ inline bool isValidZoneStrict(AdemcoZone zone) {
 	return ZoneMin <= zone && zone < ZoneSentinel;
 }
 
+//! 三防区主机GG范围 1~3
+constexpr AdemcoGG ggMin4ThreeSectionMachine = 1;
+constexpr AdemcoGG ggMax4ThreeSectionMachine = 3;
+
+
 //! 安定宝数据包 data 段
 struct AdemcoData
 {
