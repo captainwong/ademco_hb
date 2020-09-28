@@ -684,7 +684,7 @@ int main(int argc, char** argv)
 {
 #ifdef _WIN32
 	WSADATA wsa_data;
-	WSAStartup(0x0201, &wsa_data);
+	WSAStartup(0x0202, &wsa_data);
 	if (0 != evthread_use_windows_threads()) {
 		fprintf(stderr, "failed to init libevent with thread by calling evthread_use_windows_threads\n");
 		return -1;
