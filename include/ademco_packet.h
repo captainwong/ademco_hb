@@ -51,10 +51,14 @@ inline bool isValidZoneStrict(AdemcoZone zone) {
 	return ZoneMin <= zone && zone < ZoneSentinel;
 }
 
-//! 三防区主机GG范围 1~3
-constexpr AdemcoGG ggMin4ThreeSectionMachine = 1;
-constexpr AdemcoGG ggMax4ThreeSectionMachine = 3;
+//! 三防区主机状态GG范围 1~3
+constexpr AdemcoGG GGMin4ThreeSectionMachine = 1;
+constexpr AdemcoGG GGMax4ThreeSectionMachine = 3;
 
+//! 是否合法的三防区主机状态GG
+inline bool isValidGG4ThreeSectionMachineStatus(AdemcoGG gg) {
+	return GGMin4ThreeSectionMachine <= gg && gg <= GGMax4ThreeSectionMachine;
+}
 
 //! 安定宝数据包 data 段
 struct AdemcoData
