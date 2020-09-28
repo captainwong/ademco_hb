@@ -19,7 +19,11 @@
 
 ## bench_client
 
-性能测试工具，用法 `bench_client ip port thread_count session_count timeout`。使用 `thread_count` 个线程、发起 `session_count` 个客户端，对 `ip:port` 上运行的接警中心进行性能测试，在 `timeout` 秒后停止并输出测试结果。
+性能测试工具，用法 `bench_client ip port thread_count session_count timeout [print_data]`。使用 `thread_count` 个线程、发起 `session_count` 个客户端，对 `ip:port` 上运行的接警中心进行性能测试，在 `timeout` 秒后停止并输出测试结果, `print_data` 是否启用数据打印。
+
+## bench_client_ex
+
+批量测试工具，用法 `bench_client_ex ip port thread_count session_count acct_base machine_type heartbeat_gap timeout [print_data]`。使用 `thread_count` 个线程、发起 `session_count` 个客户端，客户端主机账号为以 `acct_base` 为基础累加，主机类型为指定的主机类型或指定 `-1` 以随机化类型，对 `ip:port` 上运行的接警中心进行批量测试，连接成功后可以按下 `ADE` 等按键进行模拟主机事件，在 `timeout` 秒后停止运行, `print_data` 是否启用数据打印。
 
 ## ademco_hb
 
