@@ -391,6 +391,18 @@ static inline bool isMachineTypeEvent(ADEMCO_EVENT ademco_event)
 		|| ademco_event == EVENT_I_AM_GPRS_PHONE;
 }
 
+//! 事件是否需要控制源
+static inline bool isEventNeedControlSource(ADEMCO_EVENT ademco_event)
+{
+	return ademco_event == EVENT_ARM
+		|| ademco_event == EVENT_HALFARM
+		|| ademco_event == EVENT_HALFARM_1456
+		|| ademco_event == EVENT_DISARM
+		|| ademco_event == EVENT_EMERGENCY
+		|| ademco_event == EVENT_DURESS
+		|| ademco_event == EVENT_PHONE_USER_CANCLE_ALARM;
+}
+
 // 安定宝事件级别
 enum EventLevel
 {
