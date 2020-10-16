@@ -424,6 +424,7 @@ static XDataPtr makeXData(const std::vector<char>& payload,
 						  XData::LengthFormat lengthFormat = XData::LengthFormat::TWO_HEX, 
 						  XData::DataFormat dataFormat = XData::DataFormat::AS_IS)
 {
+	if (payload.empty()) { return nullptr; }
 	auto xdata = std::make_shared<XData>();
 	xdata->lengthFormat_ = lengthFormat;
 	if (dataFormat == XData::DataFormat::TO_ASCII) {
@@ -463,6 +464,7 @@ static XDataPtr makeXData(const std::vector<char>& payload,
 static XDataPtr makeXData(const char* pack, size_t len, 
 						  XData::LengthFormat lengthFormat = XData::LengthFormat::TWO_HEX,
 						  XData::DataFormat dataFormat = XData::DataFormat::AS_IS) {
+	if (len == 0) { return nullptr; }
 	std::vector<char> data(pack, pack + len);
 	return makeXData(data, lengthFormat, dataFormat);
 }
@@ -470,6 +472,7 @@ static XDataPtr makeXData(const char* pack, size_t len,
 static XDataPtr makeXData(const unsigned char* pack, size_t len,
 						  XData::LengthFormat lengthFormat = XData::LengthFormat::TWO_HEX,
 						  XData::DataFormat dataFormat = XData::DataFormat::AS_IS) {
+	if (len == 0) { return nullptr; }
 	std::vector<char> data((const char*)pack, (const char*)pack + len);
 	return makeXData(data, lengthFormat, dataFormat);
 }
