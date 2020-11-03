@@ -18,6 +18,44 @@
 namespace ademco
 {
 
+typedef uint32_t AdemcoId;
+typedef uint8_t  AdemcoGG;
+typedef uint32_t AdemcoZone;
+
+//! 安定宝ID范围
+constexpr AdemcoId AdemcoIdMin = 1;
+constexpr AdemcoId AdemcoIdMax = 999999; // 兼容性考虑，最大安定宝 ID 为 0x0F423F
+constexpr AdemcoId AdemcoIdSentinel = AdemcoIdMax + 1;
+inline bool isValidAdemcoId(AdemcoId ademcoId) { return AdemcoIdMin <= ademcoId && ademcoId <= AdemcoIdMax; }
+
+//! 防区号为0时表示主机自身
+constexpr AdemcoZone Zone4MachineSelf = 0;
+//! 主机防区号范围
+constexpr AdemcoZone ZoneMin = 1;
+//! 对任何主机类型，最大的防区号
+constexpr AdemcoZone ZoneMax = 999;
+constexpr AdemcoZone ZoneSentinel = ZoneMax + 1;
+
+//! 对任何主机类型，防区号是否合法（可以包含0防区）
+inline bool isValidZone(AdemcoZone zone) {
+	return Zone4MachineSelf <= zone && zone < ZoneSentinel;
+}
+
+//! 对任何主机类型，防区号是否合法（不可以包含0防区）
+inline bool isValidZoneStrict(AdemcoZone zone) {
+	return ZoneMin <= zone && zone < ZoneSentinel;
+}
+
+//! 三防区主机状态GG范围 1~3
+constexpr AdemcoGG GGMin4ThreeSectionMachine = 1;
+constexpr AdemcoGG GGMax4ThreeSectionMachine = 3;
+
+//! 是否合法的三防区主机状态GG
+inline bool isValidGG4ThreeSectionMachineStatus(AdemcoGG gg) {
+	return GGMin4ThreeSectionMachine <= gg && gg <= GGMax4ThreeSectionMachine;
+}
+
+
 //! 安定宝事件代码
 enum ADEMCO_EVENT : uint32_t {
 
