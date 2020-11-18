@@ -30,5 +30,5 @@
 * `Linux/MacOS` 下执行 `build.sh` 编译示例程序，结果放在 `build` 文件夹内。
 * 如需编译 `javademo` 请阅读 [javademo-README.md](examples/javademo-README.md)
 
-## tools 测试及演示工具，已编译的dll等
+## 测试及演示工具，已编译的dll等请点击 [releases](https://github.com/captainwong/ademco_hb/releases)下载
 
