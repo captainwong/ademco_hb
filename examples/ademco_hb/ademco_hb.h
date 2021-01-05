@@ -29,6 +29,20 @@ DLL_FUNC int parse(const char* pack, int pack_len, int* cb_commited);
 DLL_FUNC int pack(char* buff, int buff_len, int seq, int ademco_id, int ademco_event, int zone, int gg);
 
 /*
+* @brief 将远程控制命令打包成网络传输数据
+* @param[in|out] buff 缓冲区
+* @param[in] buff_len 缓冲区长度
+* @param[in] seq 序号
+* @param[in] acct 主机账号
+* @param[in] ademco_id 安定宝ID
+* @param[in] ademco_event 安定宝事件码
+* @param[in] zone 防区号
+* @param[in] gg 分防区号
+* @return 大于0 成功，返回值代表包长；0 buff空间不足
+*/
+DLL_FUNC int pack2(char* buff, int buff_len, int seq, const char* acct, int ademco_id, int ademco_event, int zone, int gg);
+
+/*
 * @brief 打包ACK
 * @param[in|out] buff 缓冲区
 * @param[in] buff_len 缓冲区长度
@@ -37,3 +51,14 @@ DLL_FUNC int pack(char* buff, int buff_len, int seq, int ademco_id, int ademco_e
 * @return 大于0 成功，返回值代表包长；0 buff空间不足
 */
 DLL_FUNC int pack_ack(char* buff, int buff_len, int seq, int ademco_id);
+
+
+/*
+* @brief 打包ACK
+* @param[in|out] buff 缓冲区
+* @param[in] buff_len 缓冲区长度
+* @param[in] seq 序号
+* @param[in] acct 主机账号
+* @return 大于0 成功，返回值代表包长；0 buff空间不足
+*/
+DLL_FUNC int pack_ack2(char* buff, int buff_len, int seq, const char* acct);
