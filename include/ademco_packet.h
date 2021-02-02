@@ -56,15 +56,17 @@ struct AdemcoData
 	}
 
 	void assignAdemcoId(AdemcoId ademco_id) {
+		ademco_id %= AdemcoIdSentinel;
 		char aid[7] = { 0 };
-		snprintf(aid, sizeof(aid), "%06X", static_cast<int>(ademco_id % AdemcoIdSentinel));
+		snprintf(aid, sizeof(aid), "%06X", static_cast<int>(ademco_id));
 		std::copy(aid, aid + 6, std::back_inserter(data_));
 		ademco_id_ = ademco_id;
 	}
 
 	void assignAdemcoEvent(ADEMCO_EVENT ademco_event) {
+		ademco_event = (ADEMCO_EVENT)(ademco_event % AdemcoEventSentinel);
 		char aev[5] = { 0 };
-		snprintf(aev, sizeof(aev), "%04d", static_cast<int>(ademco_event % AdemcoEventSentinel));
+		snprintf(aev, sizeof(aev), "%04d", static_cast<int>(ademco_event));
 		std::copy(aev, aev + 4, std::back_inserter(data_));
 		ademco_event_ = ademco_event;
 	}
@@ -85,8 +87,9 @@ struct AdemcoData
 	}
 
 	void assignZone(AdemcoZone zone) {
+		zone %= ZoneSentinel;
 		char z[4] = { 0 };
-		snprintf(z, sizeof(z), "%03d", static_cast<int>(zone % ZoneSentinel));
+		snprintf(z, sizeof(z), "%03d", static_cast<int>(zone));
 		std::copy(z, z + 3, std::back_inserter(data_));
 		zone_ = zone;
 	}

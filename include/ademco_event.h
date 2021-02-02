@@ -151,13 +151,16 @@ enum ADEMCO_EVENT : uint32_t {
 	EVENT_WHAT_IS_YOUR_TYPE						= 1798, // 索要主机类型
 	EVENT_SIGNAL_STRENGTH_CHANGED				= 1799, // 主机信号强度变化
 
+	// 2021年1月24日17:06:55修改，对标丛文3B0 3B2
+	EVENT_OFFLINE								= 1944, // 主机断线
+	EVENT_ONLINE								= 1946, // 主机上线
+
 	AdemcoEventSentinel							= 10000,
 
 	// -------------------接警中心内部使用事件------------------------------
 	EVENT_PRIVATE_EVENT_BASE					= 0x00010000,
 	EVENT_CLEARMSG,										// 清除报警信息
-	EVENT_OFFLINE,										// 主机断线
-	EVENT_ONLINE,										// 主机上线
+	EVENT_ZONE_CHANGED,									// 防区数量变化
 	EVENT_SUBMACHINECNT,								// 分机数量变化
 	EVENT_MACHINE_INFO_CHANGED,							// 主机信息改变，需要界面刷新
 	EVENT_IM_GONNA_DIE,									// 主机类已析构，通知界面
@@ -318,6 +321,8 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	case EVENT_RESTORE_FACTORY_SETTINGS:			return n_to_s(ademco_event) + "RESTORE_FACTORY_SETTINGS";			
 	case EVENT_WHAT_IS_YOUR_TYPE:					return n_to_s(ademco_event) + "WHAT_IS_YOUR_TYPE";			
 	case EVENT_SIGNAL_STRENGTH_CHANGED:				return n_to_s(ademco_event) + "SIGNAL_STRENGTH_CHANGED";			
+	case EVENT_OFFLINE:								return n_to_s(ademco_event) + "EVENT_OFFLINE";
+	case EVENT_ONLINE:								return n_to_s(ademco_event) + "EVENT_ONLINE";
 	default:			with_event_number = true;	return n_to_s(ademco_event) + "undefined";							
 	}
 }
@@ -399,7 +404,9 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 	case EVENT_RESTORE_FACTORY_SETTINGS_710:
 	case EVENT_RESTORE_FACTORY_SETTINGS:			return n_to_s(ademco_event) + L"主机恢复出厂设置";			
 	case EVENT_WHAT_IS_YOUR_TYPE:					return n_to_s(ademco_event) + L"索要主机类型";				
-	case EVENT_SIGNAL_STRENGTH_CHANGED:				return n_to_s(ademco_event) + L"信号强度变化";				
+	case EVENT_SIGNAL_STRENGTH_CHANGED:				return n_to_s(ademco_event) + L"信号强度变化";
+	case EVENT_OFFLINE:								return n_to_s(ademco_event) + L"上线";
+	case EVENT_ONLINE:								return n_to_s(ademco_event) + L"离线";
 	default:			with_event_number = true;	return n_to_s(ademco_event) + L"未定义";						
 	}
 }

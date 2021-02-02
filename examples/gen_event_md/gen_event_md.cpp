@@ -115,6 +115,9 @@ ADEMCO_EVENT privateEvents[] = {
 
 	EVENT_WHAT_IS_YOUR_TYPE,
 	EVENT_SIGNAL_STRENGTH_CHANGED,
+
+	EVENT_OFFLINE,
+	EVENT_ONLINE,
 };
 
 void printEvents(const ADEMCO_EVENT* events, size_t len)
