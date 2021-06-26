@@ -238,8 +238,8 @@ void print_machineTypes()
 
 	printf("*SMS指主机自身是否可以拨打电话、发送短信，不是指通过阿里语音打电话*\n");
 
-	printf("|事件码类型|主机类型|半布防|信号强度|防区|有线防区|SMS|内核|网络|型号|\n"
-		   "|---------|-------|------|-------|----|-------|---|---|---|----|\n");
+	printf("|事件码类型|主机类型|布防|撤防|半布防|设置|信号强度|防区|有线防区|SMS|内核|网络|型号|\n"
+		   "|---------|-------|----|----|-----|----|-------|----|-------|---|----|---|----|\n");
 
 	for (auto e : AdemcoEvents) {
 		if (isMachineTypeEvent(e)) {
@@ -248,7 +248,10 @@ void print_machineTypes()
 
 			printf("|%04d %s", (int)e, jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(e, false)).data());
 			printf("|%s", jlib::win32::utf16_to_mbcs(machineTypeToWString(t)).data());
+			printf("|%s", print_bool(machineCanArm(t)));
+			printf("|%s", print_bool(machineCanDisarm(t)));
 			printf("|%s", print_bool(machineCanHalfArm(t)));
+			printf("|%s", print_bool(machineCanEnterSettings(t)));
 			printf("|%s", print_bool(machineCanReportSignalStrength(t)));
 			printf("|1~%d", zoneMax(t));
 			if (machineHasWiredZone(t)) {

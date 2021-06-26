@@ -194,6 +194,36 @@ static bool isValidZoneStrict(MachineType type, uint16_t zone) {
 	return ademco::ZoneMin <= zone && zone <= zoneMax(type);
 }
 
+//! 主机是否已投产使用
+static bool machineIsSelling(MachineType type) {
+	return type == MachineType::NetMod
+		|| type == MachineType::Gprs
+		|| type == MachineType::Gprs_IoT
+		|| type == MachineType::IoT
+		|| type == MachineType::Lcd
+		|| type == MachineType::Wired
+		|| type == MachineType::TrueColor
+		|| type == MachineType::ThreeSection
+		|| type == MachineType::Gprs_Phone
+		|| type == MachineType::Nb
+		;
+}
+
+//! 主机是否具有布防功能
+static bool machineCanArm(MachineType type) {
+	return machineIsSelling(type) && (type != MachineType::Nb);
+}
+
+//! 主机是否具有撤防功能
+static bool machineCanDisarm(MachineType type) {
+	return machineIsSelling(type) && (type != MachineType::Nb);
+}
+
+//! 主机是否可以进入设置状态
+static bool machineCanEnterSettings(MachineType type) {
+	return machineIsSelling(type) && (type != MachineType::Nb);
+}
+
 //! 主机是否具有半布防功能
 static bool machineCanHalfArm(MachineType type) {
 	return type == MachineType::NetMod
@@ -222,21 +252,6 @@ static bool machineCanReportBySMS(MachineType type) {
 		|| type == MachineType::ThreeSection
 		|| type == MachineType::Gprs_Phone
 
-		;
-}
-
-//! 主机是否已投产使用
-static bool machineIsSelling(MachineType type) {
-	return type == MachineType::NetMod
-		|| type == MachineType::Gprs
-		|| type == MachineType::Gprs_IoT
-		|| type == MachineType::IoT
-		|| type == MachineType::Lcd
-		|| type == MachineType::Wired
-		|| type == MachineType::TrueColor
-		|| type == MachineType::ThreeSection
-		|| type == MachineType::Gprs_Phone
-		|| type == MachineType::Nb
 		;
 }
 
