@@ -22,4 +22,7 @@
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\server_demo_libevent\server_demo_libevent.cpp" />
+  </ItemGroup>
 </Project>

@@ -417,7 +417,7 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 #endif
 
 //! 是否主机状态事件
-static inline bool isMachineStatusEvent(ADEMCO_EVENT ademco_event)
+inline bool isMachineStatusEvent(ADEMCO_EVENT ademco_event)
 {
 	return ademco_event == EVENT_ARM
 		|| ademco_event == EVENT_HALFARM
@@ -426,7 +426,7 @@ static inline bool isMachineStatusEvent(ADEMCO_EVENT ademco_event)
 }
 
 //! 是否主机类型事件
-static inline bool isMachineTypeEvent(ADEMCO_EVENT ademco_event)
+inline bool isMachineTypeEvent(ADEMCO_EVENT ademco_event)
 {
 	return ademco_event == EVENT_I_AM_NET_MODULE
 		|| ademco_event == EVENT_I_AM_GPRS
@@ -442,7 +442,7 @@ static inline bool isMachineTypeEvent(ADEMCO_EVENT ademco_event)
 }
 
 //! 事件是否需要控制源
-static inline bool isEventNeedControlSource(ADEMCO_EVENT ademco_event)
+inline bool isEventNeedControlSource(ADEMCO_EVENT ademco_event)
 {
 	return ademco_event == EVENT_ARM
 		|| ademco_event == EVENT_HALFARM

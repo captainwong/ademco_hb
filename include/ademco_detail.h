@@ -42,7 +42,7 @@ namespace ademco
 
 // for crossplatform
 #ifndef __GNUG__
-static inline int localtime_r(time_t* t, struct tm* tm_time) {
+inline int localtime_r(time_t* t, struct tm* tm_time) {
 	return localtime_s(tm_time, t);
 }
 
@@ -58,7 +58,7 @@ namespace detail
 * @param crc 初始crc值
 * @return crc16
 */
-static unsigned short CalculateCRC_char(char c, unsigned short crc)
+inline unsigned short CalculateCRC_char(char c, unsigned short crc)
 {
 	static constexpr unsigned short crcTable[] = {
 		/* DEFINE THE FIRST ORDER POLYINOMIAL TABLE */
@@ -109,7 +109,7 @@ static unsigned short CalculateCRC_char(char c, unsigned short crc)
 * @param crc 初始crc值
 * @return crc16
 */
-static unsigned short CalculateCRC(const char* buff, size_t len, unsigned short crc = 0)
+inline unsigned short CalculateCRC(const char* buff, size_t len, unsigned short crc = 0)
 {
 	unsigned short CRC = crc;
 	for (size_t i = 0; i < len; ++i) {
@@ -125,7 +125,7 @@ static unsigned short CalculateCRC(const char* buff, size_t len, unsigned short 
 * @param crc 初始crc值
 * @return crc16
 */
-static unsigned short CalculateCRC(const std::vector<char>& a, unsigned short crc)
+inline unsigned short CalculateCRC(const std::vector<char>& a, unsigned short crc)
 {
 	unsigned short CRC = crc;
 	for (auto c : a) {
@@ -140,7 +140,7 @@ static unsigned short CalculateCRC(const std::vector<char>& a, unsigned short cr
 * @return 字节表示的十进制数字
 * @note 示例：'f' 返回十进制数字15
 */
-static char HexChar2Dec(char hex)
+inline char HexChar2Dec(char hex)
 {
 	if (hex >= '0' && hex <= '9')
 		return static_cast<char>(hex - '0');
@@ -165,7 +165,7 @@ static char HexChar2Dec(char hex)
 * @note 示例: 字符串"FF"返回十进制数字255
 * @note 仅用于安定宝数据包内的16进制字符串解析，长度较小，返回的十进制数字不能超过size_t范围
 */
-static size_t HexCharArrayToDec(const char* hex, size_t len)
+inline size_t HexCharArrayToDec(const char* hex, size_t len)
 {
 	size_t dec = 0;
 	for (size_t i = 0; i < len; i++) {
@@ -182,7 +182,7 @@ static size_t HexCharArrayToDec(const char* hex, size_t len)
 * @note 示例: 字符串"99"返回十进制数字99
 * @note 仅用于安定宝数据包内的16进制字符串解析，长度较小，返回的十进制数字不能超过size_t范围
 */
-static size_t NumCharArray2Dec(const char* str, size_t str_len)
+inline size_t NumCharArray2Dec(const char* str, size_t str_len)
 {
 	size_t dec = 0;
 	for (size_t i = 0; i < str_len; i++) {
@@ -197,7 +197,7 @@ static size_t NumCharArray2Dec(const char* str, size_t str_len)
 * @return 十六进制字节，大写
 * @note 示例: 数字10 返回字节 'A'
 */
-static char Dec2Hex(char d)
+inline char Dec2Hex(char d)
 {
 	if (0 <= d && d <= 9) {
 		return static_cast<char>((unsigned char)d + (unsigned char)'0');
@@ -218,7 +218,7 @@ static char Dec2Hex(char d)
 * @mask 掩码 扫描到掩码后立即停止
 * @note 示例：输入数组：0x18 0x24 0x08 0x88 0x10 0x1f，以0x0F为掩码，输出字符串"18240888101"
 */
-static const char* HexCharArrayToStr(char* dst, const char* hex, size_t len, unsigned char mask = (unsigned char)0x0F)
+inline const char* HexCharArrayToStr(char* dst, const char* hex, size_t len, unsigned char mask = (unsigned char)0x0F)
 {
 	//AUTO_LOG_FUNCTION;
 	//jlib::dump_hex(hex, len, spdlog::level::debug);
@@ -249,7 +249,7 @@ static const char* HexCharArrayToStr(char* dst, const char* hex, size_t len, uns
 * @param bMax0FFF 输入的数字是否有最大值 0x0FFF
 * @note 示例：输入 256， 其hex为 0x0100, 输出 "0100"
 */
-static void Dec2HexCharArray_4(size_t dec, char* hex, bool bMax0FFF = true)
+inline void Dec2HexCharArray_4(size_t dec, char* hex, bool bMax0FFF = true)
 {
 	if (dec < 0) {
 		JLOG_ERRO("Dec2HexCharArray_4: 0LLL can't be negative.");
@@ -275,7 +275,7 @@ static void Dec2HexCharArray_4(size_t dec, char* hex, bool bMax0FFF = true)
 * @note 当字符串转换后长度若不足max_hex_len则补 0x0F
 * @note 示例：输入 "18240888101"，max_hex_len为9，输出 0x18 0x24 0x08 0x88 0x10 0x1f 0xff 0xff 0xff
 */
-static void NumStr2HexCharArray_N(const char* str, char* hexarr, size_t max_hex_len = 9)
+inline void NumStr2HexCharArray_N(const char* str, char* hexarr, size_t max_hex_len = 9)
 {
 	//AUTO_LOG_FUNCTION;
 	if (str == nullptr) {
@@ -322,7 +322,7 @@ static void NumStr2HexCharArray_N(const char* str, char* hexarr, size_t max_hex_
 * @param len 字符串长度
 * @note 起因是钱工的GPRS模块无法传输hex，只能传输ascii字节
 */
-static void ConvertHiLoAsciiToHexCharArray(char* dst, const char* src, size_t len)
+inline void ConvertHiLoAsciiToHexCharArray(char* dst, const char* src, size_t len)
 {
 	for (size_t i = 0; i < len; i++) {
 		if (!isxdigit((int)(unsigned char)src[i])) {
@@ -359,7 +359,7 @@ enum class ToStringOption
 * @param show_space_between_hex 在 hex 之间插入空格
 * @return std::string
 */
-static std::string toString(const char* data, size_t len, // 数据
+inline std::string toString(const char* data, size_t len, // 数据
 							ToStringOption option = ToStringOption::TRY_IS_ALNUM_FIRST, // 选项
 							bool show_x_for_hex = true,	// 为 hex 显示 \x
 							bool show_space_between_hex = false) // 在 hex 之间插入空格
@@ -387,7 +387,7 @@ static std::string toString(const char* data, size_t len, // 数据
 * @param show_space_between_hex 在 hex 之间插入空格
 * @return std::string
 */
-static std::string toString(const std::vector<char>& data, // 数据
+inline std::string toString(const std::vector<char>& data, // 数据
 							ToStringOption option = ToStringOption::TRY_IS_ALNUM_FIRST, // 选项
 							bool show_x_for_hex = true,	// 为 hex 显示 \x
 							bool show_space_between_hex = false) // 在 hex 之间插入空格

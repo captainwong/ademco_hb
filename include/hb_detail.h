@@ -65,7 +65,7 @@ enum class MachineStatus : Char {
 	InvalidMachineStatus = 0xFF,
 };
 
-static MachineStatus machineStatusFromChar(Char s) {
+inline MachineStatus machineStatusFromChar(Char s) {
 	if (static_cast<Char>(MachineStatus::Arm) <= s
 		&& s < static_cast<Char>(MachineStatus::MachineStatusCount))
 	{
@@ -75,7 +75,7 @@ static MachineStatus machineStatusFromChar(Char s) {
 }
 
 #ifdef ENABLE_COMMON_MACHINE_STATUS_TO_STRING
-static const char* machineStatusToString(MachineStatus status) {
+inline const char* machineStatusToString(MachineStatus status) {
 	switch (status) {
 	case MachineStatus::Arm:	return "Arm";
 	case MachineStatus::HalfArm:return "HalfArm";
@@ -85,7 +85,7 @@ static const char* machineStatusToString(MachineStatus status) {
 	}
 }
 
-static const wchar_t* machineStatusToWString(MachineStatus status) {
+inline const wchar_t* machineStatusToWString(MachineStatus status) {
 	switch (status) {
 	case MachineStatus::Arm:	return L"布防";
 	case MachineStatus::HalfArm:return L"半布防";
@@ -127,7 +127,7 @@ enum MachineType : Char {
 	InvalidMachineType = 0xFF,
 };
 
-static MachineType machineTypeFromChar(Char t) {
+inline MachineType machineTypeFromChar(Char t) {
 	if (static_cast<Char>(MachineType::WiFi) <= t
 		&& t < static_cast<Char>(MachineType::MachineTypeCount))
 	{
@@ -152,7 +152,7 @@ static constexpr MachineType AllMachineTypes[MachineTypeCount] = {
 };
 
 //! 最大防区号根据型号不同而不同
-static uint16_t zoneMax(MachineType type) {
+inline uint16_t zoneMax(MachineType type) {
 	switch (type) {
 	case MachineType::Gprs_IoT:
 	case MachineType::Gprs: 
@@ -185,17 +185,17 @@ static uint16_t zoneMax(MachineType type) {
 }
 
 //! 防区号是否合法（可以包含0防区）
-static bool isValidZone(MachineType type, uint16_t zone) {
+inline bool isValidZone(MachineType type, uint16_t zone) {
 	return ademco::Zone4MachineSelf <= zone && zone <= zoneMax(type);
 }
 
 //! 防区号是否合法（不可以可以包含0防区）
-static bool isValidZoneStrict(MachineType type, uint16_t zone) {
+inline bool isValidZoneStrict(MachineType type, uint16_t zone) {
 	return ademco::ZoneMin <= zone && zone <= zoneMax(type);
 }
 
 //! 主机是否已投产使用
-static bool machineIsSelling(MachineType type) {
+inline bool machineIsSelling(MachineType type) {
 	return type == MachineType::NetMod
 		|| type == MachineType::Gprs
 		|| type == MachineType::Gprs_IoT
@@ -210,29 +210,29 @@ static bool machineIsSelling(MachineType type) {
 }
 
 //! 主机是否具有布防功能
-static bool machineCanArm(MachineType type) {
+inline bool machineCanArm(MachineType type) {
 	return machineIsSelling(type) && (type != MachineType::Nb);
 }
 
 //! 主机是否具有撤防功能
-static bool machineCanDisarm(MachineType type) {
+inline bool machineCanDisarm(MachineType type) {
 	return machineIsSelling(type) && (type != MachineType::Nb);
 }
 
 //! 主机是否可以进入设置状态
-static bool machineCanEnterSettings(MachineType type) {
+inline bool machineCanEnterSettings(MachineType type) {
 	return machineIsSelling(type);
 }
 
 //! 主机是否具有半布防功能
-static bool machineCanHalfArm(MachineType type) {
+inline bool machineCanHalfArm(MachineType type) {
 	return type == MachineType::NetMod
 		|| type == MachineType::Lcd
 		;
 }
 
 //! 主机是否可以报告信号强度
-static bool machineCanReportSignalStrength(MachineType type) {
+inline bool machineCanReportSignalStrength(MachineType type) {
 	return type == MachineType::Gprs
 		|| type == MachineType::Gprs_IoT
 		|| type == MachineType::IoT
@@ -245,7 +245,7 @@ static bool machineCanReportSignalStrength(MachineType type) {
 }
 
 //! 主机本身是否可以短信报警（不算通过服务如阿里语音等）
-static bool machineCanReportBySMS(MachineType type) {
+inline bool machineCanReportBySMS(MachineType type) {
 	return type == MachineType::Gprs
 		|| type == MachineType::Lcd
 		|| type == MachineType::TrueColor
@@ -256,14 +256,14 @@ static bool machineCanReportBySMS(MachineType type) {
 }
 
 //! 主机是否支持有线防区
-static bool machineHasWiredZone(MachineType type) {
+inline bool machineHasWiredZone(MachineType type) {
 	return type == MachineType::NetMod
 		|| type == MachineType::TrueColor
 		|| type == MachineType::ThreeSection;
 }
 
 //! 主机最小有线防区号
-static ademco::AdemcoZone wiredZoneMin(MachineType type) {
+inline ademco::AdemcoZone wiredZoneMin(MachineType type) {
 	switch (type) {
 	case hb::common::NetMod: return 1;
 
@@ -294,7 +294,7 @@ static ademco::AdemcoZone wiredZoneMin(MachineType type) {
 }
 
 //! 主机最大有线防区号
-static ademco::AdemcoZone wiredZoneMax(MachineType type) {
+inline ademco::AdemcoZone wiredZoneMax(MachineType type) {
 	switch (type) {
 	case hb::common::Gprs_IoT:
 		break;
@@ -326,17 +326,17 @@ static ademco::AdemcoZone wiredZoneMax(MachineType type) {
 }
 
 //! 主机是否可以直接写入防区数据（无需对码）
-static bool machineCanDirectlyWriteZone(MachineType type) {
+inline bool machineCanDirectlyWriteZone(MachineType type) {
 	return type == MachineType::NetMod;
 }
 
 //! 主机是否可以挂载分机
-static bool machineCanLinkSubMachine(MachineType type) {
+inline bool machineCanLinkSubMachine(MachineType type) {
 	return type == MachineType::NetMod;
 }
 
 #ifdef ENABLE_COMMON_MACHINE_TYPE_TO_STRING
-static const char* machineTypeToString(MachineType type) {
+inline const char* machineTypeToString(MachineType type) {
 	switch (type) {
 	case MachineType::WiFi:			return "0 WiFi";
 	case MachineType::Camera:		return "1 Camera";
@@ -354,7 +354,7 @@ static const char* machineTypeToString(MachineType type) {
 	}
 }
 
-static const wchar_t* machineTypeToWString(MachineType type) {
+inline const wchar_t* machineTypeToWString(MachineType type) {
 	switch (type) {
 	case MachineType::WiFi:			return L"0 WiFi主机";
 	case MachineType::Camera:		return L"1 摄像头主机";
@@ -415,7 +415,7 @@ enum ZoneProperty : Char {
 	InvalidZoneProperty = 0xFF,
 };
 
-static ZoneProperty zonePropertyFromChar(Char zp) {
+inline ZoneProperty zonePropertyFromChar(Char zp) {
 	if (ZoneProperty::Buglar <= zp && zp < ZoneProperty::ZonePropertyCount)
 	{ return static_cast<ZoneProperty>(zp); }
 	return ZoneProperty::InvalidZoneProperty;
@@ -423,7 +423,7 @@ static ZoneProperty zonePropertyFromChar(Char zp) {
 
 //! 根据防区属性判断是否支持失联报告
 //! 失联报告是主机侧实现的跟防区属性没关系，但是人为限制了只有以下属性的才可以设置
-static bool zonePropCanReportLost(ZoneProperty zp) {
+inline bool zonePropCanReportLost(ZoneProperty zp) {
 	switch (zp) {
 	case hb::common::Buglar: 
 	case hb::common::Emergency:
@@ -437,11 +437,11 @@ static bool zonePropCanReportLost(ZoneProperty zp) {
 	}
 }
 
-static std::vector<ZoneProperty> getAvailableZoneProperties() {
+inline std::vector<ZoneProperty> getAvailableZoneProperties() {
 	return { Buglar, Emergency, Fire, Duress, Gas, Water, SubMachine, RemoteControl, BuglarHalf, Shield, DoorRing, Bypass };
 }
 
-static std::vector<ZoneProperty> getAvailableZoneProperties(MachineType type) {
+inline std::vector<ZoneProperty> getAvailableZoneProperties(MachineType type) {
 	switch (type) {
 	case hb::common::WiFi:
 		break;
@@ -471,7 +471,7 @@ static std::vector<ZoneProperty> getAvailableZoneProperties(MachineType type) {
 }
 
 #ifdef ENABLE_COMMON_ZONE_PROPERTY_TO_STRING
-static const wchar_t* zonePropertyToStringChinese(ZoneProperty zp) {
+inline const wchar_t* zonePropertyToStringChinese(ZoneProperty zp) {
 	switch (zp) {
 	case ZoneProperty::Buglar:			return L"匪警全局";
 	case ZoneProperty::Emergency:		return L"匪警紧急";
@@ -493,7 +493,8 @@ static const wchar_t* zonePropertyToStringChinese(ZoneProperty zp) {
 	default:							return L"无效属性";
 	}
 }
-static const char* zonePropertyToStringEn(ZoneProperty zp) {
+
+inline const char* zonePropertyToStringEn(ZoneProperty zp) {
 	switch (zp) {
 	case ZoneProperty::Buglar:			return "Buglar";
 	case ZoneProperty::Emergency:		return "Emergency";
@@ -784,7 +785,7 @@ union MachineTimer {
 	MachineTimer() { memset(data, 0xFF, 8); }
 };
 static_assert(sizeof(MachineTimer) == 8, "sizeof(MachineTimer) must be 8");
-static inline bool isValidMachineTimer(const Timer& t) {
+inline bool isValidMachineTimer(const Timer& t) {
 	return 0 <= t.armAt.hour && t.armAt.hour < 24 &&
 		0 <= t.armAt.minute && t.armAt.minute < 60 && 
 		0 <= t.disarmAt.hour && t.disarmAt.hour < 24 &&
@@ -1248,20 +1249,20 @@ enum Key : Char {
 typedef std::vector<Key> Keys;
 
 //! 用于将Key的值Char转为Key，不特殊处理Key_0
-static Key keyFromChar(Char c) {
+inline Key keyFromChar(Char c) {
 	if ((Key_1 <= c && c <= Key_STOP_SOUND) || (c == Key_STOP_ALARM)) {
 		return static_cast<Key>(c);
 	}return Key_NULL;
 }
 
 //! 将 0~9转换为Key，特殊处理Key_0
-static Key keyFromNumber(int i) {
+inline Key keyFromNumber(int i) {
 	if (i == 0) { return Key_0; }
 	else if (1 <= i && i <= 9) { return static_cast<Key>(i); }
 	else { return Key_NULL; }
 }
 
-static char keyToPrintableChar(Key key) {
+inline char keyToPrintableChar(Key key) {
 	switch (key) {
 	case Key_1: case Key_2: case Key_3:  
 	case Key_4: case Key_5: 
@@ -1816,7 +1817,7 @@ enum ZoneType : Char {
 	ZT_INVALID		= 0xFF,
 };
 
-static ZoneType zoneTypeFromChar(Char c) {
+inline ZoneType zoneTypeFromChar(Char c) {
 	switch (c) {
 	case ZT_ZONE:				return ZT_ZONE;
 	case ZT_SUBMACHINE:			return ZT_SUBMACHINE;
@@ -1850,7 +1851,7 @@ enum ZoneProperty : Char {
 	ZP_INVALID		= 0xFF,
 };
 
-static ZoneProperty zonePropertyFromChar(Char c) {
+inline ZoneProperty zonePropertyFromChar(Char c) {
 	switch (c) {
 	case ZP_GLOBAL:				return ZP_GLOBAL;
 	case ZP_HALF:				return ZP_HALF;
@@ -1866,7 +1867,7 @@ static ZoneProperty zonePropertyFromChar(Char c) {
 }
 
 #ifdef ENABLE_OLD_ZONE_PROPERTY_TO_STRING
-static const wchar_t* zonePropertyToString(ZoneProperty zp) {
+inline const wchar_t* zonePropertyToString(ZoneProperty zp) {
 	switch (zp) {
 	case ZP_GLOBAL:				return L"全局盗警";
 	case ZP_HALF:				return L"半局盗警";

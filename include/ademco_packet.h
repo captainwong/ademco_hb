@@ -385,7 +385,7 @@ inline bool operator==(const XDataPtr& lhs, const XDataPtr& rhs)
 }
 
 //! 生成xdata
-static XDataPtr makeXData(const std::vector<char>& payload, 
+inline XDataPtr makeXData(const std::vector<char>& payload,
 						  XData::LengthFormat lengthFormat = XData::LengthFormat::TWO_HEX, 
 						  XData::DataFormat dataFormat = XData::DataFormat::AS_IS)
 {
@@ -426,7 +426,7 @@ static XDataPtr makeXData(const std::vector<char>& payload,
 	return xdata;
 }
 
-static XDataPtr makeXData(const char* pack, size_t len, 
+inline XDataPtr makeXData(const char* pack, size_t len,
 						  XData::LengthFormat lengthFormat = XData::LengthFormat::TWO_HEX,
 						  XData::DataFormat dataFormat = XData::DataFormat::AS_IS) {
 	if (len == 0) { return nullptr; }
@@ -434,7 +434,7 @@ static XDataPtr makeXData(const char* pack, size_t len,
 	return makeXData(data, lengthFormat, dataFormat);
 }
 
-static XDataPtr makeXData(const unsigned char* pack, size_t len,
+inline XDataPtr makeXData(const unsigned char* pack, size_t len,
 						  XData::LengthFormat lengthFormat = XData::LengthFormat::TWO_HEX,
 						  XData::DataFormat dataFormat = XData::DataFormat::AS_IS) {
 	if (len == 0) { return nullptr; }
@@ -442,7 +442,7 @@ static XDataPtr makeXData(const unsigned char* pack, size_t len,
 	return makeXData(data, lengthFormat, dataFormat);
 }
 
-static XDataPtr parseXData(const char* pack, const char* pack_end)
+inline XDataPtr parseXData(const char* pack, const char* pack_end)
 {
 	XDataPtr xdata;
 
@@ -488,7 +488,7 @@ static XDataPtr parseXData(const char* pack, const char* pack_end)
 	return xdata;
 } // parseXData
 
-static std::string xdataToString(const XDataPtr& xdata, detail::ToStringOption option = detail::ToStringOption::TRY_IS_ALNUM_FIRST) {
+inline std::string xdataToString(const XDataPtr& xdata, detail::ToStringOption option = detail::ToStringOption::TRY_IS_ALNUM_FIRST) {
 	std::string str;
 	if (!xdata) { return str; }
 
