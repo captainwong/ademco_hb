@@ -120,6 +120,8 @@ enum MachineType : Char {
 	IoT			= 9,
 	//! GPRS主机可以打电话 [ HB-2050 ]
 	Gprs_Phone  = 10,
+	//! NB报警接收主机
+	Nb			= 11,
 
 	MachineTypeCount,
 	InvalidMachineType = 0xFF,
@@ -146,6 +148,7 @@ static constexpr MachineType AllMachineTypes[MachineTypeCount] = {
 	ThreeSection,
 	IoT,
 	Gprs_Phone,
+	Nb,
 };
 
 //! 最大防区号根据型号不同而不同
@@ -157,6 +160,7 @@ static uint16_t zoneMax(MachineType type) {
 		return 99;
 
 	case MachineType::NetMod: 
+	case MachineType::Nb:
 		return 999;
 
 	case MachineType::Lcd: 
@@ -206,6 +210,7 @@ static bool machineCanReportSignalStrength(MachineType type) {
 		|| type == MachineType::TrueColor
 		|| type == MachineType::ThreeSection
 		|| type == MachineType::Gprs_Phone
+		|| type == MachineType::Nb
 		;
 }
 
@@ -216,6 +221,7 @@ static bool machineCanReportBySMS(MachineType type) {
 		|| type == MachineType::TrueColor
 		|| type == MachineType::ThreeSection
 		|| type == MachineType::Gprs_Phone
+
 		;
 }
 
@@ -230,6 +236,7 @@ static bool machineIsSelling(MachineType type) {
 		|| type == MachineType::TrueColor
 		|| type == MachineType::ThreeSection
 		|| type == MachineType::Gprs_Phone
+		|| type == MachineType::Nb
 		;
 }
 
@@ -327,6 +334,7 @@ static const char* machineTypeToString(MachineType type) {
 	case MachineType::ThreeSection:	return "8 ThreeSection";
 	case MachineType::IoT:			return "9 IoT";
 	case MachineType::Gprs_Phone:	return "10 Gprs_Phone";
+	case MachineType::Nb:			return "11 Nb";
 	default:						return "Unknown MachineType";
 	}
 }
@@ -344,6 +352,7 @@ static const wchar_t* machineTypeToWString(MachineType type) {
 	case MachineType::ThreeSection:	return L"8 三区段主机";
 	case MachineType::IoT:			return L"9 物联卡主机";
 	case MachineType::Gprs_Phone:	return L"10 GPRS主机能打电话";
+	case MachineType::Nb:			return L"11 NB报警接收主机";
 	default:						return L"未知主机";
 	}
 }
@@ -440,6 +449,8 @@ static std::vector<ZoneProperty> getAvailableZoneProperties(MachineType type) {
 		return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, Shield, DoorRing, Bypass };
 	case hb::common::Gprs_Phone:
 		return { Buglar, Emergency, Fire, Duress, Gas, Water, RemoteControl, };
+	case hb::common::Nb:
+		return { Buglar, Emergency, Fire, Duress, Gas, Water, DoorRing, };
 	}	
 	return {};
 }

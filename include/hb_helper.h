@@ -20,6 +20,7 @@ static common::MachineType machineTypeFromAdemcoEvent(ademco::ADEMCO_EVENT e) {
 	case ademco::EVENT_I_AM_TRUE_COLOR:			return common::MachineType::TrueColor;
 	case ademco::EVENT_I_AM_GPRS_IOT:			return common::MachineType::Gprs_IoT;
 	case ademco::EVENT_I_AM_GPRS_PHONE:			return common::MachineType::Gprs_Phone;
+	case ademco::EVENT_I_AM_NB_MACHINE:			return common::MachineType::Nb;
 	default: 								    return common::MachineType::InvalidMachineType;
 	}
 }
@@ -38,6 +39,7 @@ static ademco::ADEMCO_EVENT ademcoEventFromMachineType(common::MachineType type)
 	case common::MachineType::ThreeSection: 	return ademco::EVENT_I_AM_3_SECTION_MACHINE;
 	case common::MachineType::IoT:				return ademco::EVENT_I_AM_IOT_MACHINE;
 	case common::MachineType::Gprs_Phone:		return ademco::EVENT_I_AM_GPRS_PHONE;
+	case common::MachineType::Nb:				return ademco::EVENT_I_AM_NB_MACHINE;
 	default: 						            return ademco::EVENT_INVALID_EVENT;
 	}
 }

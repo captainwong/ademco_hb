@@ -134,6 +134,7 @@ enum ADEMCO_EVENT : uint32_t {
 	EVENT_I_AM_TRUE_COLOR						= 1777, // 主机类型--真彩主机
 	EVENT_I_AM_GPRS_IOT							= 1787, // 主机类型--物联卡主机
 	EVENT_I_AM_GPRS_PHONE						= 1797, // 主机类型--GRPS主机带电话功能
+	EVENT_I_AM_NB_MACHINE						= 1807, // 主机类型--NB报警接收主机
 
 	EVENT_PHONE_USER_SOS						= 1709, // 手机用户SOS
 	EVENT_PHONE_USER_CANCLE_ALARM				= 1711, // 手机用户消警
@@ -232,6 +233,7 @@ static constexpr ADEMCO_EVENT AdemcoEvents[] = {
 	EVENT_I_AM_TRUE_COLOR,
 	EVENT_I_AM_GPRS_IOT,
 	EVENT_I_AM_GPRS_PHONE,
+	EVENT_I_AM_NB_MACHINE,
 
 	EVENT_SIM_IS_IOT_CARD,
 	EVENT_SIM_IS_IOT_PLATFORM_CARD,
@@ -312,6 +314,7 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	case EVENT_I_AM_TRUE_COLOR:						return n_to_s(ademco_event) + "I_AM_TRUE_COLOR";
 	case EVENT_I_AM_GPRS_IOT:						return n_to_s(ademco_event) + "I_AM_GPRS_IOT";
 	case EVENT_I_AM_GPRS_PHONE:						return n_to_s(ademco_event) + "I_AM_GPRS_PHONE";
+	case EVENT_I_AM_NB_MACHINE:						return n_to_s(ademco_event) + "EVENT_I_AM_NB_MACHINE";
 	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + "SIM card is IOT";			
 	case EVENT_SIM_IS_IOT_PLATFORM_CARD:			return n_to_s(ademco_event) + "SIM card is Platform IOT";				
 	case EVENT_SIM_IS_NOT_IOT_CARD:					return n_to_s(ademco_event) + "SIM card is not IOT";				
@@ -396,6 +399,7 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 	case EVENT_I_AM_TRUE_COLOR:						return n_to_s(ademco_event) + L"我是真彩主机";
 	case EVENT_I_AM_GPRS_IOT:						return n_to_s(ademco_event) + L"我是简化版物联卡主机";
 	case EVENT_I_AM_GPRS_PHONE:						return n_to_s(ademco_event) + L"我是GPRS主机能打电话";
+	case EVENT_I_AM_NB_MACHINE:						return n_to_s(ademco_event) + L"我是NB报警接收主机";
 	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + L"SIM卡为物联卡";	
 	case EVENT_SIM_IS_IOT_PLATFORM_CARD:			return n_to_s(ademco_event) + L"SIM卡为平台物联卡";				
 	case EVENT_SIM_IS_NOT_IOT_CARD:					return n_to_s(ademco_event) + L"SIM卡为非物联卡";				
@@ -433,7 +437,8 @@ static inline bool isMachineTypeEvent(ADEMCO_EVENT ademco_event)
 		|| ademco_event == EVENT_I_AM_IOT_MACHINE
 		|| ademco_event == EVENT_I_AM_TRUE_COLOR
 		|| ademco_event == EVENT_I_AM_GPRS_IOT
-		|| ademco_event == EVENT_I_AM_GPRS_PHONE;
+		|| ademco_event == EVENT_I_AM_GPRS_PHONE
+		|| ademco_event == EVENT_I_AM_NB_MACHINE;
 }
 
 //! 事件是否需要控制源

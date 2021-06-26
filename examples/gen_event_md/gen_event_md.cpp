@@ -169,6 +169,7 @@ const char* get_net_author(MachineType t)
 	case hb::common::ThreeSection:
 	case hb::common::IoT:
 	case hb::common::Gprs_Phone:
+	case hb::common::Nb:
 		return "qfm";
 	}
 
@@ -198,6 +199,8 @@ std::vector<std::string> get_machine_brands(MachineType t)
 	case hb::common::IoT: return { "2050-4GW" };
 
 	case hb::common::Gprs_Phone: return { "2050" };
+
+	//case hb::common::Nb: return { "" };
 
 	default: return {};
 		break;
