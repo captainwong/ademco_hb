@@ -314,7 +314,7 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	case EVENT_I_AM_TRUE_COLOR:						return n_to_s(ademco_event) + "I_AM_TRUE_COLOR";
 	case EVENT_I_AM_GPRS_IOT:						return n_to_s(ademco_event) + "I_AM_GPRS_IOT";
 	case EVENT_I_AM_GPRS_PHONE:						return n_to_s(ademco_event) + "I_AM_GPRS_PHONE";
-	case EVENT_I_AM_NB_MACHINE:						return n_to_s(ademco_event) + "EVENT_I_AM_NB_MACHINE";
+	case EVENT_I_AM_NB_MACHINE:						return n_to_s(ademco_event) + "I_AM_NB_MACHINE";
 	case EVENT_SIM_IS_IOT_CARD:						return n_to_s(ademco_event) + "SIM card is IOT";			
 	case EVENT_SIM_IS_IOT_PLATFORM_CARD:			return n_to_s(ademco_event) + "SIM card is Platform IOT";				
 	case EVENT_SIM_IS_NOT_IOT_CARD:					return n_to_s(ademco_event) + "SIM card is not IOT";				

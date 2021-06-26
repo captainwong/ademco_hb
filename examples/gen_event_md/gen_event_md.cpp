@@ -100,6 +100,7 @@ ADEMCO_EVENT privateEvents[] = {
 	EVENT_I_AM_TRUE_COLOR,
 	EVENT_I_AM_GPRS_IOT,
 	EVENT_I_AM_GPRS_PHONE,
+	EVENT_I_AM_NB_MACHINE,
 
 	EVENT_PHONE_USER_SOS,
 	EVENT_PHONE_USER_CANCLE_ALARM,
@@ -169,7 +170,7 @@ const char* get_net_author(MachineType t)
 	case hb::common::ThreeSection:
 	case hb::common::IoT:
 	case hb::common::Gprs_Phone:
-	case hb::common::Nb:
+	//case hb::common::Nb:
 		return "qfm";
 	}
 
