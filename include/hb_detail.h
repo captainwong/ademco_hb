@@ -221,7 +221,7 @@ static bool machineCanDisarm(MachineType type) {
 
 //! 主机是否可以进入设置状态
 static bool machineCanEnterSettings(MachineType type) {
-	return machineIsSelling(type) && (type != MachineType::Nb);
+	return machineIsSelling(type);
 }
 
 //! 主机是否具有半布防功能
