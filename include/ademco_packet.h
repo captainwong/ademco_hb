@@ -263,11 +263,11 @@ struct CongwinFe100Packet
 		if (evnt == ADEMCO_EVENT::EVENT_OFFLINE) {
 			data_[ndx++] = '3';
 			data_[ndx++] = 'B';			
-			data_[ndx++] = '0';
+			data_[ndx++] = '2';
 		} else if (evnt == ADEMCO_EVENT::EVENT_ONLINE) {
 			data_[ndx++] = '3';
 			data_[ndx++] = 'B';			
-			data_[ndx++] = '2';
+			data_[ndx++] = '0';
 		} else {
 			ndx += snprintf(data_ + ndx, sizeof(data_) - ndx, "%03d", static_cast<int>(evnt % 1000)); // event
 		}

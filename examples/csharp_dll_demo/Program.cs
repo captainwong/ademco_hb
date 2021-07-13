@@ -11,29 +11,29 @@ namespace csharp_dll_demo
 {
     class Program
     {
-        [DllImport(@"G:\dev_libs\ademco_hb\examples\x64\Release\ademco_hb.dll",
+        [DllImport(@"ademco_hb.dll",
             EntryPoint = "parse",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern Int32 parse(string buf, Int32 buf_len, ref Int32 commited);
 
-        [DllImport(@"G:\dev_libs\ademco_hb\examples\x64\Release\ademco_hb.dll",
+        [DllImport(@"ademco_hb.dll",
             EntryPoint = "pack",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern Int32 pack(ref byte buf, Int32 buf_len, Int32 seq, Int32 ademco_id, Int32 ademco_event, Int32 zone, Int32 gg);
 
 
-        [DllImport(@"G:\dev_libs\ademco_hb\examples\x64\Release\ademco_hb.dll",
+        [DllImport(@"ademco_hb.dll",
             EntryPoint = "pack",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern Int32 pack2(ref byte buf, Int32 buf_len, Int32 seq, string acct, Int32 ademco_id, Int32 ademco_event, Int32 zone, Int32 gg);
 
-        [DllImport(@"G:\dev_libs\ademco_hb\examples\x64\Release\ademco_hb.dll",
+        [DllImport(@"ademco_hb.dll",
             EntryPoint = "pack_ack",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern Int32 pack_ack(ref byte buf, Int32 buf_len, Int32 seq, Int32 ademco_id);
 
 
-        [DllImport(@"G:\dev_libs\ademco_hb\examples\x64\Release\ademco_hb.dll",
+        [DllImport(@"ademco_hb.dll",
             EntryPoint = "pack_ack",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern Int32 pack_ack2(ref byte buf, Int32 buf_len, Int32 seq, string acct);
