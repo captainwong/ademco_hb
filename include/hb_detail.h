@@ -1197,8 +1197,8 @@ constexpr hb::Char hb::common::com::ReadMachineAcctRequest::data[];
 } // namespace com
 } // namespace common
 
-//! barely used, everybody loves common machine
-namespace old
+//! 工程主机G250相关
+namespace g250
 {
 
 //! 键盘按键码
@@ -1599,9 +1599,265 @@ enum Sound : Char {
 	SOUND_NET_MACHINE,
 	//! 已断开连接 87
 	SOUND_DISCONNECT,
+
 	//! 88
 	SOUND_COUNT,
+	
+	SOUND_INVALID_SOUND = 255,
 };
+
+#ifdef EANBLE_SOUND_ENUM_STRING
+inline const char* soundEnumString(Sound snd) {
+	switch (snd) {
+		case SOUND_BUTTON_PRESSED:            return "SOUND_BUTTON_PRESSED";
+		case SOUND_SUCCESS:                   return "SOUND_SUCCESS";
+		case SOUND_DINGDONG:                  return "SOUND_DINGDONG";
+		case SOUND_ILLEGAL_OPERATION:         return "SOUND_ILLEGAL_OPERATION";
+		case SOUND_SECOND:                    return "SOUND_SECOND";
+		case SOUND_EXCEPTION:                 return "SOUND_EXCEPTION";
+		case SOUND_QUIT_CONFIG:               return "SOUND_QUIT_CONFIG";
+		case SOUND_INPUT_CONFIG_PSW:          return "SOUND_INPUT_CONFIG_PSW";
+		case SOUND_INPUT_NEW_PSW:             return "SOUND_INPUT_NEW_PSW";
+		case SOUND_INPUT_USER_PSW:            return "SOUND_INPUT_USER_PSW";
+		case SOUND_INPUT_AGAIN:               return "SOUND_INPUT_AGAIN";
+		case SOUND_ALARM_PHONE:               return "SOUND_ALARM_PHONE";
+		case SOUND_ALARM_SOUNDTE:             return "SOUND_ALARM_SOUNDTE";
+		case SOUND_SECURE_HALF:               return "SOUND_SECURE_HALF";
+		case SOUND_SECURE_ALL:                return "SOUND_SECURE_ALL";
+		case SOUND_SECURE_CANCEL:             return "SOUND_SECURE_CANCEL";
+		case SOUND_INPUT_PHONE_ALARM:         return "SOUND_INPUT_PHONE_ALARM";
+		case SOUND_DEL_ALL_PHONE:             return "SOUND_DEL_ALL_PHONE";
+		case SOUND_INPUT_ALARM_TIME:          return "SOUND_INPUT_ALARM_TIME";
+		case SOUND_INPUT_LEAVE_TIME:          return "SOUND_INPUT_LEAVE_TIME";
+		case SOUND_INPUT_ENTER_TIME:          return "SOUND_INPUT_ENTER_TIME";
+		case SOUND_INPUT_IN_DIAL_TIMES:       return "SOUND_INPUT_IN_DIAL_TIMES";
+		case SOUND_INPUT_OUT_DIAL_TIMES:      return "SOUND_INPUT_OUT_DIAL_TIMES";
+		case SOUND_HOST_DUIMA:                return "SOUND_HOST_DUIMA";
+		case SOUND_PRESS_RC_SECURE_ALL:       return "SOUND_PRESS_RC_SECURE_ALL";
+		case SOUND_TRIGGER_DETECTOR:          return "SOUND_TRIGGER_DETECTOR";
+		case SOUND_DEL_DETECTOR:              return "SOUND_DEL_DETECTOR";
+		case SOUND_DEL_ALL_DETECTOR:          return "SOUND_DEL_ALL_DETECTOR";
+		case SOUND_AREA_GLOBAL:               return "SOUND_AREA_GLOBAL";
+		case SOUND_AREA_HALF:                 return "SOUND_AREA_HALF";
+		case SOUND_AREA_EMERGENCY:            return "SOUND_AREA_EMERGENCY";
+		case SOUND_AREA_SHIELD:               return "SOUND_AREA_SHIELD";
+		case SOUND_AREA_DOORRING:             return "SOUND_AREA_DOORRING";
+		case SOUND_NEXT:                      return "SOUND_NEXT";
+		case SOUND_SYSTEM_MALFUNTION:         return "SOUND_SYSTEM_MALFUNTION";
+		case SOUND_HOST_MODULATION:           return "SOUND_HOST_MODULATION";
+		case SOUND_BACK:                      return "SOUND_BACK";
+		case SOUND_ERROR_INPUT_AGAIN:         return "SOUND_ERROR_INPUT_AGAIN";
+		case SOUND_INPUT_AREA_PROPERTY:       return "SOUND_INPUT_AREA_PROPERTY";
+		case SOUND_AREA_ALREADY_EXISTS:       return "SOUND_AREA_ALREADY_EXISTS";
+		case SOUND_RC_ALREADY_EXISTS:         return "SOUND_RC_ALREADY_EXISTS";
+		case SOUND_WELCOM:                    return "SOUND_WELCOM";
+		case SOUND_DEL_AREA_FIRST:            return "SOUND_DEL_AREA_FIRST";
+		case SOUND_DETECTOR_INVALID:          return "SOUND_DETECTOR_INVALID";
+		case SOUND_PHONE_LINE_DISCONNECT:     return "SOUND_PHONE_LINE_DISCONNECT";
+		case SOUND_HOST_REMOTE_CONTROL:       return "SOUND_HOST_REMOTE_CONTROL";
+		case SOUND_START_LISTEN:              return "SOUND_START_LISTEN";
+		case SOUND_SOUNDTE_MUTE:              return "SOUND_SOUNDTE_MUTE";
+		case SOUND_ON_THE_WAY_DISCONNECT:     return "SOUND_ON_THE_WAY_DISCONNECT";
+		case SOUND_ALARM_WISTLE:              return "SOUND_ALARM_WISTLE";
+		case SOUND_ALARM_RECORD:              return "SOUND_ALARM_RECORD";
+		case SOUND_CLEAR_EXCEPTION:           return "SOUND_CLEAR_EXCEPTION";
+		case SOUND_ALARM:                     return "SOUND_ALARM";
+		case SOUND_INPUT_PHONE_CENTER:        return "SOUND_INPUT_PHONE_CENTER";
+		case SOUND_INPUT_ADEMCO_ID:           return "SOUND_INPUT_ADEMCO_ID";
+		case SOUND_VIALATION_ENTER:           return "SOUND_VIALATION_ENTER";
+		case SOUND_ATTENTION_ALARMING:        return "SOUND_ATTENTION_ALARMING";
+		case SOUND_DELETE_PHONE:              return "SOUND_DELETE_PHONE";
+		case SOUND_DELETE_REMOTE_RC:          return "SOUND_DELETE_REMOTE_RC";
+		case SOUND_DELETE_ALL_RC:             return "SOUND_DELETE_ALL_RC";
+		case SOUND_WARNING:                   return "SOUND_WARNING";
+		case SOUND_AREA_FIRE:                 return "SOUND_AREA_FIRE";
+		case SOUND_AREA_DURESS:               return "SOUND_AREA_DURESS";
+		case SOUND_AREA_GAS:                  return "SOUND_AREA_GAS";
+		case SOUND_AREA_WATER:                return "SOUND_AREA_WATER";
+		case SOUND_AREA:                      return "SOUND_AREA";
+		case SOUND_GAS_LEAKAGE:               return "SOUND_GAS_LEAKAGE";
+		case SOUND_PLEASE_HELP:               return "SOUND_PLEASE_HELP";
+		case SOUND_WATER_LEAKAGE:             return "SOUND_WATER_LEAKAGE";
+		case SOUND_FIRE:                      return "SOUND_FIRE";
+		case SOUND_FIRE_TRUCK_SOUND:          return "SOUND_FIRE_TRUCK_SOUND";
+		case SOUND_GAS_SOUND:                 return "SOUND_GAS_SOUND";
+		case SOUND_WATER_SOUND:               return "SOUND_WATER_SOUND";
+		case SOUND_ALL_ALARM:                 return "SOUND_ALL_ALARM";
+		case SOUND_PART_ALARM:                return "SOUND_PART_ALARM";
+		case SOUND_SEL_ALARM_CENTER:          return "SOUND_SEL_ALARM_CENTER";
+		case SOUND_NET_MACHINE:               return "SOUND_NET_MACHINE";
+		case SOUND_DISCONNECT:                return "SOUND_DISCONNECT";
+		case SOUND_COUNT:                     return "SOUND_COUNT";
+		case SOUND_0:					      return "SOUND_0";
+		case SOUND_1:					      return "SOUND_1";
+		case SOUND_2:					      return "SOUND_2";
+		case SOUND_3:					      return "SOUND_3";
+		case SOUND_4:					      return "SOUND_4";
+		case SOUND_5:					      return "SOUND_5";
+		case SOUND_6:					      return "SOUND_6";
+		case SOUND_7:					      return "SOUND_7";
+		case SOUND_8:					      return "SOUND_8";
+		case SOUND_9:					      return "SOUND_9";
+		default:							  return "Invalid sound";
+	}
+}
+#endif
+
+#ifdef ENABLE_SOUND_TO_STRING
+inline const wchar_t* soundToString(Sound snd) {
+	switch (snd) {
+	case SOUND_BUTTON_PRESSED:			return L"按键音";
+	case SOUND_SUCCESS:					return L"成功";
+	case SOUND_DINGDONG:				return L"叮咚";
+	case SOUND_ILLEGAL_OPERATION:		return L"非法操作";
+	case SOUND_SECOND:					return L"读秒";
+	case SOUND_EXCEPTION:				return L"异常";
+	case SOUND_QUIT_CONFIG:				return L"退出设置";
+	case SOUND_INPUT_CONFIG_PSW:		return L"输入设置密码";
+	case SOUND_INPUT_NEW_PSW:			return L"输入新密码";
+	case SOUND_INPUT_USER_PSW:			return L"输入用户密码";
+	case SOUND_INPUT_AGAIN:				return L"再次输入";
+	case SOUND_ALARM_PHONE:				return L"电话报警";
+	case SOUND_ALARM_SOUNDTE:			return L"现场报警";
+	case SOUND_SECURE_HALF:				return L"半布防";
+	case SOUND_SECURE_ALL:				return L"全局布防";
+	case SOUND_SECURE_CANCEL:			return L"撤防";
+	case SOUND_INPUT_PHONE_ALARM:		return L"请输入报警电话";
+	case SOUND_DEL_ALL_PHONE:			return L"删除所有电话";
+	case SOUND_INPUT_ALARM_TIME:		return L"输入报警声响时间";
+	case SOUND_INPUT_LEAVE_TIME:		return L"输入离开时间";
+	case SOUND_INPUT_ENTER_TIME:		return L"请输入进入时间";
+	case SOUND_INPUT_IN_DIAL_TIMES:		return L"请输入振铃次数";
+	case SOUND_INPUT_OUT_DIAL_TIMES:	return L"请输入拨号循环次数";
+	case SOUND_HOST_DUIMA:				return L"主机进入对码状态";
+	case SOUND_PRESS_RC_SECURE_ALL:		return L"请按遥控器布防键";
+	case SOUND_TRIGGER_DETECTOR:		return L"请触发探头";
+	case SOUND_DEL_DETECTOR:			return L"删除探头";
+	case SOUND_DEL_ALL_DETECTOR:		return L"删除所有探头";
+	case SOUND_AREA_GLOBAL:				return L"全局防区";
+	case SOUND_AREA_HALF:				return L"半局防区";
+	case SOUND_AREA_EMERGENCY:			return L"紧急报警防区";
+	case SOUND_AREA_SHIELD:				return L"屏蔽防区";
+	case SOUND_AREA_DOORRING:			return L"门铃防区";
+	case SOUND_NEXT:					return L"下一个";
+	case SOUND_SYSTEM_MALFUNTION:		return L"请注意，有非法进入";
+	case SOUND_HOST_MODULATION:			return L"主机进入调整状态";
+	case SOUND_BACK:					return L"退回";
+	case SOUND_ERROR_INPUT_AGAIN:		return L"错误请重新输入";
+	case SOUND_INPUT_AREA_PROPERTY:		return L"请输入防区属性";
+	case SOUND_AREA_ALREADY_EXISTS:		return L"该防区已存在";
+	case SOUND_RC_ALREADY_EXISTS:		return L"该遥控器已存在";
+	case SOUND_WELCOM:					return L"欢迎使用";
+	case SOUND_DEL_AREA_FIRST:			return L"请先删除该防区";
+	case SOUND_DETECTOR_INVALID:		return L"请注意有探头无效";
+	case SOUND_PHONE_LINE_DISCONNECT:	return L"电话线断了";
+	case SOUND_HOST_REMOTE_CONTROL:		return L"主机远程控制";
+	case SOUND_START_LISTEN:			return L"开始监听";
+	case SOUND_SOUNDTE_MUTE:			return L"现场静音";
+	case SOUND_ON_THE_WAY_DISCONNECT:	return L"即将断线";
+	case SOUND_ALARM_WISTLE:			return L"警笛报警声";
+	case SOUND_ALARM_RECORD:			return L"录音报警声";
+	case SOUND_CLEAR_EXCEPTION:			return L"清异常指示";
+	case SOUND_ALARM:					return L"报警";
+	case SOUND_INPUT_PHONE_CENTER:		return L"输入接警中心电话";
+	case SOUND_INPUT_ADEMCO_ID:			return L"请输入用户号";
+	case SOUND_VIALATION_ENTER:			return L"请注意，你已非法进入";
+	case SOUND_ATTENTION_ALARMING:		return L"请注意，报警了";
+	case SOUND_DELETE_PHONE:			return L"删除此电话";
+	case SOUND_DELETE_REMOTE_RC:		return L"删除此遥控";
+	case SOUND_DELETE_ALL_RC:			return L"删除所有遥控";
+	case SOUND_WARNING:					return L"提示";
+	case SOUND_AREA_FIRE:				return L"火警防区";
+	case SOUND_AREA_DURESS:				return L"胁迫防区";
+	case SOUND_AREA_GAS:				return L"煤气防区";
+	case SOUND_AREA_WATER:				return L"水警防区";
+	case SOUND_AREA:					return L"防区";
+	case SOUND_GAS_LEAKAGE:				return L"”煤气泄漏";
+	case SOUND_PLEASE_HELP:				return L"请救助";
+	case SOUND_WATER_LEAKAGE:			return L"水泄漏";
+	case SOUND_FIRE:					return L"有火情";
+	case SOUND_FIRE_TRUCK_SOUND:		return L"消防车音效";
+	case SOUND_GAS_SOUND:				return L"煤气音效";
+	case SOUND_WATER_SOUND:				return L"水警音效";
+	case SOUND_ALL_ALARM:				return L"全部报警";
+	case SOUND_PART_ALARM:				return L"部分报警";
+	case SOUND_SEL_ALARM_CENTER:		return L"接警中心报警选择";
+	case SOUND_NET_MACHINE:				return L"网络主机";
+	case SOUND_DISCONNECT:				return L"已断开连接";
+	case SOUND_0:					    return L"0";
+	case SOUND_1:					    return L"1";
+	case SOUND_2:					    return L"2";
+	case SOUND_3:					    return L"3";
+	case SOUND_4:					    return L"4";
+	case SOUND_5:					    return L"5";
+	case SOUND_6:					    return L"6";
+	case SOUND_7:					    return L"7";
+	case SOUND_8:					    return L"8";
+	case SOUND_9:					    return L"9";
+	default:							return L"Invalid sound";
+	}
+}
+
+#endif
+
+//! 数字0~9的声音
+inline Sound numberToSound(int n) {
+	if (0 <= n && n <= 9) {
+		return static_cast<Sound>(Sound::SOUND_0 + n);
+	} else {
+		return Sound::SOUND_INVALID_SOUND;
+	}
+}
+
+//! 主机模式
+enum MahcineMode : Char {
+	//! 普通模式
+	ModeNormal,
+	//! 设置模式
+	ModeConfig,
+	//! 对码模式
+	ModeDuima,
+};
+
+//! 主机（或分主机）状态码
+enum MachineStatus : Char {
+	Arm = 0x01,
+	Disarm = 0x02,
+	HalfArm = 0X04,
+	MachineStatusInvalid = 0xFF,
+};
+
+//! 主机状态到声音
+inline Sound machineStatusToSound(MachineStatus status) {
+	switch (status) {
+	case MachineStatus::Arm:		return Sound::SOUND_SECURE_ALL;
+	case MachineStatus::Disarm:		return Sound::SOUND_SECURE_CANCEL;
+	case MachineStatus::HalfArm:	return Sound::SOUND_SECURE_HALF;
+	default:						return Sound::SOUND_INVALID_SOUND;
+	}
+}
+
+//! 根据声音判断是否需要按键输入
+inline bool needKeyInput(Sound snd) {
+	return snd == Sound::SOUND_INPUT_CONFIG_PSW
+		|| snd == Sound::SOUND_INPUT_NEW_PSW
+		|| snd == Sound::SOUND_INPUT_USER_PSW
+		//|| si == SI_INPUT_PHONE_ALARM
+		//|| si == SI_INPUT_ALARM_TIME
+		//|| si == SI_INPUT_LEAVE_TIME
+		//|| si == SI_INPUT_ENTER_TIME
+		//|| si == SI_INPUT_IN_DIAL_TIMES
+		//|| si == SI_INPUT_OUT_DIAL_TIMES
+		//|| si == SI_INPUT_PHONE_CENTER
+		|| snd == Sound::SOUND_INPUT_AGAIN
+		//|| si == SI_INPUT_ADEMCO_ID
+		|| snd == Sound::SOUND_ERROR_INPUT_AGAIN;
+}
+
+//! 根据声音判断是否有输入错误
+inline bool isBadInput(Sound snd) {
+	return snd == Sound::SOUND_ERROR_INPUT_AGAIN;
+}
 
 //! 主机到键盘显示 9字节
 struct MachineInfoToKeyboard {
@@ -1727,23 +1983,6 @@ struct MachineInfoToKeyboard {
 #endif // WIN32
 };
 
-//! 主机模式
-enum MahcineMode : Char {
-	//! 普通模式
-	ModeNormal,
-	//! 设置模式
-	ModeConfig,
-	//! 对码模式
-	ModeDuima,
-};
-
-//! 主机（或分主机）状态码
-enum MachineStatus : Char {
-	Arm						= 0x01,
-	Disarm					= 0x02,
-	HalfArm					= 0X04,
-	MachineStatusInvalid	= 0xFF,
-};
 
 //! 报警码
 enum AlarmCode : Char {
@@ -1907,12 +2146,14 @@ struct WirelessAddress {
 };
 
 
-//! 主机有线防区范围1~7
-constexpr ademco::AdemcoZone ZoneMinWired		= 1;
-constexpr ademco::AdemcoZone ZoneMaxWired		= 8;
-//! 主机无线防区最小值
-constexpr ademco::AdemcoZone ZoneMinWireless	= 9;
+//! 主机有线防区范围0~7
+constexpr ademco::AdemcoZone ZoneMinWired		= 0; // 0防区默认为紧急防区，报警时产生紧急报警警情
+constexpr ademco::AdemcoZone ZoneMaxWired		= 7;
+//! 主机无线防区范围8~999
+constexpr ademco::AdemcoZone ZoneMinWireless	= 8;
 constexpr ademco::AdemcoZone ZoneMaxWireless	= 999;
+//! 主机防区数量，算上0防区，共1000个
+constexpr ademco::AdemcoZone ZoneCount			= 1000;
 //! 分主机防区号范围1~99
 constexpr ademco::AdemcoZone ZoneMinSubMachine  = 1;
 constexpr ademco::AdemcoZone ZoneMaxSubMachine  = 99;
@@ -1928,12 +2169,38 @@ struct ZoneAsTwoChar {
 	ZoneAsTwoChar& operator=(const ZoneAsTwoChar&) = default;
 	ZoneAsTwoChar(Char hi, Char lo) : hi(hi), lo(lo) {}
 
-	uint16_t toUInt16() const { return static_cast<Char>(((hi << 8) & 0xFF00) | lo); }
-	void fromUInt16(uint16_t zone) { hi = static_cast<Char>((zone >> 8) & 0xFF); lo = static_cast<Char>(zone & 0xFF); }
-	ZoneAsTwoChar& operator=(uint16_t zone) { fromUInt16(zone); return *this; }
-	ZoneAsTwoChar& operator++() { if (++lo == 0xFF) { lo = 0; if (++hi == 0xFF) { assert(0); } } return *this; }
-	bool operator==(const ZoneAsTwoChar& rhs) const { return hi == rhs.hi && lo == rhs.lo; }
-	bool operator==(uint16_t zone) const { return toUInt16() == zone; }
+	uint16_t toUInt16() const { 
+		uint16_t val = static_cast<uint16_t>(((hi << 8) & 0xFF00) | lo);
+		return val;
+	}
+
+	void fromUInt16(uint16_t zone) { 
+		hi = static_cast<Char>((zone >> 8) & 0xFF); 
+		lo = static_cast<Char>(zone & 0xFF);
+	}
+
+	ZoneAsTwoChar& operator=(uint16_t zone) { 
+		fromUInt16(zone); 
+		return *this;
+	}
+
+	ZoneAsTwoChar& operator++() { 
+		if (++lo == 0xFF) { 
+			lo = 0; 
+			if (++hi == 0xFF) {
+				assert(0); 
+			} 
+		} 
+		return *this;
+	}
+
+	bool operator==(const ZoneAsTwoChar& rhs) const { 
+		return hi == rhs.hi && lo == rhs.lo;
+	}
+
+	bool operator==(uint16_t zone) const { 
+		return toUInt16() == zone; 
+	}
 };
 
 //! 防区信息
