@@ -103,19 +103,19 @@ static ademco::ADEMCO_EVENT ademcoEventFromZoneProperty(common::ZoneProperty zp)
 }
 
 //! 从防区属性推出应该发送什么警情事件码
-static ademco::ADEMCO_EVENT ademcoEventFromZonePropertyOld(old::ZoneProperty zp)
+static ademco::ADEMCO_EVENT ademcoEventFromZonePropertyOld(g250::ZoneProperty zp)
 {
 	switch (zp) {
-	case hb::old::ZP_GLOBAL:	return ademco::EVENT_BURGLAR;
-	case hb::old::ZP_HALF:		return ademco::EVENT_BURGLAR;
-	case hb::old::ZP_EMERGENCY:	return ademco::EVENT_EMERGENCY;
-	case hb::old::ZP_DOORRING:	return ademco::EVENT_DOORRINGING;
-	case hb::old::ZP_FIRE:		return ademco::EVENT_FIRE;
-	case hb::old::ZP_DURESS:	return ademco::EVENT_DURESS;
-	case hb::old::ZP_GAS:		return ademco::EVENT_GAS;
-	case hb::old::ZP_WATER:		return ademco::EVENT_WATER;
-	case hb::old::ZP_SHIELD:
-	default:					return ademco::EVENT_INVALID_EVENT;
+	case hb::g250::ZP_GLOBAL:		return ademco::EVENT_BURGLAR;
+	case hb::g250::ZP_HALF:			return ademco::EVENT_BURGLAR;
+	case hb::g250::ZP_EMERGENCY:	return ademco::EVENT_EMERGENCY;
+	case hb::g250::ZP_DOORRING:		return ademco::EVENT_DOORRINGING;
+	case hb::g250::ZP_FIRE:			return ademco::EVENT_FIRE;
+	case hb::g250::ZP_DURESS:		return ademco::EVENT_DURESS;
+	case hb::g250::ZP_GAS:			return ademco::EVENT_GAS;
+	case hb::g250::ZP_WATER:		return ademco::EVENT_WATER;
+	case hb::g250::ZP_SHIELD:
+	default:						return ademco::EVENT_INVALID_EVENT;
 	}
 }
 

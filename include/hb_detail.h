@@ -1595,9 +1595,9 @@ enum Sound : Char {
 	SOUND_PART_ALARM,
 	//! "接警中心报警选择"  85
 	SOUND_SEL_ALARM_CENTER,
-	//! "网络主机"  86
+	//! "网络主机"  86 没有资源
 	SOUND_NET_MACHINE,
-	//! 已断开连接 87
+	//! 已断开连接 87 没有资源
 	SOUND_DISCONNECT,
 
 	//! 88
@@ -2005,7 +2005,7 @@ enum AlarmCode : Char {
 	//! 关机
 	ALARM_SHUTDOWN			= 0xED,		
 	//! 防拆
-	ALARM_TEMPER			= 0xBA,		
+	ALARM_TAMPER			= 0xBA,		
 	//! 发低电
 	ALARM_S_BATTERY_LOW		= 0xAB,		
 	//! 收低电
@@ -2250,14 +2250,6 @@ struct AllZoneInfo {
 	}
 };
 
-/**
-* @brief 串口透传协议
-* @note 网络传输模块与主机模块通信协议
-* @note 客户端（手机APP、接警中心等）会用到一些透传数据
-*/
-namespace com
-{
-
 //! PC到主机，查询主机（自身或防区）或分机（自身或防区）状态
 struct Query {
 	static constexpr Char len = 8;
@@ -2314,12 +2306,22 @@ struct Query {
 		return queryZoneStatusOfSubMachine(ademco::Zone4MachineSelf);
 	}
 
-	static Query queryZoneStatusOfSubMachine(Char zone) {
+	static Query queryZoneStatusOfSubMachine(uint16_t zone) {
 		Query query;
 		query.setZone(zone);
 		query.data[5] = Param::Get::P1::QuerySubMachine;
 		query.data[6] = 0xEE;
-		sum(query); return query;
+		sum(query); 
+		return query;
+	}
+
+	static Query setQuery(uint16_t zone = 0, Param::Set::P1 action = Param::Set::P1::SetArm) {
+		Query query;
+		query.setZone(zone);
+		query.data[5] = action;
+		query.data[6] = 0xEE;
+		sum(query);
+		return query;
 	}
 };
 
@@ -2352,8 +2354,41 @@ struct WriteToMachineRequest {
 	}
 };
 
-} // namespace com
-} // namespace old
+//! 从 EB B1 。。。命令[5]提取的事件码
+ademco::ADEMCO_EVENT ademcoEventFromCode(Char code) {
+	switch (code) {
+	case MachineStatus::Arm:				return ademco::ADEMCO_EVENT::EVENT_ARM;		
+	case MachineStatus::Disarm:				return ademco::ADEMCO_EVENT::EVENT_DISARM;		
+	case MachineStatus::HalfArm:			return ademco::ADEMCO_EVENT::EVENT_HALFARM;	
 
+	case AlarmCode::MACHINE_EMERGENCY:		return ademco::ADEMCO_EVENT::EVENT_EMERGENCY;		
+	case AlarmCode::ALARM_BURGLAR:			return ademco::ADEMCO_EVENT::EVENT_BURGLAR;		
+	case AlarmCode::ALARM_FIRE:				return ademco::ADEMCO_EVENT::EVENT_FIRE;		
+	case AlarmCode::ALARM_DURESS:			return ademco::ADEMCO_EVENT::EVENT_DURESS;		
+	case AlarmCode::ALARM_GAS:				return ademco::ADEMCO_EVENT::EVENT_GAS;		
+	case AlarmCode::ALARM_WATER:			return ademco::ADEMCO_EVENT::EVENT_WATER;	
+	case AlarmCode::ALARM_TAMPER:			return ademco::ADEMCO_EVENT::EVENT_TAMPER;
+	case AlarmCode::ALARM_S_BATTERY_LOW:	
+	case AlarmCode::ALARM_R_BATTERY_LOW:	return ademco::ADEMCO_EVENT::EVENT_LOWBATTERY;
+	case AlarmCode::ALARM_S_BATTERY_BROKE:		
+	case AlarmCode::ALARM_R_BATTERY_BROKE:	return ademco::ADEMCO_EVENT::EVENT_BADBATTERY;
+	case AlarmCode::ALARM_BETTERY_RECOVER:	return ademco::ADEMCO_EVENT::EVENT_BATTERY_RECOVER;		
+	case AlarmCode::ALARM_SOLAR_DISTURB:	return ademco::ADEMCO_EVENT::EVENT_SOLARDISTURB;
+	case AlarmCode::ALARM_SOLAR_RECOVER:	return ademco::ADEMCO_EVENT::EVENT_SOLARDISTURB_RECOVER;
+	case AlarmCode::ALARM_LONGTIME_DISCONN:	return ademco::ADEMCO_EVENT::EVENT_DISCONNECT;		
+	case AlarmCode::ALARM_LONGTIME_RECOVER:	return ademco::ADEMCO_EVENT::EVENT_RECONNECT;		
+	case AlarmCode::ALARM_DOOR_RING:		return ademco::ADEMCO_EVENT::EVENT_DOORRINGING;		
+	case AlarmCode::ALARM_SM_EXCEPTION:		return ademco::ADEMCO_EVENT::EVENT_SUB_MACHINE_SENSOR_EXCEPTION;		
+	case AlarmCode::ALARM_SM_EXCEPT_RESUME:	return ademco::ADEMCO_EVENT::EVENT_SUB_MACHINE_SENSOR_RESUME;		
+	case AlarmCode::ALARM_SM_POWER_EXCEPT:	return ademco::ADEMCO_EVENT::EVENT_SUB_MACHINE_POWER_EXCEPTION;		
+	case AlarmCode::ALARM_SM_POWER_RESUME:	return ademco::ADEMCO_EVENT::EVENT_SUB_MACHINE_POWER_RESUME;
 
+	case AlarmCode::ALARM_STARTUP:
+	case AlarmCode::ALARM_SHUTDOWN:
+	case AlarmCode::ALARM_SENDER_REBOOT:	
+	default:								return ademco::ADEMCO_EVENT::EVENT_INVALID_EVENT;		
+	}
+}
+
+} // namespace g250
 } // namespace hb 

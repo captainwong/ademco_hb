@@ -88,6 +88,7 @@ enum ADEMCO_EVENT : uint32_t {
 	EVENT_BATTERY_RECOVER						= 3302, // 复电
 	EVENT_BADBATTERY							= 1311, // 坏电
 	EVENT_SOLARDISTURB							= 1387, // 光扰
+	EVENT_SOLARDISTURB_RECOVER					= 3387, // 光扰恢复
 	EVENT_DISCONNECT							= 1381, // 失效
 	EVENT_RECONNECT								= 3381, // 恢复
 	EVENT_BATTERY_EXCEPTION						= 1384, // 电源故障
@@ -196,6 +197,7 @@ static constexpr ADEMCO_EVENT AdemcoEvents[] = {
 	EVENT_BATTERY_RECOVER,
 	EVENT_BADBATTERY,
 	EVENT_SOLARDISTURB,
+	EVENT_SOLARDISTURB_RECOVER,
 	EVENT_DISCONNECT,
 	EVENT_RECONNECT,
 	EVENT_LOST,
@@ -277,6 +279,7 @@ inline std::string ademcoEventToStringEnglish(ADEMCO_EVENT ademco_event, bool wi
 	case EVENT_BATTERY_RECOVER:						return n_to_s(ademco_event) + "BATATTERY_RECOVER"; 					
 	case EVENT_BADBATTERY:							return n_to_s(ademco_event) + "BADBATTERY";							
 	case EVENT_SOLARDISTURB:						return n_to_s(ademco_event) + "SOLARDISTURB";						
+	case EVENT_SOLARDISTURB_RECOVER:				return n_to_s(ademco_event) + "SOLARDISTURB_RECOVER";
 	case EVENT_DISCONNECT:							return n_to_s(ademco_event) + "DISCONNECT";							
 	case EVENT_RECONNECT:							return n_to_s(ademco_event) + "RECONNECT";							
 	case EVENT_LOST:								return n_to_s(ademco_event) + "LOST";								
@@ -361,6 +364,7 @@ inline const std::wstring ademcoEventToStringChinese(ADEMCO_EVENT ademco_event, 
 	case EVENT_BATTERY_RECOVER: 					return n_to_s(ademco_event) + L"复电";						
 	case EVENT_BADBATTERY:							return n_to_s(ademco_event) + L"坏电";						
 	case EVENT_SOLARDISTURB:						return n_to_s(ademco_event) + L"光扰";						
+	case EVENT_SOLARDISTURB_RECOVER:				return n_to_s(ademco_event) + L"光扰恢复";
 	case EVENT_DISCONNECT:							return n_to_s(ademco_event) + L"失效";						
 	case EVENT_RECONNECT:							return n_to_s(ademco_event) + L"恢复";						
 	case EVENT_LOST:								return n_to_s(ademco_event) + L"失联";						
@@ -482,6 +486,7 @@ inline EventLevel GetEventLevel(ADEMCO_EVENT ademco_event)
 	case EVENT_BATTERY_RECOVER:
 	case EVENT_BATTERY_EXCEPTION_RECOVER:
 	case EVENT_OTHER_EXCEPTION_RECOVER:
+	case EVENT_SOLARDISTURB_RECOVER:
 		return EVENT_LEVEL_EXCEPTION_RESUME;
 
 	case EVENT_AC_BROKE:
@@ -525,7 +530,8 @@ inline ADEMCO_EVENT getExceptionEventByResumeEvent(ADEMCO_EVENT resume_event)
 	case EVENT_BATTERY_RECOVER:				return EVENT_LOWBATTERY;				
 	case EVENT_BATTERY_EXCEPTION_RECOVER:	return EVENT_BATTERY_EXCEPTION;			
 	case EVENT_OTHER_EXCEPTION_RECOVER:		return EVENT_OTHER_EXCEPTION;			
-	case EVENT_AC_RECOVER:					return EVENT_AC_BROKE;					
+	case EVENT_AC_RECOVER:					return EVENT_AC_BROKE;			
+	case EVENT_SOLARDISTURB_RECOVER:		return EVENT_SOLARDISTURB;
 	default:								return EVENT_INVALID_EVENT;				
 	}
 }
