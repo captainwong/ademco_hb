@@ -2135,12 +2135,19 @@ struct WirelessAddress {
 	bool operator==(const WirelessAddress& rhs) const { return hi == rhs.hi && lo == rhs.lo; }
 	bool operator==(uint16_t addr) const { return toUInt16() == addr; }
 	void fromUInt16(uint16_t addr){ hi = static_cast<Char>((addr >> 8) & 0xFF); lo = static_cast<Char>(addr & 0xFF); }
-	uint16_t toUInt16() const { return static_cast<Char>(((hi << 8) | lo) & mask); }
+	uint16_t toUInt16() const { return static_cast<uint16_t>(((hi << 8) | lo) & mask); }
 	bool valid() const { return toUInt16() != mask; }
 	void reset() { hi = lo = 0xFF; }
 
 	static WirelessAddress randomAddress() {
 		WirelessAddress addr = static_cast<uint16_t>(rand() % mask);
+		return addr;
+	}
+
+	static WirelessAddress fromToChar(Char hi, Char lo) {
+		WirelessAddress addr;
+		addr.hi = hi;
+		addr.lo = lo;
 		return addr;
 	}
 };
@@ -2355,7 +2362,7 @@ struct WriteToMachineRequest {
 };
 
 //! 从 EB B1 。。。命令[5]提取的事件码
-ademco::ADEMCO_EVENT ademcoEventFromCode(Char code) {
+inline ademco::ADEMCO_EVENT ademcoEventFromCode(Char code) {
 	switch (code) {
 	case MachineStatus::Arm:				return ademco::ADEMCO_EVENT::EVENT_ARM;		
 	case MachineStatus::Disarm:				return ademco::ADEMCO_EVENT::EVENT_DISARM;		

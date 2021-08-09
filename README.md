@@ -32,3 +32,8 @@
 
 ## 测试及演示工具，已编译的dll等请点击 [releases](https://github.com/captainwong/ademco_hb/releases)下载
 
+## ChangeLog
+
+|版本|发布日期|更新内容|
+|----|-------|-------|
+|v0.1|2021-8-10 00:29:12|启用版本号|
