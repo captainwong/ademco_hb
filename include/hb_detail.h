@@ -2218,7 +2218,7 @@ struct ZoneInfo {
 	};
 
 	uint16_t zone = {};
-	ZoneType type = {};
+	ZoneType type = ZoneType::ZT_NULL;
 	MachineStatusOrZoneProperty prop;
 	WirelessAddress addr = {};
 
@@ -2232,7 +2232,7 @@ struct ZoneInfo {
 
 	void reset() {
 		zone = UINT16_MAX;
-		type = ZT_INVALID;
+		type = ZT_NULL;
 		prop.prop = ZP_INVALID;
 		addr.reset();
 	}
@@ -2243,7 +2243,13 @@ struct AllZoneInfo {
 	//! use extra 1 space, for convenience to use zone as index
 	ZoneInfo zones[ademco::ZoneSentinel] = {};
 
-	AllZoneInfo() { for (uint16_t i = 0; i < ademco::ZoneSentinel; i++) { zones[i].zone = i; } }
+	AllZoneInfo() {
+		for (uint16_t i = 0; i < ademco::ZoneSentinel; i++) { 
+			zones[i].zone = i;
+			zones[i].type = ZT_NULL;
+			zones[i].prop.prop = ZP_INVALID;
+		}
+	}
 
 	bool isUniqueAddr(WirelessAddress addr) const {
 		for (const auto& z : zones) { if (z.addr == addr)return false; }
