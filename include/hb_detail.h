@@ -2000,6 +2000,12 @@ enum AlarmCode : Char {
 	//! 水警
 	ALARM_WATER				= 0x50,		
 
+	//！ 2021年10月9日15:49:34新增主机AC掉电、AC恢复
+	//! AC掉电
+	ALARM_AC_BROKE			= 0xB0,
+	//! AC恢复
+	ALARM_AC_RECOVER		= 0xB1,
+
 	//! 开机
 	ALARM_STARTUP			= 0xCA,		
 	//! 关机
@@ -2395,6 +2401,9 @@ inline ademco::ADEMCO_EVENT ademcoEventFromCode(Char code) {
 	case AlarmCode::ALARM_SM_EXCEPT_RESUME:	return ademco::ADEMCO_EVENT::EVENT_SUB_MACHINE_SENSOR_RESUME;		
 	case AlarmCode::ALARM_SM_POWER_EXCEPT:	return ademco::ADEMCO_EVENT::EVENT_SUB_MACHINE_POWER_EXCEPTION;		
 	case AlarmCode::ALARM_SM_POWER_RESUME:	return ademco::ADEMCO_EVENT::EVENT_SUB_MACHINE_POWER_RESUME;
+	case AlarmCode::ALARM_AC_BROKE:			return ademco::ADEMCO_EVENT::EVENT_AC_BROKE;
+	case AlarmCode::ALARM_AC_RECOVER:		return ademco::ADEMCO_EVENT::EVENT_AC_RECOVER;
+
 
 	case AlarmCode::ALARM_STARTUP:
 	case AlarmCode::ALARM_SHUTDOWN:

@@ -368,6 +368,51 @@ void print_available_zone_props()
 
 }
 
+
+void print_g250_alarm_codes()
+{
+	printf("## EB B1 命令内报警码与安定宝事件码对照表\n\n");
+
+	printf("|报警码|安定宝事件码|含义|\n");
+	printf("|------|----------|----|\n");
+
+	using namespace g250;
+
+	static Char codes[] = {
+		g250::MachineStatus::Arm,
+		g250::MachineStatus::Disarm,
+		g250::MachineStatus::HalfArm,
+		AlarmCode::MACHINE_EMERGENCY,
+		AlarmCode::ALARM_BURGLAR,
+		AlarmCode::ALARM_FIRE,
+		AlarmCode::ALARM_DURESS,
+		AlarmCode::ALARM_GAS,
+		AlarmCode::ALARM_WATER,
+		AlarmCode::ALARM_TAMPER,
+		AlarmCode::ALARM_S_BATTERY_LOW,
+		AlarmCode::ALARM_R_BATTERY_LOW,
+		AlarmCode::ALARM_S_BATTERY_BROKE,
+		AlarmCode::ALARM_R_BATTERY_BROKE,
+		AlarmCode::ALARM_BETTERY_RECOVER,
+		AlarmCode::ALARM_SOLAR_DISTURB,
+		AlarmCode::ALARM_SOLAR_RECOVER,
+		AlarmCode::ALARM_LONGTIME_DISCONN,
+		AlarmCode::ALARM_LONGTIME_RECOVER,
+		AlarmCode::ALARM_DOOR_RING,
+		AlarmCode::ALARM_SM_EXCEPTION,
+		AlarmCode::ALARM_SM_EXCEPT_RESUME,
+		AlarmCode::ALARM_SM_POWER_EXCEPT,
+		AlarmCode::ALARM_SM_POWER_RESUME,
+		AlarmCode::ALARM_AC_BROKE,
+		AlarmCode::ALARM_AC_RECOVER,
+	};
+
+	for (auto code : codes) {
+		printf("|%02X|%04d|%s|\n", code, ademcoEventFromCode(code), jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(ademcoEventFromCode(code), false)).c_str());
+	}
+
+}
+
 int main()
 {
 	printf("### 主机状态\n\n");
@@ -386,4 +431,6 @@ int main()
 	print_imgs();
 
 	print_available_zone_props();
+
+	print_g250_alarm_codes();
 }
