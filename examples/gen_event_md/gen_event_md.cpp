@@ -380,7 +380,7 @@ void print_g250_alarm_codes()
 
 	// 按键码
 	printf("\n\n## EB AB addr data sum\n");
-	printf("* PC到主机，按键\n");
+	printf("PC到主机，按键\n");
 	printf("* addr: PC模拟键盘地址，1~4，暂时固定为3\n");
 	printf("* data: 按键码\n\n");
 	printf("|按键码|按键|\n");
@@ -395,16 +395,14 @@ void print_g250_alarm_codes()
 
 	// EB B1 报警码
 	printf("\n\n## EB B1 data0 data1 data2 code data4 sum\n");
+	printf("主机到PC事件报告\n");
 	printf("* data0: 命令字总字长，固定为8\n");
 	printf("* data1: 防区号高位\n");
 	printf("* data2: 防区号低位\n");
 	printf("* data4: 00 表示data1与data2为主机直属防区号，01~F0 表示data1与data2为分机防区号（已废弃），EE 表示分机自身状态（已废弃）\n");
-	printf("* code: 报警码\n");
-	printf("* 报警码与安定宝事件码对照表\n\n");
-
+	printf("* code: 报警码\n\n");
 	printf("|报警码|安定宝事件码|含义|\n");
 	printf("|------|----------|----|\n");
-
 
 	static Char codes[] = {
 		g250::MachineStatus::Arm,
