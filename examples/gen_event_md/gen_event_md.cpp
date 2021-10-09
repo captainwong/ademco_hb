@@ -3,6 +3,7 @@
 #include "../../include/ademco_event.h"
 #define ENABLE_COMMON_MACHINE_TYPE_TO_STRING
 #define ENABLE_COMMON_ZONE_PROPERTY_TO_STRING
+#define ENABLE_G250_KEY_TO_STRING
 #include "../../include/hb_detail.h"
 #include "../../include/hb_helper.h"
 #include <jlib/win32/UnicodeTool.h>
@@ -371,12 +372,39 @@ void print_available_zone_props()
 
 void print_g250_alarm_codes()
 {
-	printf("## EB B1 命令内报警码与安定宝事件码对照表\n\n");
+	using namespace g250;
+
+	printf("# 工程主机串口通信协议\n\n");
+	printf("9600, N, 8, 1\n\n");
+	printf("SUM = DATA(N) = DATA(0) + DATA(1) + ... + DATA(N-1)\n\n");
+
+	// 按键码
+	printf("\n\n## EB AB addr data sum\n");
+	printf("* PC到主机，按键\n");
+	printf("* addr: PC模拟键盘地址，1~4，暂时固定为3\n");
+	printf("* data: 按键码\n\n");
+	printf("|按键码|按键|\n");
+	printf("|-----|----|\n");
+	for (Key k = Key::Key_NULL; k <= Key::Key_STOP_ALARM; k = Key(k + 1)) {
+		auto s = keyToString(k);
+		if (s) {
+			printf("|%02X|%s|\n", k, jlib::win32::utf16_to_mbcs(s).c_str());
+		}
+	}
+
+
+	// EB B1 报警码
+	printf("\n\n## EB B1 data0 data1 data2 code data4 sum\n");
+	printf("* data0: 命令字总字长，固定为8\n");
+	printf("* data1: 防区号高位\n");
+	printf("* data2: 防区号低位\n");
+	printf("* data4: 00 表示data1与data2为主机直属防区号，01~F0 表示data1与data2为分机防区号（已废弃），EE 表示分机自身状态（已废弃）\n");
+	printf("* code: 报警码\n");
+	printf("* 报警码与安定宝事件码对照表\n\n");
 
 	printf("|报警码|安定宝事件码|含义|\n");
 	printf("|------|----------|----|\n");
 
-	using namespace g250;
 
 	static Char codes[] = {
 		g250::MachineStatus::Arm,
@@ -415,22 +443,29 @@ void print_g250_alarm_codes()
 
 int main()
 {
-	printf("### 主机状态\n\n");
-	printEvents(statusEvents, _countof(statusEvents));
+	if (0) {
+		printf("### 主机状态\n\n");
+		printEvents(statusEvents, _countof(statusEvents));
 
-	printf("### 防区报警\n\n");
-	printEvents(alarmEvents, _countof(alarmEvents));
+		printf("### 防区报警\n\n");
+		printEvents(alarmEvents, _countof(alarmEvents));
 
-	printf("### 防区异常\n\n");
-	printEvents(excepEvents, _countof(excepEvents));
+		printf("### 防区异常\n\n");
+		printEvents(excepEvents, _countof(excepEvents));
 
-	printf("### *恒博私有事件码*\n\n");
-	printEvents(privateEvents, _countof(privateEvents));
+		printf("### *恒博私有事件码*\n\n");
+		printEvents(privateEvents, _countof(privateEvents));
 
-	print_machineTypes();
-	print_imgs();
+		print_machineTypes();
+		print_imgs();
 
-	print_available_zone_props();
+		print_available_zone_props();
 
-	print_g250_alarm_codes();
+
+	} else {
+		print_g250_alarm_codes();
+
+	}
+
+
 }

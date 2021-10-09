@@ -1283,6 +1283,30 @@ inline char keyToPrintableChar(Key key) {
 	}
 }
 
+#ifdef ENABLE_G250_KEY_TO_STRING
+inline const wchar_t* keyToString(Key key) {
+	static wchar_t s[2] = { L'\0' };
+	switch (key) {
+	case Key_1: case Key_2: case Key_3:
+	case Key_4: case Key_5:
+	case Key_6: case Key_7:
+	case Key_8: case Key_9: s[0] = static_cast<wchar_t>(key + L'0'); return s;
+	case Key_0:				return L"0";
+	case Key_ASTERISK:		return L"*";
+	case Key_SHARP:			return L"#";
+	case Key_ARM:			return L"布防";
+	case Key_HALF_ARM:		return L"半布防";
+	case Key_DISARM:		return L"撤防";
+	case Key_EMERGENCY:		return L"紧急报警";
+	case Key_RECORD_SOUND:	return L"录音";
+	case Key_PLAY_SOUND:	return L"放音";
+	case Key_STOP_SOUND:	return L"停止";
+	case Key_NULL:			return L"无按键动作";
+	default:				return nullptr;
+	}
+}
+#endif
+
 //! PC的模拟键盘序号为3
 static constexpr Char PC_KEYBOARD_IDX = 3;
 
