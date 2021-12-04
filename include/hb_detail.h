@@ -1958,6 +1958,20 @@ struct MachineInfoToKeyboard {
 			wdata[0] = toWChar(h); wdata[1] = toWChar(d);
 			wdata[2] = toWChar(s); wdata[3] = L'\0'; return wdata;
 		}
+
+		uint16_t toZone() const {
+			uint16_t zone = 0;
+			if (0 <= h && h <= 9) {
+				zone += h * 100;
+			}
+			if (0 <= d && d <= 9) {
+				zone += d * 10;
+			}
+			if (0 <= s && s <= 9) {
+				zone += s;
+			}
+			return zone;
+		}
 	};
 
 	// 1~4
