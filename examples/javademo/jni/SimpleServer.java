@@ -4,6 +4,22 @@ import java.io.*;
 import java.net.*;
 
 public class SimpleServer {
+
+    public static String printable_bytes(byte[] b){
+        String HEX_STRING = "0123456789ABCDEF";
+        String s = "";
+        for(int i = 0; i < b.length; i++){
+            byte c = b[i];
+            if(32 <= c && c <= 127){
+                s += (char)c;
+            }else{
+                s += "\\x" + HEX_STRING.charAt(b[i] >>> 4);
+                s += HEX_STRING.charAt(b[i] & 0x0F);
+            }
+        }
+        return s;
+    }
+
     public static void main(String[] args) {
 
         AdemcoHbLibrary lib = new AdemcoHbLibrary();
@@ -26,6 +42,22 @@ public class SimpleServer {
             System.out.println("using seq=1234, acct=861234567890, ademco_id=666666, event=3400, zone=0, gg=0");
             String data = lib.pack(1234, "861234567890", 666666, 3400, 0, 0);
             System.out.println("data=" + data);
+        }
+
+        // test pack2
+        {
+            System.out.println("testing pack2...");
+            System.out.println("using seq=1234, acct=861234567890, ademco_id=666666, event=3400, zone=0, gg=0, xdata=EB BA 3F A1 76");
+            byte[] xdata = new byte[5];
+            xdata[0] = 0xEB;
+            xdata[1] = 0xBA;
+            xdata[2] = 0x3F;
+            xdata[3] = 0xA1;
+            xdata[4] = 0x76;
+            String sx = new String(xdata, StandardCharsets.UTF_8);
+            String data = lib.pack2(1234, "861234567890", 666666, 3400, 0, 0, sx);
+            byte[] bytes = data.getBytes(data);
+            System.out.println("data=" + printable_bytes(bytes));
         }
 
         // test pack ack
