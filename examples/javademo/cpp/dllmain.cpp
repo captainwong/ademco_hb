@@ -79,13 +79,31 @@ JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack
 }
 
 JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack2
-(JNIEnv* env, jobject, jint seq, jstring acct, jint ademco_id, jint ademco_event, jint zone, jint gg, jstring xdata)
+(JNIEnv* env, jobject, jint seq, jstring acct, jint ademco_id, jint ademco_event, jint zone, jint gg, jcharArray xdata, jint xdata_len)
 {
     jboolean iscopy = 0;
     std::string sacct = env->GetStringUTFChars(acct, &iscopy);
-    std::string s = env->GetStringUTFChars(xdata, &iscopy);
-    printf("%s\n", ademco::detail::toString(s.data(), s.size(), ademco::detail::ToStringOption::ALL_CHAR_AS_HEX, false, false).data());
-    auto xdata_ = ademco::makeXData(s.data(), s.size());
+
+    jchar *array = env->GetCharArrayElements(xdata, nullptr); //复制数组元素到array内存空间  
+    if(array == nullptr){  
+        return 0;  
+    }
+
+    jboolean *buf = (jboolean *)calloc(xdata_len , sizeof(jboolean)); //开辟jboolean类型的内存空间，jboolean对应的c++类型为unsigned char  
+    if(buf == nullptr){  
+        LOGE("jni_radio_send: calloc error.");  
+        return 0;  
+    }  
+    for(int i=0; i < xdata_len; i++){ //把jcharArray的数据元素复制到buf所指的内存空间  
+        *(buf + i) = (jboolean)(*(array + i));  
+    }  
+  
+    env->ReleaseCharArrayElements(xdata, array, 0);//释放资源  
+    auto xdata_ = ademco::makeXData(buf, xdata_len);
+    
+    free(buf);//释放内存空间  
+    buf = nullptr;  
+
     ademco::AdemcoPacket ap;
     char buff[1024];
     auto res = ap.make_hb(buff, sizeof(buff), static_cast<uint16_t>(seq),

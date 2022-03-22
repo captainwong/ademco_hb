@@ -73,8 +73,13 @@ public class SimpleServer {
             // System.out.println(printable_bytes(xdata));
             // String sx = new String(xdata);
             // System.out.println("sx=" + sx);
-            String xdata = "\u00EB\u00BA\u003F\u00A1\u0076";
-            System.out.println("xdata=" + printable_bytes(xdata));
+           // String xdata = "\u00EB\u00BA\u003F\u00A1\u0076";
+            char[] xdata = new char[5];
+            xdata[0] = 0xEB;
+            xdata[1] = 0xBA;
+            xdata[2] = 0x3F;
+            xdata[3] = 0xA1;
+            xdata[4] = 0x76;
             String data = lib.pack2(1234, "861234567890", 666666, 3400, 0, 0, xdata);
             try{
                 byte[] bytes = data.getBytes(data);

@@ -16,7 +16,7 @@ JAVA_INCLUDE_OS=$JAVA_INCLUDE/linux
 # macOS
 #JAVA_INCLUDE_OS=$JAVA_INCLUDE/darwin
 
-
+rm -f javademo/jin/*.class
 # 编译Java类
 javac -encoding utf-8 javademo/jni/AdemcoHbLibrary.java
 # 生成C++头文件
