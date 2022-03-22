@@ -51,7 +51,7 @@ public class SimpleServer {
             byte[] xdata = new byte[5];
             xdata[0] = '\u00EB';
             xdata[1] = '\u00BA';
-            xdata[2] = '\u003A';
+            xdata[2] = '\u003F';
             xdata[3] = '\u00A1';
             xdata[4] = '\u0076';
             System.out.println("xdata=" + printable_bytes(xdata));
