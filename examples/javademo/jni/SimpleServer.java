@@ -74,13 +74,13 @@ public class SimpleServer {
             // String sx = new String(xdata);
             // System.out.println("sx=" + sx);
             String xdata = "\u00EB\u00BA\u003F\u00A1\u0076";
-            System.out.println("xdata=" + xdata);
+            System.out.println("xdata=" + printable_bytes(xdata));
             String data = lib.pack2(1234, "861234567890", 666666, 3400, 0, 0, xdata);
             try{
                 byte[] bytes = data.getBytes(data);
                 System.out.println("data=" + printable_bytes(bytes));
             }catch(UnsupportedEncodingException e){
-                System.out.println("data=" + data);
+                System.out.println("data=" + printable_bytes(data));
             }
         }
 
