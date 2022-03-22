@@ -60,7 +60,7 @@ public class SimpleServer {
                 byte[] bytes = data.getBytes(data);
                 System.out.println("data=" + printable_bytes(bytes));
             }catch(UnsupportedEncodingException e){
-
+                System.out.println("data=" + data);
             }
         }
 
