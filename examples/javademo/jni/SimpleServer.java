@@ -50,11 +50,17 @@ public class SimpleServer {
             System.out.println("using seq=1234, acct=861234567890, ademco_id=666666, event=3400, zone=0, gg=0, xdata=EB BA 3F A1 76");
             byte[] xdata = new byte[5];
             xdata[0] = '\u00EB';
+            xdata[1] = '\u00BA';
+            xdata[2] = '\u003A';
+            xdata[3] = '\u00A1';
+            xdata[4] = '\u0076';
+            System.out.println("xdata=" + printable_bytes(xdata));
             // xdata[1] = 0xBA;
             // xdata[2] = 0x3F;
             // xdata[3] = 0xA1;
             // xdata[4] = 0x76;
             String sx = new String(xdata);
+            System.out.println("sx=" + sx);
             String data = lib.pack2(1234, "861234567890", 666666, 3400, 0, 0, sx);
             try{
                 byte[] bytes = data.getBytes(data);
