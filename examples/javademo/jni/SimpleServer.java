@@ -23,7 +23,7 @@ public class SimpleServer {
     public static String printable_bytes(String b){
         String HEX_STRING = "0123456789ABCDEF";
         String s = "";
-        for(int i = 0; i < b.length; i++){
+        for(int i = 0; i < b.length(); i++){
             char c = b.charAt(i);
             if(32 <= c && c <= 127){
                 s += (char)c;
