@@ -56,8 +56,12 @@ public class SimpleServer {
             xdata[4] = (byte)0x76;
             String sx = new String(xdata);
             String data = lib.pack2(1234, "861234567890", 666666, 3400, 0, 0, sx);
-            byte[] bytes = data.getBytes(data);
-            System.out.println("data=" + printable_bytes(bytes));
+            try{
+                byte[] bytes = data.getBytes(data);
+                System.out.println("data=" + printable_bytes(bytes));
+            }catch(UnsupportedEncodingException e){
+
+            }
         }
 
         // test pack ack
