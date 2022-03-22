@@ -135,20 +135,20 @@ JNIEXPORT jcharArray JNICALL Java_javademo_jni_AdemcoHbLibrary_pack3
         //memcpy(buff, ascii.data(), ascii.size());
         //return env->NewStringUTF(buff);
 
-        jcharArray rarray = env->NewCharArray(ascii.size());//定义数据变量  
+        jcharArray rarray = env->NewCharArray(res);//定义数据变量  
         if(rarray == nullptr){
             return 0;
         }
         
-        jchar *pArray = (jchar*)calloc(ascii.size(), sizeof(jchar));//开辟jchar类型内存空间
+        jchar *pArray = (jchar*)calloc(res, sizeof(jchar));//开辟jchar类型内存空间
         if(pArray == nullptr){
            return 0;
         }
         //copy buffer to jchar array
-        for(int i = 0; i < ascii.size(); i++) {
+        for(int i = 0; i < res; i++) {
             *(pArray + i) = buff[i]; //复制bufTemp数据元素到pArray内存空间	
         }
-        env->SetCharArrayRegion(rarray, 0, ascii.size(), pArray);//复制pArray的jchar数据元素到jcharArray 
+        env->SetCharArrayRegion(rarray, 0, res, pArray);//复制pArray的jchar数据元素到jcharArray 
         return rarray;
     }
     return 0;
