@@ -28,8 +28,8 @@ public class SimpleServer {
             if(32 <= c && c <= 127){
                 s += (char)c;
             }else{
-                s += "\\x" + HEX_STRING.charAt(b[i] >>> 4);
-                s += HEX_STRING.charAt(b[i] & 0x0F);
+                s += "\\x" + HEX_STRING.charAt(c >>> 4);
+                s += HEX_STRING.charAt(c & 0x0F);
             }
         }
         return s;
