@@ -20,6 +20,21 @@ public class SimpleServer {
         return s;
     }
 
+    public static String printable_bytes(String b){
+        String HEX_STRING = "0123456789ABCDEF";
+        String s = "";
+        for(int i = 0; i < b.length; i++){
+            byte c = b[i];
+            if(32 <= c && c <= 127){
+                s += (char)c;
+            }else{
+                s += "\\x" + HEX_STRING.charAt(b[i] >>> 4);
+                s += HEX_STRING.charAt(b[i] & 0x0F);
+            }
+        }
+        return s;
+    }
+
     public static void main(String[] args) {
 
         AdemcoHbLibrary lib = new AdemcoHbLibrary();
