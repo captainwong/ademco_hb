@@ -91,9 +91,8 @@ JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack2
 
     jboolean *buf = (jboolean *)calloc(xdata_len , sizeof(jboolean)); //开辟jboolean类型的内存空间，jboolean对应的c++类型为unsigned char  
     if(buf == nullptr){  
-        LOGE("jni_radio_send: calloc error.");  
         return 0;  
-    }  
+    }
     for(int i=0; i < xdata_len; i++){ //把jcharArray的数据元素复制到buf所指的内存空间  
         *(buf + i) = (jboolean)(*(array + i));  
     }  

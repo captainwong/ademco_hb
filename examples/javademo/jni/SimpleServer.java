@@ -80,7 +80,7 @@ public class SimpleServer {
             xdata[2] = 0x3F;
             xdata[3] = 0xA1;
             xdata[4] = 0x76;
-            String data = lib.pack2(1234, "861234567890", 666666, 3400, 0, 0, xdata);
+            String data = lib.pack2(1234, "861234567890", 666666, 3400, 0, 0, xdata, 5);
             try{
                 byte[] bytes = data.getBytes(data);
                 System.out.println("data=" + printable_bytes(bytes));
