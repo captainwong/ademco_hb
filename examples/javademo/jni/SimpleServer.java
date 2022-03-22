@@ -24,11 +24,11 @@ public class SimpleServer {
         String HEX_STRING = "0123456789ABCDEF";
         String s = "";
         for(int i = 0; i < b.length; i++){
-            char c = b[i];
+            int c = b[i] & 0xFF;
             if(32 <= c && c <= 127){
                 s += (char)c;
             }else{
-                s += "\\x" + HEX_STRING.charAt((byte)c >>> 4);
+                s += "\\x" + HEX_STRING.charAt(c >>> 4);
                 s += HEX_STRING.charAt(c & 0x0F);
             }
         }
