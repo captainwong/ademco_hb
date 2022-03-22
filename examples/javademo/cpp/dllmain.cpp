@@ -84,6 +84,7 @@ JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack2
     jboolean iscopy = 0;
     std::string sacct = env->GetStringUTFChars(acct, &iscopy);
     std::string s = env->GetStringUTFChars(xdata, &iscopy);
+    printf("%s\n", s.data());
     auto xdata_ = ademco::makeXData(s.data(), s.size());
     ademco::AdemcoPacket ap;
     char buff[1024];
