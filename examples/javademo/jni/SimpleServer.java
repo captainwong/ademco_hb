@@ -20,6 +20,21 @@ public class SimpleServer {
         return s;
     }
 
+    public static String printable_bytes(char[] b){
+        String HEX_STRING = "0123456789ABCDEF";
+        String s = "";
+        for(int i = 0; i < b.length; i++){
+            char c = b[i];
+            if(32 <= c && c <= 127){
+                s += (char)c;
+            }else{
+                s += "\\x" + HEX_STRING.charAt(b[i] >>> 4);
+                s += HEX_STRING.charAt(b[i] & 0x0F);
+            }
+        }
+        return s;
+    }
+
     public static String printable_bytes(String b){
         String HEX_STRING = "0123456789ABCDEF";
         String s = "";
@@ -62,6 +77,19 @@ public class SimpleServer {
         // test pack2
         {
             System.out.println("testing pack2...");
+            System.out.println("using seq=1234, acct=861234567890, ademco_id=666666, event=3400, zone=0, gg=0, xdata=123456");
+            String data = lib.pack2(1234, "861234567890", 666666, 3400, 0, 0, "123456");
+            try{
+                byte[] bytes = data.getBytes(data);
+                System.out.println("data=" + printable_bytes(bytes));
+            }catch(UnsupportedEncodingException e){
+                System.out.println("data=" + printable_bytes(data));
+            }
+        }
+
+        // test pack3
+        {
+            System.out.println("testing pack3...");
             System.out.println("using seq=1234, acct=861234567890, ademco_id=666666, event=3400, zone=0, gg=0, xdata=EB BA 3F A1 76");
             // byte[] xdata = new byte[5];
             // xdata[0] = '\u00EB';
@@ -80,13 +108,8 @@ public class SimpleServer {
             xdata[2] = 0x3F;
             xdata[3] = 0xA1;
             xdata[4] = 0x76;
-            String data = lib.pack2(1234, "861234567890", 666666, 3400, 0, 0, xdata, 5);
-            try{
-                byte[] bytes = data.getBytes(data);
-                System.out.println("data=" + printable_bytes(bytes));
-            }catch(UnsupportedEncodingException e){
-                System.out.println("data=" + printable_bytes(data));
-            }
+            char[] data = lib.pack3(1234, "861234567890", 666666, 3400, 0, 0, xdata, 5);
+            System.out.println("data=" + printable_bytes(data));
         }
 
         // test pack ack
