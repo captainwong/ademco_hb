@@ -24,7 +24,7 @@ public class SimpleServer {
         String HEX_STRING = "0123456789ABCDEF";
         String s = "";
         for(int i = 0; i < b.length; i++){
-            byte c = b[i];
+            char c = b.charAt(i);
             if(32 <= c && c <= 127){
                 s += (char)c;
             }else{
