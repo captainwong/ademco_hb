@@ -37,6 +37,14 @@ JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack
  * Signature: (ILjava/lang/String;IIIILjava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack2
+  (JNIEnv *, jobject, jint, jstring, jint, jint, jint, jint, jstring);
+
+/*
+ * Class:     javademo_jni_AdemcoHbLibrary
+ * Method:    pack3
+ * Signature: (ILjava/lang/String;IIII[CI)[C
+ */
+JNIEXPORT jcharArray JNICALL Java_javademo_jni_AdemcoHbLibrary_pack3
   (JNIEnv *, jobject, jint, jstring, jint, jint, jint, jint, jcharArray, jint);
 
 /*

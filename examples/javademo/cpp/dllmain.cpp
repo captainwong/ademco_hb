@@ -79,6 +79,27 @@ JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack
 }
 
 JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack2
+(JNIEnv* env, jobject, jint seq, jstring acct, jint ademco_id, jint ademco_event, jint zone, jint gg, jstring xdata)
+{
+    jboolean iscopy = 0;
+    std::string sacct = env->GetStringUTFChars(acct, &iscopy);
+    std::string s = env->GetStringUTFChars(xdata, &iscopy);
+    auto xdata_ = ademco::makeXData(s.data(), s.size());
+    ademco::AdemcoPacket ap;
+    char buff[1024];
+    auto res = ap.make_hb(buff, sizeof(buff), static_cast<uint16_t>(seq),
+                          sacct, static_cast<size_t>(ademco_id), static_cast<unsigned char>(gg),
+                          static_cast<ademco::ADEMCO_EVENT>(ademco_event), static_cast<size_t>(zone), xdata_);
+    if (res > 0) {
+        //buff[res] = 0;
+        auto ascii = ademco::detail::toString(buff, res, ademco::detail::ToStringOption::ALL_CHAR_AS_HEX, false, false);
+        memcpy(buff, ascii.data(), ascii.size());
+        return env->NewStringUTF(buff);
+    }
+    return 0;
+}
+
+JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack3
 (JNIEnv* env, jobject, jint seq, jstring acct, jint ademco_id, jint ademco_event, jint zone, jint gg, jcharArray xdata, jint xdata_len)
 {
     jboolean iscopy = 0;
@@ -104,7 +125,7 @@ JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack2
     buf = nullptr;  
 
     ademco::AdemcoPacket ap;
-    char buff[1024];
+    char buff[1024] = {0};
     auto res = ap.make_hb(buff, sizeof(buff), static_cast<uint16_t>(seq),
                           sacct, static_cast<size_t>(ademco_id), static_cast<unsigned char>(gg),
                           static_cast<ademco::ADEMCO_EVENT>(ademco_event), static_cast<size_t>(zone), xdata_);
@@ -112,7 +133,23 @@ JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack2
         //buff[res] = 0;
         auto ascii = ademco::detail::toString(buff, res, ademco::detail::ToStringOption::ALL_CHAR_AS_HEX, false, false);
         memcpy(buff, ascii.data(), ascii.size());
-        return env->NewStringUTF(buff);
+        //return env->NewStringUTF(buff);
+
+        jcharArray rarray = env->NewCharArray(ascii.size());//定义数据变量  
+        if(rarray == nullptr){
+            return 0;
+        }
+        
+        jchar *pArray = (jchar*)calloc(ascii.size(), sizeof(jchar));//开辟jchar类型内存空间
+        if(pArray == nullptr){
+           return 0;
+        }
+        //copy buffer to jchar array
+        for(int i = 0; i < ascii.size(); i++) {
+            *(pArray + i) = buff[i]; //复制bufTemp数据元素到pArray内存空间	
+        }
+        env->SetCharArrayRegion(rarray, 0, ascii.size(), pArray);//复制pArray的jchar数据元素到jcharArray 
+        return rarray;
     }
     return 0;
 }
