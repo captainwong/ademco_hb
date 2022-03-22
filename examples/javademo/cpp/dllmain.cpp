@@ -99,7 +99,7 @@ JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack2
     return 0;
 }
 
-JNIEXPORT jstring JNICALL Java_javademo_jni_AdemcoHbLibrary_pack3
+JNIEXPORT jcharArray JNICALL Java_javademo_jni_AdemcoHbLibrary_pack3
 (JNIEnv* env, jobject, jint seq, jstring acct, jint ademco_id, jint ademco_event, jint zone, jint gg, jcharArray xdata, jint xdata_len)
 {
     jboolean iscopy = 0;
