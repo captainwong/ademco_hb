@@ -48,17 +48,18 @@ public class SimpleServer {
         {
             System.out.println("testing pack2...");
             System.out.println("using seq=1234, acct=861234567890, ademco_id=666666, event=3400, zone=0, gg=0, xdata=EB BA 3F A1 76");
-            byte[] xdata = new byte[5];
-            xdata[0] = '\u00EB';
-            xdata[1] = '\u00BA';
-            xdata[2] = '\u003F';
-            xdata[3] = '\u00A1';
-            xdata[4] = '\u0076';
-            System.out.println("xdata=");
-            System.out.println(printable_bytes(xdata));
-            String sx = new String(xdata);
-            System.out.println("sx=" + sx);
-            String data = lib.pack2(1234, "861234567890", 666666, 3400, 0, 0, sx);
+            // byte[] xdata = new byte[5];
+            // xdata[0] = '\u00EB';
+            // xdata[1] = '\u00BA';
+            // xdata[2] = '\u003F';
+            // xdata[3] = '\u00A1';
+            // xdata[4] = '\u0076';
+            // System.out.println("xdata=");
+            // System.out.println(printable_bytes(xdata));
+            // String sx = new String(xdata);
+            // System.out.println("sx=" + sx);
+            String xdata = "\u00EB\u00BA\u003F\u00A1\u0076";
+            String data = lib.pack2(1234, "861234567890", 666666, 3400, 0, 0, xdata);
             try{
                 byte[] bytes = data.getBytes(data);
                 System.out.println("data=" + printable_bytes(bytes));
