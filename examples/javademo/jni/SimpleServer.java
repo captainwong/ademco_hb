@@ -49,11 +49,11 @@ public class SimpleServer {
             System.out.println("testing pack2...");
             System.out.println("using seq=1234, acct=861234567890, ademco_id=666666, event=3400, zone=0, gg=0, xdata=EB BA 3F A1 76");
             byte[] xdata = new byte[5];
-            xdata[0] = (byte)0xEB;
-            xdata[1] = (byte)0xBA;
-            xdata[2] = (byte)0x3F;
-            xdata[3] = (byte)0xA1;
-            xdata[4] = (byte)0x76;
+            xdata[0] = '\u00EB';
+            // xdata[1] = 0xBA;
+            // xdata[2] = 0x3F;
+            // xdata[3] = 0xA1;
+            // xdata[4] = 0x76;
             String sx = new String(xdata);
             String data = lib.pack2(1234, "861234567890", 666666, 3400, 0, 0, sx);
             try{
