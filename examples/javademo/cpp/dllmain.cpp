@@ -130,7 +130,6 @@ JNIEXPORT jcharArray JNICALL Java_javademo_jni_AdemcoHbLibrary_pack3
                           sacct, static_cast<size_t>(ademco_id), static_cast<unsigned char>(gg),
                           static_cast<ademco::ADEMCO_EVENT>(ademco_event), static_cast<size_t>(zone), xdata_);
     if (res > 0) {
-        printf("res=%d\n", res);
         buff[res] = 0;
         //auto ascii = ademco::detail::toString(buff, res, ademco::detail::ToStringOption::ALL_CHAR_AS_HEX, false, false);
         //memcpy(buff, ascii.data(), ascii.size());
