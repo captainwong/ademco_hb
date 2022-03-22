@@ -52,7 +52,21 @@ public class AdemcoHbLibrary
 
     
     /*
-    * @brief 将远程控制命令（包含xdata）打包成网络传输数据
+    * @brief 将远程控制命令（包含xdata，xdata为ASC字符串）打包成网络传输数据
+    * @param[in] seq 序号
+    * @param[in] acct 主机账号
+    * @param[in] ademco_id 安定宝ID
+    * @param[in] ademco_event 安定宝事件码
+    * @param[in] zone 防区号
+    * @param[in] gg 分防区号
+    * @param[in] xdata xdata
+    * @return hex String，如字符串"123456" 表示为 "313233343536", 需手动转换为byte[] 进行发送，参考SimpleServerThread
+    */
+    public native String pack2(int seq, String acct, int ademco_id, int ademco_event, int zone, int gg, String xdata);
+
+    
+    /*
+    * @brief 将远程控制命令（包含xdata，xdata包含非ASC字符）打包成网络传输数据
     * @param[in] seq 序号
     * @param[in] acct 主机账号
     * @param[in] ademco_id 安定宝ID
@@ -63,7 +77,7 @@ public class AdemcoHbLibrary
     * @param[in] xdata_len xdata长度
     * @return hex String，如字符串"123456" 表示为 "313233343536", 需手动转换为byte[] 进行发送，参考SimpleServerThread
     */
-    public native String pack2(int seq, String acct, int ademco_id, int ademco_event, int zone, int gg, char[] xdata, int xdata_len);
+    public native char[] pack3(int seq, String acct, int ademco_id, int ademco_event, int zone, int gg, char[] xdata, int xdata_len);
 
     /*
     * @brief 打包ACK
