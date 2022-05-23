@@ -1219,7 +1219,7 @@ struct AdemcoPacket
 		// dump data
 		JLOG_HEX(pack, std::min(pack_len, jlib::MAX_INPUT_BUFF_LEN));
 		JLOG_ASC(pack, std::min(pack_len, jlib::MAX_INPUT_BUFF_LEN));
-		assert(0);
+		//assert(0);
 
 		return ParseResult::RESULT_DATA_ERROR;
 	}
