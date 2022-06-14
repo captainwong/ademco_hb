@@ -5,13 +5,12 @@
 */
 
 
-
-
-
 #ifndef __ADEMCO_H__
 #define __ADEMCO_H__
 
+
 #pragma once
+
 
 #ifdef ADEMCO_EXPORTS
 
@@ -83,15 +82,6 @@ static inline int ademcoIsValidZoneStrict(AdemcoZone zone) {
 #define ADEMCO_GG_MIN 0
 #define ADEMCO_GG_MAX 99
 #define ADEMCO_GG_SENTINEL 100
-
-//! 三防区主机状态GG范围 1~3
-#define ADEMCO_3SECTION_MACHINE_GG_MIN 1
-#define ADEMCO_3SECTION_MACHINE_GG_MAX 3
-
-//! 是否合法的三防区主机状态GG
-static inline int ademcoIsValid3SectionMachineGG(AdemcoGG gg) {
-	return ADEMCO_3SECTION_MACHINE_GG_MIN <= gg && gg <= ADEMCO_3SECTION_MACHINE_GG_MAX;
-}
 
 // Ademco events
 typedef enum AdemcoEvent {
@@ -195,6 +185,84 @@ typedef enum AdemcoEvent {
 
 }AdemcoEvent;
 
+static const AdemcoEvent AdemcoEvents[] = {
+	EVENT_ARM,
+	EVENT_DISARM,
+	EVENT_HALFARM,
+	EVENT_EMERGENCY,
+
+	EVENT_BURGLAR,
+	EVENT_DOORRINGING,
+	EVENT_FIRE,
+	EVENT_DURESS,
+	EVENT_GAS,
+	EVENT_WATER,
+	EVENT_TAMPER,
+	EVENT_ZONE_TAMPER,
+	EVENT_BYPASS,
+	EVENT_BYPASS_RESUME,
+
+	EVENT_AC_BROKE,
+	EVENT_AC_RECOVER,
+	EVENT_LOWBATTERY,
+	EVENT_BATTERY_RECOVER,
+	EVENT_BADBATTERY,
+	EVENT_BADBATTERY_RECOVER,
+	EVENT_SOLARDISTURB,
+	EVENT_SOLARDISTURB_RECOVER,
+	EVENT_DISCONNECT,
+	EVENT_RECONNECT,
+	EVENT_LOST,
+	EVENT_LOST_RECOVER,
+	EVENT_3100,
+	EVENT_BATTERY_EXCEPTION,
+	EVENT_BATTERY_EXCEPTION_RECOVER,
+	EVENT_OTHER_EXCEPTION,
+	EVENT_OTHER_EXCEPTION_RECOVER,
+
+	EVENT_SERIAL485DIS,
+	EVENT_SERIAL485CONN,
+	EVENT_CONN_HANGUP,
+	EVENT_CONN_RESUME,
+	EVENT_DISARM_PWD_ERR,
+
+	EVENT_SUB_MACHINE_SENSOR_EXCEPTION,
+	EVENT_SUB_MACHINE_SENSOR_RESUME,
+	EVENT_SUB_MACHINE_POWER_EXCEPTION,
+	EVENT_SUB_MACHINE_POWER_RESUME,
+	EVENT_COM_PASSTHROUGH,
+
+	EVENT_ENTER_SET_MODE,
+	EVENT_EXIT_SET_MODE,
+	EVENT_QUERY_SUB_MACHINE,
+	EVENT_WRITE_TO_MACHINE,
+
+	EVENT_I_AM_NET_MODULE,
+	EVENT_I_AM_GPRS,
+	EVENT_I_AM_LCD_MACHINE,
+	EVENT_I_AM_WIRE_MACHINE,
+	EVENT_I_AM_WIFI_MACHINE,
+	EVENT_I_AM_3_SECTION_MACHINE,
+	EVENT_I_AM_IOT_MACHINE,
+	EVENT_I_AM_TRUE_COLOR,
+	EVENT_I_AM_GPRS_IOT,
+	EVENT_I_AM_GPRS_PHONE,
+	EVENT_I_AM_NB_MACHINE,
+
+	EVENT_SIM_IS_IOT_CARD,
+	EVENT_SIM_IS_IOT_PLATFORM_CARD,
+	EVENT_SIM_IS_NOT_IOT_CARD,
+
+	EVENT_PHONE_USER_SOS,
+	EVENT_PHONE_USER_CANCLE_ALARM,
+	EVENT_ENTER_SETTING_MODE,
+	EVENT_EXIT_SETTING_MODE,
+	EVENT_RESTORE_FACTORY_SETTINGS,
+
+	EVENT_WHAT_IS_YOUR_TYPE,
+	EVENT_SIGNAL_STRENGTH_CHANGED,
+};
+
 // 安定宝事件级别
 typedef enum AdemcoEventLevel
 {
@@ -222,16 +290,16 @@ typedef struct AdemcoDataSegment {
 	AdemcoZone zone;
 }AdemcoDataSegment;
 
-typedef enum XDataLengthFormat {
+typedef enum AdemcoXDataLengthFormat {
 	TWO_HEX, // 两个hex字节表示长度
 	FOUR_DECIMAL, // 四个decimal char 表示长度
-}XDataLengthFormat;
+}AdemcoXDataLengthFormat;
 
-typedef struct XData {
-	XDataLengthFormat lenghFormat;
+typedef struct AdemcoXDataSegment {
+	AdemcoXDataLengthFormat lenghFormat;
 	uint8_t raw[ADEMCO_PACKET_XDATA_MAX_LEN];
 	int raw_len;
-}XData;
+}AdemcoXDataSegment;
 
 #define ADEMCO_PACKET_ID_NULL	 "\"NULL\""
 #define ADEMCO_PACKET_ID_ACK	 "\"ACK\""
@@ -265,10 +333,10 @@ typedef struct AdemcoPacket {
 	uint16_t crc;
 	int len;
 	AdemcoPacketId id;
-	int seq;
+	uint16_t seq;
 	char acct[ADEMCO_PACKET_ACCT_MAX_LEN + 1];
 	AdemcoDataSegment data;
-	XData xdata;
+	AdemcoXDataSegment xdata;
 	time_t timestamp;
 }AdemcoPacket;
 
@@ -285,12 +353,18 @@ ADEMCO_EXPORT_SYMBOL int ademcoIsEventNeedControlSource(AdemcoEvent ademcoEvent)
 ADEMCO_EXPORT_SYMBOL AdemcoEventLevel ademcoGetEventLevel(AdemcoEvent ademcoEvent);
 //! 获取异常恢复事件所对应的异常事件
 ADEMCO_EXPORT_SYMBOL AdemcoEvent ademcoGetExceptionEventByResumeEvent(AdemcoEvent resumeEvent);
+ADEMCO_EXPORT_SYMBOL const char* ademcoEventToString(AdemcoEvent ademcoEvent);
+ADEMCO_EXPORT_SYMBOL const wchar_t* ademcoEventToStringChinese(AdemcoEvent ademcoEvent);
 
 ADEMCO_EXPORT_SYMBOL int ademcoAppendDataSegment(uint8_t* packet, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone);
 ADEMCO_EXPORT_SYMBOL int ademcoAppendDataSegment2(uint8_t* packet, const AdemcoDataSegment* dataSegment);
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoParseDataSegment(const uint8_t* packet, int packet_len, AdemcoDataSegment* dataSegment);
 // return 0 for empty packet, CONGWIN_FE100_PACKET_LEN for non-empty packet
 ADEMCO_EXPORT_SYMBOL int ademcoDataSegmentToCongwinFe100(uint8_t* fe100, const AdemcoDataSegment* dataSegment);
+ADEMCO_EXPORT_SYMBOL const uint8_t* ademcoXDataGetValidContentAddr(const AdemcoXDataSegment* xdata);
+ADEMCO_EXPORT_SYMBOL int ademcoXDataGetValidContentLen(const AdemcoXDataSegment* xdata);
+// return ADEMCO_OK for success, return ADEMCO_ERR for len is too long
+ADEMCO_EXPORT_SYMBOL int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, const uint8_t* content, int len);
 
 ADEMCO_EXPORT_SYMBOL int isAdemcoId(const char* standard, const char* id, int len);
 ADEMCO_EXPORT_SYMBOL AdemcoPacketId getAdemcoId(const char* id, int len);
@@ -306,13 +380,24 @@ ADEMCO_EXPORT_SYMBOL int ademcoMakeNullPacket(uint8_t* buff, int len, uint16_t s
 ADEMCO_EXPORT_SYMBOL int ademcoMakeAckPacket(uint8_t* buff, int len, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL int ademcoMakeNakPacket(uint8_t* buff, int len, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL int ademcoMakeHbPacket(uint8_t* buff, int len, uint16_t seq, const char* acct, AdemcoId ademcoId, 
-											AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, XData* xdata);
+											AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, AdemcoXDataSegment* xdata);
 
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* pkt, int* cb_commited);
 
 ADEMCO_EXPORT_SYMBOL uint16_t ademcoCRC8(char c, uint16_t crc);
 ADEMCO_EXPORT_SYMBOL uint16_t ademcoCRC16(const uint8_t* buff, int len, uint16_t crc);
 
+
+/* Hengbo */
+
+//! 三防区主机状态GG范围 1~3
+#define HB_3SECTION_MACHINE_GG_MIN 1
+#define HB_3SECTION_MACHINE_GG_MAX 3
+
+//! 是否合法的三防区主机状态GG
+static inline int hbIsValid3SectionMachineGG(AdemcoGG gg) {
+	return HB_3SECTION_MACHINE_GG_MIN <= gg && gg <= HB_3SECTION_MACHINE_GG_MAX;
+}
 
 typedef enum HbMachineStatus {
 	HMS_ARM,
@@ -392,6 +477,30 @@ typedef enum HbZoneProperty {
 	HZP_INVALID = -1,
 }HbZoneProperty;
 
+typedef struct HbMachineTimePoint {
+	uint8_t hour;
+	uint8_t minute;
+}HbMachineTimePoint;
+
+typedef struct HbTimer {
+	HbMachineTimePoint armAt;
+	HbMachineTimePoint disarmAt;
+}HbTimer;
+
+typedef union HbMachineTimer {
+	HbTimer timer[2]; // 2 set of timer
+	uint8_t data[8];
+}HbMachineTimer;
+
+
+static const HbZoneProperty hbZoneProperties[12] = {
+	HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE, 
+	HZP_REMOTE_CONTROL, HZP_BUGLAR_HALF, HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS
+};
+
+// return available count
+ADEMCO_EXPORT_SYMBOL int hbGetAvailableZoneProperties(HbMachineType type, HbZoneProperty props[12]);
+
 //! 最大防区号根据型号不同而不同
 ADEMCO_EXPORT_SYMBOL uint16_t hbZoneMax(HbMachineType type);
 //! 防区号是否合法（可以包含0防区）
@@ -425,14 +534,19 @@ ADEMCO_EXPORT_SYMBOL int hbMachineCanLinkSubMachine(HbMachineType type);
 //! 根据防区属性判断是否支持失联报告
 //! 失联报告是主机侧实现的跟防区属性没关系，但是人为限制了只有以下属性的才可以设置
 ADEMCO_EXPORT_SYMBOL int hbZonePropCanReportLost(HbZoneProperty zp);
-
-
-
-
-
-
-
-
+ADEMCO_EXPORT_SYMBOL void hbInitMachineTimer(HbMachineTimer* timer);
+ADEMCO_EXPORT_SYMBOL int hbIsValidTimer(HbTimer* timer);
+ADEMCO_EXPORT_SYMBOL AdemcoEvent hbMachineStatusToAdemcoEvent(HbMachineStatus status);
+ADEMCO_EXPORT_SYMBOL HbMachineStatus hbMachineStatusFromAdemcoEvent(AdemcoEvent ademcoEvent);
+ADEMCO_EXPORT_SYMBOL AdemcoEvent hbMachineTypeToAdemcoEvent(HbMachineType type);
+ADEMCO_EXPORT_SYMBOL HbMachineType hbMachineTypeFromAdemcoEvent(AdemcoEvent ademcoEvent);
+ADEMCO_EXPORT_SYMBOL AdemcoEvent hbZonePropertyToAdemcoEvent(HbZoneProperty zp);
+ADEMCO_EXPORT_SYMBOL const char* hbMachineTypeToString(HbMachineType type);
+ADEMCO_EXPORT_SYMBOL const wchar_t* hbMachineTypeToStringChinese(HbMachineType type);
+ADEMCO_EXPORT_SYMBOL const char* hbZonePropertyToString(HbZoneProperty zp);
+ADEMCO_EXPORT_SYMBOL const wchar_t* hbZonePropertyToStringChinese(HbZoneProperty zp);
+ADEMCO_EXPORT_SYMBOL const char* hbGetZoneFormatString(HbMachineType type);
+ADEMCO_EXPORT_SYMBOL const wchar_t* hbGetZoneFormatStringW(HbMachineType type);
 
 
 
