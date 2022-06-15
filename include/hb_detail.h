@@ -855,7 +855,7 @@ typedef QueryMoreSensorLostSettingsRequest Req_AD;
 struct QuerySensorLostSettingsResponse {
 	static constexpr Char P1FlagZoneAs1Char = 0xF0;
 	static constexpr Char P1FlagZoneAs2Chars = 0xF1;
-	static constexpr Char min_len = 9; // 无防区防拆数据时长度最小为9
+	static constexpr Char min_len = 9; // 无防区失联数据时长度最小为9
 	static constexpr Char max_zone = 20; // 最多包含20个防区
 	static constexpr Char max_len = min_len + max_zone * 2; // 最多有 9 + 20 *2 = 49 个字节
 

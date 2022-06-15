@@ -492,6 +492,10 @@ typedef union HbMachineTimer {
 	uint8_t data[8];
 }HbMachineTimer;
 
+// 串口透传数据最大长度
+#define HB_COM_DATA_MAX_LEN 32
+
+// 发给主机
 typedef enum HbComRequestType {
 	HbComReq_A0, // 索要主机状态
 	HbComReq_A1, // 索要防区
@@ -499,28 +503,31 @@ typedef enum HbComRequestType {
 	HbComReq_A3, // 修改防区
 	HbComReq_A5, // 获取定时器
 	HbComReq_A7, // 设置定时器
+	HbComReq_A9, // TODO
 	HbComReq_AA, // 修改防区探头遗失/失联
 	HbComReq_AC, // 索要防区探头遗失/失联--第一次索要
 	HbComReq_AD, // 索要防区探头遗失/失联--继续索要
+	HbComReq_AE, // 三区段主机布撤防命令
 	HbComReq_B0, // 索要三区段主机状态
 	HbComReq_RD_acct, // 读取主机账号
 	HbComReq_WR_acct, // 写入主机账号
 	HbComReq_Invalid = -1,
 }HbComRequestType;
 
+// 主机回应
 typedef enum HbComResponseType {
-	HbComResp_A0,
-	HbComResp_A2,
-	HbComResp_A3,
-	HbComResp_A4,
-	HbComResp_A6,
-	HbComResp_A7,
-	HbComResp_A8,
-	HbComResp_A9,
-	HbComResp_AB,
-	HbComResp_AD,
-	HbComResp_AE,
-	HbComResp_B1,
+	HbComResp_A0, // 索要主机状态回应
+	HbComResp_A2, // 索要防区回应
+	HbComResp_A3, // 学码开始回应
+	HbComResp_A4, // 修改防区回应
+	HbComResp_A6, // 获取主机定时器回应
+	HbComResp_A7, // 设置主机定时器回应
+	HbComResp_A8, // 拒绝设置或设置失败回应
+	HbComResp_A9, // TODO
+	HbComResp_AB, // 修改防区探头遗失/失联回应
+	HbComResp_AD, // 索要防区探头遗失/失联回应
+	HbComResp_AF, // 三区段主机布撤防命令回应
+	HbComResp_B1, // 三区段主机状态回应
 	HbComResp_Invalid = -1,
 }HbComResponseType;
 
@@ -537,41 +544,117 @@ typedef enum HbComResponseType {
 #define HbComReq_A1_data "\xEB\xAB\x3F\xA1\x76"
 
 //! 回应主机防区 EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
-#define HbComResp_A1_len_min 8 // 无防区数据时长度最小为8
-#define HbComResp_A1_max_zone 20 // 最多可以包含 20 个防区
-#define HbComResp_A1_len_max (HbComResp_A1_len_min + HbComResp_A1_max_zone * 2) // 一包数据最多有8+20*2=48个字节
-#define HbComResp_A1_nomore 0xFF // P1 无更多防区
-#define HbComResp_A1_hasmore 0x00 // P1 还有更多防区
+#define HbComResp_A2_len_min 8 // 无防区数据时长度最小为8
+#define HbComResp_A2_max_zone 20 // 最多可以包含 20 个防区
+#define HbComResp_A2_len_max (HbComResp_A2_len_min + HbComResp_A2_max_zone * 2) // 一包数据最多有8+20*2=48个字节
+#define HbComResp_A2_nomore 0xFF // P1 无更多防区
+#define HbComResp_A2_hasmore 0x00 // P1 还有更多防区
 
+//! 索要更多主机防区 EB AB 3F A2 77
+//! 仅应在收到ZoneResponse的param非0xFF时发送，以索要全部防区
 #define HbComReq_A2_len 5
 #define HbComReq_A2_data "\xEB\xAB\x3F\xA2\x77"
 
+//! 修改主机防区 EB CB 3F 09 A3 P1 P2 P3 SUM
 #define HbComReq_A3_len 9
 #define HbComReq_A3_head "\xEB\xCB\x3F\x09\xA3"
+#define HbComReq_A3_op_del		0x00 //! 删除防区
+#define HbComReq_A3_op_learn	0x01 //! 学码
+#define HbComReq_A3_op_stop		0x02 //! 停止学码
+#define HbComReq_A3_op_modify	0x04 //! 修改防区属性
 
+//! 学码开始回应 EB BA 3F 07 P0 A3 5A
+//! 因为学码时主机要等待外部无线信号（用户触发探测器），因此先回应A3表示已经开始学码，学码成功时回 ZoneOpResponse A4
+#define HbComResp_A3_len 7
+#define HbComResp_A3_data "\xEB\xBA\x3F\x07\xCC\xA3\x5A"
+
+//! 修改防区回应 EB BA 3F 0A P0 A4 P1 P2 P3 SUM
+#define HbComResp_A4_len 10
+#define HbComResp_A4_head "\xEB\xBA\x3F\x0A\xCC\xA4"
+#define HbComResp_A4_fail	0x00 //! 失败
+#define HbComResp_A4_ok		0x01 //! 成功
+#define HbComResp_A4_dup	0x02 //! 失败--重码
+#define HbComResp_A4_ne		0x03 //! 失败--防区未对码 not exists
+
+//! 获取主机定时器 EB AB 3F A5 7A
 #define HbComReq_A5_len 5
 #define HbComReq_A5_data "\xEB\xAB\x3F\xA5\x7A"
 
+//! 获取主机定时器回应 EB BA 3F 0F P0 A6 H1 M1 H2 M2 H3 M3 H4 M4 SUM
+#define HbComResp_A6_len 15
+#define HbComResp_A6_head "\xEB\xBA\x3F\x0F\xCC\xA6"
+
+//! 设置主机定时器 EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
 #define HbComReq_A7_len 14
 #define HbComReq_A7_head "\xEB\xCB\x3F\x0E\xA7"
 
+//! 设置主机定时器回应 EB BA 3F 07 P0 A7 SUM
+#define HbComResp_A7_len 7
+#define HbComResp_A7_data "\xEB\xBA\x3F\x07\xCC\xA7\x5E"
+
+//! 拒绝设置回应 EB BA 3F 07 P0 A8 SUM
+//! 任何操作，主机如果认为非法，都可以用A8直接回复
+#define HbComResp_A8_len 7
+#define HbComResp_A8_data "\xEB\xBA\x3F\x07\xCC\xA8\x5F"
+
+//! 修改防区探头遗失/失联 EB CB 3F 08 AA P1 P2 SUM
 #define HbComReq_AA_len 8
 #define HbComReq_AA_head "\xEB\xAB\x3F\x08\xAA"
 
+//! 修改防区探头遗失/失联回应 EB BA 3F 09 P0 AB P1 P2 SUM
+#define HbComResp_AB_len 9
+#define HbComResp_AB_head "\xEB\xBA\x3F\x09\xCC\xAB"
+
+//! 索要防区探头遗失/失联  第一次索要 EB AB 3F AC 81
 #define HbComReq_AC_len 5
 #define HbComReq_AC_data "\xEB\xAB\x3F\xAC\x81"
 
+//! 索要防区探头遗失/失联  索要更多 EB AB 3F AD 82
 #define HbComReq_AD_len 5
 #define HbComReq_AD_data "\xEB\xAB\x3F\xAD\x82"
 
+//! 索要防区探头遗失/失联回应 EB BA 3F PN P0 AD P1 DATA P2 SUM
+#define HbComResp_AD_len_min 9 // 无防区失联数据时一包长度最小为9
+#define HbComResp_AD_max_zone 20 // 一包最多包含20个防区
+#define HbComResp_AD_len_max (HbComResp_AD_len_min + HbComResp_AD_max_zone * 2) // 一包最多有 9 + 20 *2 = 49 个字节
+#define HbComResp_AD_p1_single 0xF0 // 防区号以单字节表示
+#define HbComResp_AD_p1_double 0xF1 // 防区号以双字节表示
+#define HbComResp_AD_head "\xEB\xBA\x3F\x09\xCC\xAD"
+
+#define HbCom_3sec_disarm	0x00 // 三区段主机撤防（命令或状态）
+#define HbCom_3sec_arm		0x01 // 三区段主机布防（命令或状态）
+
+//! 三区段主机布撤防命令 EB CB 3F 08 AE P1 P2 SUM
+#define HbComReq_AE_len 8
+#define HbComReq_AE_head "\xEB\xCB\x3F\x08\xAE"
+
+//! 三区段主机布撤防命令回应 EB BA 3F 08 P0 AF P1 P2 SUM
+#define HbComResp_AF_len 9
+#define HbComResp_AF_head "\xEB\xBA\x3F\x08\xCC\xAF"
+
+//! 三区段主机索要主机状态 EB CB 3F 06 B0 AB
 #define HbComReq_B0_len 6
 #define HbComReq_B0_data "\xEB\xCB\x3F\x06\xB0\xAB"
 
+//! 三区段主机状态回应 EB BA 3F 08 P0 B1 P1 SUM
+#define HbComResp_B1_len 8
+#define HbComResp_B1_head "\xEB\xBA\x3F\x08"
+
+//! 读取主机账号 
 #define HbComReq_RD_acct_len 7
 #define HbComReq_RD_acct_data "\xEB\xBA\x3F\x07\x00\x4C\x37"
 
+//! 读取主机账号回应
+#define HbComResp_RD_acct_len 15
+#define HbComResp_RD_acct_head "\xEB\xCB\x3F\x0F\x4C"
+
+//! 写入主机账号
 #define HbComReq_WR_acct_len 15
 #define HbComReq_WR_acct_head "\xEB\xCB\x3F\x0F\x4D"
+
+//! 写入主机账号回应（与读取主机账号命令相同）
+#define HbComResp_WR_acct_len HbComReq_RD_acct_len
+#define HbComResp_WR_acct_head HbComReq_WR_acct_head
 
 static const HbZoneProperty hbZoneProperties[12] = {
 	HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE, 
@@ -629,6 +712,8 @@ ADEMCO_EXPORT_SYMBOL const char* hbGetZoneFormatString(HbMachineType type);
 ADEMCO_EXPORT_SYMBOL const wchar_t* hbGetZoneFormatStringW(HbMachineType type);
 // 累加校验，计算data[0] ~ data[len-2]，校验和放在data[len-1]
 ADEMCO_EXPORT_SYMBOL void hbSum(uint8_t* data, int len);
+// 校验和是否正确, return 0 for incorrect, otherwise correct
+ADEMCO_EXPORT_SYMBOL int hbCheckSum(const uint8_t* data, int len);
 ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseRequest(const uint8_t* buff, int len);
 ADEMCO_EXPORT_SYMBOL HbComResponseType hbParseComResponse(const uint8_t* buff, int len);
 

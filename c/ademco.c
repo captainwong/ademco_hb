@@ -1279,6 +1279,16 @@ void hbSum(uint8_t* data, int len)
 	*p = sum;
 }
 
+int hbCheckSum(const uint8_t* data, int len)
+{
+	uint8_t sum = 0;
+	const uint8_t* p = data;
+	while (p != data + len - 1) {
+		sum += *p;
+	}
+	return sum == *p;
+}
+
 HbComRequestType hbComParseRequest(const uint8_t* data, int len)
 {
 	do {
@@ -1344,14 +1354,11 @@ HbComRequestType hbComParseRequest(const uint8_t* data, int len)
 			if (data[2] != 0x3F) { break; }
 			
 			if (data[3] == 0x09 && data[4] == 0xA3 && len == HbComReq_A3_len) { // EB CB 3F 09 A3 P1 P2 P3 SUM
-				uint8_t req[HbComReq_A3_len]; memcpy(req, data, len); hbSum(req, len);
-				if (data[len - 1] == req[len - 1]) { return HbComReq_A3; }
+				if (hbCheckSum(data, len)) { return HbComReq_A3; }
 			} else if (data[3] == 0x0F && data[4] == 0x4D && len == HbComReq_WR_acct_len) {
-				uint8_t req[HbComReq_WR_acct_len]; memcpy(req, data, len); hbSum(req, len);
-				if (data[len - 1] == req[len - 1]) { return HbComReq_WR_acct; }
+				if (hbCheckSum(data, len)) { return HbComReq_WR_acct; }
 			} else if (data[3] == 0x0E && data[4] == 0xA7 && len == HbComReq_A7_len) { // EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
-				uint8_t req[HbComReq_A7_len]; memcpy(req, data, len); hbSum(req, len);
-				if (data[len - 1] == req[len - 1]) { return HbComReq_A7; }
+				if (hbCheckSum(data, len)) { return HbComReq_A7; }
 			} 
 
 			/*else if (data[3] == 0x08 && data[4] == 0xA9 && len == A9_len) {
@@ -1360,8 +1367,7 @@ HbComRequestType hbComParseRequest(const uint8_t* data, int len)
 			}*/
 			
 			else if (data[3] == 0x08 && data[4] == 0xAA && len == HbComReq_AA_len) { // EB CB 3F 08 AA P1 P2 SUM
-				uint8_t req[HbComReq_AA_len]; memcpy(req, data, len); hbSum(req, len);
-				if (data[len - 1] == req[len - 1]) { return HbComReq_AA; }
+				if (hbCheckSum(data, len)) { return HbComReq_AA; }
 			}
 
 			/*else if (data[3] == 0x08 && data[4] == 0xAE && len == AE_len) {
@@ -1378,9 +1384,93 @@ HbComRequestType hbComParseRequest(const uint8_t* data, int len)
 	return HbComReq_Invalid;
 }
 
-HbComResponseType hbParseComResponse(const uint8_t* buff, int len)
+HbComResponseType hbParseComResponse(const uint8_t* data, int len)
 {
+	do {
+		if (len < 7) { break; } // 所有的 response ，长度最小为 7
+		if (data[0] != 0xEB || data[1] != 0xBA || data[2] != 0x3F) { break; }
+		switch (data[5]) {
+		case 0xA0: // EB BA 3F 07 P0 A0 P1 P2 P3 SUM
+		{
+			if (len != HbComResp_A0_len) { break; }
+			if (hbCheckSum(data, len)) { return HbComResp_A0; }
+		}
 
+		case 0xA2: // EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
+		{
+			if (len != data[3]) { break; }
+			if (hbCheckSum(data, len)) { return HbComResp_A2; }
+		}
+
+		case 0xA3:
+		{
+			if (len != HbComResp_A3_len) { break; }
+			if (hbCheckSum(data, len)) { return HbComResp_A3; }
+		}
+
+		case 0xA4:
+		{
+			if (len != HbComResp_A4_len) { break; }
+			if (hbCheckSum(data, len)) { return HbComResp_A4; }
+			return HbComResp_A4;
+		}
+
+		case 0xA6:
+		{
+			if (len != HbComResp_A6_len) { break; }
+			if (hbCheckSum(data, len)) { return HbComResp_A6; }
+			return HbComResp_A6;
+		}
+
+		case 0xA7:
+		{
+			if (len != HbComResp_A7_len) { break; }
+			if (hbCheckSum(data, len)) { return HbComResp_A7; }
+			return HbComResp_A7;
+		}
+
+		case 0xA8:
+		{
+			if (len != HbComResp_A8_len) { break; }
+			if (hbCheckSum(data, len)) { return HbComResp_A8; }
+			return HbComResp_A8;
+		}
+
+		case 0xA9:
+		{
+			// TODO
+		}
+
+		case 0xAB:
+		{
+			if (len != HbComResp_AB_len) { break; }
+			if (hbCheckSum(data, len)) { return HbComResp_AB; }
+			return HbComResp_AB;
+		}
+
+		case 0xAD: // EB BA 3F PN P0 AD P1 DATA P2 SUM
+		{
+			if (len != data[3]) { break; }
+			if (hbCheckSum(data, len)) { return HbComResp_AD; }
+			return HbComResp_AD;
+		}
+
+		case 0xAF: // TODO
+		{
+
+			break;
+		}
+
+		case 0xB1: // EB BA 3F 08 P0 B1 P1 SUM
+		{
+			if (len != HbComResp_B1_len) { break; }
+			if (hbCheckSum(data, len)) { return HbComResp_B1; }
+			return HbComResp_B1;
+		}
+
+		}
+	} while (0);
+	return HbComResp_Invalid;
 }
 
 int hbHiLoArrayToDecStr(char* str, const uint8_t* arr, int len)
