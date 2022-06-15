@@ -1384,7 +1384,7 @@ HbComRequestType hbComParseRequest(const uint8_t* data, int len)
 	return HbComReq_Invalid;
 }
 
-HbComResponseType hbParseComResponse(const uint8_t* data, int len)
+HbComResponseType hbComParseResponse(const uint8_t* data, int len)
 {
 	do {
 		if (len < 7) { break; } // 所有的 response ，长度最小为 7

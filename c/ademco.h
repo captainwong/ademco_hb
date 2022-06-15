@@ -39,12 +39,12 @@ extern "C" {
 #define ADEMCO_OK 0
 #define ADEMCO_ERR -1
 
-#define ADEMCO_PACKET_ACCT_MAX_LEN 64 // #acctÖ®acct×î´ó³¤¶È
-#define ADEMCO_PACKET_DATA_SEGMENT_EMPTY_LEN 2 // ¿Õdata¶Î[]³¤¶È
-#define ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN 21 // ·Ç¿Õdata¶Î³¤¶È£¬acct³¤¶È6
-#define ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN_MAX 64 // ·Ç¿Õdata¶Î³¤¶È£¬acct³¤¶ÈÎ´Öª
+#define ADEMCO_PACKET_ACCT_MAX_LEN 64 // #acctä¹‹acctæœ€å¤§é•¿åº¦
+#define ADEMCO_PACKET_DATA_SEGMENT_EMPTY_LEN 2 // ç©ºdataæ®µ[]é•¿åº¦
+#define ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN 21 // éç©ºdataæ®µé•¿åº¦ï¼Œaccté•¿åº¦6
+#define ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN_MAX 64 // éç©ºdataæ®µé•¿åº¦ï¼Œaccté•¿åº¦æœªçŸ¥
 #define ADEMCO_PACKET_MAX_LEN 1024
-#define CONGWIN_FE100_PACKET_LEN 31 // ´ÔÎÄFE100Ğ­Òé³¤¶È
+#define CONGWIN_FE100_PACKET_LEN 31 // ä¸›æ–‡FE100åè®®é•¿åº¦
 #define ADEMCO_PACKET_TIMESTAMP_LEN 20
 #define ADEMCO_PACKET_XDATA_MAX_LEN 256
 
@@ -53,28 +53,28 @@ typedef uint32_t AdemcoId;
 typedef uint8_t  AdemcoGG;
 typedef uint32_t AdemcoZone;
 
-//! °²¶¨±¦ID·¶Î§
+//! å®‰å®šå®IDèŒƒå›´
 #define ADEMCO_ID_MIN 1
-#define ADEMCO_ID_MAX 999999 // ¼æÈİĞÔ¿¼ÂÇ£¬×î´ó°²¶¨±¦ ID Îª 0x0F423F
+#define ADEMCO_ID_MAX 999999 // å…¼å®¹æ€§è€ƒè™‘ï¼Œæœ€å¤§å®‰å®šå® ID ä¸º 0x0F423F
 #define ADEMCO_ID_SENTINEL (ADEMCO_ID_MAX + 1)
 static inline int ademcoIsValidAdemcoId(AdemcoId ademcoId) {
 	return ADEMCO_ID_MIN <= ademcoId && ademcoId <= ADEMCO_ID_MAX; 
 }
 
-//! ·ÀÇøºÅÎª0Ê±±íÊ¾Ö÷»ú×ÔÉí
+//! é˜²åŒºå·ä¸º0æ—¶è¡¨ç¤ºä¸»æœºè‡ªèº«
 #define ADEMCO_ZONE_FOR_MACHINE_SELF 0
-//! Ö÷»ú·ÀÇøºÅ·¶Î§
+//! ä¸»æœºé˜²åŒºå·èŒƒå›´
 #define ADEMCO_ZONE_MIN 1
-//! ¶ÔÈÎºÎÖ÷»úÀàĞÍ£¬×î´óµÄ·ÀÇøºÅ
+//! å¯¹ä»»ä½•ä¸»æœºç±»å‹ï¼Œæœ€å¤§çš„é˜²åŒºå·
 #define ADEMCO_ZONE_MAX 999
 #define ADEMCO_ZONE_SENTINEL (ADEMCO_ZONE_MAX + 1)
 
-//! ¶ÔÈÎºÎÖ÷»úÀàĞÍ£¬·ÀÇøºÅÊÇ·ñºÏ·¨£¨¿ÉÒÔ°üº¬0·ÀÇø£©
+//! å¯¹ä»»ä½•ä¸»æœºç±»å‹ï¼Œé˜²åŒºå·æ˜¯å¦åˆæ³•ï¼ˆå¯ä»¥åŒ…å«0é˜²åŒºï¼‰
 static inline int ademcoIsValidZone(AdemcoZone zone) {
 	return ADEMCO_ZONE_FOR_MACHINE_SELF <= zone && zone <= ADEMCO_ZONE_MAX;
 }
 
-//! ¶ÔÈÎºÎÖ÷»úÀàĞÍ£¬·ÀÇøºÅÊÇ·ñºÏ·¨£¨²»¿ÉÒÔ°üº¬0·ÀÇø£©
+//! å¯¹ä»»ä½•ä¸»æœºç±»å‹ï¼Œé˜²åŒºå·æ˜¯å¦åˆæ³•ï¼ˆä¸å¯ä»¥åŒ…å«0é˜²åŒºï¼‰
 static inline int ademcoIsValidZoneStrict(AdemcoZone zone) {
 	return ADEMCO_ZONE_MIN <= zone && zone <= ADEMCO_ZONE_MAX;
 }
@@ -87,99 +87,99 @@ static inline int ademcoIsValidZoneStrict(AdemcoZone zone) {
 typedef enum AdemcoEvent {
 	EVENT_INVALID_EVENT							= 0,
 
-	// -------------------±ê×¼°²¶¨±¦Ğ­ÒéÊÂ¼ş--------------------------------
-	// Ö÷»ú»ò·Ö»ú×´Ì¬±¨¸æ
-	EVENT_ARM									= 3400, // ²¼·À
-	EVENT_DISARM								= 1400, // ³··À
-	EVENT_HALFARM_1456							= 1456, // °ë²¼·À
-	EVENT_HALFARM								= 3456, // °ë²¼·À
-	EVENT_EMERGENCY								= 1120, // ½ô¼±±¨¾¯
+	// -------------------æ ‡å‡†å®‰å®šå®åè®®äº‹ä»¶--------------------------------
+	// ä¸»æœºæˆ–åˆ†æœºçŠ¶æ€æŠ¥å‘Š
+	EVENT_ARM									= 3400, // å¸ƒé˜²
+	EVENT_DISARM								= 1400, // æ’¤é˜²
+	EVENT_HALFARM_1456							= 1456, // åŠå¸ƒé˜²
+	EVENT_HALFARM								= 3456, // åŠå¸ƒé˜²
+	EVENT_EMERGENCY								= 1120, // ç´§æ€¥æŠ¥è­¦
 
-	// ·ÀÇø±¨¾¯
-	EVENT_BURGLAR								= 1130, // µÁ¾¯
-	EVENT_DOORRINGING							= 1134, // ÃÅÁå
-	EVENT_FIRE									= 1110, // »ğ¾¯
-	EVENT_DURESS								= 1121, // Ğ²ÆÈ
-	EVENT_GAS									= 1151, // ÃºÆø
-	EVENT_WATER									= 1113, // Ë®¾¯
-	EVENT_TAMPER								= 1137, // Ö÷»ú·À²ğ
-	EVENT_ZONE_TAMPER							= 1383, // ·ÀÇø·À²ğ
-	EVENT_BYPASS								= 1570, // ÅÔÂ·
-	EVENT_BYPASS_RESUME							= 3570, // ½â³ıÅÔÂ·
+	// é˜²åŒºæŠ¥è­¦
+	EVENT_BURGLAR								= 1130, // ç›—è­¦
+	EVENT_DOORRINGING							= 1134, // é—¨é“ƒ
+	EVENT_FIRE									= 1110, // ç«è­¦
+	EVENT_DURESS								= 1121, // èƒè¿«
+	EVENT_GAS									= 1151, // ç…¤æ°”
+	EVENT_WATER									= 1113, // æ°´è­¦
+	EVENT_TAMPER								= 1137, // ä¸»æœºé˜²æ‹†
+	EVENT_ZONE_TAMPER							= 1383, // é˜²åŒºé˜²æ‹†
+	EVENT_BYPASS								= 1570, // æ—è·¯
+	EVENT_BYPASS_RESUME							= 3570, // è§£é™¤æ—è·¯
 
-	// ·ÀÇøÒì³£
-	EVENT_AC_BROKE								= 1301, // Ö÷»úACµôµç
-	EVENT_AC_RECOVER							= 3301, // Ö÷»úAC¸´µç
-	EVENT_LOWBATTERY							= 1302, // µÍµç
-	EVENT_BATTERY_RECOVER						= 3302, // ¸´µç
-	EVENT_BADBATTERY							= 1311, // »µµç
-	EVENT_BADBATTERY_RECOVER					= 3311, // »µµç»Ö¸´
-	EVENT_SOLARDISTURB							= 1387, // ¹âÈÅ
-	EVENT_SOLARDISTURB_RECOVER					= 3387, // ¹âÈÅ»Ö¸´
-	EVENT_DISCONNECT							= 1381, // Ê§Ğ§
-	EVENT_RECONNECT								= 3381, // »Ö¸´
-	EVENT_BATTERY_EXCEPTION						= 1384, // µçÔ´¹ÊÕÏ
-	EVENT_BATTERY_EXCEPTION_RECOVER				= 3384, // µçÔ´¹ÊÕÏ»Ö¸´
-	EVENT_OTHER_EXCEPTION						= 1380, // ÆäËû¹ÊÕÏ
-	EVENT_OTHER_EXCEPTION_RECOVER				= 3380, // ÆäËû¹ÊÕÏ»Ö¸´
-	EVENT_LOST									= 1393, // Ê§Áª
-	EVENT_LOST_RECOVER							= 3393, // Ê§Áª»Ö¸´
+	// é˜²åŒºå¼‚å¸¸
+	EVENT_AC_BROKE								= 1301, // ä¸»æœºACæ‰ç”µ
+	EVENT_AC_RECOVER							= 3301, // ä¸»æœºACå¤ç”µ
+	EVENT_LOWBATTERY							= 1302, // ä½ç”µ
+	EVENT_BATTERY_RECOVER						= 3302, // å¤ç”µ
+	EVENT_BADBATTERY							= 1311, // åç”µ
+	EVENT_BADBATTERY_RECOVER					= 3311, // åç”µæ¢å¤
+	EVENT_SOLARDISTURB							= 1387, // å…‰æ‰°
+	EVENT_SOLARDISTURB_RECOVER					= 3387, // å…‰æ‰°æ¢å¤
+	EVENT_DISCONNECT							= 1381, // å¤±æ•ˆ
+	EVENT_RECONNECT								= 3381, // æ¢å¤
+	EVENT_BATTERY_EXCEPTION						= 1384, // ç”µæºæ•…éšœ
+	EVENT_BATTERY_EXCEPTION_RECOVER				= 3384, // ç”µæºæ•…éšœæ¢å¤
+	EVENT_OTHER_EXCEPTION						= 1380, // å…¶ä»–æ•…éšœ
+	EVENT_OTHER_EXCEPTION_RECOVER				= 3380, // å…¶ä»–æ•…éšœæ¢å¤
+	EVENT_LOST									= 1393, // å¤±è”
+	EVENT_LOST_RECOVER							= 3393, // å¤±è”æ¢å¤
 
-	// ±ê×¼ÊÂ¼ş£¬µ«²»×ö´¦Àí
-	EVENT_3100									= 3100, // Òº¾§Ö÷»úÇå³ıÒì³£Ö¸Ê¾
+	// æ ‡å‡†äº‹ä»¶ï¼Œä½†ä¸åšå¤„ç†
+	EVENT_3100									= 3100, // æ¶²æ™¶ä¸»æœºæ¸…é™¤å¼‚å¸¸æŒ‡ç¤º
 	
-	// ------------------Ë½ÓĞÊÂ¼ş-----------------------------------------
-	EVENT_SERIAL485DIS							= 1485, // ÍøÂçÄ£¿éÓëÖ÷»ú485´®¿ÚÁ¬½Ó¶Ï¿ª
-	EVENT_SERIAL485CONN							= 3485, // ÍøÂçÄ£¿éÓëÖ÷»ú485´®¿ÚÁ¬½Ó»Ö¸´
+	// ------------------ç§æœ‰äº‹ä»¶-----------------------------------------
+	EVENT_SERIAL485DIS							= 1485, // ç½‘ç»œæ¨¡å—ä¸ä¸»æœº485ä¸²å£è¿æ¥æ–­å¼€
+	EVENT_SERIAL485CONN							= 3485, // ç½‘ç»œæ¨¡å—ä¸ä¸»æœº485ä¸²å£è¿æ¥æ¢å¤
 
-	EVENT_CONN_HANGUP							= 1700, // Á´Â·¹ÒÆğ
-	EVENT_CONN_RESUME							= 3700, // Á´Â·»Ö¸´
+	EVENT_CONN_HANGUP							= 1700, // é“¾è·¯æŒ‚èµ·
+	EVENT_CONN_RESUME							= 3700, // é“¾è·¯æ¢å¤
 
-	EVENT_DISARM_PWD_ERR						= 1701, // ³··ÀÃÜÂë´íÎó
+	EVENT_DISARM_PWD_ERR						= 1701, // æ’¤é˜²å¯†ç é”™è¯¯
 
-	EVENT_SUB_MACHINE_SENSOR_EXCEPTION			= 1702, // ·Ö»úÌ½Í·Òì³£
-	EVENT_SUB_MACHINE_SENSOR_RESUME				= 3702, // ·Ö»úÌ½Í·»Ö¸´
-	EVENT_SUB_MACHINE_POWER_EXCEPTION			= 1703, // ·Ö»úµçÔ´Òì³£
-	EVENT_SUB_MACHINE_POWER_RESUME				= 3703, // ·Ö»úµçÔ´»Ö¸´
+	EVENT_SUB_MACHINE_SENSOR_EXCEPTION			= 1702, // åˆ†æœºæ¢å¤´å¼‚å¸¸
+	EVENT_SUB_MACHINE_SENSOR_RESUME				= 3702, // åˆ†æœºæ¢å¤´æ¢å¤
+	EVENT_SUB_MACHINE_POWER_EXCEPTION			= 1703, // åˆ†æœºç”µæºå¼‚å¸¸
+	EVENT_SUB_MACHINE_POWER_RESUME				= 3703, // åˆ†æœºç”µæºæ¢å¤
 
-	EVENT_COM_PASSTHROUGH						= 1704, // ´®¿ÚÍ¸´«
-	EVENT_ENTER_SET_MODE						= 2704, // ½øÈëÉèÖÃ×´Ì¬
-	EVENT_EXIT_SET_MODE							= 3704,	// ½Ó¾¯ÖĞĞÄ·¢ËÍ£¬ÎªÍ£Ö¹Ë÷Òª£»±¨¾¯Ö÷»ú·¢ËÍ£¬Îª¾Ü¾øË÷Òª
+	EVENT_COM_PASSTHROUGH						= 1704, // ä¸²å£é€ä¼ 
+	EVENT_ENTER_SET_MODE						= 2704, // è¿›å…¥è®¾ç½®çŠ¶æ€
+	EVENT_EXIT_SET_MODE							= 3704,	// æ¥è­¦ä¸­å¿ƒå‘é€ï¼Œä¸ºåœæ­¢ç´¢è¦ï¼›æŠ¥è­¦ä¸»æœºå‘é€ï¼Œä¸ºæ‹’ç»ç´¢è¦
 
-	EVENT_QUERY_SUB_MACHINE						= 1705, // ²éÑ¯·Ö»úĞÅÏ¢
-	EVENT_WRITE_TO_MACHINE						= 1706, // Ğ´ÈëÖ÷»úĞÅÏ¢
+	EVENT_QUERY_SUB_MACHINE						= 1705, // æŸ¥è¯¢åˆ†æœºä¿¡æ¯
+	EVENT_WRITE_TO_MACHINE						= 1706, // å†™å…¥ä¸»æœºä¿¡æ¯
 
-	EVENT_I_AM_NET_MODULE						= 1707, // Ö÷»úÀàĞÍ--ÍøÂçÄ£¿é
-	EVENT_I_AM_GPRS								= 1717, // Ö÷»úÀàĞÍ--GPRSÖ÷»ú
-	EVENT_I_AM_LCD_MACHINE						= 1727, // Ö÷»úÀàĞÍ--Òº¾§Ö÷»ú
-	EVENT_I_AM_WIRE_MACHINE						= 1737, // Ö÷»úÀàĞÍ--ÍøÏßÖ÷»ú
-	EVENT_I_AM_WIFI_MACHINE						= 1747, // Ö÷»úÀàĞÍ--WiFiÖ÷»ú
-	EVENT_I_AM_3_SECTION_MACHINE				= 1757, // Ö÷»úÀàĞÍ--ÈıÇø¶ÎÖ÷»ú
-	EVENT_I_AM_IOT_MACHINE						= 1767, // Ö÷»úÀàĞÍ--ÎïÁª¿¨Ö÷»ú
-	EVENT_I_AM_TRUE_COLOR						= 1777, // Ö÷»úÀàĞÍ--Õæ²ÊÖ÷»ú
-	EVENT_I_AM_GPRS_IOT							= 1787, // Ö÷»úÀàĞÍ--ÎïÁª¿¨Ö÷»ú
-	EVENT_I_AM_GPRS_PHONE						= 1797, // Ö÷»úÀàĞÍ--GRPSÖ÷»ú´øµç»°¹¦ÄÜ
-	EVENT_I_AM_NB_MACHINE						= 1807, // Ö÷»úÀàĞÍ--NB±¨¾¯½ÓÊÕÖ÷»ú
+	EVENT_I_AM_NET_MODULE						= 1707, // ä¸»æœºç±»å‹--ç½‘ç»œæ¨¡å—
+	EVENT_I_AM_GPRS								= 1717, // ä¸»æœºç±»å‹--GPRSä¸»æœº
+	EVENT_I_AM_LCD_MACHINE						= 1727, // ä¸»æœºç±»å‹--æ¶²æ™¶ä¸»æœº
+	EVENT_I_AM_WIRE_MACHINE						= 1737, // ä¸»æœºç±»å‹--ç½‘çº¿ä¸»æœº
+	EVENT_I_AM_WIFI_MACHINE						= 1747, // ä¸»æœºç±»å‹--WiFiä¸»æœº
+	EVENT_I_AM_3_SECTION_MACHINE				= 1757, // ä¸»æœºç±»å‹--ä¸‰åŒºæ®µä¸»æœº
+	EVENT_I_AM_IOT_MACHINE						= 1767, // ä¸»æœºç±»å‹--ç‰©è”å¡ä¸»æœº
+	EVENT_I_AM_TRUE_COLOR						= 1777, // ä¸»æœºç±»å‹--çœŸå½©ä¸»æœº
+	EVENT_I_AM_GPRS_IOT							= 1787, // ä¸»æœºç±»å‹--ç‰©è”å¡ä¸»æœº
+	EVENT_I_AM_GPRS_PHONE						= 1797, // ä¸»æœºç±»å‹--GRPSä¸»æœºå¸¦ç”µè¯åŠŸèƒ½
+	EVENT_I_AM_NB_MACHINE						= 1807, // ä¸»æœºç±»å‹--NBæŠ¥è­¦æ¥æ”¶ä¸»æœº
 
-	EVENT_PHONE_USER_SOS						= 1709, // ÊÖ»úÓÃ»§SOS
-	EVENT_PHONE_USER_CANCLE_ALARM				= 1711, // ÊÖ»úÓÃ»§Ïû¾¯
+	EVENT_PHONE_USER_SOS						= 1709, // æ‰‹æœºç”¨æˆ·SOS
+	EVENT_PHONE_USER_CANCLE_ALARM				= 1711, // æ‰‹æœºç”¨æˆ·æ¶ˆè­¦
 
-	EVENT_ENTER_SETTING_MODE					= 1712, // Ö÷»ú½øÈëÉèÖÃ×´Ì¬
-	EVENT_EXIT_SETTING_MODE						= 3712, // Ö÷»úÍË³öÉèÖÃ×´Ì¬
-	EVENT_RESTORE_FACTORY_SETTINGS_710			= 1710, // Ö÷»ú»Ö¸´³ö³§ÉèÖÃ
-	EVENT_RESTORE_FACTORY_SETTINGS				= 1713, // Ö÷»ú»Ö¸´³ö³§ÉèÖÃ
+	EVENT_ENTER_SETTING_MODE					= 1712, // ä¸»æœºè¿›å…¥è®¾ç½®çŠ¶æ€
+	EVENT_EXIT_SETTING_MODE						= 3712, // ä¸»æœºé€€å‡ºè®¾ç½®çŠ¶æ€
+	EVENT_RESTORE_FACTORY_SETTINGS_710			= 1710, // ä¸»æœºæ¢å¤å‡ºå‚è®¾ç½®
+	EVENT_RESTORE_FACTORY_SETTINGS				= 1713, // ä¸»æœºæ¢å¤å‡ºå‚è®¾ç½®
 
-	// ´Ë´¦µç»°ÉèÖÃ½öÎªÖ÷»ú×ÔÉíÖ§³ÖµÄµç»°ÉèÖÃ£¬Óë°¢ÀïÓïÒôÎŞ¹Ø
-	EVENT_SIM_IS_IOT_CARD						= 1756, // Ö÷»úSIM¿¨ÎªÎïÁª¿¨£¬½ûÓÃÖ÷»ú²àµç»°ÉèÖÃ
-	EVENT_SIM_IS_IOT_PLATFORM_CARD				= 2756, // Ö÷»úSIM¿¨ÎªÆ½Ì¨ÎïÁª¿¨£¬½ûÓÃÖ÷»ú²àµç»°ÉèÖÃ
-	EVENT_SIM_IS_NOT_IOT_CARD					= 3756, // Ö÷»úSIM¿¨Îª·ÇÎïÁª¿¨£¬ÆôÓÃÖ÷»ú²àµç»°ÉèÖÃ
+	// æ­¤å¤„ç”µè¯è®¾ç½®ä»…ä¸ºä¸»æœºè‡ªèº«æ”¯æŒçš„ç”µè¯è®¾ç½®ï¼Œä¸é˜¿é‡Œè¯­éŸ³æ— å…³
+	EVENT_SIM_IS_IOT_CARD						= 1756, // ä¸»æœºSIMå¡ä¸ºç‰©è”å¡ï¼Œç¦ç”¨ä¸»æœºä¾§ç”µè¯è®¾ç½®
+	EVENT_SIM_IS_IOT_PLATFORM_CARD				= 2756, // ä¸»æœºSIMå¡ä¸ºå¹³å°ç‰©è”å¡ï¼Œç¦ç”¨ä¸»æœºä¾§ç”µè¯è®¾ç½®
+	EVENT_SIM_IS_NOT_IOT_CARD					= 3756, // ä¸»æœºSIMå¡ä¸ºéç‰©è”å¡ï¼Œå¯ç”¨ä¸»æœºä¾§ç”µè¯è®¾ç½®
 
-	EVENT_WHAT_IS_YOUR_TYPE						= 1798, // Ë÷ÒªÖ÷»úÀàĞÍ
-	EVENT_SIGNAL_STRENGTH_CHANGED				= 1799, // Ö÷»úĞÅºÅÇ¿¶È±ä»¯
+	EVENT_WHAT_IS_YOUR_TYPE						= 1798, // ç´¢è¦ä¸»æœºç±»å‹
+	EVENT_SIGNAL_STRENGTH_CHANGED				= 1799, // ä¸»æœºä¿¡å·å¼ºåº¦å˜åŒ–
 
-	// 2021Äê1ÔÂ24ÈÕ17:06:55ĞŞ¸Ä£¬¶Ô±ê´ÔÎÄ3B0 3B2
-	EVENT_OFFLINE								= 1944, // Ö÷»ú¶ÏÏß
-	EVENT_ONLINE								= 1946, // Ö÷»úÉÏÏß
+	// 2021å¹´1æœˆ24æ—¥17:06:55ä¿®æ”¹ï¼Œå¯¹æ ‡ä¸›æ–‡3B0 3B2
+	EVENT_OFFLINE								= 1944, // ä¸»æœºæ–­çº¿
+	EVENT_ONLINE								= 1946, // ä¸»æœºä¸Šçº¿
 
 #define ADEMCO_EVENT_SENTINEL					10000
 
@@ -263,24 +263,24 @@ static const AdemcoEvent AdemcoEvents[] = {
 	EVENT_SIGNAL_STRENGTH_CHANGED,
 };
 
-// °²¶¨±¦ÊÂ¼ş¼¶±ğ
+// å®‰å®šå®äº‹ä»¶çº§åˆ«
 typedef enum AdemcoEventLevel
 {
 	EVENT_LEVEL_NULL,
-	EVENT_LEVEL_STATUS,				// Ö÷»ú×´Ì¬
-	EVENT_LEVEL_EXCEPTION_RESUME,	// »ÆÉ«±¨¾¯
-	EVENT_LEVEL_EXCEPTION,			// ³ÈÉ«±¨¾¯
-	EVENT_LEVEL_ALARM,				// ºìÉ«±¨¾¯
+	EVENT_LEVEL_STATUS,				// ä¸»æœºçŠ¶æ€
+	EVENT_LEVEL_EXCEPTION_RESUME,	// é»„è‰²æŠ¥è­¦
+	EVENT_LEVEL_EXCEPTION,			// æ©™è‰²æŠ¥è­¦
+	EVENT_LEVEL_ALARM,				// çº¢è‰²æŠ¥è­¦
 }AdemcoEventLevel;
 
-// °²¶¨±¦Ğ­Òé½âÎö½á¹û
+// å®‰å®šå®åè®®è§£æç»“æœ
 typedef enum AdemcoParseResult {
-	RESULT_OK, //! ½âÎöµ½ÕıÈ·¡¢ÍêÕûµÄÒ»°ü
-	RESULT_NOT_ENOUGH, //! ½âÎöµ½ÕıÈ·¡¢²»ÍêÕûµÄÒ»°ü£¬ĞèÒª»º´æÊı¾İ£¬ÏÂ´Î¼ÌĞø´¦Àí
-	RESULT_ERROR, //! ½âÎöµ½´íÎóµÄÊı¾İ£¬Ó¦µ±¶ªÆú¸ÃÊı¾İ°ü
+	RESULT_OK, //! è§£æåˆ°æ­£ç¡®ã€å®Œæ•´çš„ä¸€åŒ…
+	RESULT_NOT_ENOUGH, //! è§£æåˆ°æ­£ç¡®ã€ä¸å®Œæ•´çš„ä¸€åŒ…ï¼Œéœ€è¦ç¼“å­˜æ•°æ®ï¼Œä¸‹æ¬¡ç»§ç»­å¤„ç†
+	RESULT_ERROR, //! è§£æåˆ°é”™è¯¯çš„æ•°æ®ï¼Œåº”å½“ä¸¢å¼ƒè¯¥æ•°æ®åŒ…
 }AdemcoParseResult;
 
-// °²¶¨±¦Ğ­Òédata¶Î
+// å®‰å®šå®åè®®dataæ®µ
 typedef struct AdemcoDataSegment {
 	uint8_t raw[ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN_MAX];
 	int raw_len;
@@ -291,8 +291,8 @@ typedef struct AdemcoDataSegment {
 }AdemcoDataSegment;
 
 typedef enum AdemcoXDataLengthFormat {
-	TWO_HEX, // Á½¸öhex×Ö½Ú±íÊ¾³¤¶È
-	FOUR_DECIMAL, // ËÄ¸ödecimal char ±íÊ¾³¤¶È
+	TWO_HEX, // ä¸¤ä¸ªhexå­—èŠ‚è¡¨ç¤ºé•¿åº¦
+	FOUR_DECIMAL, // å››ä¸ªdecimal char è¡¨ç¤ºé•¿åº¦
 }AdemcoXDataLengthFormat;
 
 typedef struct AdemcoXDataSegment {
@@ -343,15 +343,15 @@ typedef struct AdemcoPacket {
 
 // Functions
 
-//! ÊÇ·ñÖ÷»ú×´Ì¬ÊÂ¼ş
+//! æ˜¯å¦ä¸»æœºçŠ¶æ€äº‹ä»¶
 ADEMCO_EXPORT_SYMBOL int ademcoIsMachineStatusEvent(AdemcoEvent ademcoEvent);
-//! ÊÇ·ñÖ÷»úÀàĞÍÊÂ¼ş
+//! æ˜¯å¦ä¸»æœºç±»å‹äº‹ä»¶
 ADEMCO_EXPORT_SYMBOL int ademcoIsMachineTypeEvent(AdemcoEvent ademcoEvent);
-//! ÊÂ¼şÊÇ·ñĞèÒª¿ØÖÆÔ´
+//! äº‹ä»¶æ˜¯å¦éœ€è¦æ§åˆ¶æº
 ADEMCO_EXPORT_SYMBOL int ademcoIsEventNeedControlSource(AdemcoEvent ademcoEvent);
-//! »ñÈ¡°²¶¨±¦ÊÂ¼ş¼¶±ğ
+//! è·å–å®‰å®šå®äº‹ä»¶çº§åˆ«
 ADEMCO_EXPORT_SYMBOL AdemcoEventLevel ademcoGetEventLevel(AdemcoEvent ademcoEvent);
-//! »ñÈ¡Òì³£»Ö¸´ÊÂ¼şËù¶ÔÓ¦µÄÒì³£ÊÂ¼ş
+//! è·å–å¼‚å¸¸æ¢å¤äº‹ä»¶æ‰€å¯¹åº”çš„å¼‚å¸¸äº‹ä»¶
 ADEMCO_EXPORT_SYMBOL AdemcoEvent ademcoGetExceptionEventByResumeEvent(AdemcoEvent resumeEvent);
 ADEMCO_EXPORT_SYMBOL const char* ademcoEventToString(AdemcoEvent ademcoEvent);
 ADEMCO_EXPORT_SYMBOL const wchar_t* ademcoEventToStringChinese(AdemcoEvent ademcoEvent);
@@ -390,11 +390,11 @@ ADEMCO_EXPORT_SYMBOL uint16_t ademcoCRC16(const uint8_t* buff, int len, uint16_t
 
 /* Hengbo */
 
-//! Èı·ÀÇøÖ÷»ú×´Ì¬GG·¶Î§ 1~3
+//! ä¸‰é˜²åŒºä¸»æœºçŠ¶æ€GGèŒƒå›´ 1~3
 #define HB_3SECTION_MACHINE_GG_MIN 1
 #define HB_3SECTION_MACHINE_GG_MAX 3
 
-//! ÊÇ·ñºÏ·¨µÄÈı·ÀÇøÖ÷»ú×´Ì¬GG
+//! æ˜¯å¦åˆæ³•çš„ä¸‰é˜²åŒºä¸»æœºçŠ¶æ€GG
 static inline int hbIsValid3SectionMachineGG(AdemcoGG gg) {
 	return HB_3SECTION_MACHINE_GG_MIN <= gg && gg <= HB_3SECTION_MACHINE_GG_MAX;
 }
@@ -409,29 +409,29 @@ typedef enum HbMachineStatus {
 }HbMachineStatus;
 
 typedef enum HbMachineType {
-	//! 0 WiFiÖ÷»ú £¨ÒÑÍ£ÓÃ£©
+	//! 0 WiFiä¸»æœº ï¼ˆå·²åœç”¨ï¼‰
 	HMT_WIFI,
-	//! 1 ÍøÂçÉãÏñ»ú £¨Î´ÆôÓÃ£©
+	//! 1 ç½‘ç»œæ‘„åƒæœº ï¼ˆæœªå¯ç”¨ï¼‰
 	HMT_CAMERA,
-	//! 2 ¼ò»¯µÄÎïÁª¿¨Ö÷»ú [ HB-5050G-4GW ]
+	//! 2 ç®€åŒ–çš„ç‰©è”å¡ä¸»æœº [ HB-5050G-4GW ]
 	HMT_GPRS_IOT,
-	//! 3 ÍøÂçÄ£¿éÖ÷»ú [ HB-G250 ]
+	//! 3 ç½‘ç»œæ¨¡å—ä¸»æœº [ HB-G250 ]
 	HMT_NETMOD,
-	//! 4 ¸Ä½øĞÍÎÔÊ½Ö÷»ú [ HB-4040G HB-5050G HB-5050-4G ]
+	//! 4 æ”¹è¿›å‹å§å¼ä¸»æœº [ HB-4040G HB-5050G HB-5050-4G ]
 	HMT_GPRS,
-	//! 5 Òº¾§Ö÷»ú [ HB-BJQ560 HB-BJQ-560B ]
+	//! 5 æ¶²æ™¶ä¸»æœº [ HB-BJQ560 HB-BJQ-560B ]
 	HMT_LCD,
-	//! 6 ÍøÏßÖ÷»ú [ HB-4040R HB-5050R ]
+	//! 6 ç½‘çº¿ä¸»æœº [ HB-4040R HB-5050R ]
 	HMT_WIRED,
-	//! 7 Õæ²ÊÖ÷»ú [ HTZ-G1000 HTZ-G1000-4G ]
+	//! 7 çœŸå½©ä¸»æœº [ HTZ-G1000 HTZ-G1000-4G ]
 	HMT_TRUE_COLOR,
-	//! 8 ÈıÇø¶ÎÖ÷»ú [ HTZ-G1000 HTZ-G1000-4G ]
+	//! 8 ä¸‰åŒºæ®µä¸»æœº [ HTZ-G1000 HTZ-G1000-4G ]
 	HMT_3_SECTION,
-	//! 9 ÎïÁª¿¨Ö÷»ú [ HB-2050-4GW ]
+	//! 9 ç‰©è”å¡ä¸»æœº [ HB-2050-4GW ]
 	HMT_IOT,
-	//! 10 GPRSÖ÷»ú¿ÉÒÔ´òµç»° [ HB-2050 ]
+	//! 10 GPRSä¸»æœºå¯ä»¥æ‰“ç”µè¯ [ HB-2050 ]
 	HMT_GPRS_PHONE,
-	//! 11 NB±¨¾¯½ÓÊÕÖ÷»ú
+	//! 11 NBæŠ¥è­¦æ¥æ”¶ä¸»æœº
 	HMT_NB,
 
 	HMT_COUNT,
@@ -439,38 +439,38 @@ typedef enum HbMachineType {
 }HbMachineType;
 
 typedef enum HbZoneProperty {
-	//! ·Ë¾¯È«¾Ö
+	//! åŒªè­¦å…¨å±€
 	HZP_BUGLAR,
-	//! ·Ë¾¯½ô¼±
+	//! åŒªè­¦ç´§æ€¥
 	HZP_EMERGENCY,
-	//! »ğ¾¯·ÀÇø
+	//! ç«è­¦é˜²åŒº
 	HZP_FIRE,
-	//! Ğ²ÆÈ·ÀÇø
+	//! èƒè¿«é˜²åŒº
 	HZP_DURESS,
-	//! È¼Æø·ÀÇø
+	//! ç‡ƒæ°”é˜²åŒº
 	HZP_GAS,
-	//! ÑÍË®·ÀÇø
+	//! æ·¹æ°´é˜²åŒº
 	HZP_WATER,
-	//! ·Ö»ú
+	//! åˆ†æœº
 	HZP_SUB_MACHINE,
-	//! Ò£¿ØÆ÷
+	//! é¥æ§å™¨
 	HZP_REMOTE_CONTROL,
-	//! ·Ë¾¯°ë¾Ö
+	//! åŒªè­¦åŠå±€
 	HZP_BUGLAR_HALF,
-	//! ÆÁ±Î·ÀÇø
+	//! å±è”½é˜²åŒº
 	HZP_SHIELD,
-	//! ÃÅÁå·ÀÇø
+	//! é—¨é“ƒé˜²åŒº
 	HZP_DOOR_RING,
-	//! ±£Áô
+	//! ä¿ç•™
 	HZP_RESERVED_0B,
-	//! ±£Áô
+	//! ä¿ç•™
 	HZP_RESERVED_0C,
-	//! ±£Áô
+	//! ä¿ç•™
 	HZP_RESERVED_0D,
-	//! ±£Áô
+	//! ä¿ç•™
 	HZP_RESERVED_0E,
-	//! ÅÔÂ··ÀÇø
-	//! 2019Äê9ÔÂ2ÈÕ16:01:58 ÊÊÅä½ğ½¨·åÕæ²ÊÖ÷»ú
+	//! æ—è·¯é˜²åŒº
+	//! 2019å¹´9æœˆ2æ—¥16:01:58 é€‚é…é‡‘å»ºå³°çœŸå½©ä¸»æœº
 	HZP_BYPASS,
 
 	HZP_COUNT,
@@ -492,167 +492,170 @@ typedef union HbMachineTimer {
 	uint8_t data[8];
 }HbMachineTimer;
 
-// ´®¿ÚÍ¸´«Êı¾İ×î´ó³¤¶È
+// ä¸²å£é€ä¼ æ•°æ®æœ€å¤§é•¿åº¦
 #define HB_COM_DATA_MAX_LEN 32
 
-// ·¢¸øÖ÷»ú
+// å‘ç»™ä¸»æœº
 typedef enum HbComRequestType {
-	HbComReq_A0, // Ë÷ÒªÖ÷»ú×´Ì¬
-	HbComReq_A1, // Ë÷Òª·ÀÇø
-	HbComReq_A2, // Ë÷Òª¸ü¶à·ÀÇø
-	HbComReq_A3, // ĞŞ¸Ä·ÀÇø
-	HbComReq_A5, // »ñÈ¡¶¨Ê±Æ÷
-	HbComReq_A7, // ÉèÖÃ¶¨Ê±Æ÷
+	HbComReq_A0, // ç´¢è¦ä¸»æœºçŠ¶æ€
+	HbComReq_A1, // ç´¢è¦é˜²åŒº
+	HbComReq_A2, // ç´¢è¦æ›´å¤šé˜²åŒº
+	HbComReq_A3, // ä¿®æ”¹é˜²åŒº
+	HbComReq_A5, // è·å–å®šæ—¶å™¨
+	HbComReq_A7, // è®¾ç½®å®šæ—¶å™¨
 	HbComReq_A9, // TODO
-	HbComReq_AA, // ĞŞ¸Ä·ÀÇøÌ½Í·ÒÅÊ§/Ê§Áª
-	HbComReq_AC, // Ë÷Òª·ÀÇøÌ½Í·ÒÅÊ§/Ê§Áª--µÚÒ»´ÎË÷Òª
-	HbComReq_AD, // Ë÷Òª·ÀÇøÌ½Í·ÒÅÊ§/Ê§Áª--¼ÌĞøË÷Òª
-	HbComReq_AE, // ÈıÇø¶ÎÖ÷»ú²¼³··ÀÃüÁî
-	HbComReq_B0, // Ë÷ÒªÈıÇø¶ÎÖ÷»ú×´Ì¬
-	HbComReq_RD_acct, // ¶ÁÈ¡Ö÷»úÕËºÅ
-	HbComReq_WR_acct, // Ğ´ÈëÖ÷»úÕËºÅ
+	HbComReq_AA, // ä¿®æ”¹é˜²åŒºæ¢å¤´é—å¤±/å¤±è”
+	HbComReq_AC, // ç´¢è¦é˜²åŒºæ¢å¤´é—å¤±/å¤±è”--ç¬¬ä¸€æ¬¡ç´¢è¦
+	HbComReq_AD, // ç´¢è¦é˜²åŒºæ¢å¤´é—å¤±/å¤±è”--ç»§ç»­ç´¢è¦
+	HbComReq_AE, // ä¸‰åŒºæ®µä¸»æœºå¸ƒæ’¤é˜²å‘½ä»¤
+	HbComReq_B0, // ç´¢è¦ä¸‰åŒºæ®µä¸»æœºçŠ¶æ€
+	HbComReq_RD_acct, // è¯»å–ä¸»æœºè´¦å·
+	HbComReq_WR_acct, // å†™å…¥ä¸»æœºè´¦å·
 	HbComReq_Invalid = -1,
 }HbComRequestType;
 
-// Ö÷»ú»ØÓ¦
+// ä¸»æœºå›åº”
 typedef enum HbComResponseType {
-	HbComResp_A0, // Ë÷ÒªÖ÷»ú×´Ì¬»ØÓ¦
-	HbComResp_A2, // Ë÷Òª·ÀÇø»ØÓ¦
-	HbComResp_A3, // Ñ§Âë¿ªÊ¼»ØÓ¦
-	HbComResp_A4, // ĞŞ¸Ä·ÀÇø»ØÓ¦
-	HbComResp_A6, // »ñÈ¡Ö÷»ú¶¨Ê±Æ÷»ØÓ¦
-	HbComResp_A7, // ÉèÖÃÖ÷»ú¶¨Ê±Æ÷»ØÓ¦
-	HbComResp_A8, // ¾Ü¾øÉèÖÃ»òÉèÖÃÊ§°Ü»ØÓ¦
+	HbComResp_A0, // ç´¢è¦ä¸»æœºçŠ¶æ€å›åº”
+	HbComResp_A2, // ç´¢è¦é˜²åŒºå›åº”
+	HbComResp_A3, // å­¦ç å¼€å§‹å›åº”
+	HbComResp_A4, // ä¿®æ”¹é˜²åŒºå›åº”
+	HbComResp_A6, // è·å–ä¸»æœºå®šæ—¶å™¨å›åº”
+	HbComResp_A7, // è®¾ç½®ä¸»æœºå®šæ—¶å™¨å›åº”
+	HbComResp_A8, // æ‹’ç»è®¾ç½®æˆ–è®¾ç½®å¤±è´¥å›åº”
 	HbComResp_A9, // TODO
-	HbComResp_AB, // ĞŞ¸Ä·ÀÇøÌ½Í·ÒÅÊ§/Ê§Áª»ØÓ¦
-	HbComResp_AD, // Ë÷Òª·ÀÇøÌ½Í·ÒÅÊ§/Ê§Áª»ØÓ¦
-	HbComResp_AF, // ÈıÇø¶ÎÖ÷»ú²¼³··ÀÃüÁî»ØÓ¦
-	HbComResp_B1, // ÈıÇø¶ÎÖ÷»ú×´Ì¬»ØÓ¦
+	HbComResp_AB, // ä¿®æ”¹é˜²åŒºæ¢å¤´é—å¤±/å¤±è”å›åº”
+	HbComResp_AD, // ç´¢è¦é˜²åŒºæ¢å¤´é—å¤±/å¤±è”å›åº”
+	HbComResp_AF, // ä¸‰åŒºæ®µä¸»æœºå¸ƒæ’¤é˜²å‘½ä»¤å›åº”
+	HbComResp_B1, // ä¸‰åŒºæ®µä¸»æœºçŠ¶æ€å›åº”
 	HbComResp_Invalid = -1,
 }HbComResponseType;
 
-//! Ë÷ÒªÖ÷»ú×´Ì¬ EB AB 3F A0 75
+//! ç´¢è¦ä¸»æœºçŠ¶æ€ EB AB 3F A0 75
 #define HbComReq_A0_len 5
 #define HbComReq_A0_data "\xEB\xAB\x3F\xA0\x75"
 
-//! »ØÓ¦Ö÷»ú×´Ì¬ EB BA 3F 07 P0 A0 P1 P2 P3 SUM
+//! å›åº”ä¸»æœºçŠ¶æ€ EB BA 3F 07 P0 A0 P1 P2 P3 SUM
 #define HbComResp_A0_len 9
 #define HbComResp_A0_head "\xEB\xBA\x3F\x07"
 
-//! Ë÷ÒªÖ÷»ú·ÀÇø EB AB 3F A1 76
+//! ç´¢è¦ä¸»æœºé˜²åŒº EB AB 3F A1 76
 #define HbComReq_A1_len 5
 #define HbComReq_A1_data "\xEB\xAB\x3F\xA1\x76"
 
-//! »ØÓ¦Ö÷»ú·ÀÇø EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
-#define HbComResp_A2_len_min 8 // ÎŞ·ÀÇøÊı¾İÊ±³¤¶È×îĞ¡Îª8
-#define HbComResp_A2_max_zone 20 // ×î¶à¿ÉÒÔ°üº¬ 20 ¸ö·ÀÇø
-#define HbComResp_A2_len_max (HbComResp_A2_len_min + HbComResp_A2_max_zone * 2) // Ò»°üÊı¾İ×î¶àÓĞ8+20*2=48¸ö×Ö½Ú
-#define HbComResp_A2_nomore 0xFF // P1 ÎŞ¸ü¶à·ÀÇø
-#define HbComResp_A2_hasmore 0x00 // P1 »¹ÓĞ¸ü¶à·ÀÇø
+//! å›åº”ä¸»æœºé˜²åŒº EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
+#define HbComResp_A2_len_min 8 // æ— é˜²åŒºæ•°æ®æ—¶é•¿åº¦æœ€å°ä¸º8
+#define HbComResp_A2_max_zone 20 // æœ€å¤šå¯ä»¥åŒ…å« 20 ä¸ªé˜²åŒº
+#define HbComResp_A2_len_max (HbComResp_A2_len_min + HbComResp_A2_max_zone * 2) // ä¸€åŒ…æ•°æ®æœ€å¤šæœ‰8+20*2=48ä¸ªå­—èŠ‚
+#define HbComResp_A2_nomore 0xFF // P1 æ— æ›´å¤šé˜²åŒº
+#define HbComResp_A2_hasmore 0x00 // P1 è¿˜æœ‰æ›´å¤šé˜²åŒº
 
-//! Ë÷Òª¸ü¶àÖ÷»ú·ÀÇø EB AB 3F A2 77
-//! ½öÓ¦ÔÚÊÕµ½ZoneResponseµÄparam·Ç0xFFÊ±·¢ËÍ£¬ÒÔË÷ÒªÈ«²¿·ÀÇø
+//! ç´¢è¦æ›´å¤šä¸»æœºé˜²åŒº EB AB 3F A2 77
+//! ä»…åº”åœ¨æ”¶åˆ°ZoneResponseçš„paramé0xFFæ—¶å‘é€ï¼Œä»¥ç´¢è¦å…¨éƒ¨é˜²åŒº
 #define HbComReq_A2_len 5
 #define HbComReq_A2_data "\xEB\xAB\x3F\xA2\x77"
 
-//! ĞŞ¸ÄÖ÷»ú·ÀÇø EB CB 3F 09 A3 P1 P2 P3 SUM
+//! ä¿®æ”¹ä¸»æœºé˜²åŒº EB CB 3F 09 A3 P1 P2 P3 SUM
 #define HbComReq_A3_len 9
 #define HbComReq_A3_head "\xEB\xCB\x3F\x09\xA3"
-#define HbComReq_A3_op_del		0x00 //! É¾³ı·ÀÇø
-#define HbComReq_A3_op_learn	0x01 //! Ñ§Âë
-#define HbComReq_A3_op_stop		0x02 //! Í£Ö¹Ñ§Âë
-#define HbComReq_A3_op_modify	0x04 //! ĞŞ¸Ä·ÀÇøÊôĞÔ
 
-//! Ñ§Âë¿ªÊ¼»ØÓ¦ EB BA 3F 07 P0 A3 5A
-//! ÒòÎªÑ§ÂëÊ±Ö÷»úÒªµÈ´ıÍâ²¿ÎŞÏßĞÅºÅ£¨ÓÃ»§´¥·¢Ì½²âÆ÷£©£¬Òò´ËÏÈ»ØÓ¦A3±íÊ¾ÒÑ¾­¿ªÊ¼Ñ§Âë£¬Ñ§Âë³É¹¦Ê±»Ø ZoneOpResponse A4
+typedef enum HbComReq_A3_op {
+	HbComReq_A3_op_del		= 0x00, //! åˆ é™¤é˜²åŒº
+	HbComReq_A3_op_learn	= 0x01, //! å­¦ç 
+	HbComReq_A3_op_stop		= 0x02, //! åœæ­¢å­¦ç 
+	HbComReq_A3_op_modify	= 0x04, //! ä¿®æ”¹é˜²åŒºå±æ€§
+}HbComReq_A3_op;
+
+//! å­¦ç å¼€å§‹å›åº” EB BA 3F 07 P0 A3 5A
+//! å› ä¸ºå­¦ç æ—¶ä¸»æœºè¦ç­‰å¾…å¤–éƒ¨æ— çº¿ä¿¡å·ï¼ˆç”¨æˆ·è§¦å‘æ¢æµ‹å™¨ï¼‰ï¼Œå› æ­¤å…ˆå›åº”A3è¡¨ç¤ºå·²ç»å¼€å§‹å­¦ç ï¼Œå­¦ç æˆåŠŸæ—¶å› ZoneOpResponse A4
 #define HbComResp_A3_len 7
 #define HbComResp_A3_data "\xEB\xBA\x3F\x07\xCC\xA3\x5A"
 
-//! ĞŞ¸Ä·ÀÇø»ØÓ¦ EB BA 3F 0A P0 A4 P1 P2 P3 SUM
+//! ä¿®æ”¹é˜²åŒºå›åº” EB BA 3F 0A P0 A4 P1 P2 P3 SUM
 #define HbComResp_A4_len 10
 #define HbComResp_A4_head "\xEB\xBA\x3F\x0A\xCC\xA4"
-#define HbComResp_A4_fail	0x00 //! Ê§°Ü
-#define HbComResp_A4_ok		0x01 //! ³É¹¦
-#define HbComResp_A4_dup	0x02 //! Ê§°Ü--ÖØÂë
-#define HbComResp_A4_ne		0x03 //! Ê§°Ü--·ÀÇøÎ´¶ÔÂë not exists
+#define HbComResp_A4_fail	0x00 //! å¤±è´¥
+#define HbComResp_A4_ok		0x01 //! æˆåŠŸ
+#define HbComResp_A4_dup	0x02 //! å¤±è´¥--é‡ç 
+#define HbComResp_A4_ne		0x03 //! å¤±è´¥--é˜²åŒºæœªå¯¹ç  not exists
 
-//! »ñÈ¡Ö÷»ú¶¨Ê±Æ÷ EB AB 3F A5 7A
+//! è·å–ä¸»æœºå®šæ—¶å™¨ EB AB 3F A5 7A
 #define HbComReq_A5_len 5
 #define HbComReq_A5_data "\xEB\xAB\x3F\xA5\x7A"
 
-//! »ñÈ¡Ö÷»ú¶¨Ê±Æ÷»ØÓ¦ EB BA 3F 0F P0 A6 H1 M1 H2 M2 H3 M3 H4 M4 SUM
+//! è·å–ä¸»æœºå®šæ—¶å™¨å›åº” EB BA 3F 0F P0 A6 H1 M1 H2 M2 H3 M3 H4 M4 SUM
 #define HbComResp_A6_len 15
 #define HbComResp_A6_head "\xEB\xBA\x3F\x0F\xCC\xA6"
 
-//! ÉèÖÃÖ÷»ú¶¨Ê±Æ÷ EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
+//! è®¾ç½®ä¸»æœºå®šæ—¶å™¨ EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
 #define HbComReq_A7_len 14
 #define HbComReq_A7_head "\xEB\xCB\x3F\x0E\xA7"
 
-//! ÉèÖÃÖ÷»ú¶¨Ê±Æ÷»ØÓ¦ EB BA 3F 07 P0 A7 SUM
+//! è®¾ç½®ä¸»æœºå®šæ—¶å™¨å›åº” EB BA 3F 07 P0 A7 SUM
 #define HbComResp_A7_len 7
 #define HbComResp_A7_data "\xEB\xBA\x3F\x07\xCC\xA7\x5E"
 
-//! ¾Ü¾øÉèÖÃ»ØÓ¦ EB BA 3F 07 P0 A8 SUM
-//! ÈÎºÎ²Ù×÷£¬Ö÷»úÈç¹ûÈÏÎª·Ç·¨£¬¶¼¿ÉÒÔÓÃA8Ö±½Ó»Ø¸´
+//! æ‹’ç»è®¾ç½®å›åº” EB BA 3F 07 P0 A8 SUM
+//! ä»»ä½•æ“ä½œï¼Œä¸»æœºå¦‚æœè®¤ä¸ºéæ³•ï¼Œéƒ½å¯ä»¥ç”¨A8ç›´æ¥å›å¤
 #define HbComResp_A8_len 7
 #define HbComResp_A8_data "\xEB\xBA\x3F\x07\xCC\xA8\x5F"
 
-//! ĞŞ¸Ä·ÀÇøÌ½Í·ÒÅÊ§/Ê§Áª EB CB 3F 08 AA P1 P2 SUM
+//! ä¿®æ”¹é˜²åŒºæ¢å¤´é—å¤±/å¤±è” EB CB 3F 08 AA P1 P2 SUM
 #define HbComReq_AA_len 8
 #define HbComReq_AA_head "\xEB\xAB\x3F\x08\xAA"
 
-//! ĞŞ¸Ä·ÀÇøÌ½Í·ÒÅÊ§/Ê§Áª»ØÓ¦ EB BA 3F 09 P0 AB P1 P2 SUM
+//! ä¿®æ”¹é˜²åŒºæ¢å¤´é—å¤±/å¤±è”å›åº” EB BA 3F 09 P0 AB P1 P2 SUM
 #define HbComResp_AB_len 9
 #define HbComResp_AB_head "\xEB\xBA\x3F\x09\xCC\xAB"
 
-//! Ë÷Òª·ÀÇøÌ½Í·ÒÅÊ§/Ê§Áª  µÚÒ»´ÎË÷Òª EB AB 3F AC 81
+//! ç´¢è¦é˜²åŒºæ¢å¤´é—å¤±/å¤±è”  ç¬¬ä¸€æ¬¡ç´¢è¦ EB AB 3F AC 81
 #define HbComReq_AC_len 5
 #define HbComReq_AC_data "\xEB\xAB\x3F\xAC\x81"
 
-//! Ë÷Òª·ÀÇøÌ½Í·ÒÅÊ§/Ê§Áª  Ë÷Òª¸ü¶à EB AB 3F AD 82
+//! ç´¢è¦é˜²åŒºæ¢å¤´é—å¤±/å¤±è”  ç´¢è¦æ›´å¤š EB AB 3F AD 82
 #define HbComReq_AD_len 5
 #define HbComReq_AD_data "\xEB\xAB\x3F\xAD\x82"
 
-//! Ë÷Òª·ÀÇøÌ½Í·ÒÅÊ§/Ê§Áª»ØÓ¦ EB BA 3F PN P0 AD P1 DATA P2 SUM
-#define HbComResp_AD_len_min 9 // ÎŞ·ÀÇøÊ§ÁªÊı¾İÊ±Ò»°ü³¤¶È×îĞ¡Îª9
-#define HbComResp_AD_max_zone 20 // Ò»°ü×î¶à°üº¬20¸ö·ÀÇø
-#define HbComResp_AD_len_max (HbComResp_AD_len_min + HbComResp_AD_max_zone * 2) // Ò»°ü×î¶àÓĞ 9 + 20 *2 = 49 ¸ö×Ö½Ú
-#define HbComResp_AD_p1_single 0xF0 // ·ÀÇøºÅÒÔµ¥×Ö½Ú±íÊ¾
-#define HbComResp_AD_p1_double 0xF1 // ·ÀÇøºÅÒÔË«×Ö½Ú±íÊ¾
+//! ç´¢è¦é˜²åŒºæ¢å¤´é—å¤±/å¤±è”å›åº” EB BA 3F PN P0 AD P1 DATA P2 SUM
+#define HbComResp_AD_len_min 9 // æ— é˜²åŒºå¤±è”æ•°æ®æ—¶ä¸€åŒ…é•¿åº¦æœ€å°ä¸º9
+#define HbComResp_AD_max_zone 20 // ä¸€åŒ…æœ€å¤šåŒ…å«20ä¸ªé˜²åŒº
+#define HbComResp_AD_len_max (HbComResp_AD_len_min + HbComResp_AD_max_zone * 2) // ä¸€åŒ…æœ€å¤šæœ‰ 9 + 20 *2 = 49 ä¸ªå­—èŠ‚
+#define HbComResp_AD_p1_single 0xF0 // é˜²åŒºå·ä»¥å•å­—èŠ‚è¡¨ç¤º
+#define HbComResp_AD_p1_double 0xF1 // é˜²åŒºå·ä»¥åŒå­—èŠ‚è¡¨ç¤º
 #define HbComResp_AD_head "\xEB\xBA\x3F\x09\xCC\xAD"
 
-#define HbCom_3sec_disarm	0x00 // ÈıÇø¶ÎÖ÷»ú³··À£¨ÃüÁî»ò×´Ì¬£©
-#define HbCom_3sec_arm		0x01 // ÈıÇø¶ÎÖ÷»ú²¼·À£¨ÃüÁî»ò×´Ì¬£©
+#define HbCom_3sec_disarm	0x00 // ä¸‰åŒºæ®µä¸»æœºæ’¤é˜²ï¼ˆå‘½ä»¤æˆ–çŠ¶æ€ï¼‰
+#define HbCom_3sec_arm		0x01 // ä¸‰åŒºæ®µä¸»æœºå¸ƒé˜²ï¼ˆå‘½ä»¤æˆ–çŠ¶æ€ï¼‰
 
-//! ÈıÇø¶ÎÖ÷»ú²¼³··ÀÃüÁî EB CB 3F 08 AE P1 P2 SUM
+//! ä¸‰åŒºæ®µä¸»æœºå¸ƒæ’¤é˜²å‘½ä»¤ EB CB 3F 08 AE P1 P2 SUM
 #define HbComReq_AE_len 8
 #define HbComReq_AE_head "\xEB\xCB\x3F\x08\xAE"
 
-//! ÈıÇø¶ÎÖ÷»ú²¼³··ÀÃüÁî»ØÓ¦ EB BA 3F 08 P0 AF P1 P2 SUM
+//! ä¸‰åŒºæ®µä¸»æœºå¸ƒæ’¤é˜²å‘½ä»¤å›åº” EB BA 3F 08 P0 AF P1 P2 SUM
 #define HbComResp_AF_len 9
 #define HbComResp_AF_head "\xEB\xBA\x3F\x08\xCC\xAF"
 
-//! ÈıÇø¶ÎÖ÷»úË÷ÒªÖ÷»ú×´Ì¬ EB CB 3F 06 B0 AB
+//! ä¸‰åŒºæ®µä¸»æœºç´¢è¦ä¸»æœºçŠ¶æ€ EB CB 3F 06 B0 AB
 #define HbComReq_B0_len 6
 #define HbComReq_B0_data "\xEB\xCB\x3F\x06\xB0\xAB"
 
-//! ÈıÇø¶ÎÖ÷»ú×´Ì¬»ØÓ¦ EB BA 3F 08 P0 B1 P1 SUM
+//! ä¸‰åŒºæ®µä¸»æœºçŠ¶æ€å›åº” EB BA 3F 08 P0 B1 P1 SUM
 #define HbComResp_B1_len 8
 #define HbComResp_B1_head "\xEB\xBA\x3F\x08"
 
-//! ¶ÁÈ¡Ö÷»úÕËºÅ 
+//! è¯»å–ä¸»æœºè´¦å· 
 #define HbComReq_RD_acct_len 7
 #define HbComReq_RD_acct_data "\xEB\xBA\x3F\x07\x00\x4C\x37"
 
-//! ¶ÁÈ¡Ö÷»úÕËºÅ»ØÓ¦
+//! è¯»å–ä¸»æœºè´¦å·å›åº”
 #define HbComResp_RD_acct_len 15
 #define HbComResp_RD_acct_head "\xEB\xCB\x3F\x0F\x4C"
 
-//! Ğ´ÈëÖ÷»úÕËºÅ
+//! å†™å…¥ä¸»æœºè´¦å·
 #define HbComReq_WR_acct_len 15
 #define HbComReq_WR_acct_head "\xEB\xCB\x3F\x0F\x4D"
 
-//! Ğ´ÈëÖ÷»úÕËºÅ»ØÓ¦£¨Óë¶ÁÈ¡Ö÷»úÕËºÅÃüÁîÏàÍ¬£©
+//! å†™å…¥ä¸»æœºè´¦å·å›åº”ï¼ˆä¸è¯»å–ä¸»æœºè´¦å·å‘½ä»¤ç›¸åŒï¼‰
 #define HbComResp_WR_acct_len HbComReq_RD_acct_len
 #define HbComResp_WR_acct_head HbComReq_WR_acct_head
 
@@ -664,38 +667,38 @@ static const HbZoneProperty hbZoneProperties[12] = {
 // return available count
 ADEMCO_EXPORT_SYMBOL int hbGetAvailableZoneProperties(HbMachineType type, HbZoneProperty props[12]);
 
-//! ×î´ó·ÀÇøºÅ¸ù¾İĞÍºÅ²»Í¬¶ø²»Í¬
+//! æœ€å¤§é˜²åŒºå·æ ¹æ®å‹å·ä¸åŒè€Œä¸åŒ
 ADEMCO_EXPORT_SYMBOL uint16_t hbZoneMax(HbMachineType type);
-//! ·ÀÇøºÅÊÇ·ñºÏ·¨£¨¿ÉÒÔ°üº¬0·ÀÇø£©
+//! é˜²åŒºå·æ˜¯å¦åˆæ³•ï¼ˆå¯ä»¥åŒ…å«0é˜²åŒºï¼‰
 ADEMCO_EXPORT_SYMBOL int hbIsValidZone(HbMachineType type, uint16_t zone);
-//! ·ÀÇøºÅÊÇ·ñºÏ·¨£¨²»¿ÉÒÔ¿ÉÒÔ°üº¬0·ÀÇø£©
+//! é˜²åŒºå·æ˜¯å¦åˆæ³•ï¼ˆä¸å¯ä»¥å¯ä»¥åŒ…å«0é˜²åŒºï¼‰
 ADEMCO_EXPORT_SYMBOL int hbIsValidZoneStrict(HbMachineType type, uint16_t zone);
-//! Ö÷»úÊÇ·ñÒÑÍ¶²úÊ¹ÓÃ
+//! ä¸»æœºæ˜¯å¦å·²æŠ•äº§ä½¿ç”¨
 ADEMCO_EXPORT_SYMBOL int hbMachineIsSelling(HbMachineType type);
-//! Ö÷»úÊÇ·ñ¾ßÓĞ²¼·À¹¦ÄÜ
+//! ä¸»æœºæ˜¯å¦å…·æœ‰å¸ƒé˜²åŠŸèƒ½
 ADEMCO_EXPORT_SYMBOL int hbMachineCanArm(HbMachineType type);
-//! Ö÷»úÊÇ·ñ¾ßÓĞ³··À¹¦ÄÜ
+//! ä¸»æœºæ˜¯å¦å…·æœ‰æ’¤é˜²åŠŸèƒ½
 ADEMCO_EXPORT_SYMBOL int hbMachineCanDisarm(HbMachineType type);
-//! Ö÷»úÊÇ·ñ¿ÉÒÔ½øÈëÉèÖÃ×´Ì¬
+//! ä¸»æœºæ˜¯å¦å¯ä»¥è¿›å…¥è®¾ç½®çŠ¶æ€
 ADEMCO_EXPORT_SYMBOL int hbMachineCanEnterSettings(HbMachineType type);
-//! Ö÷»úÊÇ·ñ¾ßÓĞ°ë²¼·À¹¦ÄÜ
+//! ä¸»æœºæ˜¯å¦å…·æœ‰åŠå¸ƒé˜²åŠŸèƒ½
 ADEMCO_EXPORT_SYMBOL int hbMachineCanHalfArm(HbMachineType type);
-//! Ö÷»úÊÇ·ñ¿ÉÒÔ±¨¸æĞÅºÅÇ¿¶È
+//! ä¸»æœºæ˜¯å¦å¯ä»¥æŠ¥å‘Šä¿¡å·å¼ºåº¦
 ADEMCO_EXPORT_SYMBOL int hbMachineCanReportSignalStrength(HbMachineType type);
-//! Ö÷»ú±¾ÉíÊÇ·ñ¿ÉÒÔ¶ÌĞÅ±¨¾¯£¨²»ËãÍ¨¹ı·şÎñÈç°¢ÀïÓïÒôµÈ£©
+//! ä¸»æœºæœ¬èº«æ˜¯å¦å¯ä»¥çŸ­ä¿¡æŠ¥è­¦ï¼ˆä¸ç®—é€šè¿‡æœåŠ¡å¦‚é˜¿é‡Œè¯­éŸ³ç­‰ï¼‰
 ADEMCO_EXPORT_SYMBOL int hbMachineCanReportBySMS(HbMachineType type);
-//! Ö÷»úÊÇ·ñÖ§³ÖÓĞÏß·ÀÇø
+//! ä¸»æœºæ˜¯å¦æ”¯æŒæœ‰çº¿é˜²åŒº
 ADEMCO_EXPORT_SYMBOL int hbMachineHasWiredZone(HbMachineType type);
-//! Ö÷»ú×îĞ¡ÓĞÏß·ÀÇøºÅ
+//! ä¸»æœºæœ€å°æœ‰çº¿é˜²åŒºå·
 ADEMCO_EXPORT_SYMBOL AdemcoZone hbWiredZoneMin(HbMachineType type);
-//! Ö÷»ú×î´óÓĞÏß·ÀÇøºÅ
+//! ä¸»æœºæœ€å¤§æœ‰çº¿é˜²åŒºå·
 ADEMCO_EXPORT_SYMBOL AdemcoZone hbWiredZoneMax(HbMachineType type);
-//! Ö÷»úÊÇ·ñ¿ÉÒÔÖ±½ÓĞ´Èë·ÀÇøÊı¾İ£¨ÎŞĞè¶ÔÂë£©
+//! ä¸»æœºæ˜¯å¦å¯ä»¥ç›´æ¥å†™å…¥é˜²åŒºæ•°æ®ï¼ˆæ— éœ€å¯¹ç ï¼‰
 ADEMCO_EXPORT_SYMBOL int hbMachineCanDirectlyWriteZone(HbMachineType type);
-//! Ö÷»úÊÇ·ñ¿ÉÒÔ¹ÒÔØ·Ö»ú
+//! ä¸»æœºæ˜¯å¦å¯ä»¥æŒ‚è½½åˆ†æœº
 ADEMCO_EXPORT_SYMBOL int hbMachineCanLinkSubMachine(HbMachineType type);
-//! ¸ù¾İ·ÀÇøÊôĞÔÅĞ¶ÏÊÇ·ñÖ§³ÖÊ§Áª±¨¸æ
-//! Ê§Áª±¨¸æÊÇÖ÷»ú²àÊµÏÖµÄ¸ú·ÀÇøÊôĞÔÃ»¹ØÏµ£¬µ«ÊÇÈËÎªÏŞÖÆÁËÖ»ÓĞÒÔÏÂÊôĞÔµÄ²Å¿ÉÒÔÉèÖÃ
+//! æ ¹æ®é˜²åŒºå±æ€§åˆ¤æ–­æ˜¯å¦æ”¯æŒå¤±è”æŠ¥å‘Š
+//! å¤±è”æŠ¥å‘Šæ˜¯ä¸»æœºä¾§å®ç°çš„è·Ÿé˜²åŒºå±æ€§æ²¡å…³ç³»ï¼Œä½†æ˜¯äººä¸ºé™åˆ¶äº†åªæœ‰ä»¥ä¸‹å±æ€§çš„æ‰å¯ä»¥è®¾ç½®
 ADEMCO_EXPORT_SYMBOL int hbZonePropCanReportLost(HbZoneProperty zp);
 ADEMCO_EXPORT_SYMBOL void hbInitMachineTimer(HbMachineTimer* timer);
 ADEMCO_EXPORT_SYMBOL int hbIsValidTimer(HbTimer* timer);
@@ -710,17 +713,33 @@ ADEMCO_EXPORT_SYMBOL const char* hbZonePropertyToString(HbZoneProperty zp);
 ADEMCO_EXPORT_SYMBOL const wchar_t* hbZonePropertyToStringChinese(HbZoneProperty zp);
 ADEMCO_EXPORT_SYMBOL const char* hbGetZoneFormatString(HbMachineType type);
 ADEMCO_EXPORT_SYMBOL const wchar_t* hbGetZoneFormatStringW(HbMachineType type);
-// ÀÛ¼ÓĞ£Ñé£¬¼ÆËãdata[0] ~ data[len-2]£¬Ğ£ÑéºÍ·ÅÔÚdata[len-1]
+// ç´¯åŠ æ ¡éªŒï¼Œè®¡ç®—data[0] ~ data[len-2]ï¼Œæ ¡éªŒå’Œæ”¾åœ¨data[len-1]
 ADEMCO_EXPORT_SYMBOL void hbSum(uint8_t* data, int len);
-// Ğ£ÑéºÍÊÇ·ñÕıÈ·, return 0 for incorrect, otherwise correct
+// æ ¡éªŒå’Œæ˜¯å¦æ­£ç¡®, return 0 for incorrect, otherwise correct
 ADEMCO_EXPORT_SYMBOL int hbCheckSum(const uint8_t* data, int len);
 ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseRequest(const uint8_t* buff, int len);
-ADEMCO_EXPORT_SYMBOL HbComResponseType hbParseComResponse(const uint8_t* buff, int len);
+ADEMCO_EXPORT_SYMBOL HbComResponseType hbComParseResponse(const uint8_t* buff, int len);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA0_getMachineStatus(AdemcoXDataSegment* xdata);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA1_getMachineZones(AdemcoXDataSegment* xdata);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA2_getMoreMachineZones(AdemcoXDataSegment* xdata);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA3_modifyMachineZone(AdemcoXDataSegment* xdata, uint8_t zone, HbZoneProperty prop, HbComReq_A3_op op);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA5_getMachineTimer(AdemcoXDataSegment* xdata);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA7_setMachineTimer(AdemcoXDataSegment* xdata, HbMachineTimer* timer);
+//ADEMCO_EXPORT_SYMBOL void hbComMakeReqA9(AdemcoXDataSegment* xdata, HbMachineStatus status, HbMachineType type);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqAA_modifyMachineZoneLostConfig(AdemcoXDataSegment* xdata, uint8_t zone, int on);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqAC_getMachineZoneLostConfig(AdemcoXDataSegment* xdata);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqAD_getMoreMachineZoneLostConfig(AdemcoXDataSegment* xdata);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqAE_set3SectionMachineStatus(AdemcoXDataSegment* xdata, HbMachineStatus statusMachine, 
+																  HbMachineStatus statusSec1, HbMachineStatus statusSec2, HbMachineStatus statusSec3);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqB0_get3SectionMachineStatus(AdemcoXDataSegment* xdata);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqRD_acct(AdemcoXDataSegment* xdata);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqWR_acct(AdemcoXDataSegment* xdata, const char* acct);
 
-// ½«Ò»´®ÒÔ¸ßµÍ×Ö½Ú±íÊ¾µÄÊ®Áù½øÖÆÊı×é×ª»»Îª10½øÖÆÊı×Ö·û´®£¬Óö0xf»ò·Ç'0'~'9'×Ö·ûÍ£Ö¹£¬·µ»Ø×Ö·û´®³¤¶È
-// Ê¾Àı£ºÊäÈëÊı×é£º0x18 0x24 0x08 0x88 0x10 0x1f, 0xff£¬Êä³ö×Ö·û´®"18240888101"
+
+// å°†ä¸€ä¸²ä»¥é«˜ä½å­—èŠ‚è¡¨ç¤ºçš„åå…­è¿›åˆ¶æ•°ç»„è½¬æ¢ä¸º10è¿›åˆ¶æ•°å­—ç¬¦ä¸²ï¼Œé‡0xfæˆ–é'0'~'9'å­—ç¬¦åœæ­¢ï¼Œè¿”å›å­—ç¬¦ä¸²é•¿åº¦
+// ç¤ºä¾‹ï¼šè¾“å…¥æ•°ç»„ï¼š0x18 0x24 0x08 0x88 0x10 0x1f, 0xffï¼Œè¾“å‡ºå­—ç¬¦ä¸²"18240888101"
 ADEMCO_EXPORT_SYMBOL int hbHiLoArrayToDecStr(char* str, const uint8_t* arr, int len);
-// ½«Ò»¸ö10½øÖÆÊı×Ö·û´®×ªÎª¸ßµÍ×Ö½Ú±íÊ¾µÄÊı×é£¬½ÚÊ¡¿Õ¼ä£¬·µ»ØÊı×é³¤¶È
+// å°†ä¸€ä¸ª10è¿›åˆ¶æ•°å­—ç¬¦ä¸²è½¬ä¸ºé«˜ä½å­—èŠ‚è¡¨ç¤ºçš„æ•°ç»„ï¼ŒèŠ‚çœç©ºé—´ï¼Œè¿”å›æ•°ç»„é•¿åº¦
 ADEMCO_EXPORT_SYMBOL int hbDecStrToHiLoArray(uint8_t* arr, const char* str, int len);
 
 
