@@ -63,5 +63,13 @@ int main()
 		assert(res == RESULT_OK);
 		assert(cb_commited == len);
 	}
+
+
+	char data[] = "\xEB\xBA";
+
+	char data2[] = {0xEB, 0xBA};
+	int ret = memcmp("\xEB\xBA", data2, 2);
+
+	ret == 0;
 }
 

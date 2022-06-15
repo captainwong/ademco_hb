@@ -492,6 +492,86 @@ typedef union HbMachineTimer {
 	uint8_t data[8];
 }HbMachineTimer;
 
+typedef enum HbComRequestType {
+	HbComReq_A0, // 索要主机状态
+	HbComReq_A1, // 索要防区
+	HbComReq_A2, // 索要更多防区
+	HbComReq_A3, // 修改防区
+	HbComReq_A5, // 获取定时器
+	HbComReq_A7, // 设置定时器
+	HbComReq_AA, // 修改防区探头遗失/失联
+	HbComReq_AC, // 索要防区探头遗失/失联--第一次索要
+	HbComReq_AD, // 索要防区探头遗失/失联--继续索要
+	HbComReq_B0, // 索要三区段主机状态
+	HbComReq_RD_acct, // 读取主机账号
+	HbComReq_WR_acct, // 写入主机账号
+	HbComReq_Invalid = -1,
+}HbComRequestType;
+
+typedef enum HbComResponseType {
+	HbComResp_A0,
+	HbComResp_A2,
+	HbComResp_A3,
+	HbComResp_A4,
+	HbComResp_A6,
+	HbComResp_A7,
+	HbComResp_A8,
+	HbComResp_A9,
+	HbComResp_AB,
+	HbComResp_AD,
+	HbComResp_AE,
+	HbComResp_B1,
+	HbComResp_Invalid = -1,
+}HbComResponseType;
+
+//! 索要主机状态 EB AB 3F A0 75
+#define HbComReq_A0_len 5
+#define HbComReq_A0_data "\xEB\xAB\x3F\xA0\x75"
+
+//! 回应主机状态 EB BA 3F 07 P0 A0 P1 P2 P3 SUM
+#define HbComResp_A0_len 9
+#define HbComResp_A0_head "\xEB\xBA\x3F\x07"
+
+//! 索要主机防区 EB AB 3F A1 76
+#define HbComReq_A1_len 5
+#define HbComReq_A1_data "\xEB\xAB\x3F\xA1\x76"
+
+//! 回应主机防区 EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
+#define HbComResp_A1_len_min 8 // 无防区数据时长度最小为8
+#define HbComResp_A1_max_zone 20 // 最多可以包含 20 个防区
+#define HbComResp_A1_len_max (HbComResp_A1_len_min + HbComResp_A1_max_zone * 2) // 一包数据最多有8+20*2=48个字节
+#define HbComResp_A1_nomore 0xFF // P1 无更多防区
+#define HbComResp_A1_hasmore 0x00 // P1 还有更多防区
+
+#define HbComReq_A2_len 5
+#define HbComReq_A2_data "\xEB\xAB\x3F\xA2\x77"
+
+#define HbComReq_A3_len 9
+#define HbComReq_A3_head "\xEB\xCB\x3F\x09\xA3"
+
+#define HbComReq_A5_len 5
+#define HbComReq_A5_data "\xEB\xAB\x3F\xA5\x7A"
+
+#define HbComReq_A7_len 14
+#define HbComReq_A7_head "\xEB\xCB\x3F\x0E\xA7"
+
+#define HbComReq_AA_len 8
+#define HbComReq_AA_head "\xEB\xAB\x3F\x08\xAA"
+
+#define HbComReq_AC_len 5
+#define HbComReq_AC_data "\xEB\xAB\x3F\xAC\x81"
+
+#define HbComReq_AD_len 5
+#define HbComReq_AD_data "\xEB\xAB\x3F\xAD\x82"
+
+#define HbComReq_B0_len 6
+#define HbComReq_B0_data "\xEB\xCB\x3F\x06\xB0\xAB"
+
+#define HbComReq_RD_acct_len 7
+#define HbComReq_RD_acct_data "\xEB\xBA\x3F\x07\x00\x4C\x37"
+
+#define HbComReq_WR_acct_len 15
+#define HbComReq_WR_acct_head "\xEB\xCB\x3F\x0F\x4D"
 
 static const HbZoneProperty hbZoneProperties[12] = {
 	HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE, 
@@ -547,8 +627,10 @@ ADEMCO_EXPORT_SYMBOL const char* hbZonePropertyToString(HbZoneProperty zp);
 ADEMCO_EXPORT_SYMBOL const wchar_t* hbZonePropertyToStringChinese(HbZoneProperty zp);
 ADEMCO_EXPORT_SYMBOL const char* hbGetZoneFormatString(HbMachineType type);
 ADEMCO_EXPORT_SYMBOL const wchar_t* hbGetZoneFormatStringW(HbMachineType type);
-
-
+// 累加校验，计算data[0] ~ data[len-2]，校验和放在data[len-1]
+ADEMCO_EXPORT_SYMBOL void hbSum(uint8_t* data, int len);
+ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseRequest(const uint8_t* buff, int len);
+ADEMCO_EXPORT_SYMBOL HbComResponseType hbParseComResponse(const uint8_t* buff, int len);
 
 // 将一串以高低字节表示的十六进制数组转换为10进制数字符串，遇0xf或非'0'~'9'字符停止，返回字符串长度
 // 示例：输入数组：0x18 0x24 0x08 0x88 0x10 0x1f, 0xff，输出字符串"18240888101"

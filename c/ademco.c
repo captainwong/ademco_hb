@@ -1269,6 +1269,120 @@ const wchar_t* hbGetZoneFormatStringW(HbMachineType type)
 	else { return L"%d"; }
 }
 
+void hbSum(uint8_t* data, int len)
+{
+	uint8_t sum = 0;
+	uint8_t* p = data;
+	while (p != data + len - 1) {
+		sum += *p++;
+	}
+	*p = sum;
+}
+
+HbComRequestType hbComParseRequest(const uint8_t* data, int len)
+{
+	do {
+		if (len < 5) { break; }
+		if (data[0] != 0xEB) { break; }
+		switch (data[1]) {
+		case 0xAB:
+		{
+			if (data[2] != 0x3F) { break; }
+			switch (data[3]) {
+			case 0xA0: // EB AB 3F A0 75
+			{
+				if (len != HbComReq_A0_len) { break; }
+				if (memcmp(HbComReq_A0_data, data, len) != 0) { break; }
+				return HbComReq_A0;
+			}
+			case 0xA1: // EB AB 3F A1 76
+			{
+				if (len != HbComReq_A1_len) { break; }
+				if (memcmp(HbComReq_A1_data, data, len) != 0) { break; }
+				return HbComReq_A1;
+			}
+			case 0xA2: // EB AB 3F A2 77
+			{
+				if (len != HbComReq_A2_len) { break; }
+				if (memcmp(HbComReq_A2_data, data, len) != 0) { break; }
+				return HbComReq_A2;
+			}
+			case 0xA5: // EB AB 3F A5 7A
+			{
+				if (len != HbComReq_A5_len) { break; }
+				if (memcmp(HbComReq_A5_data, data, len) != 0) { break; }
+				return HbComReq_A5;
+			}
+			case 0xAC: // EB AB 3F AC 81
+			{
+				if (len != HbComReq_AC_len) { break; }
+				if (memcmp(HbComReq_AC_data, data, len) != 0) { break; }
+				return HbComReq_AC;
+			}
+			case 0xAD: // EB AB 3F AD 82
+			{
+				if (len != HbComReq_AD_len) { break; }
+				if (memcmp(HbComReq_AD_data, data, len) != 0) { break; }
+				return HbComReq_AD;
+			}
+
+			default:
+				break;
+			}
+			break;
+		}
+		case 0xBA:
+		{
+			if (data[2] != 0x3F) { break; }
+			if (len == HbComReq_RD_acct_len && memcmp(data, HbComReq_RD_acct_data, len) == 0) {
+				return HbComReq_RD_acct;
+			}
+			break;
+		}
+		case 0xCB:
+		{
+			if (data[2] != 0x3F) { break; }
+			
+			if (data[3] == 0x09 && data[4] == 0xA3 && len == HbComReq_A3_len) { // EB CB 3F 09 A3 P1 P2 P3 SUM
+				uint8_t req[HbComReq_A3_len]; memcpy(req, data, len); hbSum(req, len);
+				if (data[len - 1] == req[len - 1]) { return HbComReq_A3; }
+			} else if (data[3] == 0x0F && data[4] == 0x4D && len == HbComReq_WR_acct_len) {
+				uint8_t req[HbComReq_WR_acct_len]; memcpy(req, data, len); hbSum(req, len);
+				if (data[len - 1] == req[len - 1]) { return HbComReq_WR_acct; }
+			} else if (data[3] == 0x0E && data[4] == 0xA7 && len == HbComReq_A7_len) { // EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
+				uint8_t req[HbComReq_A7_len]; memcpy(req, data, len); hbSum(req, len);
+				if (data[len - 1] == req[len - 1]) { return HbComReq_A7; }
+			} 
+
+			/*else if (data[3] == 0x08 && data[4] == 0xA9 && len == A9_len) {
+				A7 req; memcpy(req.data, data, req.len); sum(req);
+				if (data[len - 1] == req.data[len - 1]) { return A7; }
+			}*/
+			
+			else if (data[3] == 0x08 && data[4] == 0xAA && len == HbComReq_AA_len) { // EB CB 3F 08 AA P1 P2 SUM
+				uint8_t req[HbComReq_AA_len]; memcpy(req, data, len); hbSum(req, len);
+				if (data[len - 1] == req[len - 1]) { return HbComReq_AA; }
+			}
+
+			/*else if (data[3] == 0x08 && data[4] == 0xAE && len == AE_len) {
+				AA req; memcpy(req.data, data, req.len); sum(req);
+				if (data[len - 1] == req.data[len - 1]) { return AA; }
+			}*/
+			
+			else if (data[3] == 0x06 && data[4] == 0xB0 && len == HbComReq_B0_len && memcmp(HbComReq_B0_data, data, len) == 0) { // EB CB 3F 06 B0 AB
+				return HbComReq_B0;
+			}
+		}
+		}
+	} while (0);
+	return HbComReq_Invalid;
+}
+
+HbComResponseType hbParseComResponse(const uint8_t* buff, int len)
+{
+
+}
+
 int hbHiLoArrayToDecStr(char* str, const uint8_t* arr, int len)
 {
 	char* p = str;
