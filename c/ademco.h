@@ -399,11 +399,12 @@ static inline int hbIsValid3SectionMachineGG(AdemcoGG gg) {
 	return HB_3SECTION_MACHINE_GG_MIN <= gg && gg <= HB_3SECTION_MACHINE_GG_MAX;
 }
 
+//! 主机状态
 typedef enum HbMachineStatus {
-	HMS_ARM,
-	HMS_HALF_ARM,
-	HMS_DISARM,
-	HMS_SETTING,
+	HMS_ARM,		// 布防
+	HMS_HALF_ARM,	// 半布防
+	HMS_DISARM,		// 撤防
+	HMS_SETTING,	// 设置
 	HMS_COUNT,
 	HMS_INVALID = -1,
 }HbMachineStatus;
@@ -624,12 +625,18 @@ typedef enum HbComReq_A3_op {
 #define HbComResp_AD_p1_double 0xF1 // 防区号以双字节表示
 #define HbComResp_AD_head "\xEB\xBA\x3F\x09\xCC\xAD"
 
-#define HbCom_3sec_disarm	0x00 // 三区段主机撤防（命令或状态）
-#define HbCom_3sec_arm		0x01 // 三区段主机布防（命令或状态）
+#define HbCom_3sec_arm		0x00 // 三区段主机布防（命令或状态）
+#define HbCom_3sec_disarm	0x01 // 三区段主机撤防（命令或状态）
 
 //! 三区段主机布撤防命令 EB CB 3F 08 AE P1 P2 SUM
 #define HbComReq_AE_len 8
 #define HbComReq_AE_head "\xEB\xCB\x3F\x08\xAE"
+typedef enum HbComReq_AE_P1 { 
+	HbComReq_AE_P1_machine,  // 对主机布撤防
+	HbComReq_AE_P1_section1, // 对区段1布撤防
+	HbComReq_AE_P1_section2, // 对区段2布撤防
+	HbComReq_AE_P1_section3, // 对区段3布撤防
+}HbComReq_AE_P1;
 
 //! 三区段主机布撤防命令回应 EB BA 3F 08 P0 AF P1 P2 SUM
 #define HbComResp_AF_len 9
@@ -729,18 +736,20 @@ ADEMCO_EXPORT_SYMBOL void hbComMakeReqA7_setMachineTimer(AdemcoXDataSegment* xda
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqAA_modifyMachineZoneLostConfig(AdemcoXDataSegment* xdata, uint8_t zone, int on);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqAC_getMachineZoneLostConfig(AdemcoXDataSegment* xdata);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqAD_getMoreMachineZoneLostConfig(AdemcoXDataSegment* xdata);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqAE_set3SectionMachineStatus(AdemcoXDataSegment* xdata, HbMachineStatus statusMachine, 
-																  HbMachineStatus statusSec1, HbMachineStatus statusSec2, HbMachineStatus statusSec3);
+// p2 must be HbCom_3sec_arm or HbCom_3sec_disarm
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqAE_set3SectionMachineStatus(AdemcoXDataSegment* xdata, HbComReq_AE_P1 p1, uint8_t p2);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqB0_get3SectionMachineStatus(AdemcoXDataSegment* xdata);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqRD_acct(AdemcoXDataSegment* xdata);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqWR_acct(AdemcoXDataSegment* xdata, const char* acct);
 
 
 // 将一串以高低字节表示的十六进制数组转换为10进制数字符串，遇0xf或非'0'~'9'字符停止，返回字符串长度
-// 示例：输入数组：0x18 0x24 0x08 0x88 0x10 0x1f, 0xff，输出字符串"18240888101"
+// 示例：输入数组：0x18 0x24 0x08 0x88 0x10 0x1f 0xff，输出字符串"18240888101"
 ADEMCO_EXPORT_SYMBOL int hbHiLoArrayToDecStr(char* str, const uint8_t* arr, int len);
-// 将一个10进制数字符串转为高低字节表示的数组，节省空间，返回数组长度
-ADEMCO_EXPORT_SYMBOL int hbDecStrToHiLoArray(uint8_t* arr, const char* str, int len);
+// 将一个10进制数字符串转为高低字节表示的数组，节省空间，转换后的长度若不满len，则以0xF补满。str长度不能大于len * 2
+// 示例：输入字符串 "18240888101", len=9, 则arr内容为 0x18 0x24 0x08 0x88 0x10 0x1f 0xff 0xff 0xff, return 9
+// 输入字符串 "12345678901234567890", len=9, 则失败返回0
+ADEMCO_EXPORT_SYMBOL int hbDecStrToHiLoArray(uint8_t* arr, int len, const char* str);
 
 
 #ifdef __cplusplus

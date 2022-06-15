@@ -1473,6 +1473,90 @@ HbComResponseType hbComParseResponse(const uint8_t* data, int len)
 	return HbComResp_Invalid;
 }
 
+void hbComMakeReqA0_getMachineStatus(AdemcoXDataSegment* xdata)
+{
+	ademcoMakeXData(xdata, TWO_HEX, HbComReq_A0_data, HbComReq_A0_len);
+}
+
+void hbComMakeReqA1_getMachineZones(AdemcoXDataSegment* xdata)
+{
+	ademcoMakeXData(xdata, TWO_HEX, HbComReq_A1_data, HbComReq_A1_len);
+}
+
+void hbComMakeReqA2_getMoreMachineZones(AdemcoXDataSegment* xdata)
+{
+	ademcoMakeXData(xdata, TWO_HEX, HbComReq_A2_data, HbComReq_A2_len);
+}
+
+void hbComMakeReqA3_modifyMachineZone(AdemcoXDataSegment* xdata, uint8_t zone, HbZoneProperty prop, HbComReq_A3_op op)
+{
+	uint8_t req[HbComReq_A3_len] = HbComReq_A3_head;
+	req[5] = zone;
+	req[6] = prop;
+	req[7] = op;
+	hbSum(req, HbComReq_A3_len);
+	ademcoMakeXData(xdata, TWO_HEX, req, HbComReq_A3_len);
+}
+
+void hbComMakeReqA5_getMachineTimer(AdemcoXDataSegment* xdata)
+{
+	ademcoMakeXData(xdata, TWO_HEX, HbComReq_A5_data, HbComReq_A5_len);
+}
+
+void hbComMakeReqA7_setMachineTimer(AdemcoXDataSegment* xdata, HbMachineTimer* timer)
+{
+	uint8_t req[HbComReq_A7_len] = HbComReq_A7_head;
+	memcpy(req + 5, timer, sizeof(*timer));
+	hbSum(req, HbComReq_A7_len);
+	ademcoMakeXData(xdata, TWO_HEX, req, HbComReq_A7_len);
+}
+
+void hbComMakeReqAA_modifyMachineZoneLostConfig(AdemcoXDataSegment* xdata, uint8_t zone, int on)
+{
+	uint8_t req[HbComReq_AA_len] = HbComReq_AA_head;
+	req[5] = zone;
+	req[6] = !!on;
+	hbSum(req, HbComReq_AA_len);
+	ademcoMakeXData(xdata, TWO_HEX, req, HbComReq_AA_len);
+}
+
+void hbComMakeReqAC_getMachineZoneLostConfig(AdemcoXDataSegment* xdata)
+{
+	ademcoMakeXData(xdata, TWO_HEX, HbComReq_AC_data, HbComReq_AC_len);
+}
+
+void hbComMakeReqAD_getMoreMachineZoneLostConfig(AdemcoXDataSegment* xdata)
+{
+	ademcoMakeXData(xdata, TWO_HEX, HbComReq_AD_data, HbComReq_AD_len);
+}
+
+void hbComMakeReqAE_set3SectionMachineStatus(AdemcoXDataSegment* xdata, HbComReq_AE_P1 p1, uint8_t p2)
+{
+	uint8_t req[HbComReq_AE_len] = HbComReq_AE_head;
+	req[5] = p1;
+	req[6] = p2;
+	hbSum(req, HbComReq_AE_len);
+	ademcoMakeXData(xdata, TWO_HEX, req, HbComReq_AE_len);
+}
+
+void hbComMakeReqB0_get3SectionMachineStatus(AdemcoXDataSegment* xdata)
+{
+	ademcoMakeXData(xdata, TWO_HEX, HbComReq_B0_data, HbComReq_B0_len);
+}
+
+void hbComMakeReqRD_acct(AdemcoXDataSegment* xdata)
+{
+	ademcoMakeXData(xdata, TWO_HEX, HbComReq_RD_acct_data, HbComReq_RD_acct_len);
+}
+
+void hbComMakeReqWR_acct(AdemcoXDataSegment* xdata, const char* acct)
+{
+	uint8_t req[HbComReq_WR_acct_len] = HbComReq_WR_acct_head;
+	hbDecStrToHiLoArray(req + 5, 9, acct);
+	hbSum(req, HbComReq_AE_len);
+	ademcoMakeXData(xdata, TWO_HEX, req, HbComReq_AE_len);
+}
+
 int hbHiLoArrayToDecStr(char* str, const uint8_t* arr, int len)
 {
 	char* p = str;
@@ -1487,13 +1571,17 @@ int hbHiLoArrayToDecStr(char* str, const uint8_t* arr, int len)
 	return p - str;
 }
 
-int hbDecStrToHiLoArray(uint8_t* arr, const char* str, int len)
+int hbDecStrToHiLoArray(uint8_t* arr, int len, const char* str)
 {
 	uint8_t* p = arr;
-	for (int i = 0; i < len; i += 2) {
+	int slen = strlen(str);
+	if (slen > len * 2) {
+		return 0;
+	}
+	for (int i = 0; i < slen; i += 2) {
 		char hi = str[i];
 		if ('0' <= hi && hi <= '9') {
-			if (i < len) {
+			if (i + 1 < slen) {
 				char lo = str[i + 1];
 				if ('0' <= lo && lo <= '9') {
 					*p++ = (hi << 4) | (lo & 0x0F);
@@ -1509,7 +1597,10 @@ int hbDecStrToHiLoArray(uint8_t* arr, const char* str, int len)
 			break;
 		}
 	}
-	return p - arr;
+	while (p - arr < len) {
+		*p++ = 0xFF;
+	}
+	return len;
 }
 
 
