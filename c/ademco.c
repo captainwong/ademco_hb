@@ -1473,88 +1473,96 @@ HbComResponseType hbComParseResponse(const uint8_t* data, int len)
 	return HbComResp_Invalid;
 }
 
-void hbComMakeReqA0_getMachineStatus(AdemcoXDataSegment* xdata)
+void hbComMakeReqA0_getMachineStatus(HbComData* data)
 {
-	ademcoMakeXData(xdata, TWO_HEX, HbComReq_A0_data, HbComReq_A0_len);
+	memcpy(data->data, HbComReq_A0_data, HbComReq_A0_len);
+	data->len = HbComReq_A0_len;
 }
 
-void hbComMakeReqA1_getMachineZones(AdemcoXDataSegment* xdata)
+void hbComMakeReqA1_getMachineZones(HbComData* data)
 {
-	ademcoMakeXData(xdata, TWO_HEX, HbComReq_A1_data, HbComReq_A1_len);
+	memcpy(data->data, HbComReq_A1_data, HbComReq_A1_len);
+	data->len = HbComReq_A1_len;
 }
 
-void hbComMakeReqA2_getMoreMachineZones(AdemcoXDataSegment* xdata)
+void hbComMakeReqA2_getMoreMachineZones(HbComData* data)
 {
-	ademcoMakeXData(xdata, TWO_HEX, HbComReq_A2_data, HbComReq_A2_len);
+	memcpy(data->data, HbComReq_A2_data, HbComReq_A2_len);
+	data->len = HbComReq_A2_len;
 }
 
-void hbComMakeReqA3_modifyMachineZone(AdemcoXDataSegment* xdata, uint8_t zone, HbZoneProperty prop, HbComReq_A3_op op)
+void hbComMakeReqA3_modifyMachineZone(HbComData* data, uint8_t zone, HbZoneProperty prop, HbComReq_A3_op op)
 {
-	uint8_t req[HbComReq_A3_len] = HbComReq_A3_head;
-	req[5] = zone;
-	req[6] = prop;
-	req[7] = op;
-	hbSum(req, HbComReq_A3_len);
-	ademcoMakeXData(xdata, TWO_HEX, req, HbComReq_A3_len);
+	memcpy(data->data, HbComReq_A3_head, 5);
+	data->data[5] = zone;
+	data->data[6] = prop;
+	data->data[7] = op;
+	hbSum(data->data, HbComReq_A3_len);
+	data->len = HbComReq_A3_len;
 }
 
-void hbComMakeReqA5_getMachineTimer(AdemcoXDataSegment* xdata)
+void hbComMakeReqA5_getMachineTimer(HbComData* data)
 {
-	ademcoMakeXData(xdata, TWO_HEX, HbComReq_A5_data, HbComReq_A5_len);
+	memcpy(data->data, HbComReq_A5_data, HbComReq_A5_len);
+	data->len = HbComReq_A5_len;
 }
 
-void hbComMakeReqA7_setMachineTimer(AdemcoXDataSegment* xdata, HbMachineTimer* timer)
+void hbComMakeReqA7_setMachineTimer(HbComData* data, HbMachineTimer* timer)
 {
-	uint8_t req[HbComReq_A7_len] = HbComReq_A7_head;
-	memcpy(req + 5, timer, sizeof(*timer));
-	hbSum(req, HbComReq_A7_len);
-	ademcoMakeXData(xdata, TWO_HEX, req, HbComReq_A7_len);
+	memcpy(data->data, HbComReq_A7_head, 5);
+	memcpy(data->data + 5, timer, sizeof(*timer));
+	hbSum(data->data, HbComReq_A7_len);
+	data->len = HbComReq_A7_len;
 }
 
-void hbComMakeReqAA_modifyMachineZoneLostConfig(AdemcoXDataSegment* xdata, uint8_t zone, int on)
+void hbComMakeReqAA_modifyMachineZoneLostConfig(HbComData* data, uint8_t zone, int on)
 {
-	uint8_t req[HbComReq_AA_len] = HbComReq_AA_head;
-	req[5] = zone;
-	req[6] = !!on;
-	hbSum(req, HbComReq_AA_len);
-	ademcoMakeXData(xdata, TWO_HEX, req, HbComReq_AA_len);
+	memcpy(data->data, HbComReq_AA_head, 5);
+	data->data[5] = zone;
+	data->data[6] = !!on;
+	hbSum(data->data, HbComReq_AA_len);
+	data->len = HbComReq_AA_len;
 }
 
-void hbComMakeReqAC_getMachineZoneLostConfig(AdemcoXDataSegment* xdata)
+void hbComMakeReqAC_getMachineZoneLostConfig(HbComData* data)
 {
-	ademcoMakeXData(xdata, TWO_HEX, HbComReq_AC_data, HbComReq_AC_len);
+	memcpy(data->data, HbComReq_AC_data, HbComReq_AC_len);
+	data->len = HbComReq_AC_len;
 }
 
-void hbComMakeReqAD_getMoreMachineZoneLostConfig(AdemcoXDataSegment* xdata)
+void hbComMakeReqAD_getMoreMachineZoneLostConfig(HbComData* data)
 {
-	ademcoMakeXData(xdata, TWO_HEX, HbComReq_AD_data, HbComReq_AD_len);
+	memcpy(data->data, HbComReq_AD_data, HbComReq_AD_len);
+	data->len = HbComReq_AD_len;
 }
 
-void hbComMakeReqAE_set3SectionMachineStatus(AdemcoXDataSegment* xdata, HbComReq_AE_P1 p1, uint8_t p2)
+void hbComMakeReqAE_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status)
 {
-	uint8_t req[HbComReq_AE_len] = HbComReq_AE_head;
-	req[5] = p1;
-	req[6] = p2;
-	hbSum(req, HbComReq_AE_len);
-	ademcoMakeXData(xdata, TWO_HEX, req, HbComReq_AE_len);
+	memcpy(data->data, HbComReq_AE_head, 5);
+	data->data[5] = p1;
+	data->data[6] = status;
+	hbSum(data->data, HbComReq_AE_len);
+	data->len = HbComReq_AE_len;
 }
 
-void hbComMakeReqB0_get3SectionMachineStatus(AdemcoXDataSegment* xdata)
+void hbComMakeReqB0_get3SectionMachineStatus(HbComData* data)
 {
-	ademcoMakeXData(xdata, TWO_HEX, HbComReq_B0_data, HbComReq_B0_len);
+	memcpy(data->data, HbComReq_B0_data, HbComReq_B0_len);
+	data->len = HbComReq_B0_len;
 }
 
-void hbComMakeReqRD_acct(AdemcoXDataSegment* xdata)
+void hbComMakeReqRD_acct(HbComData* data)
 {
-	ademcoMakeXData(xdata, TWO_HEX, HbComReq_RD_acct_data, HbComReq_RD_acct_len);
+	memcpy(data->data, HbComReq_RD_acct_data, HbComReq_RD_acct_len);
+	data->len = HbComReq_RD_acct_len;
 }
 
-void hbComMakeReqWR_acct(AdemcoXDataSegment* xdata, const char* acct)
+void hbComMakeReqWR_acct(HbComData* data, const char* acct)
 {
-	uint8_t req[HbComReq_WR_acct_len] = HbComReq_WR_acct_head;
-	hbDecStrToHiLoArray(req + 5, 9, acct);
-	hbSum(req, HbComReq_AE_len);
-	ademcoMakeXData(xdata, TWO_HEX, req, HbComReq_AE_len);
+	memcpy(data->data, HbComReq_WR_acct_head, 5);
+	hbDecStrToHiLoArray(data->data + 5, 9, acct);
+	hbSum(data->data, HbComReq_WR_acct_len);
+	data->len = HbComReq_WR_acct_len;
 }
 
 int hbHiLoArrayToDecStr(char* str, const uint8_t* arr, int len)

@@ -494,7 +494,13 @@ typedef union HbMachineTimer {
 }HbMachineTimer;
 
 // 串口透传数据最大长度
-#define HB_COM_DATA_MAX_LEN 32
+#define HB_COM_DATA_MAX_LEN 64
+
+// 串口透传数据
+typedef struct HbComData {
+	uint8_t data[HB_COM_DATA_MAX_LEN];
+	int len;
+}HbComData;
 
 // 发给主机
 typedef enum HbComRequestType {
@@ -548,8 +554,10 @@ typedef enum HbComResponseType {
 #define HbComResp_A2_len_min 8 // 无防区数据时长度最小为8
 #define HbComResp_A2_max_zone 20 // 最多可以包含 20 个防区
 #define HbComResp_A2_len_max (HbComResp_A2_len_min + HbComResp_A2_max_zone * 2) // 一包数据最多有8+20*2=48个字节
-#define HbComResp_A2_nomore 0xFF // P1 无更多防区
-#define HbComResp_A2_hasmore 0x00 // P1 还有更多防区
+typedef enum HbComResp_A2_p1 {
+	HbComResp_A2_p1_nomore	= 0xFF, // 无更多防区
+	HbComResp_A2_p1_more	= 0x00, // 还有更多防区
+}HbComResp_A2_p1;
 
 //! 索要更多主机防区 EB AB 3F A2 77
 //! 仅应在收到ZoneResponse的param非0xFF时发送，以索要全部防区
@@ -560,11 +568,11 @@ typedef enum HbComResponseType {
 #define HbComReq_A3_len 9
 #define HbComReq_A3_head "\xEB\xCB\x3F\x09\xA3"
 
-typedef enum HbComReq_A3_op {
-	HbComReq_A3_op_del		= 0x00, //! 删除防区
-	HbComReq_A3_op_learn	= 0x01, //! 学码
-	HbComReq_A3_op_stop		= 0x02, //! 停止学码
-	HbComReq_A3_op_modify	= 0x04, //! 修改防区属性
+typedef enum HbComReq_A3_p3 {
+	HbComReq_A3_p3_del		= 0x00, //! 删除防区
+	HbComReq_A3_p3_learn	= 0x01, //! 学码
+	HbComReq_A3_p3_stop		= 0x02, //! 停止学码
+	HbComReq_A3_p3_modify	= 0x04, //! 修改防区属性
 }HbComReq_A3_op;
 
 //! 学码开始回应 EB BA 3F 07 P0 A3 5A
@@ -575,10 +583,12 @@ typedef enum HbComReq_A3_op {
 //! 修改防区回应 EB BA 3F 0A P0 A4 P1 P2 P3 SUM
 #define HbComResp_A4_len 10
 #define HbComResp_A4_head "\xEB\xBA\x3F\x0A\xCC\xA4"
-#define HbComResp_A4_fail	0x00 //! 失败
-#define HbComResp_A4_ok		0x01 //! 成功
-#define HbComResp_A4_dup	0x02 //! 失败--重码
-#define HbComResp_A4_ne		0x03 //! 失败--防区未对码 not exists
+typedef enum HbComResp_A4_p3 {
+	HbComResp_A4_p3_fail	= 0x00, //! 失败
+	HbComResp_A4_p3_ok		= 0x01, //! 成功
+	HbComResp_A4_p3_dup		= 0x02, //! 失败--重码
+	HbComResp_A4_p3_ne		= 0x03, //! 失败--防区未对码 not exists
+}HbComResp_A4_code;
 
 //! 获取主机定时器 EB AB 3F A5 7A
 #define HbComReq_A5_len 5
@@ -608,6 +618,11 @@ typedef enum HbComReq_A3_op {
 //! 修改防区探头遗失/失联回应 EB BA 3F 09 P0 AB P1 P2 SUM
 #define HbComResp_AB_len 9
 #define HbComResp_AB_head "\xEB\xBA\x3F\x09\xCC\xAB"
+typedef enum HbComResp_AB_p2 {
+	HbComResp_AB_p2_close	= 0, // 防区失联关
+	HbComResp_AB_p2_open	= 1, // 防区失联开
+	HbComResp_AB_p2_reject	= 2, // 拒绝操作
+}HbComResp_AB_p2;
 
 //! 索要防区探头遗失/失联  第一次索要 EB AB 3F AC 81
 #define HbComReq_AC_len 5
@@ -621,22 +636,32 @@ typedef enum HbComReq_A3_op {
 #define HbComResp_AD_len_min 9 // 无防区失联数据时一包长度最小为9
 #define HbComResp_AD_max_zone 20 // 一包最多包含20个防区
 #define HbComResp_AD_len_max (HbComResp_AD_len_min + HbComResp_AD_max_zone * 2) // 一包最多有 9 + 20 *2 = 49 个字节
-#define HbComResp_AD_p1_single 0xF0 // 防区号以单字节表示
-#define HbComResp_AD_p1_double 0xF1 // 防区号以双字节表示
+typedef enum HbComResp_AD_p1 {
+	HbComResp_AD_p1_single = 0xF0, // 防区号以单字节表示
+	HbComResp_AD_p1_double = 0xF1, // 防区号以双字节表示
+}HbComResp_AD_p1;
+typedef enum HbComResp_AD_p2 {
+	HbComResp_AD_p2_nomore	= 0xFF, // 无更多防区
+	HbComResp_AD_p2_more	= 0x00, // 还有更多防区
+}HbComResp_AD_p2;
 #define HbComResp_AD_head "\xEB\xBA\x3F\x09\xCC\xAD"
 
-#define HbCom_3sec_arm		0x00 // 三区段主机布防（命令或状态）
-#define HbCom_3sec_disarm	0x01 // 三区段主机撤防（命令或状态）
+typedef enum HbCom_3sec_status {
+	HbCom_3sec_arm		= 0x00, // 布防（成功）
+	HbCom_3sec_disarm	= 0x01, // 撤防（成功）
+}HbCom_3sec_status;
+
+typedef enum HbCom_3sec_which {
+	HbCom_3sec_machine,  // 主机
+	HbCom_3sec_section1, // 区段1
+	HbCom_3sec_section2, // 区段2
+	HbCom_3sec_section3, // 区段3
+}HbCom_3sec_which;
 
 //! 三区段主机布撤防命令 EB CB 3F 08 AE P1 P2 SUM
 #define HbComReq_AE_len 8
 #define HbComReq_AE_head "\xEB\xCB\x3F\x08\xAE"
-typedef enum HbComReq_AE_P1 { 
-	HbComReq_AE_P1_machine,  // 对主机布撤防
-	HbComReq_AE_P1_section1, // 对区段1布撤防
-	HbComReq_AE_P1_section2, // 对区段2布撤防
-	HbComReq_AE_P1_section3, // 对区段3布撤防
-}HbComReq_AE_P1;
+
 
 //! 三区段主机布撤防命令回应 EB BA 3F 08 P0 AF P1 P2 SUM
 #define HbComResp_AF_len 9
@@ -720,28 +745,51 @@ ADEMCO_EXPORT_SYMBOL const char* hbZonePropertyToString(HbZoneProperty zp);
 ADEMCO_EXPORT_SYMBOL const wchar_t* hbZonePropertyToStringChinese(HbZoneProperty zp);
 ADEMCO_EXPORT_SYMBOL const char* hbGetZoneFormatString(HbMachineType type);
 ADEMCO_EXPORT_SYMBOL const wchar_t* hbGetZoneFormatStringW(HbMachineType type);
+
 // 累加校验，计算data[0] ~ data[len-2]，校验和放在data[len-1]
 ADEMCO_EXPORT_SYMBOL void hbSum(uint8_t* data, int len);
 // 校验和是否正确, return 0 for incorrect, otherwise correct
 ADEMCO_EXPORT_SYMBOL int hbCheckSum(const uint8_t* data, int len);
+
 ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseRequest(const uint8_t* buff, int len);
 ADEMCO_EXPORT_SYMBOL HbComResponseType hbComParseResponse(const uint8_t* buff, int len);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqA0_getMachineStatus(AdemcoXDataSegment* xdata);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqA1_getMachineZones(AdemcoXDataSegment* xdata);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqA2_getMoreMachineZones(AdemcoXDataSegment* xdata);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqA3_modifyMachineZone(AdemcoXDataSegment* xdata, uint8_t zone, HbZoneProperty prop, HbComReq_A3_op op);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqA5_getMachineTimer(AdemcoXDataSegment* xdata);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqA7_setMachineTimer(AdemcoXDataSegment* xdata, HbMachineTimer* timer);
-//ADEMCO_EXPORT_SYMBOL void hbComMakeReqA9(AdemcoXDataSegment* xdata, HbMachineStatus status, HbMachineType type);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqAA_modifyMachineZoneLostConfig(AdemcoXDataSegment* xdata, uint8_t zone, int on);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqAC_getMachineZoneLostConfig(AdemcoXDataSegment* xdata);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqAD_getMoreMachineZoneLostConfig(AdemcoXDataSegment* xdata);
-// p2 must be HbCom_3sec_arm or HbCom_3sec_disarm
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqAE_set3SectionMachineStatus(AdemcoXDataSegment* xdata, HbComReq_AE_P1 p1, uint8_t p2);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqB0_get3SectionMachineStatus(AdemcoXDataSegment* xdata);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqRD_acct(AdemcoXDataSegment* xdata);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqWR_acct(AdemcoXDataSegment* xdata, const char* acct);
 
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA0_getMachineStatus(HbComData* data);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA1_getMachineZones(HbComData* data);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA2_getMoreMachineZones(HbComData* data);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA3_modifyMachineZone(HbComData* data, uint8_t zone, HbZoneProperty prop, HbComReq_A3_op op);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA5_getMachineTimer(HbComData* data);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA7_setMachineTimer(HbComData* data, HbMachineTimer* timer);
+// TODO
+// ADEMCO_EXPORT_SYMBOL void hbComMakeReqA9(HbComData* data, HbMachineStatus status, HbMachineType type);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqAA_modifyMachineZoneLostConfig(HbComData* data, uint8_t zone, int on);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqAC_getMachineZoneLostConfig(HbComData* data);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqAD_getMoreMachineZoneLostConfig(HbComData* data);
+// p2 must be HbCom_3sec_arm or HbCom_3sec_disarm
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqAE_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqB0_get3SectionMachineStatus(HbComData* data);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqRD_acct(HbComData* data);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqWR_acct(HbComData* data, const char* acct);
+
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status, HbMachineType type);
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA2_getMachineZonesEmpty(HbComData* data);
+// zones and props length is count
+// if count is 0, p1 wil be set to HbComResp_A2_p1_nomore
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA2_getMachineZones(HbComData* data, int count, AdemcoZone* zones,  HbZoneProperty* props, HbComResp_A2_p1 p1);
+// 学码开始，等待探测器无线信号中
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA3_waitingSignal(HbComData* data);
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA4_modifyMachineZone(HbComData* data, AdemcoZone zone, HbZoneProperty prop, HbComResp_A4_code code);
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA6_getMachineTimer(HbComData* data, HbMachineTimer* timer);
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA7_setMachineTimer(HbComData* data);
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA8_reject(HbComData* data);
+// TODO 
+// ADEMCO_EXPORT_SYMBOL void hbComMakeRespA9_(HbComData* data);
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespAB_modifyMachineZoneLostConfig(HbComData* data, AdemcoZone zone, HbComResp_AB_p2 p2);
+// 返回所有失联开的防区
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p1, int count, AdemcoZone* zones, HbComResp_AD_p2 p2);
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespAF_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status);
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespB1_get3SectionMachineStatus(HbComData* data, HbMachineStatus statusMachine, 
+																   HbMachineStatus statusSec1, HbMachineStatus statusSec2, HbMachineStatus statusSec3);
 
 // 将一串以高低字节表示的十六进制数组转换为10进制数字符串，遇0xf或非'0'~'9'字符停止，返回字符串长度
 // 示例：输入数组：0x18 0x24 0x08 0x88 0x10 0x1f 0xff，输出字符串"18240888101"
