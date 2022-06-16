@@ -544,7 +544,7 @@ typedef enum HbComResponseType {
 
 //! 回应主机状态 EB BA 3F 07 P0 A0 P1 P2 P3 SUM
 #define HbComResp_A0_len 9
-#define HbComResp_A0_head "\xEB\xBA\x3F\x07"
+#define HbComResp_A0_head "\xEB\xBA\x3F\x07\xCC\xA0"
 
 //! 索要主机防区 EB AB 3F A1 76
 #define HbComReq_A1_len 5
@@ -558,6 +558,7 @@ typedef enum HbComResp_A2_p1 {
 	HbComResp_A2_p1_nomore	= 0xFF, // 无更多防区
 	HbComResp_A2_p1_more	= 0x00, // 还有更多防区
 }HbComResp_A2_p1;
+#define HbComResp_A2_head "\xEB\xBA\x3F\x08\xCC\xA2"
 
 //! 索要更多主机防区 EB AB 3F A2 77
 //! 仅应在收到ZoneResponse的param非0xFF时发送，以索要全部防区
@@ -588,7 +589,7 @@ typedef enum HbComResp_A4_p3 {
 	HbComResp_A4_p3_ok		= 0x01, //! 成功
 	HbComResp_A4_p3_dup		= 0x02, //! 失败--重码
 	HbComResp_A4_p3_ne		= 0x03, //! 失败--防区未对码 not exists
-}HbComResp_A4_code;
+}HbComResp_A4_p3;
 
 //! 获取主机定时器 EB AB 3F A5 7A
 #define HbComReq_A5_len 5
@@ -673,7 +674,7 @@ typedef enum HbCom_3sec_which {
 
 //! 三区段主机状态回应 EB BA 3F 08 P0 B1 P1 SUM
 #define HbComResp_B1_len 8
-#define HbComResp_B1_head "\xEB\xBA\x3F\x08"
+#define HbComResp_B1_head "\xEB\xBA\x3F\x08\xCC\xB1"
 
 //! 读取主机账号 
 #define HbComReq_RD_acct_len 7
@@ -772,13 +773,12 @@ ADEMCO_EXPORT_SYMBOL void hbComMakeReqRD_acct(HbComData* data);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqWR_acct(HbComData* data, const char* acct);
 
 ADEMCO_EXPORT_SYMBOL void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status, HbMachineType type);
-ADEMCO_EXPORT_SYMBOL void hbComMakeRespA2_getMachineZonesEmpty(HbComData* data);
 // zones and props length is count
 // if count is 0, p1 wil be set to HbComResp_A2_p1_nomore
 ADEMCO_EXPORT_SYMBOL void hbComMakeRespA2_getMachineZones(HbComData* data, int count, AdemcoZone* zones,  HbZoneProperty* props, HbComResp_A2_p1 p1);
 // 学码开始，等待探测器无线信号中
 ADEMCO_EXPORT_SYMBOL void hbComMakeRespA3_waitingSignal(HbComData* data);
-ADEMCO_EXPORT_SYMBOL void hbComMakeRespA4_modifyMachineZone(HbComData* data, AdemcoZone zone, HbZoneProperty prop, HbComResp_A4_code code);
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA4_modifyMachineZone(HbComData* data, AdemcoZone zone, HbZoneProperty prop, HbComResp_A4_p3 p3);
 ADEMCO_EXPORT_SYMBOL void hbComMakeRespA6_getMachineTimer(HbComData* data, HbMachineTimer* timer);
 ADEMCO_EXPORT_SYMBOL void hbComMakeRespA7_setMachineTimer(HbComData* data);
 ADEMCO_EXPORT_SYMBOL void hbComMakeRespA8_reject(HbComData* data);

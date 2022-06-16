@@ -1497,8 +1497,8 @@ void hbComMakeReqA3_modifyMachineZone(HbComData* data, uint8_t zone, HbZonePrope
 	data->data[5] = zone;
 	data->data[6] = prop;
 	data->data[7] = op;
-	hbSum(data->data, HbComReq_A3_len);
 	data->len = HbComReq_A3_len;
+	hbSum(data->data, data->len);
 }
 
 void hbComMakeReqA5_getMachineTimer(HbComData* data)
@@ -1511,8 +1511,8 @@ void hbComMakeReqA7_setMachineTimer(HbComData* data, HbMachineTimer* timer)
 {
 	memcpy(data->data, HbComReq_A7_head, 5);
 	memcpy(data->data + 5, timer, sizeof(*timer));
-	hbSum(data->data, HbComReq_A7_len);
 	data->len = HbComReq_A7_len;
+	hbSum(data->data, data->len);
 }
 
 void hbComMakeReqAA_modifyMachineZoneLostConfig(HbComData* data, uint8_t zone, int on)
@@ -1520,8 +1520,8 @@ void hbComMakeReqAA_modifyMachineZoneLostConfig(HbComData* data, uint8_t zone, i
 	memcpy(data->data, HbComReq_AA_head, 5);
 	data->data[5] = zone;
 	data->data[6] = !!on;
-	hbSum(data->data, HbComReq_AA_len);
 	data->len = HbComReq_AA_len;
+	hbSum(data->data, data->len);
 }
 
 void hbComMakeReqAC_getMachineZoneLostConfig(HbComData* data)
@@ -1541,8 +1541,8 @@ void hbComMakeReqAE_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p
 	memcpy(data->data, HbComReq_AE_head, 5);
 	data->data[5] = p1;
 	data->data[6] = status;
-	hbSum(data->data, HbComReq_AE_len);
 	data->len = HbComReq_AE_len;
+	hbSum(data->data, data->len);
 }
 
 void hbComMakeReqB0_get3SectionMachineStatus(HbComData* data)
@@ -1561,8 +1561,115 @@ void hbComMakeReqWR_acct(HbComData* data, const char* acct)
 {
 	memcpy(data->data, HbComReq_WR_acct_head, 5);
 	hbDecStrToHiLoArray(data->data + 5, 9, acct);
-	hbSum(data->data, HbComReq_WR_acct_len);
 	data->len = HbComReq_WR_acct_len;
+	hbSum(data->data, data->len);
+}
+
+void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status, HbMachineType type)
+{
+	memcpy(data->data, HbComResp_A0_head, 6);
+	data->data[6] = status;
+	data->data[7] = type;
+	data->len = HbComResp_A0_len;
+	hbSum(data->data, data->len);
+}
+
+void hbComMakeRespA2_getMachineZones(HbComData* data, int count, AdemcoZone* zones, HbZoneProperty* props, HbComResp_A2_p1 p1)
+{
+	if (count > HbComResp_A2_max_zone) { return; }
+	memcpy(data->data, HbComResp_A2_head, 6);
+	data->data[3] = HbComResp_A2_len_min + count * 2;
+	uint8_t* p = data->data + 6;
+	for (int i = 0; i < count; i++) {
+		*p++ = zones[i] & 0xFF;
+		*p++ = props[i];
+	}
+	*p++ = (count > 0) ? p1 : HbComResp_A2_p1_nomore;
+	data->len = ++p - data;
+	hbSum(data->data, data->len);
+}
+
+void hbComMakeRespA3_waitingSignal(HbComData* data)
+{
+	memcpy(data->data, HbComResp_A3_data, HbComResp_A3_len);
+	data->len = HbComResp_A3_len;
+}
+
+void hbComMakeRespA4_modifyMachineZone(HbComData* data, AdemcoZone zone, HbZoneProperty prop, HbComResp_A4_p3 p3)
+{
+	memcpy(data->data, HbComResp_A4_head, 6);
+	data->data[6] = zone & 0xFF;
+	data->data[7] = prop;
+	data->data[8] = p3;
+	data->len = HbComResp_A4_len;
+	hbSum(data->data, data->len);
+}
+
+void hbComMakeRespA6_getMachineTimer(HbComData* data, HbMachineTimer* timer)
+{
+	memcpy(data->data, HbComResp_A6_head, 6);
+	memcpy(data->data + 6, timer, sizeof(*timer));
+	data->len = HbComResp_A6_len;
+	hbSum(data->data, data->len);
+}
+
+void hbComMakeRespA7_setMachineTimer(HbComData* data)
+{
+	memcpy(data->data, HbComResp_A7_data, HbComResp_A7_len);
+	data->len = HbComResp_A7_len;
+}
+
+void hbComMakeRespA8_reject(HbComData* data)
+{
+	memcpy(data->data, HbComResp_A8_data, HbComResp_A8_len);
+	data->len = HbComResp_A8_len;
+}
+
+void hbComMakeRespAB_modifyMachineZoneLostConfig(HbComData* data, AdemcoZone zone, HbComResp_AB_p2 p2)
+{
+	memcpy(data->data, HbComResp_AB_head, 6);
+	data->data[6] = zone & 0xFF;
+	data->data[7] = p2;
+	data->len = HbComResp_AB_len;
+	hbSum(data->data, data->len);	
+}
+
+void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p1, int count, AdemcoZone* zones, HbComResp_AD_p2 p2)
+{
+	if (count > HbComResp_AD_max_zone) { return; }
+	memcpy(data->data, HbComResp_AD_head, 6);
+	data->data[3] = HbComResp_AD_len_min + (p1 == HbComResp_AD_p1_single ? count : count * 2);
+	data->data[6] = p1;
+	uint8_t* p = data->data + 7;
+	for (int i = 0; i < count; i++) {
+		if (p1 == HbComResp_AD_p1_single) {
+			*p++ = zones[i] & 0xFF;
+		} else {
+			*p++ = zones[i] >> 8 & 0xFF;
+			*p++ = zones[i] & 0xFF;
+		}		
+	}
+	*p++ = (count > 0) ? p2 : HbComResp_AD_p2_nomore;
+	data->len = ++p - data;
+	hbSum(data->data, data->len);
+}
+
+void hbComMakeRespAF_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status)
+{
+	memcpy(data->data, HbComResp_AF_head, 6);
+	data->data[6] = p1;
+	data->data[7] = status;
+	data->len = HbComResp_AF_len;
+	hbSum(data->data, data->len);
+}
+
+void hbComMakeRespB1_get3SectionMachineStatus(HbComData* data, HbMachineStatus statusMachine, 
+											  HbMachineStatus statusSec1, HbMachineStatus statusSec2, HbMachineStatus statusSec3)
+{
+	memcpy(data->data, HbComResp_B1_head, 6);
+	data->data[6] = (statusMachine << 6) | (statusSec1 << 4) | (statusSec2 << 2) | (statusSec3);
+	data->len = HbComResp_B1_len;
+	hbSum(data->data, data->len);
 }
 
 int hbHiLoArrayToDecStr(char* str, const uint8_t* arr, int len)
