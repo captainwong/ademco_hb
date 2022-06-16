@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Ademco library
 * captainwong
 * 2022-6-13 rewrited this C version
@@ -295,6 +295,11 @@ typedef enum AdemcoXDataLengthFormat {
 	FOUR_DECIMAL, // 四个decimal char 表示长度
 }AdemcoXDataLengthFormat;
 
+typedef enum AdemcoXDataTransform {
+	AdemcoXDataTransform_as_is,		// 原样打包
+	AdemcoXDataTransform_to_ascii,	// 转为ascii打包，如 0xEB 0xBA 打包为 "EBBA"
+}AdemcoXDataTransform;
+
 typedef struct AdemcoXDataSegment {
 	AdemcoXDataLengthFormat lenghFormat;
 	uint8_t raw[ADEMCO_PACKET_XDATA_MAX_LEN];
@@ -338,6 +343,9 @@ typedef struct AdemcoPacket {
 	AdemcoDataSegment data;
 	AdemcoXDataSegment xdata;
 	time_t timestamp;
+
+	uint8_t raw[ADEMCO_PACKET_MAX_LEN];
+	int raw_len;
 }AdemcoPacket;
 
 
@@ -357,14 +365,14 @@ ADEMCO_EXPORT_SYMBOL const char* ademcoEventToString(AdemcoEvent ademcoEvent);
 ADEMCO_EXPORT_SYMBOL const wchar_t* ademcoEventToStringChinese(AdemcoEvent ademcoEvent);
 
 ADEMCO_EXPORT_SYMBOL int ademcoAppendDataSegment(uint8_t* packet, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone);
-ADEMCO_EXPORT_SYMBOL int ademcoAppendDataSegment2(uint8_t* packet, const AdemcoDataSegment* dataSegment);
+ADEMCO_EXPORT_SYMBOL int ademcoAppendDataSegment2(AdemcoDataSegment* dataSegment, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone);
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoParseDataSegment(const uint8_t* packet, int packet_len, AdemcoDataSegment* dataSegment);
 // return 0 for empty packet, CONGWIN_FE100_PACKET_LEN for non-empty packet
 ADEMCO_EXPORT_SYMBOL int ademcoDataSegmentToCongwinFe100(uint8_t* fe100, const AdemcoDataSegment* dataSegment);
 ADEMCO_EXPORT_SYMBOL const uint8_t* ademcoXDataGetValidContentAddr(const AdemcoXDataSegment* xdata);
 ADEMCO_EXPORT_SYMBOL int ademcoXDataGetValidContentLen(const AdemcoXDataSegment* xdata);
 // return ADEMCO_OK for success, return ADEMCO_ERR for len is too long
-ADEMCO_EXPORT_SYMBOL int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, const uint8_t* content, int len);
+ADEMCO_EXPORT_SYMBOL int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr, const uint8_t* content, int len);
 
 ADEMCO_EXPORT_SYMBOL int isAdemcoId(const char* standard, const char* id, int len);
 ADEMCO_EXPORT_SYMBOL AdemcoPacketId getAdemcoId(const char* id, int len);
@@ -381,6 +389,13 @@ ADEMCO_EXPORT_SYMBOL int ademcoMakeAckPacket(uint8_t* buff, int len, uint16_t se
 ADEMCO_EXPORT_SYMBOL int ademcoMakeNakPacket(uint8_t* buff, int len, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL int ademcoMakeHbPacket(uint8_t* buff, int len, uint16_t seq, const char* acct, AdemcoId ademcoId, 
 											AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, AdemcoXDataSegment* xdata);
+
+// like upper funcs, store buff and len to pkt->raw, pkt->raw_len
+ADEMCO_EXPORT_SYMBOL int ademcoMakeNullPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId);
+ADEMCO_EXPORT_SYMBOL int ademcoMakeAckPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId);
+ADEMCO_EXPORT_SYMBOL int ademcoMakeNakPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId);
+ADEMCO_EXPORT_SYMBOL int ademcoMakeHbPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId,
+											 AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, AdemcoXDataSegment* xdata);
 
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* pkt, int* cb_commited);
 
@@ -790,6 +805,7 @@ ADEMCO_EXPORT_SYMBOL void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* da
 ADEMCO_EXPORT_SYMBOL void hbComMakeRespAF_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status);
 ADEMCO_EXPORT_SYMBOL void hbComMakeRespB1_get3SectionMachineStatus(HbComData* data, HbMachineStatus statusMachine, 
 																   HbMachineStatus statusSec1, HbMachineStatus statusSec2, HbMachineStatus statusSec3);
+ADEMCO_EXPORT_SYMBOL void hbComDataToAdemcoXData(const HbComData* const data, AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr);
 
 // 将一串以高低字节表示的十六进制数组转换为10进制数字符串，遇0xf或非'0'~'9'字符停止，返回字符串长度
 // 示例：输入数组：0x18 0x24 0x08 0x88 0x10 0x1f 0xff，输出字符串"18240888101"
@@ -798,7 +814,17 @@ ADEMCO_EXPORT_SYMBOL int hbHiLoArrayToDecStr(char* str, const uint8_t* arr, int 
 // 示例：输入字符串 "18240888101", len=9, 则arr内容为 0x18 0x24 0x08 0x88 0x10 0x1f 0xff 0xff 0xff, return 9
 // 输入字符串 "12345678901234567890", len=9, 则失败返回0
 ADEMCO_EXPORT_SYMBOL int hbDecStrToHiLoArray(uint8_t* arr, int len, const char* str);
-
+// 将一串字节流转换为可打印形式
+// 示例：输入 arr=[0xEB 0xBA 0x3F], len=3, 输出str = "EBBA3F"
+// 返回str长度（len * 2)
+ADEMCO_EXPORT_SYMBOL int hbHexArrayToStr(char* str, const uint8_t* arr, int len);
+// 将一串字符串（内容为'0'~'9', 'A'~'F')转为字节流，若strlen(str)为奇数，以padding补足arr, padding 应 <= 0x0F
+// 若str内包含非hex字符串，返回0
+// 示例：输入字符串str="EBBA3F", 输出arr = [0xEB, 0xBA, 0x3F]，返回 strlen(str) / 2
+// 示例：输入字符串str="ABC", padding = 0, 输出arr=[0xAB, 0xC0]，返回2
+// 示例：输入字符串str="ABC", padding = 0x0F, 输出arr=[0xAB, 0xCF]，返回2
+// caller should make sure arr has enough space (strlen(str) / 2) to store result
+ADEMCO_EXPORT_SYMBOL int hbHexStrToArray(uint8_t* arr, const char* str, uint8_t padding);
 
 #ifdef __cplusplus
 }

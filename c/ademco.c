@@ -324,20 +324,10 @@ uint16_t ademcoCRC16(const uint8_t* buff, int len, uint16_t crc)
 	return CRC;
 }
 
-int ademcoAppendDataSegment(uint8_t* packet, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone)
-{
-	AdemcoDataSegment dataSegment;
-	dataSegment.ademcoId = ademcoId;
-	dataSegment.ademcoEvent = ademcoEvent;
-	dataSegment.gg = gg;
-	dataSegment.zone = zone;
-	return ademcoAppendDataSegment2(packet, &dataSegment);
-}
-
-int ademcoAppendDataSegment2(uint8_t* buff, const AdemcoDataSegment* dataSegment)
+int ademcoAppendDataSegment(uint8_t* buff, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone)
 {
 	char* p = buff;
-	if (dataSegment->ademcoEvent == EVENT_INVALID_EVENT) {
+	if (ademcoEvent == EVENT_INVALID_EVENT) {
 		*p++ = '[';
 		*p++ = ']';
 		return ADEMCO_PACKET_DATA_SEGMENT_EMPTY_LEN;
@@ -345,38 +335,49 @@ int ademcoAppendDataSegment2(uint8_t* buff, const AdemcoDataSegment* dataSegment
 		*p++ = '[';
 
 		*p++ = '#';
-		snprintf(p, 6 + 1, "%06X", dataSegment->ademcoId % ADEMCO_ID_SENTINEL);
+		snprintf(p, 6 + 1, "%06X", ademcoId % ADEMCO_ID_SENTINEL);
 		p += 6;
 
 		*p++ = '|';
 
-		snprintf(p, 4 + 1, "%04d", dataSegment->ademcoEvent % ADEMCO_EVENT_SENTINEL);
+		snprintf(p, 4 + 1, "%04d", ademcoEvent % ADEMCO_EVENT_SENTINEL);
 		p += 4;
 
 		*p++ = ' ';
 
-		if (dataSegment->gg == 0xEE) {
+		if (gg == 0xEE) {
 			*p++ = 'E';
 			*p++ = 'E';
-		} else if (dataSegment->gg == 0xCC) {
+		} else if (gg == 0xCC) {
 			*p++ = 'C';
 			*p++ = 'C';
 		} else {
-			*p++ = ((dataSegment->gg / 10) & 0x0F) + '0';
-			*p++ = ((dataSegment->gg % 10) & 0x0F) + '0';
+			*p++ = ((gg / 10) & 0x0F) + '0';
+			*p++ = ((gg % 10) & 0x0F) + '0';
 		}
 
 		*p++ = ' ';
 
-		snprintf(p, 3 + 1, "%03d", dataSegment->zone % ADEMCO_ZONE_SENTINEL);
+		snprintf(p, 3 + 1, "%03d", zone % ADEMCO_ZONE_SENTINEL);
 		p += 3;
 
 		*p++ = ']';
 
 		assert(p - buff == ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN);
 
+		*p++ = '\0'; // for debug convenience
+
 		return ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN;
 	}
+}
+
+int ademcoAppendDataSegment2(AdemcoDataSegment* dataSegment, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone)
+{
+	dataSegment->ademcoId = ademcoId;
+	dataSegment->ademcoEvent = ademcoEvent;
+	dataSegment->gg = gg;
+	dataSegment->zone = zone;
+	return dataSegment->raw_len = ademcoAppendDataSegment(dataSegment->raw, ademcoId, ademcoEvent, gg, zone);
 }
 
 AdemcoParseResult ademcoParseDataSegment(const uint8_t* packet, int packet_len, AdemcoDataSegment* dataSegment)
@@ -515,28 +516,42 @@ int ademcoXDataGetValidContentLen(const AdemcoXDataSegment* xdata)
 	}
 }
 
-int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, const uint8_t* content, int len)
+int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr, const uint8_t* content, int len)
 {
+	uint8_t transformed[ADEMCO_PACKET_XDATA_MAX_LEN];
+	int translen = len;
+	if (xtr == AdemcoXDataTransform_as_is) {
+		memcpy(transformed, content, len);
+	} else {
+		if (len * 2 < ADEMCO_PACKET_XDATA_MAX_LEN) {
+			translen = hbHexArrayToStr((char*)transformed, content, len);
+		} else {
+			return ADEMCO_ERR;
+		}
+	}
+
 	xdata->lenghFormat = xlf;
-	if (xlf == TWO_HEX && len + 4 < ADEMCO_PACKET_XDATA_MAX_LEN) {
+	if (xlf == TWO_HEX && translen + 4 < ADEMCO_PACKET_XDATA_MAX_LEN) {
 		uint8_t* p = xdata->raw;
 		*p++ = '[';
-		*p++ = (len & 0xFFFF) >> 8;
-		*p++ = (len & 0xFFFF) & 0xFF;
-		memcpy(p, content, len);
-		p += len;
+		*p++ = (translen & 0xFFFF) >> 8;
+		*p++ = (translen & 0xFFFF) & 0xFF;
+		memcpy(p, transformed, translen);
+		p += translen;
 		*p++ = ']';
+		xdata->raw_len = p - xdata->raw;
 		return ADEMCO_OK;
-	} else if (xlf == FOUR_DECIMAL && len + 6 < ADEMCO_PACKET_XDATA_MAX_LEN) {
+	} else if (xlf == FOUR_DECIMAL && translen + 6 < ADEMCO_PACKET_XDATA_MAX_LEN) {
 		uint8_t* p = xdata->raw;
 		*p++ = '[';
 		char temp[5];
-		sprintf(temp, "%04d", len & 0xFFFF);
+		sprintf(temp, "%04d", translen & 0xFFFF);
 		memcpy(p, temp, 4);
 		p += 4;
-		memcpy(p, content, len);
-		p += len;
+		memcpy(p, transformed, translen);
+		p += translen;
 		*p++ = ']';
+		xdata->raw_len = p - xdata->raw;
 		return ADEMCO_OK;
 	} else {
 		return ADEMCO_ERR;
@@ -700,6 +715,55 @@ int ademcoMakeHbPacket(uint8_t* dst_buff, int len, uint16_t seq, const char* acc
 	return 0;
 }
 
+static void copyAcct2AdemcoPacket(AdemcoPacket* pkt, const char* acct)
+{
+	int len = strlen(acct);
+	if (len > ADEMCO_PACKET_ACCT_MAX_LEN) {
+		len = ADEMCO_PACKET_ACCT_MAX_LEN;
+	}
+	memcpy(pkt->acct, acct, len);
+	pkt->acct[len] = '\0';
+}
+
+int ademcoMakeNullPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId)
+{	
+	pkt->seq = seq;
+	copyAcct2AdemcoPacket(pkt, acct);
+	pkt->data.ademcoId = ademcoId;
+	return pkt->raw_len = ademcoMakeNullPacket(pkt->raw, sizeof(pkt->raw), seq, acct, ademcoId);
+}
+
+int ademcoMakeAckPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId)
+{
+	pkt->seq = seq;
+	copyAcct2AdemcoPacket(pkt, acct);
+	pkt->data.ademcoId = ademcoId;
+	return pkt->raw_len = ademcoMakeAckPacket(pkt->raw, sizeof(pkt->raw), seq, acct, ademcoId);
+}
+
+int ademcoMakeNakPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId)
+{
+	pkt->seq = seq;
+	copyAcct2AdemcoPacket(pkt, acct);
+	pkt->data.ademcoId = ademcoId;
+	return pkt->raw_len = ademcoMakeNakPacket(pkt->raw, sizeof(pkt->raw), seq, acct, ademcoId);
+}
+
+int ademcoMakeHbPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, AdemcoXDataSegment* xdata)
+{
+	pkt->seq = seq;
+	copyAcct2AdemcoPacket(pkt, acct);
+	ademcoAppendDataSegment2(&pkt->data, ademcoId, ademcoEvent, gg, zone);
+	if (xdata && xdata->raw_len > 0) {
+		pkt->xdata.lenghFormat = xdata->lenghFormat;
+		memcpy(pkt->xdata.raw, xdata->raw, xdata->raw_len);
+		pkt->xdata.raw_len = xdata->raw_len;
+	} else {
+		memset(&pkt->xdata, 0, sizeof(*xdata));
+	}
+	return pkt->raw_len = ademcoMakeHbPacket(pkt->raw, sizeof(pkt->raw), seq, acct, ademcoId, ademcoEvent, gg, zone, xdata);
+}
+
 AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* pkt, int* cb_commited)
 {
 	if (len < 9) { return RESULT_NOT_ENOUGH; }
@@ -714,7 +778,7 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 		// crc
 		memcpy(temp, p, 4);
 		temp[4] = '\0';
-		uint16_t crc = strtoul(temp, NULL, 16);
+		uint16_t crc = strtoul(temp, NULL, 16) & 0xFFFF;
 		p += 4;
 
 		// len
@@ -757,7 +821,7 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 		while (p < pcr && *p != 'R' && *p != 'L') { p++; }
 		if (p - pseq != 4 || (*p != 'R' && *p != 'L')) { break; }
 		memcpy(temp, pseq, 4); temp[4] = '\0';
-		pkt->seq = strtoul(temp, NULL, 10);
+		pkt->seq = strtoul(temp, NULL, 10) & 0xFFFF;
 		if (pkt->seq >= 10000) { pkt->seq = 0; }
 
 		// *rrcvr
@@ -845,7 +909,8 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 		}
 
 		if (p++ != pcr) { break; }
-		*cb_commited = p - buff;
+		pkt->raw_len = *cb_commited = p - buff;
+		memcpy(pkt->raw, buff, pkt->raw_len);
 		return RESULT_OK;
 	} while (0);
 
@@ -1585,7 +1650,7 @@ void hbComMakeRespA2_getMachineZones(HbComData* data, int count, AdemcoZone* zon
 		*p++ = props[i];
 	}
 	*p++ = (count > 0) ? p1 : HbComResp_A2_p1_nomore;
-	data->len = ++p - data;
+	data->len = ++p - data->data;
 	hbSum(data->data, data->len);
 }
 
@@ -1650,7 +1715,7 @@ void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p
 		}		
 	}
 	*p++ = (count > 0) ? p2 : HbComResp_AD_p2_nomore;
-	data->len = ++p - data;
+	data->len = ++p - data->data;
 	hbSum(data->data, data->len);
 }
 
@@ -1670,6 +1735,11 @@ void hbComMakeRespB1_get3SectionMachineStatus(HbComData* data, HbMachineStatus s
 	data->data[6] = (statusMachine << 6) | (statusSec1 << 4) | (statusSec2 << 2) | (statusSec3);
 	data->len = HbComResp_B1_len;
 	hbSum(data->data, data->len);
+}
+
+void hbComDataToAdemcoXData(const HbComData* const data, AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr)
+{
+	ademcoMakeXData(xdata, xlf, xtr, data->data, data->len);
 }
 
 int hbHiLoArrayToDecStr(char* str, const uint8_t* arr, int len)
@@ -1716,6 +1786,62 @@ int hbDecStrToHiLoArray(uint8_t* arr, int len, const char* str)
 		*p++ = 0xFF;
 	}
 	return len;
+}
+
+static uint8_t hex2char(uint8_t h) {
+	h &= 0x0F;
+	if (h > 9) {
+		return 'A' + h;
+	} else {
+		return '0' + h;
+	}
+}
+
+int hbHexArrayToStr(char* str, const uint8_t* arr, int len)
+{
+	uint8_t c = 0;
+	char* p = str;
+	for (int i = 0; i < len; i++) {
+		*p++ = hex2char((arr[i] >> 4) & 0x0F);
+		*p++ = hex2char(arr[i] & 0x0F);
+	}
+	return p - str;
+}
+
+static uint8_t char2hex(uint8_t c) {
+	if ('0' <= c && c <= '9') {
+		return c - '0';
+	} else if ('A' <= c && c <= 'F') {
+		return c - 'A';
+	} else if ('a' <= c && c <= 'f') {
+		return c - 'a';
+	} else {
+		return 0xFF;
+	}
+}
+
+int hbHexStrToArray(uint8_t* arr, const char* str, uint8_t padding)
+{
+	uint8_t* p = arr;
+	uint8_t hi = 0, lo = 0;
+	int slen = strlen(str);
+	padding &= 0x0F;
+	for (int i = 0; i < slen / 2; i++) {
+		char c = str[i * 2];
+		if ((hi = char2hex(c)) == 0xFF) {
+			return 0;
+		}
+		if (i * 2 + 1 < slen) {
+			c = str[i * 2 + 1];
+			if ((lo = char2hex(c)) == 0xFF) {
+				return 0;
+			}
+		} else {
+			lo = padding;
+		}
+		*p++ = ((hi << 4) & 0xF0) | (lo & 0x0F);
+	}
+	return p - arr;
 }
 
 

@@ -153,7 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\c\ademco.c" />
-    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="dllmain.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\c\ademco.h" />
