@@ -193,83 +193,83 @@ const char* ademcoEventToString(AdemcoEvent ademcoEvent)
 	}
 }
 
-const wchar_t* ademcoEventToStringChinese(AdemcoEvent ademcoEvent)
+const char* ademcoEventToStringChinese(AdemcoEvent ademcoEvent)
 {
 	switch (ademcoEvent) {
-	case EVENT_ARM:									return L"布防";
-	case EVENT_BURGLAR:								return L"盗警";
-	case EVENT_DISARM:								return L"撤防";
-	case EVENT_DURESS:								return L"胁迫";
-	case EVENT_EMERGENCY:							return L"紧急报警";
+	case EVENT_ARM:									return "布防";
+	case EVENT_BURGLAR:								return "盗警";
+	case EVENT_DISARM:								return "撤防";
+	case EVENT_DURESS:								return "胁迫";
+	case EVENT_EMERGENCY:							return "紧急报警";
 
-	case EVENT_FIRE:								return L"火警";
-	case EVENT_GAS:									return L"煤气";
-	case EVENT_HALFARM:	case EVENT_HALFARM_1456:	return L"半布防";
-	case EVENT_TAMPER:								return L"防拆";
-	case EVENT_ZONE_TAMPER:							return L"防区防拆";
-	case EVENT_WATER:								return L"水警";
-	case EVENT_BYPASS:								return L"旁路";
-	case EVENT_BYPASS_RESUME:						return L"解除旁路";
+	case EVENT_FIRE:								return "火警";
+	case EVENT_GAS:									return "煤气";
+	case EVENT_HALFARM:	case EVENT_HALFARM_1456:	return "半布防";
+	case EVENT_TAMPER:								return "防拆";
+	case EVENT_ZONE_TAMPER:							return "防区防拆";
+	case EVENT_WATER:								return "水警";
+	case EVENT_BYPASS:								return "旁路";
+	case EVENT_BYPASS_RESUME:						return "解除旁路";
 
-	case EVENT_AC_BROKE:							return L"主机AC掉电";
-	case EVENT_AC_RECOVER:							return L"主机AC恢复";
-	case EVENT_LOWBATTERY:							return L"低电";
-	case EVENT_BATTERY_RECOVER: 					return L"复电";
-	case EVENT_BADBATTERY:							return L"坏电";
-	case EVENT_BADBATTERY_RECOVER:					return L"坏电恢复";
-	case EVENT_SOLARDISTURB:						return L"光扰";
-	case EVENT_SOLARDISTURB_RECOVER:				return L"光扰恢复";
-	case EVENT_DISCONNECT:							return L"失效";
-	case EVENT_RECONNECT:							return L"恢复";
-	case EVENT_LOST:								return L"失联";
-	case EVENT_LOST_RECOVER:						return L"恢复";
-	case EVENT_3100:								return L"液晶主机清除异常指示";
-	case EVENT_BATTERY_EXCEPTION:					return L"防区电源故障";
-	case EVENT_BATTERY_EXCEPTION_RECOVER:			return L"防区电源故障恢复";
-	case EVENT_OTHER_EXCEPTION:						return L"防区其他故障";
-	case EVENT_OTHER_EXCEPTION_RECOVER:				return L"防区其他故障恢复";
+	case EVENT_AC_BROKE:							return "主机AC掉电";
+	case EVENT_AC_RECOVER:							return "主机AC恢复";
+	case EVENT_LOWBATTERY:							return "低电";
+	case EVENT_BATTERY_RECOVER: 					return "复电";
+	case EVENT_BADBATTERY:							return "坏电";
+	case EVENT_BADBATTERY_RECOVER:					return "坏电恢复";
+	case EVENT_SOLARDISTURB:						return "光扰";
+	case EVENT_SOLARDISTURB_RECOVER:				return "光扰恢复";
+	case EVENT_DISCONNECT:							return "失效";
+	case EVENT_RECONNECT:							return "恢复";
+	case EVENT_LOST:								return "失联";
+	case EVENT_LOST_RECOVER:						return "恢复";
+	case EVENT_3100:								return "液晶主机清除异常指示";
+	case EVENT_BATTERY_EXCEPTION:					return "防区电源故障";
+	case EVENT_BATTERY_EXCEPTION_RECOVER:			return "防区电源故障恢复";
+	case EVENT_OTHER_EXCEPTION:						return "防区其他故障";
+	case EVENT_OTHER_EXCEPTION_RECOVER:				return "防区其他故障恢复";
 
-	case EVENT_SERIAL485DIS:						return L"485断开";
-	case EVENT_SERIAL485CONN:						return L"485恢复";
-	case EVENT_DOORRINGING:							return L"门铃";
-	case EVENT_CONN_HANGUP:							return L"链路挂起";
-	case EVENT_CONN_RESUME:							return L"链路恢复";
-	case EVENT_DISARM_PWD_ERR: 						return L"撤防密码错误";
+	case EVENT_SERIAL485DIS:						return "485断开";
+	case EVENT_SERIAL485CONN:						return "485恢复";
+	case EVENT_DOORRINGING:							return "门铃";
+	case EVENT_CONN_HANGUP:							return "链路挂起";
+	case EVENT_CONN_RESUME:							return "链路恢复";
+	case EVENT_DISARM_PWD_ERR: 						return "撤防密码错误";
 
-	case EVENT_SUB_MACHINE_SENSOR_EXCEPTION:		return L"分防区异常";
-	case EVENT_SUB_MACHINE_SENSOR_RESUME:			return L"分防区恢复";
-	case EVENT_SUB_MACHINE_POWER_EXCEPTION:			return L"分防区电源异常";
-	case EVENT_SUB_MACHINE_POWER_RESUME:			return L"分防区电源恢复";
-	case EVENT_COM_PASSTHROUGH:						return L"串口透传";
-	case EVENT_ENTER_SET_MODE:						return L"进入设置状态";
-	case EVENT_EXIT_SET_MODE:						return L"拒绝/停止设置";
-	case EVENT_QUERY_SUB_MACHINE:					return L"查询";
-	case EVENT_WRITE_TO_MACHINE:					return L"写入主机信息";
-	case EVENT_I_AM_NET_MODULE:						return L"我是网络模块";
-	case EVENT_PHONE_USER_SOS:						return L"手机用户SOS";
-	case EVENT_PHONE_USER_CANCLE_ALARM:				return L"手机用户消警";
-	case EVENT_I_AM_GPRS:							return L"我是GPRS主机";
-	case EVENT_I_AM_LCD_MACHINE:					return L"我是液晶主机";
-	case EVENT_I_AM_WIRE_MACHINE:					return L"我是网线主机";
-	case EVENT_I_AM_WIFI_MACHINE:					return L"我是WiFi主机";
-	case EVENT_I_AM_3_SECTION_MACHINE:				return L"我是三区段主机";
-	case EVENT_I_AM_IOT_MACHINE:					return L"我是物联卡主机";
-	case EVENT_I_AM_TRUE_COLOR:						return L"我是真彩主机";
-	case EVENT_I_AM_GPRS_IOT:						return L"我是简化版物联卡主机";
-	case EVENT_I_AM_GPRS_PHONE:						return L"我是GPRS主机能打电话";
-	case EVENT_I_AM_NB_MACHINE:						return L"我是NB报警接收主机";
-	case EVENT_SIM_IS_IOT_CARD:						return L"SIM卡为物联卡";
-	case EVENT_SIM_IS_IOT_PLATFORM_CARD:			return L"SIM卡为平台物联卡";
-	case EVENT_SIM_IS_NOT_IOT_CARD:					return L"SIM卡为非物联卡";
-	case EVENT_ENTER_SETTING_MODE:					return L"主机进入设置状态";
-	case EVENT_EXIT_SETTING_MODE:					return L"主机退出设置状态";
+	case EVENT_SUB_MACHINE_SENSOR_EXCEPTION:		return "分防区异常";
+	case EVENT_SUB_MACHINE_SENSOR_RESUME:			return "分防区恢复";
+	case EVENT_SUB_MACHINE_POWER_EXCEPTION:			return "分防区电源异常";
+	case EVENT_SUB_MACHINE_POWER_RESUME:			return "分防区电源恢复";
+	case EVENT_COM_PASSTHROUGH:						return "串口透传";
+	case EVENT_ENTER_SET_MODE:						return "进入设置状态";
+	case EVENT_EXIT_SET_MODE:						return "拒绝/停止设置";
+	case EVENT_QUERY_SUB_MACHINE:					return "查询";
+	case EVENT_WRITE_TO_MACHINE:					return "写入主机信息";
+	case EVENT_I_AM_NET_MODULE:						return "我是网络模块";
+	case EVENT_PHONE_USER_SOS:						return "手机用户SOS";
+	case EVENT_PHONE_USER_CANCLE_ALARM:				return "手机用户消警";
+	case EVENT_I_AM_GPRS:							return "我是GPRS主机";
+	case EVENT_I_AM_LCD_MACHINE:					return "我是液晶主机";
+	case EVENT_I_AM_WIRE_MACHINE:					return "我是网线主机";
+	case EVENT_I_AM_WIFI_MACHINE:					return "我是WiFi主机";
+	case EVENT_I_AM_3_SECTION_MACHINE:				return "我是三区段主机";
+	case EVENT_I_AM_IOT_MACHINE:					return "我是物联卡主机";
+	case EVENT_I_AM_TRUE_COLOR:						return "我是真彩主机";
+	case EVENT_I_AM_GPRS_IOT:						return "我是简化版物联卡主机";
+	case EVENT_I_AM_GPRS_PHONE:						return "我是GPRS主机能打电话";
+	case EVENT_I_AM_NB_MACHINE:						return "我是NB报警接收主机";
+	case EVENT_SIM_IS_IOT_CARD:						return "SIM卡为物联卡";
+	case EVENT_SIM_IS_IOT_PLATFORM_CARD:			return "SIM卡为平台物联卡";
+	case EVENT_SIM_IS_NOT_IOT_CARD:					return "SIM卡为非物联卡";
+	case EVENT_ENTER_SETTING_MODE:					return "主机进入设置状态";
+	case EVENT_EXIT_SETTING_MODE:					return "主机退出设置状态";
 	case EVENT_RESTORE_FACTORY_SETTINGS_710:
-	case EVENT_RESTORE_FACTORY_SETTINGS:			return L"主机恢复出厂设置";
-	case EVENT_WHAT_IS_YOUR_TYPE:					return L"索要主机类型";
-	case EVENT_SIGNAL_STRENGTH_CHANGED:				return L"信号强度变化";
-	case EVENT_OFFLINE:								return L"上线";
-	case EVENT_ONLINE:								return L"离线";
-	default:										return L"未定义的安定宝事件";
+	case EVENT_RESTORE_FACTORY_SETTINGS:			return "主机恢复出厂设置";
+	case EVENT_WHAT_IS_YOUR_TYPE:					return "索要主机类型";
+	case EVENT_SIGNAL_STRENGTH_CHANGED:				return "信号强度变化";
+	case EVENT_OFFLINE:								return "上线";
+	case EVENT_ONLINE:								return "离线";
+	default:										return "未定义的安定宝事件";
 	}
 }
 
@@ -326,7 +326,7 @@ uint16_t ademcoCRC16(const uint8_t* buff, int len, uint16_t crc)
 
 int ademcoAppendDataSegment(uint8_t* buff, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone)
 {
-	char* p = buff;
+	uint8_t* p = buff;
 	if (ademcoEvent == EVENT_INVALID_EVENT) {
 		*p++ = '[';
 		*p++ = ']';
@@ -422,7 +422,9 @@ AdemcoParseResult ademcoParseDataSegment(const uint8_t* packet, int packet_len, 
 			temp[3] = '\0';
 			dataSegment->zone = atoi(temp);
 
-			memcpy(dataSegment->raw, packet, packet_len);
+			if (dataSegment->raw != packet) {
+				memcpy(dataSegment->raw, packet, packet_len);
+			}
 			dataSegment->raw_len = packet_len;
 			return RESULT_OK;
 		} while (0);
@@ -488,7 +490,7 @@ int ademcoDataSegmentToCongwinFe100(uint8_t* fe100, const AdemcoDataSegment* dat
 		p += 3;
 
 		*p++ = ' ';
-		*p++ = '\n';
+		*p++ = '\r';
 		return p - (char*)fe100;
 	}
 	return 0;
@@ -589,14 +591,14 @@ static void getNowTimestamp(char* buff)
 {
 	time_t now = time(NULL);
 	struct tm* tm = localtime(&now);
-	snprintf(buff, ADEMCO_PACKET_TIMESTAMP_LEN+1, "_%02d:%02d:%02d,%02d-%02d-%04d",
+	snprintf(buff, ADEMCO_PACKET_TIMESTAMP_LEN + 1, "_%02d:%02d:%02d,%02d-%02d-%04d",
 			 tm->tm_hour, tm->tm_min, tm->tm_sec,
 			 tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900);
 }
 
-static int ademcoMakeEmptyDataPacket(uint8_t* dst_buff, int len, const char* id, uint16_t seq, const char* acct, AdemcoId ademcoId)
+int ademcoMakeEmptyDataPacket(uint8_t* dst_buff, int len, const char* id, uint16_t seq, const char* acct, AdemcoId ademcoId)
 {
-	char buff[ADEMCO_PACKET_MAX_LEN];
+	uint8_t buff[ADEMCO_PACKET_MAX_LEN];
 	uint8_t* p = buff;
 	uint8_t* pcrc = buff + 1;
 	uint8_t* plen = buff + 5;
@@ -635,14 +637,13 @@ static int ademcoMakeEmptyDataPacket(uint8_t* dst_buff, int len, const char* id,
 	snprintf(temp, 5, "%04X", crc);
 	memcpy(pcrc, temp, 4);
 
-	if (dst_buff == NULL || len < packet_len) {
-		return packet_len;
-	} else if (dst_buff != NULL && len >= packet_len) {
+	if (dst_buff != NULL && len > packet_len) {
 		memcpy(dst_buff, buff, packet_len);
 		dst_buff[packet_len] = '\0'; // for debug convenience
 		return packet_len;
+	} else {
+		return 0;
 	}
-	return 0;
 }
 
 int ademcoMakeNullPacket(uint8_t* buff, int len, uint16_t seq, const char* acct, AdemcoId ademcoId)
@@ -705,9 +706,7 @@ int ademcoMakeHbPacket(uint8_t* dst_buff, int len, uint16_t seq, const char* acc
 	snprintf(temp, 5, "%04X", crc);
 	memcpy(pcrc, temp, 4);
 
-	if (dst_buff == NULL || len < packet_len) {
-		return packet_len;
-	} else if (dst_buff != NULL && len >= packet_len) {
+	if (dst_buff != NULL && len > packet_len) {
 		memcpy(dst_buff, buff, packet_len);
 		dst_buff[packet_len] = '\0'; // for debug convenience
 		return packet_len;
@@ -881,7 +880,7 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 
 			if (p >= pcr || *p != ']' || *(p + 1) != '_') { break; }
 			pkt->xdata.lenghFormat = xlf;
-			pkt->xdata.raw_len = ++p - pxdata;
+			pkt->xdata.raw_len = ++p - pxdata;			
 			memcpy(pkt->xdata.raw, pxdata, pkt->xdata.raw_len);
 		} else {
 			pkt->xdata.raw_len = 0;
@@ -910,7 +909,9 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 
 		if (p++ != pcr) { break; }
 		pkt->raw_len = *cb_commited = p - buff;
-		memcpy(pkt->raw, buff, pkt->raw_len);
+		if (pkt->raw != buff) {
+			memcpy(pkt->raw, buff, pkt->raw_len);
+		}
 		return RESULT_OK;
 	} while (0);
 
@@ -1253,22 +1254,22 @@ const char* hbMachineTypeToString(HbMachineType type)
 	}
 }
 
-const wchar_t* hbMachineTypeToStringChinese(HbMachineType type)
+const char* hbMachineTypeToStringChinese(HbMachineType type)
 {
 	switch (type) {
-	case HMT_WIFI:			return L"0 WiFi主机";
-	case HMT_CAMERA:		return L"1 摄像头主机";
-	case HMT_GPRS_IOT:		return L"2 简化的物联卡主机";
-	case HMT_NETMOD:		return L"3 网络模块+工程主机";
-	case HMT_GPRS:			return L"4 GPRS主机";
-	case HMT_LCD:			return L"5 液晶主机";
-	case HMT_WIRED:			return L"6 网线主机";
-	case HMT_TRUE_COLOR:	return L"7 真彩主机";
-	case HMT_3_SECTION:		return L"8 三区段主机";
-	case HMT_IOT:			return L"9 物联卡主机";
-	case HMT_GPRS_PHONE:	return L"10 GPRS主机能打电话";
-	case HMT_NB:			return L"11 NB报警接收主机";
-	default:				return L"未知主机";
+	case HMT_WIFI:			return "0 WiFi主机";
+	case HMT_CAMERA:		return "1 摄像头主机";
+	case HMT_GPRS_IOT:		return "2 简化的物联卡主机";
+	case HMT_NETMOD:		return "3 网络模块+工程主机";
+	case HMT_GPRS:			return "4 GPRS主机";
+	case HMT_LCD:			return "5 液晶主机";
+	case HMT_WIRED:			return "6 网线主机";
+	case HMT_TRUE_COLOR:	return "7 真彩主机";
+	case HMT_3_SECTION:		return "8 三区段主机";
+	case HMT_IOT:			return "9 物联卡主机";
+	case HMT_GPRS_PHONE:	return "10 GPRS主机能打电话";
+	case HMT_NB:			return "11 NB报警接收主机";
+	default:				return "未知主机";
 	}
 }
 
@@ -1282,7 +1283,7 @@ const char* hbZonePropertyToString(HbZoneProperty zp)
 	case HZP_GAS:				return "HZP_GAS";
 	case HZP_WATER:				return "HZP_WATER";
 	case HZP_SUB_MACHINE:		return "HZP_SUB_MACHINE";
-	case HZP_REMOTE_CONTROL:	return "HZP_REMOTE_CONTROL";
+	case HZP_REMOTE_CONTROL:	return "HZP_REMOTE_CONTRO";
 	case HZP_BUGLAR_HALF:		return "HZP_BUGLAR_HALF";
 	case HZP_SHIELD:			return "HZP_SHIELD";
 	case HZP_DOOR_RING:			return "HZP_DOOR_RING";
@@ -1295,26 +1296,26 @@ const char* hbZonePropertyToString(HbZoneProperty zp)
 	}
 }
 
-const wchar_t* hbZonePropertyToStringChinese(HbZoneProperty zp)
+const char* hbZonePropertyToStringChinese(HbZoneProperty zp)
 {
 	switch (zp) {
-	case HZP_BUGLAR:			return L"匪警全局";
-	case HZP_EMERGENCY:			return L"匪警紧急";
-	case HZP_FIRE:				return L"火警防区";
-	case HZP_DURESS:			return L"胁迫防区";
-	case HZP_GAS:				return L"燃气防区";
-	case HZP_WATER:				return L"淹水防区";
-	case HZP_SUB_MACHINE:		return L"分机";
-	case HZP_REMOTE_CONTROL:	return L"遥控器";
-	case HZP_BUGLAR_HALF:		return L"匪警半局";
-	case HZP_SHIELD:			return L"屏蔽防区";
-	case HZP_DOOR_RING:			return L"门铃防区";
-	case HZP_RESERVED_0B:		return L"保留";
-	case HZP_RESERVED_0C:		return L"保留";
-	case HZP_RESERVED_0D:		return L"保留";
-	case HZP_RESERVED_0E:		return L"保留";
-	case HZP_BYPASS:			return L"旁路防区";
-	default:					return L"无效属性";
+	case HZP_BUGLAR:			return "匪警全局";
+	case HZP_EMERGENCY:			return "匪警紧急";
+	case HZP_FIRE:				return "火警防区";
+	case HZP_DURESS:			return "胁迫防区";
+	case HZP_GAS:				return "燃气防区";
+	case HZP_WATER:				return "淹水防区";
+	case HZP_SUB_MACHINE:		return "分机";
+	case HZP_REMOTE_CONTROL:	return "遥控器";
+	case HZP_BUGLAR_HALF:		return "匪警半局";
+	case HZP_SHIELD:			return "屏蔽防区";
+	case HZP_DOOR_RING:			return "门铃防区";
+	case HZP_RESERVED_0B:		return "保留";
+	case HZP_RESERVED_0C:		return "保留";
+	case HZP_RESERVED_0D:		return "保留";
+	case HZP_RESERVED_0E:		return "保留";
+	case HZP_BYPASS:			return "旁路防区";
+	default:					return "无效属性";
 	}
 }
 
@@ -1324,14 +1325,6 @@ const char* hbGetZoneFormatString(HbMachineType type)
 	if (10 < zone && zone < 100) { return "%02d"; } 
 	else if (zone < 1000) { return "%03d"; } 
 	else { return "%d"; }
-}
-
-const wchar_t* hbGetZoneFormatStringW(HbMachineType type)
-{
-	uint16_t zone = hbZoneMax(type);
-	if (10 < zone && zone < 100) { return L"%02d"; } 
-	else if (zone < 1000) { return L"%03d"; } 
-	else { return L"%d"; }
 }
 
 void hbSum(uint8_t* data, int len)
@@ -1748,10 +1741,10 @@ int hbHiLoArrayToDecStr(char* str, const uint8_t* arr, int len)
 	for (int i = 0; i < len; i++) {
 		char c = (arr[i] >> 4) & 0x0F;
 		if (c > 9) { return p - str; }
-		*p++ = c;
+		*p++ = c + '0';
 		c = (arr[i] & 0x0F);
 		if (c > 9) { return p - str; }
-		*p++ = c;
+		*p++ = c + '0';
 	}
 	return p - str;
 }
@@ -1761,7 +1754,7 @@ int hbDecStrToHiLoArray(uint8_t* arr, int len, const char* str)
 	uint8_t* p = arr;
 	int slen = strlen(str);
 	if (slen > len * 2) {
-		return 0;
+		slen = len * 2;
 	}
 	for (int i = 0; i < slen; i += 2) {
 		char hi = str[i];
@@ -1791,7 +1784,7 @@ int hbDecStrToHiLoArray(uint8_t* arr, int len, const char* str)
 static uint8_t hex2char(uint8_t h) {
 	h &= 0x0F;
 	if (h > 9) {
-		return 'A' + h;
+		return 'A' + h - 10;
 	} else {
 		return '0' + h;
 	}
@@ -1812,9 +1805,9 @@ static uint8_t char2hex(uint8_t c) {
 	if ('0' <= c && c <= '9') {
 		return c - '0';
 	} else if ('A' <= c && c <= 'F') {
-		return c - 'A';
+		return c - 'A' + 10;
 	} else if ('a' <= c && c <= 'f') {
-		return c - 'a';
+		return c - 'a' + 10;
 	} else {
 		return 0xFF;
 	}
@@ -1832,6 +1825,29 @@ int hbHexStrToArray(uint8_t* arr, const char* str, uint8_t padding)
 			return 0;
 		}
 		if (i * 2 + 1 < slen) {
+			c = str[i * 2 + 1];
+			if ((lo = char2hex(c)) == 0xFF) {
+				return 0;
+			}
+		} else {
+			lo = padding;
+		}
+		*p++ = ((hi << 4) & 0xF0) | (lo & 0x0F);
+	}
+	return p - arr;
+}
+
+int hbHexStrToArrayN(uint8_t* arr, const char* str, int len, uint8_t padding)
+{
+	uint8_t* p = arr;
+	uint8_t hi = 0, lo = 0;
+	padding &= 0x0F;
+	for (int i = 0; i < len / 2; i++) {
+		char c = str[i * 2];
+		if ((hi = char2hex(c)) == 0xFF) {
+			return 0;
+		}
+		if (i * 2 + 1 < len) {
 			c = str[i * 2 + 1];
 			if ((lo = char2hex(c)) == 0xFF) {
 				return 0;
