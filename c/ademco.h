@@ -756,6 +756,8 @@ ADEMCO_EXPORT_SYMBOL HbMachineStatus hbMachineStatusFromAdemcoEvent(AdemcoEvent 
 ADEMCO_EXPORT_SYMBOL AdemcoEvent hbMachineTypeToAdemcoEvent(HbMachineType type);
 ADEMCO_EXPORT_SYMBOL HbMachineType hbMachineTypeFromAdemcoEvent(AdemcoEvent ademcoEvent);
 ADEMCO_EXPORT_SYMBOL AdemcoEvent hbZonePropertyToAdemcoEvent(HbZoneProperty zp);
+ADEMCO_EXPORT_SYMBOL const char* hbMachineStatusToString(HbMachineStatus status);
+ADEMCO_EXPORT_SYMBOL const char* hbMachineStatusToStringChinese(HbMachineStatus status);
 ADEMCO_EXPORT_SYMBOL const char* hbMachineTypeToString(HbMachineType type);
 ADEMCO_EXPORT_SYMBOL const char* hbMachineTypeToStringChinese(HbMachineType type);
 ADEMCO_EXPORT_SYMBOL const char* hbZonePropertyToString(HbZoneProperty zp);

@@ -1245,6 +1245,28 @@ AdemcoEvent hbZonePropertyToAdemcoEvent(HbZoneProperty zp)
 	}
 }
 
+const char* hbMachineStatusToString(HbMachineStatus status)
+{
+	switch (status) {
+	case HMS_ARM:		return "Arm";
+	case HMS_HALF_ARM:	return "Half-Arm";
+	case HMS_DISARM:	return "Disarm";
+	case HMS_SETTING:	return "Setting";
+	default:			return "InvalidMachineStatus";
+	}
+}
+
+const char* hbMachineStatusToStringChinese(HbMachineStatus status)
+{
+	switch (status) {
+	case HMS_ARM:		return "≤º∑¿";
+	case HMS_HALF_ARM:	return "∞Î≤º∑¿";
+	case HMS_DISARM:	return "≥∑∑¿";
+	case HMS_SETTING:	return "…Ë÷√";
+	default:			return "InvalidMachineStatus";
+	}
+}
+
 const char* hbMachineTypeToString(HbMachineType type)
 {
 	switch (type) {
