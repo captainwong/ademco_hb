@@ -374,8 +374,9 @@ ADEMCO_EXPORT_SYMBOL int ademcoXDataGetValidContentLen(const AdemcoXDataSegment*
 // return ADEMCO_OK for success, return ADEMCO_ERR for len is too long
 ADEMCO_EXPORT_SYMBOL int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr, const uint8_t* content, int len);
 
-ADEMCO_EXPORT_SYMBOL int isAdemcoId(const char* standard, const char* id, int len);
-ADEMCO_EXPORT_SYMBOL AdemcoPacketId getAdemcoId(const char* id, int len);
+ADEMCO_EXPORT_SYMBOL int isAdemcoPacketId(const char* standard, const char* id, int len);
+ADEMCO_EXPORT_SYMBOL AdemcoPacketId getAdemcoPacketId(const char* id, int len);
+ADEMCO_EXPORT_SYMBOL const char* admecoPacketIdToString(AdemcoPacketId id);
 
 /*
 * ademcoMake*Packet functions
@@ -399,7 +400,7 @@ ADEMCO_EXPORT_SYMBOL int ademcoMakeHbPacket2(AdemcoPacket* pkt, uint16_t seq, co
 
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* pkt, int* cb_commited);
 
-ADEMCO_EXPORT_SYMBOL uint16_t ademcoCRC8(char c, uint16_t crc);
+ADEMCO_EXPORT_SYMBOL uint16_t ademcoCRC8(uint8_t c, uint16_t crc);
 ADEMCO_EXPORT_SYMBOL uint16_t ademcoCRC16(const uint8_t* buff, int len, uint16_t crc);
 
 
@@ -842,8 +843,13 @@ ADEMCO_EXPORT_SYMBOL int hbHexStrToArray(uint8_t* arr, const char* str, uint8_t 
 
 // 功能同hbHexStrToArray
 // 若strlen(str) > len, str[len]及之后的内容将被舍弃以避免溢出
-// 示例：输入字符串str="ABCDE", len = 2 padding = 0x0F, 输出arr=[0xAB, 0xCD], return 2
+// 示例：输入字符串str="ABCDE", len = 4 padding = 0x0F, 输出arr=[0xAB, 0xCD], return 2
 ADEMCO_EXPORT_SYMBOL int hbHexStrToArrayN(uint8_t* arr, const char* str, int len, uint8_t padding);
+
+// 同hbHexStrToArrayN，但允许str包含非hex字符，即'0'~'9','a'~'f','A'~'F'之外的内容，以 padding 替换
+// 示例：str="AB\xFFD", len=4, padding=0x0F, 则arr=[ 0xAB, 0xFD ], return 2
+// 网线主机 0d 00 命令，接警中心账号部分，有可能是这种
+ADEMCO_EXPORT_SYMBOL int hbHexStrToArrayN_allow_non_hex_str(uint8_t* arr, const char* str, int len, uint8_t padding);
 
 #ifdef __cplusplus
 }

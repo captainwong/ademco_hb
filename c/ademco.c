@@ -273,7 +273,7 @@ const char* ademcoEventToStringChinese(AdemcoEvent ademcoEvent)
 	}
 }
 
-uint16_t ademcoCRC8(char c, uint16_t crc)
+uint16_t ademcoCRC8(uint8_t c, uint16_t crc)
 {
 	static const uint16_t crcTable[] = {
 		/* DEFINE THE FIRST ORDER POLYINOMIAL TABLE */
@@ -560,14 +560,12 @@ int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, Adem
 	}
 }
 
-int isAdemcoId(const char* standard, const char* id, int len)
+int isAdemcoPacketId(const char* standard, const char* id, int len)
 {
 	return strncmp(standard, id, strlen(standard)) == 0;
 }
 
-AdemcoPacketId getAdemcoId(const char* id, int len)
-{
-	static const char* const ids[AID_COUNT] = {
+static const char* const ids[AID_COUNT] = {
 		ADEMCO_PACKET_ID_NULL,
 		ADEMCO_PACKET_ID_ACK,
 		ADEMCO_PACKET_ID_NAK,
@@ -576,15 +574,26 @@ AdemcoPacketId getAdemcoId(const char* id, int len)
 		ADEMCO_PACKET_ID_ADM_CID,
 		ADEMCO_PACKET_ID_MOD_REG,
 		ADEMCO_PACKET_ID_REG_RSP,
-	};
+};
 
+AdemcoPacketId getAdemcoPacketId(const char* id, int len)
+{
 	for (int i = 0; i < AID_COUNT; i++) {
-		if (isAdemcoId(ids[i], id, len)) {
+		if (isAdemcoPacketId(ids[i], id, len)) {
 			return (AdemcoPacketId)(i);
 		}
 	}
 
 	return AID_INVALID;
+}
+
+const char* admecoPacketIdToString(AdemcoPacketId id)
+{
+	if (0 <= id && id < AID_COUNT) {
+		return ids[id];
+	} else {
+		return "";
+	}
 }
 
 static void getNowTimestamp(char* buff)
@@ -812,7 +821,7 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 		p = pid + 1;
 		while (p < pcr && *p != '\"') { p++; }
 		if (p >= pcr || *p != '\"') { break; }
-		pkt->id = getAdemcoId((const char*)pid, ++p - pid);
+		pkt->id = getAdemcoPacketId((const char*)pid, ++p - pid);
 		if (pkt->id == AID_INVALID) { break; }
 
 		// seq
@@ -929,57 +938,58 @@ int hbGetAvailableZoneProperties(HbMachineType type, HbZoneProperty props[12])
 	case HMT_GPRS:
 	{
 		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL, };
-		memcpy(props, hzps, sizeof(hzps) / sizeof(HbZoneProperty));
+		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
 	case HMT_NETMOD:
 	{
 		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE, HZP_REMOTE_CONTROL, HZP_BUGLAR_HALF, HZP_SHIELD, HZP_DOOR_RING, };
-		memcpy(props, hzps, sizeof(hzps) / sizeof(HbZoneProperty));
+		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
 	case HMT_LCD:
 	{
 		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE, HZP_REMOTE_CONTROL, HZP_BUGLAR_HALF, HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS };
-		memcpy(props, hzps, sizeof(hzps) / sizeof(HbZoneProperty));
+		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
 	case HMT_WIRED:
 	{
 		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL, };
-		memcpy(props, hzps, sizeof(hzps) / sizeof(HbZoneProperty));
+		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
 	case HMT_TRUE_COLOR:
 	{
 		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL, HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS };
-		memcpy(props, hzps, sizeof(hzps) / sizeof(HbZoneProperty));
+		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
 	case HMT_3_SECTION:
 	{
 		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL, HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS };
-		memcpy(props, hzps, sizeof(hzps) / sizeof(HbZoneProperty));
+		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
 	case HMT_IOT:
 	{
 		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL, HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS };
-		memcpy(props, hzps, sizeof(hzps) / sizeof(HbZoneProperty));
+		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
 	case HMT_GPRS_PHONE:
 	{
 		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL, };
-		memcpy(props, hzps, sizeof(hzps) / sizeof(HbZoneProperty));
+		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
 	case HMT_NB:
 	{
 		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_DOOR_RING, };
-		memcpy(props, hzps, sizeof(hzps) / sizeof(HbZoneProperty));
+		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
+	default: return 0;
 	}
 	return 0;
 }
@@ -1102,8 +1112,8 @@ AdemcoZone hbWiredZoneMin(HbMachineType type)
 	case HMT_NETMOD: return 1;
 	case HMT_TRUE_COLOR: return 1;
 	case HMT_3_SECTION: return 61;
+	default: return 0;
 	}
-	return 0;
 }
 
 AdemcoZone hbWiredZoneMax(HbMachineType type)
@@ -1112,8 +1122,8 @@ AdemcoZone hbWiredZoneMax(HbMachineType type)
 	case HMT_NETMOD: return 8;
 	case HMT_TRUE_COLOR: return 8;
 	case HMT_3_SECTION: return 68;
+	default: return 0;
 	}
-	return 0;
 }
 
 int hbMachineCanDirectlyWriteZone(HbMachineType type)
@@ -1851,6 +1861,29 @@ int hbHexStrToArrayN(uint8_t* arr, const char* str, int len, uint8_t padding)
 			c = str[i * 2 + 1];
 			if ((lo = char2hex(c)) == 0xFF) {
 				return 0;
+			}
+		} else {
+			lo = padding;
+		}
+		*p++ = ((hi << 4) & 0xF0) | (lo & 0x0F);
+	}
+	return p - arr;
+}
+
+int hbHexStrToArrayN_allow_non_hex_str(uint8_t* arr, const char* str, int len, uint8_t padding)
+{
+	uint8_t* p = arr;
+	uint8_t hi = 0, lo = 0;
+	padding &= 0x0F;
+	for (int i = 0; i < len / 2; i++) {
+		char c = str[i * 2];
+		if ((hi = char2hex(c)) == 0xFF) {
+			hi = padding;
+		}
+		if (i * 2 + 1 < len) {
+			c = str[i * 2 + 1];
+			if ((lo = char2hex(c)) == 0xFF) {
+				lo = padding;
 			}
 		} else {
 			lo = padding;
