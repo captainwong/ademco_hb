@@ -21,9 +21,9 @@ using namespace std::chrono;
 #endif
 #else // WIN32
 #ifdef _DEBUG
-#pragma comment(lib, "../Win32/Debug/ademco.lib")
+#pragma comment(lib, "../Debug/ademco.lib")
 #else
-#pragma comment(lib, "../Win32/Release/ademco.lib")
+#pragma comment(lib, "../Release/ademco.lib")
 #endif
 #endif
 

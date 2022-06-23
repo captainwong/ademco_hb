@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bench", "bench\bench.vcxproj", "{01B919A1-174A-45E5-A2B5-B509BD66E91A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EF267749-DA49-433D-BF4E-742D4BC7F1DA} = {EF267749-DA49-433D-BF4E-742D4BC7F1DA}
+		{D0015E82-053E-431E-95D6-41E9AC9C1342} = {D0015E82-053E-431E-95D6-41E9AC9C1342}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ademco_hb", "ademco_hb\ademco_hb.vcxproj", "{EF267749-DA49-433D-BF4E-742D4BC7F1DA}"
 EndProject
