@@ -326,7 +326,7 @@ uint16_t ademcoCRC16(const uint8_t* buff, int len, uint16_t crc)
 
 int ademcoAppendDataSegment(uint8_t* buff, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone)
 {
-	uint8_t* p = buff;
+	char* p = (char*)buff;
 	if (ademcoEvent == EVENT_INVALID_EVENT) {
 		*p++ = '[';
 		*p++ = ']';
@@ -363,7 +363,7 @@ int ademcoAppendDataSegment(uint8_t* buff, AdemcoId ademcoId, AdemcoEvent ademco
 
 		*p++ = ']';
 
-		assert(p - buff == ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN);
+		assert(p - (char*)buff == ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN);
 
 		*p++ = '\0'; // for debug convenience
 
@@ -521,7 +521,7 @@ int ademcoXDataGetValidContentLen(const AdemcoXDataSegment* xdata)
 int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr, const uint8_t* content, int len)
 {
 	uint8_t transformed[ADEMCO_PACKET_XDATA_MAX_LEN];
-	int translen = len;
+	uint16_t translen = len;
 	if (xtr == AdemcoXDataTransform_as_is) {
 		memcpy(transformed, content, len);
 	} else {
@@ -547,7 +547,7 @@ int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, Adem
 		uint8_t* p = xdata->raw;
 		*p++ = '[';
 		char temp[5];
-		sprintf(temp, "%04d", translen & 0xFFFF);
+		snprintf(temp, sizeof(temp), "%04d", translen & 0xFFFF);
 		memcpy(p, temp, 4);
 		p += 4;
 		memcpy(p, transformed, translen);
@@ -592,7 +592,7 @@ const char* admecoPacketIdToString(AdemcoPacketId id)
 	if (0 <= id && id < AID_COUNT) {
 		return ids[id];
 	} else {
-		return "";
+		return "Unkown AdemcoPacketId";
 	}
 }
 
@@ -632,7 +632,7 @@ int ademcoMakeEmptyDataPacket(uint8_t* dst_buff, int len, const char* id, uint16
 	}
 	*p++ = '[';
 	*p++ = ']';
-	getNowTimestamp(p);
+	getNowTimestamp((char*)p);
 	p += ADEMCO_PACKET_TIMESTAMP_LEN;
 	*p++ = ADEMCO_PACKET_SUFIX;
 
@@ -696,7 +696,7 @@ int ademcoMakeHbPacket(uint8_t* dst_buff, int len, uint16_t seq, const char* acc
 		snprintf(p, 7, "%06X", ademcoId);
 		p += 6;
 	}
-	p += ademcoAppendDataSegment(p, ademcoId, ademcoEvent, gg, zone);
+	p += ademcoAppendDataSegment((uint8_t*)p, ademcoId, ademcoEvent, gg, zone);
 	if (xdata && xdata->raw_len > 0) {
 		memcpy(p, xdata->raw, xdata->raw_len);
 		p += xdata->raw_len;
@@ -711,7 +711,7 @@ int ademcoMakeHbPacket(uint8_t* dst_buff, int len, uint16_t seq, const char* acc
 	int ademco_len = packet_len - 1 - 4 - 4 - 1;
 	snprintf(temp, 5, "%04X", ademco_len);
 	memcpy(plen, temp, 4);
-	uint16_t crc = ademcoCRC16(pid, ademco_len, 0);
+	uint16_t crc = ademcoCRC16((const uint8_t*)pid, ademco_len, 0);
 	snprintf(temp, 5, "%04X", crc);
 	memcpy(pcrc, temp, 4);
 
