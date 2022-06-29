@@ -10,14 +10,27 @@
 #endif
 #else // WIN32
 #ifdef _DEBUG
-#pragma comment(lib, "../Win32/Debug/ademco.lib")
+#pragma comment(lib, "../Debug/ademco.lib")
 #else
-#pragma comment(lib, "../Win32/Release/ademco.lib")
+#pragma comment(lib, "../Release/ademco.lib")
 #endif
 #endif
 
 int main()
 {
+	{
+		uint16_t crc = ademcoCRC16("0", 1);
+		crc = ademcoCRC16("123456789", 9);
+
+		char data[] = "\xEB\xBA";
+
+		char data2[] = { 0xEB, 0xBA };
+		int ret = memcmp("\xEB\xBA", data2, 2);
+
+		ret == 0;
+	}
+
+
 	int cb_commited = 0;
 	AdemcoPacket pkt;
 
@@ -64,12 +77,6 @@ int main()
 		assert(cb_commited == len);
 	}
 
-
-	char data[] = "\xEB\xBA";
-
-	char data2[] = {0xEB, 0xBA};
-	int ret = memcmp("\xEB\xBA", data2, 2);
-
-	ret == 0;
+	
 }
 

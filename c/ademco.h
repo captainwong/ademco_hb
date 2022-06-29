@@ -400,8 +400,18 @@ ADEMCO_EXPORT_SYMBOL int ademcoMakeHbPacket2(AdemcoPacket* pkt, uint16_t seq, co
 
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* pkt, int* cb_commited);
 
-ADEMCO_EXPORT_SYMBOL uint16_t ademcoCRC8(uint8_t c, uint16_t crc);
-ADEMCO_EXPORT_SYMBOL uint16_t ademcoCRC16(const uint8_t* buff, int len, uint16_t crc);
+/* CRC16 implementation according to ARC
+ * Name                       : CRC-16/ARC
+ * Alias					  : ARC, CRC-16, CRC-16/LHA, CRC-IBM
+ * Width                      : 16 bit
+ * Poly                       : 0x8005 (That is actually x^16 + x^15 + x^2 + 1)
+ * Initialization             : 0x0000
+ * Reflect Input byte         : True
+ * Reflect Output CRC         : True
+ * Xor constant to output CRC : 0x0000
+ * Output for "123456789"     : 0xBB3D
+ */
+ADEMCO_EXPORT_SYMBOL uint16_t ademcoCRC16(const char* buff, int len);
 
 
 /* Hengbo */
