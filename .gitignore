@@ -85,12 +85,14 @@ obj/
 *.so
 *.dylib
 *.dll
+*.exp
 
 # Compiled Static libraries
 *.lai
 *.la
 *.a
 *.lib
+
 
 # Executables
 *.exe
