@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 * Ademco library
 * captainwong
 * 2022-6-13 rewrited this C version
@@ -196,80 +196,80 @@ const char* ademcoEventToString(AdemcoEvent ademcoEvent)
 const char* ademcoEventToStringChinese(AdemcoEvent ademcoEvent)
 {
 	switch (ademcoEvent) {
-	case EVENT_ARM:									return "²¼·À";
-	case EVENT_BURGLAR:								return "µÁ¾¯";
-	case EVENT_DISARM:								return "³··À";
-	case EVENT_DURESS:								return "Ğ²ÆÈ";
-	case EVENT_EMERGENCY:							return "½ô¼±±¨¾¯";
+	case EVENT_ARM:									return "å¸ƒé˜²";
+	case EVENT_BURGLAR:								return "ç›—è­¦";
+	case EVENT_DISARM:								return "æ’¤é˜²";
+	case EVENT_DURESS:								return "èƒè¿«";
+	case EVENT_EMERGENCY:							return "ç´§æ€¥æŠ¥è­¦";
 
-	case EVENT_FIRE:								return "»ğ¾¯";
-	case EVENT_GAS:									return "ÃºÆø";
-	case EVENT_HALFARM:	case EVENT_HALFARM_1456:	return "°ë²¼·À";
-	case EVENT_TAMPER:								return "·À²ğ";
-	case EVENT_ZONE_TAMPER:							return "·ÀÇø·À²ğ";
-	case EVENT_WATER:								return "Ë®¾¯";
-	case EVENT_BYPASS:								return "ÅÔÂ·";
-	case EVENT_BYPASS_RESUME:						return "½â³ıÅÔÂ·";
+	case EVENT_FIRE:								return "ç«è­¦";
+	case EVENT_GAS:									return "ç…¤æ°”";
+	case EVENT_HALFARM:	case EVENT_HALFARM_1456:	return "åŠå¸ƒé˜²";
+	case EVENT_TAMPER:								return "é˜²æ‹†";
+	case EVENT_ZONE_TAMPER:							return "é˜²åŒºé˜²æ‹†";
+	case EVENT_WATER:								return "æ°´è­¦";
+	case EVENT_BYPASS:								return "æ—è·¯";
+	case EVENT_BYPASS_RESUME:						return "è§£é™¤æ—è·¯";
 
-	case EVENT_AC_BROKE:							return "Ö÷»úACµôµç";
-	case EVENT_AC_RECOVER:							return "Ö÷»úAC»Ö¸´";
-	case EVENT_LOWBATTERY:							return "µÍµç";
-	case EVENT_BATTERY_RECOVER: 					return "¸´µç";
-	case EVENT_BADBATTERY:							return "»µµç";
-	case EVENT_BADBATTERY_RECOVER:					return "»µµç»Ö¸´";
-	case EVENT_SOLARDISTURB:						return "¹âÈÅ";
-	case EVENT_SOLARDISTURB_RECOVER:				return "¹âÈÅ»Ö¸´";
-	case EVENT_DISCONNECT:							return "Ê§Ğ§";
-	case EVENT_RECONNECT:							return "»Ö¸´";
-	case EVENT_LOST:								return "Ê§Áª";
-	case EVENT_LOST_RECOVER:						return "»Ö¸´";
-	case EVENT_3100:								return "Òº¾§Ö÷»úÇå³ıÒì³£Ö¸Ê¾";
-	case EVENT_BATTERY_EXCEPTION:					return "·ÀÇøµçÔ´¹ÊÕÏ";
-	case EVENT_BATTERY_EXCEPTION_RECOVER:			return "·ÀÇøµçÔ´¹ÊÕÏ»Ö¸´";
-	case EVENT_OTHER_EXCEPTION:						return "·ÀÇøÆäËû¹ÊÕÏ";
-	case EVENT_OTHER_EXCEPTION_RECOVER:				return "·ÀÇøÆäËû¹ÊÕÏ»Ö¸´";
+	case EVENT_AC_BROKE:							return "ä¸»æœºACæ‰ç”µ";
+	case EVENT_AC_RECOVER:							return "ä¸»æœºACæ¢å¤";
+	case EVENT_LOWBATTERY:							return "ä½ç”µ";
+	case EVENT_BATTERY_RECOVER: 					return "å¤ç”µ";
+	case EVENT_BADBATTERY:							return "åç”µ";
+	case EVENT_BADBATTERY_RECOVER:					return "åç”µæ¢å¤";
+	case EVENT_SOLARDISTURB:						return "å…‰æ‰°";
+	case EVENT_SOLARDISTURB_RECOVER:				return "å…‰æ‰°æ¢å¤";
+	case EVENT_DISCONNECT:							return "å¤±æ•ˆ";
+	case EVENT_RECONNECT:							return "æ¢å¤";
+	case EVENT_LOST:								return "å¤±è”";
+	case EVENT_LOST_RECOVER:						return "æ¢å¤";
+	case EVENT_3100:								return "æ¶²æ™¶ä¸»æœºæ¸…é™¤å¼‚å¸¸æŒ‡ç¤º";
+	case EVENT_BATTERY_EXCEPTION:					return "é˜²åŒºç”µæºæ•…éšœ";
+	case EVENT_BATTERY_EXCEPTION_RECOVER:			return "é˜²åŒºç”µæºæ•…éšœæ¢å¤";
+	case EVENT_OTHER_EXCEPTION:						return "é˜²åŒºå…¶ä»–æ•…éšœ";
+	case EVENT_OTHER_EXCEPTION_RECOVER:				return "é˜²åŒºå…¶ä»–æ•…éšœæ¢å¤";
 
-	case EVENT_SERIAL485DIS:						return "485¶Ï¿ª";
-	case EVENT_SERIAL485CONN:						return "485»Ö¸´";
-	case EVENT_DOORRINGING:							return "ÃÅÁå";
-	case EVENT_CONN_HANGUP:							return "Á´Â·¹ÒÆğ";
-	case EVENT_CONN_RESUME:							return "Á´Â·»Ö¸´";
-	case EVENT_DISARM_PWD_ERR: 						return "³··ÀÃÜÂë´íÎó";
+	case EVENT_SERIAL485DIS:						return "485æ–­å¼€";
+	case EVENT_SERIAL485CONN:						return "485æ¢å¤";
+	case EVENT_DOORRINGING:							return "é—¨é“ƒ";
+	case EVENT_CONN_HANGUP:							return "é“¾è·¯æŒ‚èµ·";
+	case EVENT_CONN_RESUME:							return "é“¾è·¯æ¢å¤";
+	case EVENT_DISARM_PWD_ERR: 						return "æ’¤é˜²å¯†ç é”™è¯¯";
 
-	case EVENT_SUB_MACHINE_SENSOR_EXCEPTION:		return "·Ö·ÀÇøÒì³£";
-	case EVENT_SUB_MACHINE_SENSOR_RESUME:			return "·Ö·ÀÇø»Ö¸´";
-	case EVENT_SUB_MACHINE_POWER_EXCEPTION:			return "·Ö·ÀÇøµçÔ´Òì³£";
-	case EVENT_SUB_MACHINE_POWER_RESUME:			return "·Ö·ÀÇøµçÔ´»Ö¸´";
-	case EVENT_COM_PASSTHROUGH:						return "´®¿ÚÍ¸´«";
-	case EVENT_ENTER_SET_MODE:						return "½øÈëÉèÖÃ×´Ì¬";
-	case EVENT_EXIT_SET_MODE:						return "¾Ü¾ø/Í£Ö¹ÉèÖÃ";
-	case EVENT_QUERY_SUB_MACHINE:					return "²éÑ¯";
-	case EVENT_WRITE_TO_MACHINE:					return "Ğ´ÈëÖ÷»úĞÅÏ¢";
-	case EVENT_I_AM_NET_MODULE:						return "ÎÒÊÇÍøÂçÄ£¿é";
-	case EVENT_PHONE_USER_SOS:						return "ÊÖ»úÓÃ»§SOS";
-	case EVENT_PHONE_USER_CANCLE_ALARM:				return "ÊÖ»úÓÃ»§Ïû¾¯";
-	case EVENT_I_AM_GPRS:							return "ÎÒÊÇGPRSÖ÷»ú";
-	case EVENT_I_AM_LCD_MACHINE:					return "ÎÒÊÇÒº¾§Ö÷»ú";
-	case EVENT_I_AM_WIRE_MACHINE:					return "ÎÒÊÇÍøÏßÖ÷»ú";
-	case EVENT_I_AM_WIFI_MACHINE:					return "ÎÒÊÇWiFiÖ÷»ú";
-	case EVENT_I_AM_3_SECTION_MACHINE:				return "ÎÒÊÇÈıÇø¶ÎÖ÷»ú";
-	case EVENT_I_AM_IOT_MACHINE:					return "ÎÒÊÇÎïÁª¿¨Ö÷»ú";
-	case EVENT_I_AM_TRUE_COLOR:						return "ÎÒÊÇÕæ²ÊÖ÷»ú";
-	case EVENT_I_AM_GPRS_IOT:						return "ÎÒÊÇ¼ò»¯°æÎïÁª¿¨Ö÷»ú";
-	case EVENT_I_AM_GPRS_PHONE:						return "ÎÒÊÇGPRSÖ÷»úÄÜ´òµç»°";
-	case EVENT_I_AM_NB_MACHINE:						return "ÎÒÊÇNB±¨¾¯½ÓÊÕÖ÷»ú";
-	case EVENT_SIM_IS_IOT_CARD:						return "SIM¿¨ÎªÎïÁª¿¨";
-	case EVENT_SIM_IS_IOT_PLATFORM_CARD:			return "SIM¿¨ÎªÆ½Ì¨ÎïÁª¿¨";
-	case EVENT_SIM_IS_NOT_IOT_CARD:					return "SIM¿¨Îª·ÇÎïÁª¿¨";
-	case EVENT_ENTER_SETTING_MODE:					return "Ö÷»ú½øÈëÉèÖÃ×´Ì¬";
-	case EVENT_EXIT_SETTING_MODE:					return "Ö÷»úÍË³öÉèÖÃ×´Ì¬";
+	case EVENT_SUB_MACHINE_SENSOR_EXCEPTION:		return "åˆ†é˜²åŒºå¼‚å¸¸";
+	case EVENT_SUB_MACHINE_SENSOR_RESUME:			return "åˆ†é˜²åŒºæ¢å¤";
+	case EVENT_SUB_MACHINE_POWER_EXCEPTION:			return "åˆ†é˜²åŒºç”µæºå¼‚å¸¸";
+	case EVENT_SUB_MACHINE_POWER_RESUME:			return "åˆ†é˜²åŒºç”µæºæ¢å¤";
+	case EVENT_COM_PASSTHROUGH:						return "ä¸²å£é€ä¼ ";
+	case EVENT_ENTER_SET_MODE:						return "è¿›å…¥è®¾ç½®çŠ¶æ€";
+	case EVENT_EXIT_SET_MODE:						return "æ‹’ç»/åœæ­¢è®¾ç½®";
+	case EVENT_QUERY_SUB_MACHINE:					return "æŸ¥è¯¢";
+	case EVENT_WRITE_TO_MACHINE:					return "å†™å…¥ä¸»æœºä¿¡æ¯";
+	case EVENT_I_AM_NET_MODULE:						return "æˆ‘æ˜¯ç½‘ç»œæ¨¡å—";
+	case EVENT_PHONE_USER_SOS:						return "æ‰‹æœºç”¨æˆ·SOS";
+	case EVENT_PHONE_USER_CANCLE_ALARM:				return "æ‰‹æœºç”¨æˆ·æ¶ˆè­¦";
+	case EVENT_I_AM_GPRS:							return "æˆ‘æ˜¯GPRSä¸»æœº";
+	case EVENT_I_AM_LCD_MACHINE:					return "æˆ‘æ˜¯æ¶²æ™¶ä¸»æœº";
+	case EVENT_I_AM_WIRE_MACHINE:					return "æˆ‘æ˜¯ç½‘çº¿ä¸»æœº";
+	case EVENT_I_AM_WIFI_MACHINE:					return "æˆ‘æ˜¯WiFiä¸»æœº";
+	case EVENT_I_AM_3_SECTION_MACHINE:				return "æˆ‘æ˜¯ä¸‰åŒºæ®µä¸»æœº";
+	case EVENT_I_AM_IOT_MACHINE:					return "æˆ‘æ˜¯ç‰©è”å¡ä¸»æœº";
+	case EVENT_I_AM_TRUE_COLOR:						return "æˆ‘æ˜¯çœŸå½©ä¸»æœº";
+	case EVENT_I_AM_GPRS_IOT:						return "æˆ‘æ˜¯ç®€åŒ–ç‰ˆç‰©è”å¡ä¸»æœº";
+	case EVENT_I_AM_GPRS_PHONE:						return "æˆ‘æ˜¯GPRSä¸»æœºèƒ½æ‰“ç”µè¯";
+	case EVENT_I_AM_NB_MACHINE:						return "æˆ‘æ˜¯NBæŠ¥è­¦æ¥æ”¶ä¸»æœº";
+	case EVENT_SIM_IS_IOT_CARD:						return "SIMå¡ä¸ºç‰©è”å¡";
+	case EVENT_SIM_IS_IOT_PLATFORM_CARD:			return "SIMå¡ä¸ºå¹³å°ç‰©è”å¡";
+	case EVENT_SIM_IS_NOT_IOT_CARD:					return "SIMå¡ä¸ºéç‰©è”å¡";
+	case EVENT_ENTER_SETTING_MODE:					return "ä¸»æœºè¿›å…¥è®¾ç½®çŠ¶æ€";
+	case EVENT_EXIT_SETTING_MODE:					return "ä¸»æœºé€€å‡ºè®¾ç½®çŠ¶æ€";
 	case EVENT_RESTORE_FACTORY_SETTINGS_710:
-	case EVENT_RESTORE_FACTORY_SETTINGS:			return "Ö÷»ú»Ö¸´³ö³§ÉèÖÃ";
-	case EVENT_WHAT_IS_YOUR_TYPE:					return "Ë÷ÒªÖ÷»úÀàĞÍ";
-	case EVENT_SIGNAL_STRENGTH_CHANGED:				return "ĞÅºÅÇ¿¶È±ä»¯";
-	case EVENT_OFFLINE:								return "ÉÏÏß";
-	case EVENT_ONLINE:								return "ÀëÏß";
-	default:										return "Î´¶¨ÒåµÄ°²¶¨±¦ÊÂ¼ş";
+	case EVENT_RESTORE_FACTORY_SETTINGS:			return "ä¸»æœºæ¢å¤å‡ºå‚è®¾ç½®";
+	case EVENT_WHAT_IS_YOUR_TYPE:					return "ç´¢è¦ä¸»æœºç±»å‹";
+	case EVENT_SIGNAL_STRENGTH_CHANGED:				return "ä¿¡å·å¼ºåº¦å˜åŒ–";
+	case EVENT_OFFLINE:								return "ä¸Šçº¿";
+	case EVENT_ONLINE:								return "ç¦»çº¿";
+	default:										return "æœªå®šä¹‰çš„å®‰å®šå®äº‹ä»¶";
 	}
 }
 
@@ -309,7 +309,7 @@ static const uint16_t crc16Table[256] = {
 	0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,
 };
 
-uint16_t ademcoCRC16(const char* buff, int len)
+uint16_t ademcoCRC16(const uint8_t* buff, int len)
 {
 	uint16_t crc = 0;
 	while (len--) {
@@ -465,7 +465,7 @@ int ademcoDataSegmentToCongwinFe100(uint8_t* fe100, const AdemcoDataSegment* dat
 			*p++ = 'B';
 			*p++ = '0';
 		} else {
-			sprintf(p, "%03d", dataSegment->ademcoEvent % 1000); // È¡ºó3Î»
+			sprintf(p, "%03d", dataSegment->ademcoEvent % 1000); // È¡ï¿½ï¿½3Î»
 			p += 3;
 		}
 
@@ -490,7 +490,7 @@ int ademcoDataSegmentToCongwinFe100(uint8_t* fe100, const AdemcoDataSegment* dat
 	return 0;
 }
 
-const uint8_t* ademcoXDataGetValidContentAddr(const AdemcoXDataSegment* xdata)
+static const uint8_t* ademcoXDataGetValidContentAddr(const AdemcoXDataSegment* xdata)
 {
 	if (xdata->lenghFormat == TWO_HEX && xdata->raw_len > 4) {
 		return xdata->raw + 3;
@@ -499,6 +499,14 @@ const uint8_t* ademcoXDataGetValidContentAddr(const AdemcoXDataSegment* xdata)
 	} else {
 		return NULL;
 	}
+}
+
+ADEMCO_EXPORT_SYMBOL int ademcoXDataMemcmp(const AdemcoXDataSegment* xdata, const void* buf, int buf_len)
+{
+	if (ademcoXDataGetValidContentLen(xdata) != buf_len) return 0;
+	const uint8_t* p = ademcoXDataGetValidContentAddr(xdata);
+	if (!p) return 0;
+	return memcmp(p, buf, buf_len);
 }
 
 int ademcoXDataGetValidContentLen(const AdemcoXDataSegment* xdata)
@@ -617,7 +625,7 @@ int ademcoMakeEmptyDataPacket(uint8_t* dst_buff, int len, const char* id, uint16
 	memcpy(p, ADEMCO_LPREF_DEFAULT, strlen(ADEMCO_LPREF_DEFAULT));
 	p += strlen(ADEMCO_LPREF_DEFAULT);
 	*p++ = '#';
-	if (acct != NULL) {
+	if (acct != NULL && strlen(acct) > 0) {
 		memcpy(p, acct, strlen(acct));
 		p += strlen(acct);
 	} else {
@@ -1253,10 +1261,10 @@ const char* hbMachineStatusToString(HbMachineStatus status)
 const char* hbMachineStatusToStringChinese(HbMachineStatus status)
 {
 	switch (status) {
-	case HMS_ARM:		return "²¼·À";
-	case HMS_HALF_ARM:	return "°ë²¼·À";
-	case HMS_DISARM:	return "³··À";
-	case HMS_SETTING:	return "ÉèÖÃ";
+	case HMS_ARM:		return "å¸ƒé˜²";
+	case HMS_HALF_ARM:	return "åŠå¸ƒé˜²";
+	case HMS_DISARM:	return "æ’¤é˜²";
+	case HMS_SETTING:	return "è®¾ç½®";
 	default:			return "InvalidMachineStatus";
 	}
 }
@@ -1283,19 +1291,19 @@ const char* hbMachineTypeToString(HbMachineType type)
 const char* hbMachineTypeToStringChinese(HbMachineType type)
 {
 	switch (type) {
-	case HMT_WIFI:			return "0 WiFiÖ÷»ú";
-	case HMT_CAMERA:		return "1 ÉãÏñÍ·Ö÷»ú";
-	case HMT_GPRS_IOT:		return "2 ¼ò»¯µÄÎïÁª¿¨Ö÷»ú";
-	case HMT_NETMOD:		return "3 ÍøÂçÄ£¿é+¹¤³ÌÖ÷»ú";
-	case HMT_GPRS:			return "4 GPRSÖ÷»ú";
-	case HMT_LCD:			return "5 Òº¾§Ö÷»ú";
-	case HMT_WIRED:			return "6 ÍøÏßÖ÷»ú";
-	case HMT_TRUE_COLOR:	return "7 Õæ²ÊÖ÷»ú";
-	case HMT_3_SECTION:		return "8 ÈıÇø¶ÎÖ÷»ú";
-	case HMT_IOT:			return "9 ÎïÁª¿¨Ö÷»ú";
-	case HMT_GPRS_PHONE:	return "10 GPRSÖ÷»úÄÜ´òµç»°";
-	case HMT_NB:			return "11 NB±¨¾¯½ÓÊÕÖ÷»ú";
-	default:				return "Î´ÖªÖ÷»ú";
+	case HMT_WIFI:			return "0 WiFiä¸»æœº";
+	case HMT_CAMERA:		return "1 æ‘„åƒå¤´ä¸»æœº";
+	case HMT_GPRS_IOT:		return "2 ç®€åŒ–çš„ç‰©è”å¡ä¸»æœº";
+	case HMT_NETMOD:		return "3 ç½‘ç»œæ¨¡å—+å·¥ç¨‹ä¸»æœº";
+	case HMT_GPRS:			return "4 GPRSä¸»æœº";
+	case HMT_LCD:			return "5 æ¶²æ™¶ä¸»æœº";
+	case HMT_WIRED:			return "6 ç½‘çº¿ä¸»æœº";
+	case HMT_TRUE_COLOR:	return "7 çœŸå½©ä¸»æœº";
+	case HMT_3_SECTION:		return "8 ä¸‰åŒºæ®µä¸»æœº";
+	case HMT_IOT:			return "9 ç‰©è”å¡ä¸»æœº";
+	case HMT_GPRS_PHONE:	return "10 GPRSä¸»æœºèƒ½æ‰“ç”µè¯";
+	case HMT_NB:			return "11 NBæŠ¥è­¦æ¥æ”¶ä¸»æœº";
+	default:				return "æœªçŸ¥ä¸»æœº";
 	}
 }
 
@@ -1325,23 +1333,23 @@ const char* hbZonePropertyToString(HbZoneProperty zp)
 const char* hbZonePropertyToStringChinese(HbZoneProperty zp)
 {
 	switch (zp) {
-	case HZP_BUGLAR:			return "·Ë¾¯È«¾Ö";
-	case HZP_EMERGENCY:			return "·Ë¾¯½ô¼±";
-	case HZP_FIRE:				return "»ğ¾¯·ÀÇø";
-	case HZP_DURESS:			return "Ğ²ÆÈ·ÀÇø";
-	case HZP_GAS:				return "È¼Æø·ÀÇø";
-	case HZP_WATER:				return "ÑÍË®·ÀÇø";
-	case HZP_SUB_MACHINE:		return "·Ö»ú";
-	case HZP_REMOTE_CONTROL:	return "Ò£¿ØÆ÷";
-	case HZP_BUGLAR_HALF:		return "·Ë¾¯°ë¾Ö";
-	case HZP_SHIELD:			return "ÆÁ±Î·ÀÇø";
-	case HZP_DOOR_RING:			return "ÃÅÁå·ÀÇø";
-	case HZP_RESERVED_0B:		return "±£Áô";
-	case HZP_RESERVED_0C:		return "±£Áô";
-	case HZP_RESERVED_0D:		return "±£Áô";
-	case HZP_RESERVED_0E:		return "±£Áô";
-	case HZP_BYPASS:			return "ÅÔÂ··ÀÇø";
-	default:					return "ÎŞĞ§ÊôĞÔ";
+	case HZP_BUGLAR:			return "åŒªè­¦å…¨å±€";
+	case HZP_EMERGENCY:			return "åŒªè­¦ç´§æ€¥";
+	case HZP_FIRE:				return "ç«è­¦é˜²åŒº";
+	case HZP_DURESS:			return "èƒè¿«é˜²åŒº";
+	case HZP_GAS:				return "ç‡ƒæ°”é˜²åŒº";
+	case HZP_WATER:				return "æ·¹æ°´é˜²åŒº";
+	case HZP_SUB_MACHINE:		return "åˆ†æœº";
+	case HZP_REMOTE_CONTROL:	return "é¥æ§å™¨";
+	case HZP_BUGLAR_HALF:		return "åŒªè­¦åŠå±€";
+	case HZP_SHIELD:			return "å±è”½é˜²åŒº";
+	case HZP_DOOR_RING:			return "é—¨é“ƒé˜²åŒº";
+	case HZP_RESERVED_0B:		return "ä¿ç•™";
+	case HZP_RESERVED_0C:		return "ä¿ç•™";
+	case HZP_RESERVED_0D:		return "ä¿ç•™";
+	case HZP_RESERVED_0E:		return "ä¿ç•™";
+	case HZP_BYPASS:			return "æ—è·¯é˜²åŒº";
+	default:					return "æ— æ•ˆå±æ€§";
 	}
 }
 
@@ -1468,10 +1476,16 @@ HbComRequestType hbComParseRequest(const uint8_t* data, int len)
 	return HbComReq_Invalid;
 }
 
+ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata)
+{
+	if (!xdata) { return HbComReq_Invalid; }
+	return hbComParseRequest(ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata));
+}
+
 HbComResponseType hbComParseResponse(const uint8_t* data, int len)
 {
 	do {
-		if (len < 7) { break; } // ËùÓĞµÄ response £¬³¤¶È×îĞ¡Îª 7
+		if (len < 7) { break; } // ï¿½ï¿½ï¿½Ğµï¿½ response ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¡Îª 7
 		if (data[0] != 0xEB || data[1] != 0xBA || data[2] != 0x3F) { break; }
 		switch (data[5]) {
 		case 0xA0: // EB BA 3F 07 P0 A0 P1 P2 P3 SUM

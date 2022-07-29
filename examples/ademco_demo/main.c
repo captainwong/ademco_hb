@@ -1,6 +1,7 @@
 #include "../../c/ademco.h"
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 
 #ifdef _WIN64
 #ifdef _DEBUG

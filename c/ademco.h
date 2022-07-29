@@ -50,7 +50,7 @@ extern "C" {
 
 // Prototypes
 typedef uint32_t AdemcoId;
-typedef uint8_t  AdemcoGG;
+typedef uint32_t AdemcoGG;
 typedef uint32_t AdemcoZone;
 
 //! 安定宝ID范围
@@ -369,8 +369,10 @@ ADEMCO_EXPORT_SYMBOL int ademcoAppendDataSegment2(AdemcoDataSegment* dataSegment
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoParseDataSegment(const uint8_t* packet, int packet_len, AdemcoDataSegment* dataSegment);
 // return 0 for empty packet, CONGWIN_FE100_PACKET_LEN for non-empty packet
 ADEMCO_EXPORT_SYMBOL int ademcoDataSegmentToCongwinFe100(uint8_t* fe100, const AdemcoDataSegment* dataSegment);
-ADEMCO_EXPORT_SYMBOL const uint8_t* ademcoXDataGetValidContentAddr(const AdemcoXDataSegment* xdata);
+// get valid content length of xdata (except [len])
 ADEMCO_EXPORT_SYMBOL int ademcoXDataGetValidContentLen(const AdemcoXDataSegment* xdata);
+// return 0 if xdata's valid content is exactly the same as [buf, buf+buf_len)
+ADEMCO_EXPORT_SYMBOL int ademcoXDataMemcmp(const AdemcoXDataSegment* xdata, const void* buf, int buf_len);
 // return ADEMCO_OK for success, return ADEMCO_ERR for len is too long
 ADEMCO_EXPORT_SYMBOL int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr, const uint8_t* content, int len);
 
@@ -411,7 +413,7 @@ ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoPacketParse(const uint8_t* buff, in
  * Xor constant to output CRC : 0x0000
  * Output for "123456789"     : 0xBB3D
  */
-ADEMCO_EXPORT_SYMBOL uint16_t ademcoCRC16(const char* buff, int len);
+ADEMCO_EXPORT_SYMBOL uint16_t ademcoCRC16(const uint8_t* buff, int len);
 
 
 /* Hengbo */
@@ -779,7 +781,9 @@ ADEMCO_EXPORT_SYMBOL void hbSum(uint8_t* data, int len);
 // 校验和是否正确, return 0 for incorrect, otherwise correct
 ADEMCO_EXPORT_SYMBOL int hbCheckSum(const uint8_t* data, int len);
 
+
 ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseRequest(const uint8_t* buff, int len);
+ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata);
 ADEMCO_EXPORT_SYMBOL HbComResponseType hbComParseResponse(const uint8_t* buff, int len);
 
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqA0_getMachineStatus(HbComData* data);
