@@ -21,15 +21,12 @@
 #endif
 
 #define DISABLE_JLIB_LOG2
-
-#include <ademco_packet.h>
-#include <ademco_detail.h>
 #include <thread>
 #include <vector>
 #include <mutex>
 #include <string.h>
+#include "../../ademco.h"
 
-using namespace ademco;
 
 void op_usage()
 {
@@ -48,7 +45,7 @@ struct Buffer
 {
 	size_t	rpos;
 	size_t	wpos;
-	char	buff[BUFF_SIZE];
+	uint8_t	buff[BUFF_SIZE];
 
 	Buffer() { clear(); }
 	void clear() { memset(this, 0, sizeof(Buffer)); }
@@ -60,7 +57,7 @@ std::string clientAcct = {};
 AdemcoId clientAdemcoId = 0;
 
 std::mutex mutex = {};
-std::vector<ADEMCO_EVENT> evntsWaiting4Send = {};
+std::vector<AdemcoEvent> evntsWaiting4Send = {};
 char pwd[1024] = {};
 
 int setNonBlocking(SOCKET socket)
@@ -141,47 +138,46 @@ int main(int argc, char** argv)
 		}
 	};
 
-	auto do_handle = []() -> ademco::ParseResult {
-		AdemcoPacket ap; size_t dwBytesCommited = 0;
-		ParseResult result = ap.parse(clientBuffer.buff + clientBuffer.rpos,
-									  clientBuffer.wpos - clientBuffer.rpos,
-									  dwBytesCommited);
+	auto do_handle = []() -> AdemcoParseResult {
+		AdemcoPacket pkt; int cb = 0;
+		AdemcoParseResult result = ademcoPacketParse(clientBuffer.buff + clientBuffer.rpos,
+													 clientBuffer.wpos - clientBuffer.rpos,
+													 &pkt,
+													 &cb);
 
 		switch (result) {
-		case ademco::ParseResult::RESULT_OK:
+		case AdemcoParseResult::RESULT_OK:
 		{
-			clientBuffer.rpos += dwBytesCommited;
+			clientBuffer.rpos += cb;
 			//printf("id=%s\n", ap.id_.data());
-			printf("C:%s\n", ap.toString().data());
-			switch (ap.id_.eid_) {
-			case AdemcoMsgId::id_ack:
+			printf("C:"); ademcoPrint(pkt.raw, pkt.raw_len);
+			switch (pkt.id) {
+			case AID_ACK:
 				// success
 				break;
 
-			case AdemcoMsgId::id_null: // reply ack				
+			case AID_NULL: // reply ack				
 			{
-				char ack[1024];
-				auto len = ap.make_ack(ack, sizeof(ack), ap.seq_.value_, ap.acct_.acct(), ap.ademcoData_.ademco_id_);
-				printf("S:%s\n", ap.toString().data());
-				send(clientSock, ack, (int)len, 0);
+				uint8_t ack[1024];
+				int len = ademcoMakeAckPacket((uint8_t*)ack, sizeof(ack), pkt.seq, pkt.acct, 0);
+				printf("S:"); ademcoPrint(ack, len);
+				send(clientSock, (const char*)ack, len, 0);
 				break;
 			}
 
-			case AdemcoMsgId::id_hb: // event report
-			case AdemcoMsgId::id_admcid:
+			case AID_HB: // event report
+			case AID_ADM_CID:
 			{
-				clientAcct = ap.acct_.acct();
-				clientAdemcoId = ap.ademcoData_.ademco_id_;
+				clientAcct = pkt.acct;
+				clientAdemcoId = pkt.data.ademcoId;
 				// handle event
-				//printf("%s\n", ap.ademcoData_.toString().data());
 
 				// reply ack
 				{
-					char ack[1024];
-					auto len = ap.make_ack(ack, sizeof(ack), ap.seq_.value_, ap.acct_.acct(), ap.ademcoData_.ademco_id_);
-					printf("S:%s\n", ap.toString().data());
-					// send to machine via network
-					send(clientSock, ack, (int)len, 0);
+					uint8_t ack[1024];
+					int len = ademcoMakeAckPacket((uint8_t*)ack, sizeof(ack), pkt.seq, pkt.acct, 0);
+					printf("S:"); ademcoPrint(ack, len);
+					send(clientSock, (const char*)ack, len, 0);
 				}
 
 				break;
@@ -193,11 +189,11 @@ int main(int argc, char** argv)
 			break;
 		}
 
-		case ademco::ParseResult::RESULT_NOT_ENOUGH:
+		case AdemcoParseResult::RESULT_NOT_ENOUGH:
 			// do nothing
 			break;
 
-		case ademco::ParseResult::RESULT_DATA_ERROR:
+		case AdemcoParseResult::RESULT_ERROR:
 		default:
 			// error handle, e.g. clear buff
 			clientBuffer.clear();
@@ -222,9 +218,9 @@ int main(int argc, char** argv)
 		int bRead = FD_ISSET(clientSock, &fd_read);
 		if (!bRead) { return; }
 
-		char* temp = clientBuffer.buff + clientBuffer.wpos;
+		uint8_t* temp = clientBuffer.buff + clientBuffer.wpos;
 		size_t dwLenToRead = BUFF_SIZE - clientBuffer.wpos;
-		int bytes_transfered = recv(clientSock, temp, (int)dwLenToRead, 0);
+		int bytes_transfered = recv(clientSock, (char*)temp, (int)dwLenToRead, 0);
 
 		if (-1 == bytes_transfered) {
 			if (EAGAIN == errno) {
@@ -257,7 +253,7 @@ int main(int argc, char** argv)
 					result = do_handle();
 				}
 
-				if (result == ademco::ParseResult::RESULT_NOT_ENOUGH) { break; }
+				if (result == AdemcoParseResult::RESULT_NOT_ENOUGH) { break; }
 			}
 		}
 	};
@@ -268,22 +264,22 @@ int main(int argc, char** argv)
 		while (running) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			do_accept();
-			do_read();			
+			do_read();
 
 			if (clientSock != INVALID_SOCKET && !evntsWaiting4Send.empty()) {
-				std::lock_guard<std::mutex> lg(mutex); 
-				char buf[1024];
-				AdemcoPacket ap;
+				std::lock_guard<std::mutex> lg(mutex);
+				uint8_t buf[1024];
 				for (auto e : evntsWaiting4Send) {
 					if (e == EVENT_DISARM) {
-						auto xdata = makeXData(pwd, 6);
-						auto len = ap.make_hb(buf, sizeof(buf), 1, clientAcct, clientAdemcoId, 0, e, 0, xdata);
-						printf("S:%s\n", ap.toString().data());
-						send(clientSock, buf, (int)len, 0);
+						AdemcoXDataSegment xdata;
+						ademcoMakeXData(&xdata, TWO_HEX, AdemcoXDataTransform::AdemcoXDataTransform_as_is, (const uint8_t*)pwd, 6);
+						int len = ademcoMakeHbPacket(buf, sizeof(buf), 1, clientAcct.c_str(), clientAdemcoId, e, 0, 0, &xdata);
+						printf("S:"); ademcoPrint(buf, len);
+						send(clientSock, (const char*)buf, len, 0);
 					} else {
-						auto len = ap.make_hb(buf, sizeof(buf), 1, clientAcct, clientAdemcoId, 0, e, 0);
-						printf("S:%s\n", ap.toString().data());
-						send(clientSock, buf, (int)len, 0);
+						int len = ademcoMakeHbPacket(buf, sizeof(buf), 1, clientAcct.c_str(), clientAdemcoId, e, 0, 0, nullptr);
+						printf("S:"); ademcoPrint(buf, len);
+						send(clientSock, (const char*)buf, len, 0);
 					}
 					
 				}

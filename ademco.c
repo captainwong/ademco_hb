@@ -4,7 +4,9 @@
 * 2022-6-13 rewrited this C version
 */
 
-
+#ifdef _WIN32
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 
 #include "ademco.h"
 #include <stdio.h>
@@ -22,7 +24,6 @@
 #define dline dprintf("%d\n", __LINE__);
 #define dmsg dline; dprintf
 
-#ifdef DEBUG
 void ademcoPrint(const uint8_t* buff, int len)
 {
 	for (int i = 0; i < len; i++) {
@@ -34,7 +35,6 @@ void ademcoPrint(const uint8_t* buff, int len)
 	}
 	printf("\n");
 }
-#endif
 
 int ademcoIsMachineStatusEvent(AdemcoEvent ademcoEvent) {
 	return ademcoEvent == EVENT_ARM

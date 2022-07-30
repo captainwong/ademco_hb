@@ -350,10 +350,7 @@ typedef struct AdemcoPacket {
 
 
 // Functions
-
-#ifdef DEBUG
 void ademcoPrint(const uint8_t* buff, int len);
-#endif
 //! 是否主机状态事件
 ADEMCO_EXPORT_SYMBOL int ademcoIsMachineStatusEvent(AdemcoEvent ademcoEvent);
 //! 是否主机类型事件
