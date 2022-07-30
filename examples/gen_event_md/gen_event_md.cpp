@@ -1,25 +1,28 @@
-
-#define ENABLE_ADEMCO_EVENT_TO_STRING
-#include "../../include/ademco_event.h"
-#define ENABLE_COMMON_MACHINE_TYPE_TO_STRING
-#define ENABLE_COMMON_ZONE_PROPERTY_TO_STRING
-#define ENABLE_G250_KEY_TO_STRING
-#include "../../include/hb_detail.h"
-#include "../../include/hb_helper.h"
+#include "../../c/ademco.h"
 #include <jlib/win32/UnicodeTool.h>
 #include <jlib/win32/path_op.h>
 #include <jlib/util/std_util.h>
 #include <map>
 
-using namespace ademco;
-using namespace hb;
-using namespace hb::common;
+#ifdef _WIN64
+#ifdef _DEBUG
+#pragma comment(lib, "../x64/Debug/ademco.lib")
+#else
+#pragma comment(lib, "../x64/Release/ademco.lib")
+#endif
+#else // WIN32
+#ifdef _DEBUG
+#pragma comment(lib, "../Debug/ademco.lib")
+#else
+#pragma comment(lib, "../Release/ademco.lib")
+#endif
+#endif
 
 const char* print_bool(bool b) {
 	return b ? "√" : " "; // "×";
 }
 
-ADEMCO_EVENT statusEvents[] = {
+AdemcoEvent statusEvents[] = {
 
 	// 主机或分机状态报告
 	EVENT_ARM,
@@ -29,7 +32,7 @@ ADEMCO_EVENT statusEvents[] = {
 	EVENT_EMERGENCY,
 };
 
-ADEMCO_EVENT alarmEvents[] = {
+AdemcoEvent alarmEvents[] = {
 
 	// 防区报警
 	EVENT_BURGLAR,
@@ -45,7 +48,7 @@ ADEMCO_EVENT alarmEvents[] = {
 
 };
 
-ADEMCO_EVENT excepEvents[] = {
+AdemcoEvent excepEvents[] = {
 
 	// 防区异常
 	EVENT_AC_BROKE,
@@ -70,7 +73,7 @@ ADEMCO_EVENT excepEvents[] = {
 
 };
 
-ADEMCO_EVENT privateEvents[] = {
+AdemcoEvent privateEvents[] = {
 
 	// ------------------私有事件-----------------------------------------
 	EVENT_SERIAL485DIS,
@@ -124,55 +127,55 @@ ADEMCO_EVENT privateEvents[] = {
 	EVENT_ONLINE,
 };
 
-void printEvents(const ADEMCO_EVENT* events, size_t len)
+void printEvents(const AdemcoEvent* events, size_t len)
 {
 	printf("|事件码|含义|en|\n|-----|----|--|\n");
 	for (size_t i = 0; i < len; i++) {
 		auto e = events[i];
 		printf("|%04d|%s|%s|\n", e, 
-			   jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(e, false)).data(), 
-			   ademcoEventToStringEnglish(e, false).data());
+			   ademcoEventToStringChinese(e), 
+			   ademcoEventToString(e));
 	}
 	printf("\n");
 }
 
 
-const char* get_core_author(MachineType t)
+const char* get_core_author(HbMachineType t)
 {
 	switch (t) {
-	case hb::common::WiFi:
-	case hb::common::Gprs_IoT:
-	case hb::common::Gprs:
-	case hb::common::Wired:
+	case HMT_WIFI:
+	case HMT_GPRS_IOT:
+	case HMT_GPRS:
+	case HMT_WIRED:
 		return "wzq";
 
-	case hb::common::NetMod:
-	case hb::common::Lcd:
-	case hb::common::TrueColor:
-	case hb::common::ThreeSection:
-	case hb::common::IoT:
-	case hb::common::Gprs_Phone:
+	case HMT_NETMOD:
+	case HMT_LCD:
+	case HMT_TRUE_COLOR:
+	case HMT_3_SECTION:
+	case HMT_IOT:
+	case HMT_GPRS_PHONE:
 		return "jjf";
 	}
 
 	return "";
 }
 
-const char* get_net_author(MachineType t)
+const char* get_net_author(HbMachineType t)
 {
 	switch (t) {
-	case hb::common::WiFi:
-	case hb::common::Wired:
-	case hb::common::NetMod:
+	case HMT_WIFI:
+	case HMT_WIRED:
+	case HMT_NETMOD:
 		return "wzq";
 
-	case hb::common::Gprs_IoT:
-	case hb::common::Gprs:
-	case hb::common::Lcd:
-	case hb::common::TrueColor:
-	case hb::common::ThreeSection:
-	case hb::common::IoT:
-	case hb::common::Gprs_Phone:
+	case HMT_GPRS_IOT:
+	case HMT_GPRS:
+	case HMT_LCD:
+	case HMT_TRUE_COLOR:
+	case HMT_3_SECTION:
+	case HMT_IOT:
+	case HMT_GPRS_PHONE:
 	//case hb::common::Nb:
 		return "qfm";
 	}
@@ -180,32 +183,21 @@ const char* get_net_author(MachineType t)
 	return "";
 }
 
-std::vector<std::string> get_machine_brands(MachineType t)
+std::vector<std::string> get_machine_brands(HbMachineType t)
 {
 	switch (t) {
-	case hb::common::WiFi:
-	case hb::common::Camera: return {};
-
-	case hb::common::Gprs_IoT: return { "5050G-4GW", };
-
-	case hb::common::NetMod: return { "G250" };
-
-	case hb::common::Gprs: return { "4040G", "5050G", "5050G-4G",  };
-
-	case hb::common::Lcd: return { "BJQ560", "BJQ560B" };
-
-	case hb::common::Wired: return { "4040R", "5050R" };
-
-	case hb::common::TrueColor:return { "G1000", "G1000-4G" };
-
-	case hb::common::ThreeSection:return { "G1000", "G1000-4G" };
-
-	case hb::common::IoT: return { "2050-4GW" };
-
-	case hb::common::Gprs_Phone: return { "2050" };
-
+	case HMT_WIFI:
+	case HMT_CAMERA: return {};
+	case HMT_GPRS_IOT: return { "5050G-4GW", };
+	case HMT_NETMOD: return { "G250" };
+	case HMT_GPRS: return { "4040G", "5050G", "5050G-4G",  };
+	case HMT_LCD: return { "BJQ560", "BJQ560B" };
+	case HMT_WIRED: return { "4040R", "5050R" };
+	case HMT_TRUE_COLOR:return { "G1000", "G1000-4G" };
+	case HMT_3_SECTION:return { "G1000", "G1000-4G" };
+	case HMT_IOT: return { "2050-4GW" };
+	case HMT_GPRS_PHONE: return { "2050" };
 	//case hb::common::Nb: return { "" };
-
 	default: return {};
 		break;
 	}
@@ -223,7 +215,7 @@ std::string brand_to_path(const std::string& brand)
 	return {};
 }
 
-void print_machine_brands(MachineType t)
+void print_machine_brands(HbMachineType t)
 {
 	printf("|<ul>");
 	for (auto brand : get_machine_brands(t)) {		
@@ -246,24 +238,24 @@ void print_machineTypes()
 		   "|---------|-------|----|----|-----|----|-------|----|-------|---|----|---|----|\n");
 
 	for (auto e : AdemcoEvents) {
-		if (isMachineTypeEvent(e)) {
-			auto t = hb::machineTypeFromAdemcoEvent(e);
-			if(!machineIsSelling(t)) continue;
+		if (ademcoIsMachineTypeEvent(e)) { 
+			auto t = hbMachineTypeFromAdemcoEvent(e); 
+			if(!hbMachineIsSelling(t)) continue; 
 
-			printf("|%04d %s", (int)e, jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(e, false)).data());
-			printf("|%s", jlib::win32::utf16_to_mbcs(machineTypeToWString(t)).data());
-			printf("|%s", print_bool(machineCanArm(t)));
-			printf("|%s", print_bool(machineCanDisarm(t)));
-			printf("|%s", print_bool(machineCanHalfArm(t)));
-			printf("|%s", print_bool(machineCanEnterSettings(t)));
-			printf("|%s", print_bool(machineCanReportSignalStrength(t)));
-			printf("|1~%d", zoneMax(t));
-			if (machineHasWiredZone(t)) {
-				printf("|%d~%d", wiredZoneMin(t), wiredZoneMax(t));
+			printf("|%04d %s", (int)e, ademcoEventToStringChinese(e));
+			printf("|%s", hbMachineTypeToStringChinese(t));
+			printf("|%s", print_bool(hbMachineCanArm(t)));
+			printf("|%s", print_bool(hbMachineCanDisarm(t)));
+			printf("|%s", print_bool(hbMachineCanHalfArm(t)));
+			printf("|%s", print_bool(hbMachineCanEnterSettings(t)));
+			printf("|%s", print_bool(hbMachineCanReportSignalStrength(t)));
+			printf("|1~%d", hbZoneMax(t));
+			if (hbMachineHasWiredZone(t)) {
+				printf("|%d~%d", hbWiredZoneMin(t), hbWiredZoneMax(t));
 			} else {
 				printf("| ");
 			}
-			printf("|%s", print_bool(machineCanReportBySMS(t)));
+			printf("|%s", print_bool(hbMachineCanReportBySMS(t)));
 			printf("|%s", get_core_author(t));
 			printf("|%s", get_net_author(t));
 			print_machine_brands(t);
@@ -282,9 +274,9 @@ void print_imgs()
 
 	std::map<std::string, std::string> imgs;
 	for (auto e : AdemcoEvents) {
-		if (isMachineTypeEvent(e)) {
-			auto t = hb::machineTypeFromAdemcoEvent(e);
-			if (!machineIsSelling(t)) continue;
+		if (ademcoIsMachineTypeEvent(e)) {
+			auto t = hbMachineTypeFromAdemcoEvent(e);
+			if (!hbMachineIsSelling(t)) continue;
 
 			for (auto brand : get_machine_brands(t)) {
 				auto path = brand_to_path(brand);
@@ -301,14 +293,22 @@ void print_imgs()
 	printf("\n\n");
 }
 
+bool zprop_is_contain(HbZoneProperty prop) {
+	for (const auto& zp : hbZoneProperties) {
+		if (zp == prop)return true;
+	}
+	return false;
+}
+
 void print_available_zone_props()
 {
 	printf("### *恒博主机类型与支持的防区属性对照表*\n\n");
 
-	auto all_props = getAvailableZoneProperties();
+	
+	//auto all_props = getAvailableZoneProperties();
 
-	auto print_prop = [](ZoneProperty zp) {
-		printf("%02X %s", (Char)zp, jlib::win32::utf16_to_mbcs(zonePropertyToStringChinese(zp)).data());
+	auto print_prop = [](HbZoneProperty zp) {
+		printf("%02X %s", zp, hbZonePropertyToStringChinese(zp));
 	};
 
 
@@ -316,51 +316,50 @@ void print_available_zone_props()
 
 	printf("* 防区属性是否支持失联报告\n\n");
 	printf("|");
-	for (auto zp : all_props) {
+	for (auto zp : hbZoneProperties) {
 		printf("|"); print_prop(zp);
 	}
 	printf("|\n");
 
 	printf("|----");
-	for (size_t i = 0; i < all_props.size(); i++) {
+	for (size_t i = 0; i < sizeof(hbZoneProperties) / sizeof(hbZoneProperties[0]); i++) {
 		printf("|----");
 	}
 	printf("|\n");
 
 	printf("|失联支持");
-	for (auto zp : all_props) {
-		printf("|%s", print_bool(zonePropCanReportLost(zp)));
+	for (auto zp : hbZoneProperties) {
+		printf("|%s", print_bool(hbZonePropCanReportLost(zp)));
 	}
 	printf("|\n\n");
 
 
-
-
 	printf("* 主机类型与支持的防区属性对照表\n\n");
 	printf("|事件码|类型|型号");
-	for (auto zp : all_props) {
+	for (auto zp : hbZoneProperties) {
 		//printf("|"); print_prop(zp);
 		printf("|%02X", (int)zp);
 	}
 	printf("|\n");
 
 	printf("|----|----|----");
-	for (size_t i = 0; i < all_props.size(); i++) {
+	for (size_t i = 0; i < sizeof(hbZoneProperties) / sizeof(hbZoneProperties[0]); i++) {
 		printf("|----");
 	}
 	printf("|\n");
 
 
 	for (auto e : AdemcoEvents) {
-		if (isMachineTypeEvent(e)) {
-			auto t = hb::machineTypeFromAdemcoEvent(e);
-			if (!machineIsSelling(t)) continue;
+		if (ademcoIsMachineTypeEvent(e)) {
+			auto t = hbMachineTypeFromAdemcoEvent(e);
+			if (!hbMachineIsSelling(t)) continue;
 			printf("|%04d", (int)e);
 			printf("|%d", (int)t);
 			print_machine_brands(t);
-			auto avail_props = getAvailableZoneProperties(t);
-			for (auto zp : all_props) {
-				printf("|%s", print_bool(jlib::is_contain(avail_props, zp)));
+			HbZoneProperty avail_props[12];
+			int count = hbGetAvailableZoneProperties(t, avail_props);
+			for (auto zp : hbZoneProperties) {
+				printf("|%s", print_bool(zprop_is_contain(zp)));
 			}
 			printf("|\n");
 		}
@@ -372,70 +371,68 @@ void print_available_zone_props()
 
 void print_g250_alarm_codes()
 {
-	using namespace g250;
+	//printf("# 工程主机串口通信协议\n\n");
+	//printf("9600, N, 8, 1\n\n");
+	//printf("SUM = DATA(N) = DATA(0) + DATA(1) + ... + DATA(N-1)\n\n");
 
-	printf("# 工程主机串口通信协议\n\n");
-	printf("9600, N, 8, 1\n\n");
-	printf("SUM = DATA(N) = DATA(0) + DATA(1) + ... + DATA(N-1)\n\n");
-
-	// 按键码
-	printf("\n\n## EB AB addr data sum\n");
-	printf("PC到主机，按键\n");
-	printf("* addr: PC模拟键盘地址，1~4，暂时固定为3\n");
-	printf("* data: 按键码\n\n");
-	printf("|按键码|按键|\n");
-	printf("|-----|----|\n");
-	for (Key k = Key::Key_NULL; k <= Key::Key_STOP_ALARM; k = Key(k + 1)) {
-		auto s = keyToString(k);
-		if (s) {
-			printf("|%02X|%s|\n", k, jlib::win32::utf16_to_mbcs(s).c_str());
-		}
-	}
+	//// 按键码
+	//printf("\n\n## EB AB addr data sum\n");
+	//printf("PC到主机，按键\n");
+	//printf("* addr: PC模拟键盘地址，1~4，暂时固定为3\n");
+	//printf("* data: 按键码\n\n");
+	//printf("|按键码|按键|\n");
+	//printf("|-----|----|\n");
+	//for (Key k = Key::Key_NULL; k <= Key::Key_STOP_ALARM; k = Key(k + 1)) {
+	//	auto s = keyToString(k);
+	//	if (s) {
+	//		printf("|%02X|%s|\n", k, jlib::win32::utf16_to_mbcs(s).c_str());
+	//	}
+	//}
 
 
-	// EB B1 报警码
-	printf("\n\n## EB B1 data0 data1 data2 code data4 sum\n");
-	printf("主机到PC事件报告\n");
-	printf("* data0: 命令字总字长，固定为8\n");
-	printf("* data1: 防区号高位\n");
-	printf("* data2: 防区号低位\n");
-	printf("* data4: 00 表示data1与data2为主机直属防区号，01~F0 表示data1与data2为分机防区号（已废弃），EE 表示分机自身状态（已废弃）\n");
-	printf("* code: 报警码\n\n");
-	printf("|报警码|安定宝事件码|含义|\n");
-	printf("|------|----------|----|\n");
+	//// EB B1 报警码
+	//printf("\n\n## EB B1 data0 data1 data2 code data4 sum\n");
+	//printf("主机到PC事件报告\n");
+	//printf("* data0: 命令字总字长，固定为8\n");
+	//printf("* data1: 防区号高位\n");
+	//printf("* data2: 防区号低位\n");
+	//printf("* data4: 00 表示data1与data2为主机直属防区号，01~F0 表示data1与data2为分机防区号（已废弃），EE 表示分机自身状态（已废弃）\n");
+	//printf("* code: 报警码\n\n");
+	//printf("|报警码|安定宝事件码|含义|\n");
+	//printf("|------|----------|----|\n");
 
-	static Char codes[] = {
-		g250::MachineStatus::Arm,
-		g250::MachineStatus::Disarm,
-		g250::MachineStatus::HalfArm,
-		AlarmCode::MACHINE_EMERGENCY,
-		AlarmCode::ALARM_BURGLAR,
-		AlarmCode::ALARM_FIRE,
-		AlarmCode::ALARM_DURESS,
-		AlarmCode::ALARM_GAS,
-		AlarmCode::ALARM_WATER,
-		AlarmCode::ALARM_TAMPER,
-		AlarmCode::ALARM_S_BATTERY_LOW,
-		AlarmCode::ALARM_R_BATTERY_LOW,
-		AlarmCode::ALARM_S_BATTERY_BROKE,
-		AlarmCode::ALARM_R_BATTERY_BROKE,
-		AlarmCode::ALARM_BETTERY_RECOVER,
-		AlarmCode::ALARM_SOLAR_DISTURB,
-		AlarmCode::ALARM_SOLAR_RECOVER,
-		AlarmCode::ALARM_LONGTIME_DISCONN,
-		AlarmCode::ALARM_LONGTIME_RECOVER,
-		AlarmCode::ALARM_DOOR_RING,
-		AlarmCode::ALARM_SM_EXCEPTION,
-		AlarmCode::ALARM_SM_EXCEPT_RESUME,
-		AlarmCode::ALARM_SM_POWER_EXCEPT,
-		AlarmCode::ALARM_SM_POWER_RESUME,
-		AlarmCode::ALARM_AC_BROKE,
-		AlarmCode::ALARM_AC_RECOVER,
-	};
+	//static Char codes[] = {
+	//	g250::MachineStatus::Arm,
+	//	g250::MachineStatus::Disarm,
+	//	g250::MachineStatus::HalfArm,
+	//	AlarmCode::MACHINE_EMERGENCY,
+	//	AlarmCode::ALARM_BURGLAR,
+	//	AlarmCode::ALARM_FIRE,
+	//	AlarmCode::ALARM_DURESS,
+	//	AlarmCode::ALARM_GAS,
+	//	AlarmCode::ALARM_WATER,
+	//	AlarmCode::ALARM_TAMPER,
+	//	AlarmCode::ALARM_S_BATTERY_LOW,
+	//	AlarmCode::ALARM_R_BATTERY_LOW,
+	//	AlarmCode::ALARM_S_BATTERY_BROKE,
+	//	AlarmCode::ALARM_R_BATTERY_BROKE,
+	//	AlarmCode::ALARM_BETTERY_RECOVER,
+	//	AlarmCode::ALARM_SOLAR_DISTURB,
+	//	AlarmCode::ALARM_SOLAR_RECOVER,
+	//	AlarmCode::ALARM_LONGTIME_DISCONN,
+	//	AlarmCode::ALARM_LONGTIME_RECOVER,
+	//	AlarmCode::ALARM_DOOR_RING,
+	//	AlarmCode::ALARM_SM_EXCEPTION,
+	//	AlarmCode::ALARM_SM_EXCEPT_RESUME,
+	//	AlarmCode::ALARM_SM_POWER_EXCEPT,
+	//	AlarmCode::ALARM_SM_POWER_RESUME,
+	//	AlarmCode::ALARM_AC_BROKE,
+	//	AlarmCode::ALARM_AC_RECOVER,
+	//};
 
-	for (auto code : codes) {
-		printf("|%02X|%04d|%s|\n", code, ademcoEventFromCode(code), jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(ademcoEventFromCode(code), false)).c_str());
-	}
+	//for (auto code : codes) {
+	//	printf("|%02X|%04d|%s|\n", code, ademcoEventFromCode(code), jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(ademcoEventFromCode(code), false)).c_str());
+	//}
 
 }
 

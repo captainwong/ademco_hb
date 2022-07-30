@@ -1,0 +1,1 @@
+This is the C version of ademco library.
