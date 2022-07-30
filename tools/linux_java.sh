@@ -1,9 +1,5 @@
 #!/bin/bash
 
-cd ../swig
-./linux_java.sh
-
-cd ../tools/
 mkdir -p linux_java
 cd linux_java
 cp -r ../../swig/com/ .

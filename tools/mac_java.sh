@@ -1,8 +1,5 @@
 #!/bin/bash
 
-cd ../swig
-./mac_java.sh
-
 cd ../tools/
 mkdir -p mac_java
 cd mac_java
