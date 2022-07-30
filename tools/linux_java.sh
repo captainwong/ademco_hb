@@ -3,7 +3,8 @@
 mkdir -p linux_java
 cd linux_java
 cp -r ../../swig/com/ .
-cp ../../swig/*.cs .
+rm -f com/hb3344/ademco/*.class
+cp ../../swig/*.java .
 cp ../../swig/*.so .
 cd ..
 rm -f linux_java.zip
