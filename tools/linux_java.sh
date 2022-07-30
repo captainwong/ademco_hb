@@ -7,5 +7,7 @@ cp ../../swig/*.cs .
 cp ../../swig/*.so .
 cd ..
 rm -f linux_java.zip
-zip linux_java.zip linux_java
+cd linux_java
+zip -r ../linux_java.zip . *
+cd ..
 rm -rf linux_java/

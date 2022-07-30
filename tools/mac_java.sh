@@ -8,5 +8,7 @@ cp ../../swig/*.cs .
 cp ../../swig/*.dylib .
 cd ..
 rm -f mac_java.zip
-zip mac_java.zip mac_java/
+cd mac_java
+zip -r ../mac_java.zip . *
+cd ..
 rm -rf mac_java/
