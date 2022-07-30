@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 cd ../swig
 ./mac_java.sh

@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 mkdir -p com/hb3344/ademco
 swig -java -package com.hb3344.ademco -outdir com/hb3344/ademco -o libademco_java_wrap.c libademco.swig

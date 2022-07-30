@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 cd ../swig
 ./linux_java.sh
