@@ -12,3 +12,4 @@ cp ../../swig/*.so .
 cd ..
 rm -f linux_java.zip
 zip linux_java.zip linux_java
+rm -rf linux_java/
