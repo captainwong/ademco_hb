@@ -157,7 +157,8 @@ public class JavaDemo {
             port = Integer.parseInt(args[0]);
         }
 
-        new JavaDemo("localhost", port).start();
+        //new JavaDemo("localhost", port).start();
+        new JavaDemo("0.0.0.0", port).start();
     }
 
     public class Client {
