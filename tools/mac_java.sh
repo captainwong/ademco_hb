@@ -1,11 +1,10 @@
 #!/bin/bash
 
-cd ../tools/
 mkdir -p mac_java
 cd mac_java
 cp -r ../../swig/com/ .
 rm -f com/hb3344/ademco/*.class
-cp ../../swig/*.cs .
+cp ../../swig/*.java .
 cp ../../swig/*.dylib .
 cd ..
 rm -f mac_java.zip
