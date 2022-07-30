@@ -2,7 +2,7 @@
 
 mkdir -p mac_java
 cd mac_java
-cp -r ../../swig/com/ .
+cp -r ../../swig/com .
 rm -f com/hb3344/ademco/*.class
 cp ../../swig/*.java .
 cp ../../swig/*.dylib .
