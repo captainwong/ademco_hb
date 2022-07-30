@@ -11,8 +11,14 @@ import java.util.*;
 import com.hb3344.ademco.*;
 
 public class JavaDemo {
-
-    
+    static {
+        try {
+            System.loadLibrary("ademco");
+        } catch (UnsatisfiedLinkError e) {
+            System.err.println("Native code library failed to load. See the chapter on Dynamic Linking Problems in the SWIG Java documentation for help.\n" + e);
+            System.exit(1);
+        }
+    }
 
     private Selector selector;
     private Map<SocketChannel, Client> clients;
@@ -70,64 +76,6 @@ public class JavaDemo {
         byte[] data = new byte[n];
         System.arraycopy(buf.array(), 0, data, 0, n);
         clients.get(channel).onMsg(data);
-    }
-
-    static {
-        try {
-            System.loadLibrary("ademco");
-        } catch (UnsatisfiedLinkError e) {
-            System.err.println("Native code library failed to load. See the chapter on Dynamic Linking Problems in the SWIG Java documentation for help.\n" + e);
-            System.exit(1);
-        }
-    }
-
-    public static String printable_bytes(byte[] b){
-        return printable_bytes(b, b.length);
-    }
-
-    public static String printable_bytes(byte[] b, int length){
-        String HEX_STRING = "0123456789ABCDEF";
-        String s = "";
-        for(int i = 0; i < length; i++){
-            byte c = b[i];
-            if(32 <= c && c <= 127){
-                s += (char)c;
-            }else{
-                s += "\\x" + HEX_STRING.charAt((b[i] >>> 4) & 0x0F);
-                s += HEX_STRING.charAt(b[i] & 0x0F);
-            }
-        }
-        return s;
-    }
-
-    public static String printable_bytes(char[] b){
-        String HEX_STRING = "0123456789ABCDEF";
-        String s = "";
-        for(int i = 0; i < b.length; i++){
-            int c = b[i] & 0xFF;
-            if(32 <= c && c <= 127){
-                s += (char)c;
-            }else{
-                s += "\\x" + HEX_STRING.charAt(c >>> 4);
-                s += HEX_STRING.charAt(c & 0x0F);
-            }
-        }
-        return s;
-    }
-
-    public static String printable_bytes(String b){
-        String HEX_STRING = "0123456789ABCDEF";
-        String s = "";
-        for(int i = 0; i < b.length(); i++){
-            char c = b.charAt(i);
-            if(32 <= c && c <= 127){
-                s += (char)c;
-            }else{
-                s += "\\x" + HEX_STRING.charAt(c >>> 4);
-                s += HEX_STRING.charAt(c & 0x0F);
-            }
-        }
-        return s;
     }
 
     public static void test_libademco(){
@@ -202,8 +150,7 @@ public class JavaDemo {
 
     }
 
-    public static void main(String[] args) throws Exception {
-        
+    public static void main(String[] args) throws Exception {        
         JavaDemo.test_libademco();
         int port = 12345;
         if (args.length > 0){
@@ -346,6 +293,55 @@ public class JavaDemo {
             channel.write(ByteBuffer.wrap(getRawWithLen()));
             System.out.println(id() + " S:" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }
+    }
+
+    public static String printable_bytes(byte[] b){
+        return printable_bytes(b, b.length);
+    }
+
+    public static String printable_bytes(byte[] b, int length){
+        String HEX_STRING = "0123456789ABCDEF";
+        String s = "";
+        for(int i = 0; i < length; i++){
+            byte c = b[i];
+            if(32 <= c && c <= 127){
+                s += (char)c;
+            }else{
+                s += "\\x" + HEX_STRING.charAt((b[i] >>> 4) & 0x0F);
+                s += HEX_STRING.charAt(b[i] & 0x0F);
+            }
+        }
+        return s;
+    }
+
+    public static String printable_bytes(char[] b){
+        String HEX_STRING = "0123456789ABCDEF";
+        String s = "";
+        for(int i = 0; i < b.length; i++){
+            int c = b[i] & 0xFF;
+            if(32 <= c && c <= 127){
+                s += (char)c;
+            }else{
+                s += "\\x" + HEX_STRING.charAt(c >>> 4);
+                s += HEX_STRING.charAt(c & 0x0F);
+            }
+        }
+        return s;
+    }
+
+    public static String printable_bytes(String b){
+        String HEX_STRING = "0123456789ABCDEF";
+        String s = "";
+        for(int i = 0; i < b.length(); i++){
+            char c = b.charAt(i);
+            if(32 <= c && c <= 127){
+                s += (char)c;
+            }else{
+                s += "\\x" + HEX_STRING.charAt(c >>> 4);
+                s += HEX_STRING.charAt(c & 0x0F);
+            }
+        }
+        return s;
     }
 
     public static char[] append(char[]origin, char[] buf){
