@@ -3,4 +3,4 @@ mkdir com\hb3344\ademco
 cl -c ../ademco.c libademco_java_wrap.c -I"../" -I"%JAVA_HOME%include" -I"%JAVA_HOME%include/win32"
 cl -LD ademco.obj libademco_java_wrap.obj -o ademco_java.dll
 javac -encoding utf-8 JavaDemo.java
-java JavaDemo
+rem java JavaDemo

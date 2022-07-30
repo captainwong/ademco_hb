@@ -3,4 +3,4 @@ mkdir com\hb3344\ademco
 cl -c -DDEBUG=1 ../ademco.c libademco_csharp_wrap.c -I"../"
 cl -LD ademco.obj libademco_csharp_wrap.obj -o libademco.dll
 csc CSharpDemo.cs -recurse:com/hb3344/ademco/*.cs
-CSharpDemo.exe
+rem CSharpDemo.exe

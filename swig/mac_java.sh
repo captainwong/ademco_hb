@@ -7,4 +7,4 @@ JAVA_INCLUDE_OS=${JAVA_INCLUDE}/darwin
 gcc -fpic -c ../ademco.c libademco_java_wrap.c -I"../" -I${JAVA_INCLUDE} -I${JAVA_INCLUDE_OS}
 gcc -shared ademco.o libademco_java_wrap.o -o libademco_java.dylib
 javac JavaDemo.java
-java -Djava.library.path=./ JavaDemo
+# java -Djava.library.path=./ JavaDemo
