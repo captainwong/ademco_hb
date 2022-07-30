@@ -38,6 +38,7 @@ int main()
 	// 解析完整数据包
 	{
 		char raw[] = "\nC5C30053\"HENG-BO\"0000R000000L000000#90219125916578[#000000|1737 00 000]_09:11:19,08-05-2019\r";
+		//char raw[] = "\nC5C30053\"HENG-BO\"0000R000000L000000#90219125916578[#90219125916578|1737 00 000]_09:11:19,08-05-2019\r";
 		AdemcoParseResult res = ademcoPacketParse(raw, (int)strlen(raw), &pkt, &cb_commited);
 		assert(res == RESULT_OK);
 	}

@@ -13,6 +13,28 @@
 #include <ctype.h>
 #include <assert.h>
 
+#ifdef DEBUG
+#define dprintf printf
+#else
+#define dprintf(...)
+#endif
+
+#define dline dprintf("%d\n", __LINE__);
+#define dmsg dline; dprintf
+
+#ifdef DEBUG
+void ademcoPrint(const uint8_t* buff, int len)
+{
+	for (int i = 0; i < len; i++) {
+		if (isprint(buff[i])) {
+			printf("%c", buff[i]);
+		} else {
+			printf("\\x%02X", buff[i]);
+		}
+	}
+	printf("\n");
+}
+#endif
 
 int ademcoIsMachineStatusEvent(AdemcoEvent ademcoEvent) {
 	return ademcoEvent == EVENT_ARM
@@ -780,6 +802,7 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 	do{
 		const uint8_t* p = buff;
 		if (*p++ != ADEMCO_PACKET_PREFIX) {
+			dline;
 			break;
 		}
 
@@ -801,6 +824,7 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 			return RESULT_NOT_ENOUGH;
 		}
 		if (len_needed >= ADEMCO_PACKET_MAX_LEN) {
+			dline;
 			return RESULT_ERROR;
 		}
 
@@ -808,28 +832,31 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 		const uint8_t* pcr = pid + pkt->len;
 
 		if (pcr - buff > len || *pcr != ADEMCO_PACKET_SUFIX) {
+			dline;
 			break;
 		}
 
 		pkt->crc = ademcoCRC16(pid, pkt->len);
 		if (pkt->crc != crc) {
+			dline;
 			break;
 		}
 
 		// id
 		if (*pid != '\"') {
+			dline;
 			break;
 		}
 		p = pid + 1;
 		while (p < pcr && *p != '\"') { p++; }
-		if (p >= pcr || *p != '\"') { break; }
+		if (p >= pcr || *p != '\"') { dline; break; }
 		pkt->id = getAdemcoPacketId((const char*)pid, ++p - pid);
-		if (pkt->id == AID_INVALID) { break; }
+		if (pkt->id == AID_INVALID) { dline; break; }
 
 		// seq
 		const uint8_t* pseq = p;
 		while (p < pcr && *p != 'R' && *p != 'L') { p++; }
-		if (p - pseq != 4 || (*p != 'R' && *p != 'L')) { break; }
+		if (p - pseq != 4 || (*p != 'R' && *p != 'L')) { dline; break; }
 		memcpy(temp, pseq, 4); temp[4] = '\0';
 		pkt->seq = strtoul(temp, NULL, 10) & 0xFFFF;
 		if (pkt->seq >= 10000) { pkt->seq = 0; }
@@ -838,16 +865,16 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 		if (*p == 'R') { // rrcvr exists
 			const uint8_t* prcvr = p;
 			while (p < pcr && *p != 'L' && *p != '#') { p++; }
-			if (p >= pcr || (*p != 'L' && *p != '#')) { break; }
+			if (p >= pcr || (*p != 'L' && *p != '#')) { dline; break; }
 			// only check if format is correct, ignore it's content
 		} else if (*p == 'L') { // rrcvr not exits
 			// pass
 		} else {
-			break;
+			dline; break;
 		}
 
 		// lpref
-		if (*p != 'L') { break; }
+		if (*p != 'L') { dline; break; }
 		while (p < pcr && *p != '#') { p++; }
 		if (p >= pcr || *p != '#') { break; }
 		// only check if format is correct, ignore it's content
@@ -859,15 +886,15 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 			if (!isalnum(*p)) { p = NULL; break; }
 			p++; 
 		}
-		if (p == NULL || p >= pcr || *p != '[' || p - pacct >= ADEMCO_PACKET_ACCT_MAX_LEN) { break; }
+		if (p == NULL || p >= pcr || *p != '[' || p - pacct >= ADEMCO_PACKET_ACCT_MAX_LEN) { dline; break; }
 		strncpy(pkt->acct, (const char*)pacct, p - pacct);
 		pkt->acct[p - pacct] = '\0';
 
 		// data
 		const uint8_t* pdata = p;
 		while (p < pcr && *p != ']') { p++; }
-		if (p >= pcr || *p != ']') { break; }
-		if (ademcoParseDataSegment(pdata, ++p - pdata, &pkt->data) != RESULT_OK) { break; }
+		if (p >= pcr || *p != ']') { dline; break; }
+		if (ademcoParseDataSegment(pdata, ++p - pdata, &pkt->data) != RESULT_OK) { dline; break; }
 
 		// *xdata
 		if (*p == '[') { // xdata exists
@@ -889,7 +916,7 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 				p += 2 + valid_len;
 			}
 
-			if (p >= pcr || *p != ']' || *(p + 1) != '_') { break; }
+			if (p >= pcr || *p != ']' || *(p + 1) != '_') { dline; break; }
 			pkt->xdata.lenghFormat = xlf;
 			pkt->xdata.raw_len = ++p - pxdata;			
 			memcpy(pkt->xdata.raw, pxdata, pkt->xdata.raw_len);
@@ -898,7 +925,7 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 		}
 
 		// timestamp
-		if (pcr - p != ADEMCO_PACKET_TIMESTAMP_LEN) { break; }
+		if (pcr - p != ADEMCO_PACKET_TIMESTAMP_LEN) { dline; break; }
 		{
 			struct tm tm;
 			int ret = sscanf((const char*)p, "_%02d:%02d:%02d,%02d-%02d-%04d",
@@ -918,7 +945,7 @@ AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* 
 			p += ADEMCO_PACKET_TIMESTAMP_LEN;
 		}
 
-		if (p++ != pcr) { break; }
+		if (p++ != pcr) { dline; break; }
 		pkt->raw_len = *cb_commited = p - buff;
 		if (pkt->raw != buff) {
 			memcpy(pkt->raw, buff, pkt->raw_len);

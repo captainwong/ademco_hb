@@ -1,6 +1,8 @@
 generated/
 c/swig/com/hb3344/ademco/
 libademco_java_wrap.c
+libademco_csharp_wrap.c
+libademco_python_wrap.c
 
 .vscode/
 .vs/
