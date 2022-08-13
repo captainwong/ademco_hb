@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 mkdir -p linux_java
 cd linux_java
 cp -r ../../swig/com/ .

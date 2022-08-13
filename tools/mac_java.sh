@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 mkdir -p mac_java
 cd mac_java
 cp -r ../../swig/com .

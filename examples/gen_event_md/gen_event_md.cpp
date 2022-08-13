@@ -1,8 +1,10 @@
-#include "../../ademco.h"
+ï»¿#include "../../ademco.h"
+#include "../../hb_com.h"
 #include <jlib/win32/UnicodeTool.h>
 #include <jlib/win32/path_op.h>
 #include <jlib/util/std_util.h>
 #include <map>
+
 
 #ifdef _WIN64
 #ifdef _DEBUG
@@ -19,12 +21,12 @@
 #endif
 
 const char* print_bool(bool b) {
-	return b ? "¡Ì" : " "; // "¡Á";
+	return b ? "âˆš" : " "; // "Ã—";
 }
 
 AdemcoEvent statusEvents[] = {
 
-	// Ö÷»ú»ò·Ö»ú×´Ì¬±¨¸æ
+	// ä¸»æœºæˆ–åˆ†æœºçŠ¶æ€æŠ¥å‘Š
 	EVENT_ARM,
 	EVENT_DISARM,
 	EVENT_HALFARM_1456,
@@ -34,7 +36,7 @@ AdemcoEvent statusEvents[] = {
 
 AdemcoEvent alarmEvents[] = {
 
-	// ·ÀÇø±¨¾¯
+	// é˜²åŒºæŠ¥è­¦
 	EVENT_BURGLAR,
 	EVENT_DOORRINGING,
 	EVENT_FIRE,
@@ -50,7 +52,7 @@ AdemcoEvent alarmEvents[] = {
 
 AdemcoEvent excepEvents[] = {
 
-	// ·ÀÇøÒì³£
+	// é˜²åŒºå¼‚å¸¸
 	EVENT_AC_BROKE,
 	EVENT_AC_RECOVER,
 	EVENT_LOWBATTERY,
@@ -68,14 +70,14 @@ AdemcoEvent excepEvents[] = {
 	EVENT_LOST,
 	EVENT_LOST_RECOVER,
 
-	// ±ê×¼ÊÂ¼ş£¬µ«²»×ö´¦Àí
+	// æ ‡å‡†äº‹ä»¶ï¼Œä½†ä¸åšå¤„ç†
 	EVENT_3100,
 
 };
 
 AdemcoEvent privateEvents[] = {
 
-	// ------------------Ë½ÓĞÊÂ¼ş-----------------------------------------
+	// ------------------ç§æœ‰äº‹ä»¶-----------------------------------------
 	EVENT_SERIAL485DIS,
 	EVENT_SERIAL485CONN,
 
@@ -129,7 +131,7 @@ AdemcoEvent privateEvents[] = {
 
 void printEvents(const AdemcoEvent* events, size_t len)
 {
-	printf("|ÊÂ¼şÂë|º¬Òå|en|\n|-----|----|--|\n");
+	printf("|äº‹ä»¶ç |å«ä¹‰|en|\n|-----|----|--|\n");
 	for (size_t i = 0; i < len; i++) {
 		auto e = events[i];
 		printf("|%04d|%s|%s|\n", e, 
@@ -206,10 +208,10 @@ std::vector<std::string> get_machine_brands(HbMachineType t)
 std::string brand_to_path(const std::string& brand)
 {
 	std::vector<std::string> exts = { "png", "jpg" };
-	std::string path = jlib::win32::utf16_to_mbcs(L"..\\..\\docs\\Ö÷»úÀàĞÍ\\smartresize\\HB-") + brand;
+	std::string path = jlib::win32::utf16_to_mbcs(L"..\\..\\docs\\ä¸»æœºç±»å‹\\smartresize\\HB-") + brand;
 	for (auto ext : exts) {
 		if (jlib::win32::fileExists(path + "-web." + ext)) {
-			return jlib::win32::utf16_to_mbcs(L"./Ö÷»úÀàĞÍ/smartresize/HB-") + brand + "-web." + ext;
+			return jlib::win32::utf16_to_mbcs(L"./ä¸»æœºç±»å‹/smartresize/HB-") + brand + "-web." + ext;
 		}
 	}
 	return {};
@@ -230,11 +232,11 @@ void print_machine_brands(HbMachineType t)
 
 void print_machineTypes()
 {
-	printf("### *ºã²©Ö÷»úÀàĞÍ¶ÔÕÕ±í*\n\n");
+	printf("### *æ’åšä¸»æœºç±»å‹å¯¹ç…§è¡¨*\n\n");
 
-	printf("*SMSÖ¸Ö÷»ú×ÔÉíÊÇ·ñ¿ÉÒÔ²¦´òµç»°¡¢·¢ËÍ¶ÌĞÅ£¬²»ÊÇÖ¸Í¨¹ı°¢ÀïÓïÒô´òµç»°*\n");
+	printf("*SMSæŒ‡ä¸»æœºè‡ªèº«æ˜¯å¦å¯ä»¥æ‹¨æ‰“ç”µè¯ã€å‘é€çŸ­ä¿¡ï¼Œä¸æ˜¯æŒ‡é€šè¿‡é˜¿é‡Œè¯­éŸ³æ‰“ç”µè¯*\n");
 
-	printf("|ÊÂ¼şÂëÀàĞÍ|Ö÷»úÀàĞÍ|²¼·À|³··À|°ë²¼·À|ÉèÖÃ|ĞÅºÅÇ¿¶È|·ÀÇø|ÓĞÏß·ÀÇø|SMS|ÄÚºË|ÍøÂç|ĞÍºÅ|\n"
+	printf("|äº‹ä»¶ç ç±»å‹|ä¸»æœºç±»å‹|å¸ƒé˜²|æ’¤é˜²|åŠå¸ƒé˜²|è®¾ç½®|ä¿¡å·å¼ºåº¦|é˜²åŒº|æœ‰çº¿é˜²åŒº|SMS|å†…æ ¸|ç½‘ç»œ|å‹å·|\n"
 		   "|---------|-------|----|----|-----|----|-------|----|-------|---|----|---|----|\n");
 
 	for (auto e : AdemcoEvents) {
@@ -267,9 +269,9 @@ void print_machineTypes()
 
 void print_imgs()
 {
-	printf("\n\n### *ºã²©Ö÷»úĞÍºÅÊ¾ÀıÍ¼Æ¬*\n\n");
+	printf("\n\n### *æ’åšä¸»æœºå‹å·ç¤ºä¾‹å›¾ç‰‡*\n\n");
 
-	printf("|ĞÍºÅ|Ê¾ÀıÍ¼Æ¬|\n"
+	printf("|å‹å·|ç¤ºä¾‹å›¾ç‰‡|\n"
 		   "|---|--------|\n");
 
 	std::map<std::string, std::string> imgs;
@@ -302,7 +304,7 @@ bool zprop_is_contain(HbZoneProperty prop) {
 
 void print_available_zone_props()
 {
-	printf("### *ºã²©Ö÷»úÀàĞÍÓëÖ§³ÖµÄ·ÀÇøÊôĞÔ¶ÔÕÕ±í*\n\n");
+	printf("### *æ’åšä¸»æœºç±»å‹ä¸æ”¯æŒçš„é˜²åŒºå±æ€§å¯¹ç…§è¡¨*\n\n");
 
 	
 	//auto all_props = getAvailableZoneProperties();
@@ -314,7 +316,7 @@ void print_available_zone_props()
 
 
 
-	printf("* ·ÀÇøÊôĞÔÊÇ·ñÖ§³ÖÊ§Áª±¨¸æ\n\n");
+	printf("* é˜²åŒºå±æ€§æ˜¯å¦æ”¯æŒå¤±è”æŠ¥å‘Š\n\n");
 	printf("|");
 	for (auto zp : hbZoneProperties) {
 		printf("|"); print_prop(zp);
@@ -327,15 +329,15 @@ void print_available_zone_props()
 	}
 	printf("|\n");
 
-	printf("|Ê§ÁªÖ§³Ö");
+	printf("|å¤±è”æ”¯æŒ");
 	for (auto zp : hbZoneProperties) {
 		printf("|%s", print_bool(hbZonePropCanReportLost(zp)));
 	}
 	printf("|\n\n");
 
 
-	printf("* Ö÷»úÀàĞÍÓëÖ§³ÖµÄ·ÀÇøÊôĞÔ¶ÔÕÕ±í\n\n");
-	printf("|ÊÂ¼şÂë|ÀàĞÍ|ĞÍºÅ");
+	printf("* ä¸»æœºç±»å‹ä¸æ”¯æŒçš„é˜²åŒºå±æ€§å¯¹ç…§è¡¨\n\n");
+	printf("|äº‹ä»¶ç |ç±»å‹|å‹å·");
 	for (auto zp : hbZoneProperties) {
 		//printf("|"); print_prop(zp);
 		printf("|%02X", (int)zp);
@@ -371,16 +373,16 @@ void print_available_zone_props()
 
 void print_g250_alarm_codes()
 {
-	//printf("# ¹¤³ÌÖ÷»ú´®¿ÚÍ¨ĞÅĞ­Òé\n\n");
+	//printf("# å·¥ç¨‹ä¸»æœºä¸²å£é€šä¿¡åè®®\n\n");
 	//printf("9600, N, 8, 1\n\n");
 	//printf("SUM = DATA(N) = DATA(0) + DATA(1) + ... + DATA(N-1)\n\n");
 
-	//// °´¼üÂë
+	//// æŒ‰é”®ç 
 	//printf("\n\n## EB AB addr data sum\n");
-	//printf("PCµ½Ö÷»ú£¬°´¼ü\n");
-	//printf("* addr: PCÄ£Äâ¼üÅÌµØÖ·£¬1~4£¬ÔİÊ±¹Ì¶¨Îª3\n");
-	//printf("* data: °´¼üÂë\n\n");
-	//printf("|°´¼üÂë|°´¼ü|\n");
+	//printf("PCåˆ°ä¸»æœºï¼ŒæŒ‰é”®\n");
+	//printf("* addr: PCæ¨¡æ‹Ÿé”®ç›˜åœ°å€ï¼Œ1~4ï¼Œæš‚æ—¶å›ºå®šä¸º3\n");
+	//printf("* data: æŒ‰é”®ç \n\n");
+	//printf("|æŒ‰é”®ç |æŒ‰é”®|\n");
 	//printf("|-----|----|\n");
 	//for (Key k = Key::Key_NULL; k <= Key::Key_STOP_ALARM; k = Key(k + 1)) {
 	//	auto s = keyToString(k);
@@ -390,15 +392,15 @@ void print_g250_alarm_codes()
 	//}
 
 
-	//// EB B1 ±¨¾¯Âë
+	//// EB B1 æŠ¥è­¦ç 
 	//printf("\n\n## EB B1 data0 data1 data2 code data4 sum\n");
-	//printf("Ö÷»úµ½PCÊÂ¼ş±¨¸æ\n");
-	//printf("* data0: ÃüÁî×Ö×Ü×Ö³¤£¬¹Ì¶¨Îª8\n");
-	//printf("* data1: ·ÀÇøºÅ¸ßÎ»\n");
-	//printf("* data2: ·ÀÇøºÅµÍÎ»\n");
-	//printf("* data4: 00 ±íÊ¾data1Óëdata2ÎªÖ÷»úÖ±Êô·ÀÇøºÅ£¬01~F0 ±íÊ¾data1Óëdata2Îª·Ö»ú·ÀÇøºÅ£¨ÒÑ·ÏÆú£©£¬EE ±íÊ¾·Ö»ú×ÔÉí×´Ì¬£¨ÒÑ·ÏÆú£©\n");
-	//printf("* code: ±¨¾¯Âë\n\n");
-	//printf("|±¨¾¯Âë|°²¶¨±¦ÊÂ¼şÂë|º¬Òå|\n");
+	//printf("ä¸»æœºåˆ°PCäº‹ä»¶æŠ¥å‘Š\n");
+	//printf("* data0: å‘½ä»¤å­—æ€»å­—é•¿ï¼Œå›ºå®šä¸º8\n");
+	//printf("* data1: é˜²åŒºå·é«˜ä½\n");
+	//printf("* data2: é˜²åŒºå·ä½ä½\n");
+	//printf("* data4: 00 è¡¨ç¤ºdata1ä¸data2ä¸ºä¸»æœºç›´å±é˜²åŒºå·ï¼Œ01~F0 è¡¨ç¤ºdata1ä¸data2ä¸ºåˆ†æœºé˜²åŒºå·ï¼ˆå·²åºŸå¼ƒï¼‰ï¼ŒEE è¡¨ç¤ºåˆ†æœºè‡ªèº«çŠ¶æ€ï¼ˆå·²åºŸå¼ƒï¼‰\n");
+	//printf("* code: æŠ¥è­¦ç \n\n");
+	//printf("|æŠ¥è­¦ç |å®‰å®šå®äº‹ä»¶ç |å«ä¹‰|\n");
 	//printf("|------|----------|----|\n");
 
 	//static Char codes[] = {
@@ -439,16 +441,16 @@ void print_g250_alarm_codes()
 int main()
 {
 	if (0) {
-		printf("### Ö÷»ú×´Ì¬\n\n");
+		printf("### ä¸»æœºçŠ¶æ€\n\n");
 		printEvents(statusEvents, _countof(statusEvents));
 
-		printf("### ·ÀÇø±¨¾¯\n\n");
+		printf("### é˜²åŒºæŠ¥è­¦\n\n");
 		printEvents(alarmEvents, _countof(alarmEvents));
 
-		printf("### ·ÀÇøÒì³£\n\n");
+		printf("### é˜²åŒºå¼‚å¸¸\n\n");
 		printEvents(excepEvents, _countof(excepEvents));
 
-		printf("### *ºã²©Ë½ÓĞÊÂ¼şÂë*\n\n");
+		printf("### *æ’åšç§æœ‰äº‹ä»¶ç *\n\n");
 		printEvents(privateEvents, _countof(privateEvents));
 
 		print_machineTypes();

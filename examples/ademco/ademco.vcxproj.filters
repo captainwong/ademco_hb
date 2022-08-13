@@ -21,9 +21,15 @@
     <ClCompile Include="..\..\ademco.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\hb_com.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ademco.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\hb_com.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

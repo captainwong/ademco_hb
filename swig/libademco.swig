@@ -15,7 +15,7 @@
 
 %{
 /* Includes the header in the wrapper code */
-#include "../ademco.h"
+#include "../hb_com.h"
 %}
 
 #ifdef SWIGJAVA
@@ -36,4 +36,5 @@ JAVA_ARRAYS_TYPEMAPS(uint8_t, byte, jbyte, Uint8, "[B")
 
 /* Parse the header file to generate wrappers */
 %include "../ademco.h"
+%include "../hb_com.h"
 
