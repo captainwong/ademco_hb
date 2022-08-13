@@ -10,6 +10,8 @@ QQ群：`1093730796`
 
 `ademco.h`，`ademco.c` 是安定宝协议打包解包库，`c/cpper` 可以直接使用。
 
+`hb_com.h, hb_com.c` 内是关于串口相关的定义与接口。
+
 其他语言的绑定，请参考 [`swig`](swig/README.md)。
 
 ## docs
