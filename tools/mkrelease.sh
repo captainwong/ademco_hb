@@ -8,6 +8,7 @@ mkdir examples
 mkdir examples/x86
 mkdir examples/x64
 cp "/e/dev/AlarmCenterTestTools/Release/直连型主机模拟器V1.13.exe" examples/x86/
+cp "/g/dev_libs/libevent-2.1.12-stable-install/lib/event_core.dll" examples/x86/
 cp ../examples/Win32/Release/server_demo.exe examples/x86/
 cp ../examples/Release/ademco.dll examples/x86/
 cp ../examples/Release/ademco.lib examples/x86/
