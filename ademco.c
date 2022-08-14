@@ -489,7 +489,7 @@ int ademcoDataSegmentToCongwinFe100(uint8_t* fe100, const AdemcoDataSegment* dat
 			*p++ = 'B';
 			*p++ = '0';
 		} else {
-			sprintf(p, "%03d", dataSegment->ademcoEvent % 1000); // ȡ��3λ
+			sprintf(p, "%03d", dataSegment->ademcoEvent % 1000);
 			p += 3;
 		}
 
@@ -786,7 +786,8 @@ int ademcoMakeNakPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, Adem
 	return pkt->raw_len = ademcoMakeNakPacket(pkt->raw, sizeof(pkt->raw), seq, acct, ademcoId);
 }
 
-int ademcoMakeHbPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, AdemcoXDataSegment* xdata)
+int ademcoMakeHbPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId, 
+						AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, AdemcoXDataSegment* xdata)
 {
 	pkt->seq = seq;
 	copyAcct2AdemcoPacket(pkt, acct);

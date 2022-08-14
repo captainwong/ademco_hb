@@ -12,4 +12,4 @@ if [ x$1 != x ] ;then
     fi
 fi
 
-g++ $opt ../server_demo/server_demo.cpp -I../../include -lpthread -o server_demo
+g++ $opt ../server_demo/server_demo.cpp ../../ademco.c -I../../ -lpthread -o server_demo
