@@ -228,6 +228,7 @@ typedef enum HbComResp_A4_p3 {
 //! 设置主机定时器 EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
 #define HbComReq_A7_len 14
 #define HbComReq_A7_head "\xEB\xCB\x3F\x0E\xA7"
+#define hbComResq_A7_to_timer(a7, timer) memcpy((timer)->data, (a7) + 5, 8);
 
 //! 设置主机定时器回应 EB BA 3F 07 P0 A7 SUM
 #define HbComResp_A7_len 7
@@ -359,7 +360,14 @@ ADEMCO_EXPORT_SYMBOL int hbMachineCanLinkSubMachine(HbMachineType type);
 //! 失联报告是主机侧实现的跟防区属性没关系，但是人为限制了只有以下属性的才可以设置
 ADEMCO_EXPORT_SYMBOL int hbZonePropCanReportLost(HbZoneProperty zp);
 ADEMCO_EXPORT_SYMBOL void hbInitMachineTimer(HbMachineTimer* timer);
+ADEMCO_EXPORT_SYMBOL int hbIsValidTimePoint(HbMachineTimePoint* tp);
+ADEMCO_EXPORT_SYMBOL void hbTimePointToGreenwich(HbMachineTimePoint* tp);
+ADEMCO_EXPORT_SYMBOL void hbTimePointFromGreenwich(HbMachineTimePoint* tp);
 ADEMCO_EXPORT_SYMBOL int hbIsValidTimer(HbTimer* timer);
+ADEMCO_EXPORT_SYMBOL int hbIsValidMachineTimer(HbMachineTimer* timer);
+//! 传输的是格林威治时间
+ADEMCO_EXPORT_SYMBOL void hbMachineTimerToGreenwich(HbMachineTimer* timer);
+ADEMCO_EXPORT_SYMBOL void hbMachineTimerFromGreenwich(HbMachineTimer* timer);
 ADEMCO_EXPORT_SYMBOL AdemcoEvent hbMachineStatusToAdemcoEvent(HbMachineStatus status);
 ADEMCO_EXPORT_SYMBOL HbMachineStatus hbMachineStatusFromAdemcoEvent(AdemcoEvent ademcoEvent);
 ADEMCO_EXPORT_SYMBOL AdemcoEvent hbMachineTypeToAdemcoEvent(HbMachineType type);
@@ -377,7 +385,6 @@ ADEMCO_EXPORT_SYMBOL const char* hbGetZoneFormatString(HbMachineType type);
 ADEMCO_EXPORT_SYMBOL void hbSum(uint8_t* data, int len);
 // 校验和是否正确, return 0 for incorrect, otherwise correct
 ADEMCO_EXPORT_SYMBOL int hbCheckSum(const uint8_t* data, int len);
-
 
 ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseRequest(const uint8_t* buff, int len);
 ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata);

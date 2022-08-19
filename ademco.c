@@ -979,7 +979,7 @@ int ademcoHiLoArrayToDecStr(char* str, const uint8_t* arr, int len)
 int ademcoDecStrToHiLoArray(uint8_t* arr, int len, const char* str)
 {
 	uint8_t* p = arr;
-	int slen = strlen(str);
+	int slen = str ? strlen(str) : 0;
 	if (slen > len * 2) {
 		slen = len * 2;
 	}
@@ -1044,7 +1044,7 @@ int ademcoHexStrToArray(uint8_t* arr, const char* str, uint8_t padding)
 {
 	uint8_t* p = arr;
 	uint8_t hi = 0, lo = 0;
-	int slen = strlen(str);
+	int slen = str ? strlen(str) : 0;
 	padding &= 0x0F;
 	for (int i = 0; i < slen / 2; i++) {
 		char c = str[i * 2];

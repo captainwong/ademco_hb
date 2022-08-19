@@ -433,6 +433,7 @@ ADEMCO_EXPORT_SYMBOL int ademcoHiLoArrayToDecStr(char* str, const uint8_t* arr, 
 // 示例：输入字符串"123ABC"，返回0
 // 示例：输入字符串 "18240888101", len=9, 则arr内容为 0x18 0x24 0x08 0x88 0x10 0x1f 0xff 0xff 0xff, return 9
 // 示例：输入字符串 "12345678901234567890", len=9, 则arr内容为 0x18 0x24 0x08 0x88 0x10 0x1f 0xff 0xff 0xff, return 9
+// 示例：输入NULL，返回 9个 0xFF
 ADEMCO_EXPORT_SYMBOL int ademcoDecStrToHiLoArray(uint8_t* arr, int len, const char* str);
 
 // 将一串字节流转换为可打印形式

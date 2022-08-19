@@ -226,17 +226,54 @@ int hbZonePropCanReportLost(HbZoneProperty zp)
 
 void hbInitMachineTimer(HbMachineTimer* timer)
 {
-	memset(timer->data, 0xFF, sizeof(timer));
+	memset(timer->data, 25, sizeof(timer));
+}
+
+int hbIsValidTimePoint(HbMachineTimePoint* tp)
+{
+	return tp && 0 <= tp->hour && tp->hour < 24 &&
+		0 <= tp->minute && tp->minute < 60;
+}
+
+void hbTimePointToGreenwich(HbMachineTimePoint* tp)
+{
+	if (tp && tp->hour != 25) {
+		tp->hour = (tp->hour + 16) % 24;
+	}
+}
+
+void hbTimePointFromGreenwich(HbMachineTimePoint* tp)
+{
+	if (tp && tp->hour != 25) {
+		tp->hour = (tp->hour + 8) % 24;
+	}
 }
 
 int hbIsValidTimer(HbTimer* timer)
 {
-	return 0 <= timer->armAt.hour && timer->armAt.hour < 24 &&
-		0 <= timer->armAt.minute && timer->armAt.minute < 60 &&
-		0 <= timer->disarmAt.hour && timer->disarmAt.hour < 24 &&
-		0 <= timer->disarmAt.minute && timer->disarmAt.minute < 60;
+	return timer && hbIsValidTimePoint(&timer->armAt) && hbIsValidTimePoint(&timer->disarmAt);
 }
 
+int hbIsValidMachineTimer(HbMachineTimer* timer)
+{
+	return timer && hbIsValidTimer(&timer->timer[0]) && hbIsValidTimer(&timer->timer[1]);
+}
+
+void hbMachineTimerToGreenwich(HbMachineTimer* timer)
+{
+	hbTimePointToGreenwich(&timer->timer[0].armAt);
+	hbTimePointToGreenwich(&timer->timer[0].disarmAt);
+	hbTimePointToGreenwich(&timer->timer[1].armAt);
+	hbTimePointToGreenwich(&timer->timer[1].disarmAt);
+}
+
+void hbMachineTimerFromGreenwich(HbMachineTimer* timer)
+{
+	hbTimePointFromGreenwich(&timer->timer[0].armAt);
+	hbTimePointFromGreenwich(&timer->timer[0].disarmAt);
+	hbTimePointFromGreenwich(&timer->timer[1].armAt);
+	hbTimePointFromGreenwich(&timer->timer[1].disarmAt);
+}
 
 AdemcoEvent hbMachineStatusToAdemcoEvent(HbMachineStatus status)
 {
@@ -445,7 +482,7 @@ int hbCheckSum(const uint8_t* data, int len)
 	uint8_t sum = 0;
 	const uint8_t* p = data;
 	while (p != data + len - 1) {
-		sum += *p;
+		sum += *p++;
 	}
 	return sum == *p;
 }
@@ -775,7 +812,7 @@ void hbComMakeRespA4_modifyMachineZone(HbComData* data, AdemcoZone zone, HbZoneP
 void hbComMakeRespA6_getMachineTimer(HbComData* data, HbMachineTimer* timer)
 {
 	memcpy(data->data, HbComResp_A6_head, 6);
-	memcpy(data->data + 6, timer, sizeof(*timer));
+	memcpy(data->data + 6, timer->data, sizeof(*timer));
 	data->len = HbComResp_A6_len;
 	hbSum(data->data, data->len);
 }
