@@ -348,8 +348,10 @@ typedef struct AdemcoPacket {
 }AdemcoPacket;
 
 
-// Functions
+//////////////////////// Functions ////////////////////////
 void ademcoPrint(const uint8_t* buff, int len);
+
+//////////////////////// AdemcoEvent functions
 //! 是否主机状态事件
 ADEMCO_EXPORT_SYMBOL int ademcoIsMachineStatusEvent(AdemcoEvent ademcoEvent);
 //! 是否主机类型事件
@@ -363,11 +365,16 @@ ADEMCO_EXPORT_SYMBOL AdemcoEvent ademcoGetExceptionEventByResumeEvent(AdemcoEven
 ADEMCO_EXPORT_SYMBOL const char* ademcoEventToString(AdemcoEvent ademcoEvent);
 ADEMCO_EXPORT_SYMBOL const char* ademcoEventToStringChinese(AdemcoEvent ademcoEvent);
 
+//////////////////////// AdemcoDataSegment functions ////////////////////////
 ADEMCO_EXPORT_SYMBOL int ademcoAppendDataSegment(uint8_t* packet, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone);
 ADEMCO_EXPORT_SYMBOL int ademcoAppendDataSegment2(AdemcoDataSegment* dataSegment, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone);
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoParseDataSegment(const uint8_t* packet, int packet_len, AdemcoDataSegment* dataSegment);
 // return 0 for empty packet, CONGWIN_FE100_PACKET_LEN for non-empty packet
 ADEMCO_EXPORT_SYMBOL int ademcoDataSegmentToCongwinFe100(uint8_t* fe100, const AdemcoDataSegment* dataSegment);
+
+//////////////////////// AdemcoXDataSegment functions ////////////////////////
+// return ADEMCO_OK for success, ADEMCO_ERR for failed
+ADEMCO_EXPORT_SYMBOL int ademcoXDataConvert(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf);
 #ifndef SWIG
 // get valid content address of xdata (except [len])
 ADEMCO_EXPORT_SYMBOL const uint8_t* ademcoXDataGetValidContentAddr(const AdemcoXDataSegment* xdata);
@@ -376,9 +383,12 @@ ADEMCO_EXPORT_SYMBOL const uint8_t* ademcoXDataGetValidContentAddr(const AdemcoX
 ADEMCO_EXPORT_SYMBOL int ademcoXDataGetValidContentLen(const AdemcoXDataSegment* xdata);
 // return 0 if xdata's valid content is exactly the same as [buf, buf+buf_len)
 ADEMCO_EXPORT_SYMBOL int ademcoXDataMemcmp(const AdemcoXDataSegment* xdata, const void* buf, int buf_len);
+// copy xdata content from src to dst, return copied length = src.raw_len
+ADEMCO_EXPORT_SYMBOL int ademcoXDataCopy(AdemcoXDataSegment* dst, const AdemcoXDataSegment* src);
 // return ADEMCO_OK for success, return ADEMCO_ERR for len is too long
 ADEMCO_EXPORT_SYMBOL int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr, const uint8_t* content, int len);
 
+//////////////////////// AdemcoPacketId functions ////////////////////////
 ADEMCO_EXPORT_SYMBOL int isAdemcoPacketId(const char* standard, const char* id, int len);
 ADEMCO_EXPORT_SYMBOL AdemcoPacketId getAdemcoPacketId(const char* id, int len);
 ADEMCO_EXPORT_SYMBOL const char* admecoPacketIdToString(AdemcoPacketId id);
@@ -394,14 +404,14 @@ ADEMCO_EXPORT_SYMBOL int ademcoMakeNullPacket(uint8_t* buff, int len, uint16_t s
 ADEMCO_EXPORT_SYMBOL int ademcoMakeAckPacket(uint8_t* buff, int len, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL int ademcoMakeNakPacket(uint8_t* buff, int len, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL int ademcoMakeHbPacket(uint8_t* buff, int len, uint16_t seq, const char* acct, AdemcoId ademcoId, 
-											AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, AdemcoXDataSegment* xdata);
+											AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, const AdemcoXDataSegment* xdata);
 
 // like upper funcs, store buff and len to pkt->raw, pkt->raw_len
 ADEMCO_EXPORT_SYMBOL int ademcoMakeNullPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL int ademcoMakeAckPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL int ademcoMakeNakPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL int ademcoMakeHbPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId,
-											 AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, AdemcoXDataSegment* xdata);
+											 AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, const AdemcoXDataSegment* xdata);
 
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoPacketParse(const uint8_t* buff, int len, AdemcoPacket* pkt, int* cb_commited);
 

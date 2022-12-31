@@ -451,6 +451,27 @@ AdemcoParseResult ademcoParseDataSegment(const uint8_t* packet, int packet_len, 
 	return RESULT_ERROR;
 }
 
+int ademcoXDataConvert(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf)
+{
+	if (!xdata) { return ADEMCO_ERR; }
+	if (xdata->lenghFormat == xlf) { return ADEMCO_OK; }
+
+	int len = ademcoXDataGetValidContentLen(xdata);
+	uint8_t raw[ADEMCO_PACKET_XDATA_MAX_LEN];
+
+	if (xlf == TWO_HEX) { // convert from TWO_HEX to FOUR_DECIMAL
+		if (len + 6 > ADEMCO_PACKET_XDATA_MAX_LEN) {
+			return ADEMCO_ERR;
+		}
+		memcpy(raw, ademcoXDataGetValidContentAddr(xdata), len);
+		ademcoMakeXData(xdata, FOUR_DECIMAL, AdemcoXDataTransform_as_is, raw, len);
+	} else {
+		memcpy(raw, ademcoXDataGetValidContentAddr(xdata), len);
+		ademcoMakeXData(xdata, TWO_HEX, AdemcoXDataTransform_as_is, raw, len);
+	}
+	return ADEMCO_OK;
+}
+
 int ademcoDataSegmentToCongwinFe100(uint8_t* fe100, const AdemcoDataSegment* dataSegment)
 {
 	if (dataSegment->raw_len == ADEMCO_PACKET_DATA_SEGMENT_EMPTY_LEN) {
@@ -545,6 +566,15 @@ int ademcoXDataGetValidContentLen(const AdemcoXDataSegment* xdata)
 	} else {
 		return 0;
 	}
+}
+
+int ademcoXDataCopy(AdemcoXDataSegment* dst, const AdemcoXDataSegment* src)
+{
+	if (dst && src && src->raw_len > 0) {
+		memcpy(dst, src, sizeof(AdemcoXDataSegment));
+		return src->raw_len;
+	}
+	return 0;
 }
 
 int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr, const uint8_t* content, int len)
@@ -700,7 +730,7 @@ int ademcoMakeNakPacket(uint8_t* buff, int len, uint16_t seq, const char* acct, 
 }
 
 int ademcoMakeHbPacket(uint8_t* dst_buff, int len, uint16_t seq, const char* acct, AdemcoId ademcoId, 
-					   AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, AdemcoXDataSegment* xdata)
+					   AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, const AdemcoXDataSegment* xdata)
 {
 	char buff[ADEMCO_PACKET_MAX_LEN];
 	char* p = buff;
@@ -754,12 +784,16 @@ int ademcoMakeHbPacket(uint8_t* dst_buff, int len, uint16_t seq, const char* acc
 
 static void copyAcct2AdemcoPacket(AdemcoPacket* pkt, const char* acct)
 {
-	int len = strlen(acct);
-	if (len > ADEMCO_PACKET_ACCT_MAX_LEN) {
-		len = ADEMCO_PACKET_ACCT_MAX_LEN;
+	if (acct) {
+		int len = strlen(acct);
+		if (len > ADEMCO_PACKET_ACCT_MAX_LEN) {
+			len = ADEMCO_PACKET_ACCT_MAX_LEN;
+		}
+		memcpy(pkt->acct, acct, len);
+		pkt->acct[len] = '\0';
+	} else {
+		pkt->acct[0] = '\0';
 	}
-	memcpy(pkt->acct, acct, len);
-	pkt->acct[len] = '\0';
 }
 
 int ademcoMakeNullPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId)
@@ -787,7 +821,7 @@ int ademcoMakeNakPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, Adem
 }
 
 int ademcoMakeHbPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId, 
-						AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, AdemcoXDataSegment* xdata)
+						AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, const AdemcoXDataSegment* xdata)
 {
 	pkt->seq = seq;
 	copyAcct2AdemcoPacket(pkt, acct);

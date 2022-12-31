@@ -487,7 +487,13 @@ int hbCheckSum(const uint8_t* data, int len)
 	return sum == *p;
 }
 
-HbComRequestType hbComParseRequest(const uint8_t* data, int len)
+#define copy_data_to_com         \
+if (cd) {                        \
+	cd->len = len;               \
+	memcpy(cd->data, data, len); \
+}
+
+HbComRequestType hbComParseRequest(const uint8_t* data, int len, HbComData* cd)
 {
 	do {
 		if (len < 5) { break; }
@@ -501,36 +507,42 @@ HbComRequestType hbComParseRequest(const uint8_t* data, int len)
 			{
 				if (len != HbComReq_A0_len) { break; }
 				if (memcmp(HbComReq_A0_data, data, len) != 0) { break; }
+				copy_data_to_com;
 				return HbComReq_A0;
 			}
 			case 0xA1: // EB AB 3F A1 76
 			{
 				if (len != HbComReq_A1_len) { break; }
 				if (memcmp(HbComReq_A1_data, data, len) != 0) { break; }
+				copy_data_to_com;
 				return HbComReq_A1;
 			}
 			case 0xA2: // EB AB 3F A2 77
 			{
 				if (len != HbComReq_A2_len) { break; }
 				if (memcmp(HbComReq_A2_data, data, len) != 0) { break; }
+				copy_data_to_com;
 				return HbComReq_A2;
 			}
 			case 0xA5: // EB AB 3F A5 7A
 			{
 				if (len != HbComReq_A5_len) { break; }
 				if (memcmp(HbComReq_A5_data, data, len) != 0) { break; }
+				copy_data_to_com;
 				return HbComReq_A5;
 			}
 			case 0xAC: // EB AB 3F AC 81
 			{
 				if (len != HbComReq_AC_len) { break; }
 				if (memcmp(HbComReq_AC_data, data, len) != 0) { break; }
+				copy_data_to_com;
 				return HbComReq_AC;
 			}
 			case 0xAD: // EB AB 3F AD 82
 			{
 				if (len != HbComReq_AD_len) { break; }
 				if (memcmp(HbComReq_AD_data, data, len) != 0) { break; }
+				copy_data_to_com;
 				return HbComReq_AD;
 			}
 
@@ -543,6 +555,7 @@ HbComRequestType hbComParseRequest(const uint8_t* data, int len)
 		{
 			if (data[2] != 0x3F) { break; }
 			if (len == HbComReq_RD_acct_len && memcmp(data, HbComReq_RD_acct_data, len) == 0) {
+				copy_data_to_com;
 				return HbComReq_RD_acct;
 			}
 			break;
@@ -552,11 +565,20 @@ HbComRequestType hbComParseRequest(const uint8_t* data, int len)
 			if (data[2] != 0x3F) { break; }
 
 			if (data[3] == 0x09 && data[4] == 0xA3 && len == HbComReq_A3_len) { // EB CB 3F 09 A3 P1 P2 P3 SUM
-				if (hbCheckSum(data, len)) { return HbComReq_A3; }
+				if (hbCheckSum(data, len)) {
+					copy_data_to_com;
+					return HbComReq_A3;
+				}
 			} else if (data[3] == 0x0F && data[4] == 0x4D && len == HbComReq_WR_acct_len) {
-				if (hbCheckSum(data, len)) { return HbComReq_WR_acct; }
+				if (hbCheckSum(data, len)) {
+					copy_data_to_com;
+					return HbComReq_WR_acct;
+				}
 			} else if (data[3] == 0x0E && data[4] == 0xA7 && len == HbComReq_A7_len) { // EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
-				if (hbCheckSum(data, len)) { return HbComReq_A7; }
+				if (hbCheckSum(data, len)) {
+					copy_data_to_com;
+					return HbComReq_A7;
+				}
 			}
 
 			/*else if (data[3] == 0x08 && data[4] == 0xA9 && len == A9_len) {
@@ -565,7 +587,10 @@ HbComRequestType hbComParseRequest(const uint8_t* data, int len)
 			}*/
 
 			else if (data[3] == 0x08 && data[4] == 0xAA && len == HbComReq_AA_len) { // EB CB 3F 08 AA P1 P2 SUM
-				if (hbCheckSum(data, len)) { return HbComReq_AA; }
+				if (hbCheckSum(data, len)) {
+					copy_data_to_com;
+					return HbComReq_AA;
+				}
 			}
 
 			/*else if (data[3] == 0x08 && data[4] == 0xAE && len == AE_len) {
@@ -574,6 +599,7 @@ HbComRequestType hbComParseRequest(const uint8_t* data, int len)
 			}*/
 
 			else if (data[3] == 0x06 && data[4] == 0xB0 && len == HbComReq_B0_len && memcmp(HbComReq_B0_data, data, len) == 0) { // EB CB 3F 06 B0 AB
+				copy_data_to_com;
 				return HbComReq_B0;
 			}
 		}
@@ -582,13 +608,13 @@ HbComRequestType hbComParseRequest(const uint8_t* data, int len)
 	return HbComReq_Invalid;
 }
 
-ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata)
+ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata, HbComData* cd)
 {
 	if (!xdata) { return HbComReq_Invalid; }
-	return hbComParseRequest(ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata));
+	return hbComParseRequest(ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata), cd);
 }
 
-HbComResponseType hbComParseResponse(const uint8_t* data, int len)
+HbComResponseType hbComParseResponse(const uint8_t* data, int len, HbComData* cd)
 {
 	do {
 		if (len < 7) { break; } // 所有的 response ，长度最小为 7
@@ -597,66 +623,97 @@ HbComResponseType hbComParseResponse(const uint8_t* data, int len)
 		case 0xA0: // EB BA 3F 07 P0 A0 P1 P2 P3 SUM
 		{
 			if (len != HbComResp_A0_len) { break; }
-			if (hbCheckSum(data, len)) { return HbComResp_A0; }
+			if (hbCheckSum(data, len)) {
+				copy_data_to_com;
+				return HbComResp_A0;
+			}
+			break;
 		}
 
 		case 0xA2: // EB BA 3F PN P0 A2 [Z, P]xN P1 SUM
 		{
 			if (len != data[3]) { break; }
-			if (hbCheckSum(data, len)) { return HbComResp_A2; }
+			if (hbCheckSum(data, len)) {
+				copy_data_to_com;
+				return HbComResp_A2;
+			}
+			break;
 		}
 
 		case 0xA3:
 		{
 			if (len != HbComResp_A3_len) { break; }
-			if (hbCheckSum(data, len)) { return HbComResp_A3; }
+			if (hbCheckSum(data, len)) {
+				copy_data_to_com;
+				return HbComResp_A3;
+			}
+			break;
 		}
 
 		case 0xA4:
 		{
 			if (len != HbComResp_A4_len) { break; }
-			if (hbCheckSum(data, len)) { return HbComResp_A4; }
-			return HbComResp_A4;
+			if (hbCheckSum(data, len)) {
+				copy_data_to_com;
+				return HbComResp_A4;
+			}
+			break;
 		}
 
 		case 0xA6:
 		{
 			if (len != HbComResp_A6_len) { break; }
-			if (hbCheckSum(data, len)) { return HbComResp_A6; }
-			return HbComResp_A6;
+			if (hbCheckSum(data, len)) {
+				copy_data_to_com;
+				return HbComResp_A6;
+			}
+			break;
 		}
 
 		case 0xA7:
 		{
 			if (len != HbComResp_A7_len) { break; }
-			if (hbCheckSum(data, len)) { return HbComResp_A7; }
-			return HbComResp_A7;
+			if (hbCheckSum(data, len)) {
+				copy_data_to_com;
+				return HbComResp_A7;
+			}
+			break;
 		}
 
 		case 0xA8:
 		{
 			if (len != HbComResp_A8_len) { break; }
-			if (hbCheckSum(data, len)) { return HbComResp_A8; }
-			return HbComResp_A8;
+			if (hbCheckSum(data, len)) {
+				copy_data_to_com;
+				return HbComResp_A8;
+			}
+			break;
 		}
 
 		case 0xA9:
 		{
 			// TODO
+			break;
 		}
 
 		case 0xAB:
 		{
 			if (len != HbComResp_AB_len) { break; }
-			if (hbCheckSum(data, len)) { return HbComResp_AB; }
-			return HbComResp_AB;
+			if (hbCheckSum(data, len)) {
+				copy_data_to_com;
+				return HbComResp_AB;
+			}
+			break;
 		}
 
 		case 0xAD: // EB BA 3F PN P0 AD P1 DATA P2 SUM
 		{
 			if (len != data[3]) { break; }
-			if (hbCheckSum(data, len)) { return HbComResp_AD; }
-			return HbComResp_AD;
+			if (hbCheckSum(data, len)) {
+				copy_data_to_com;
+				return HbComResp_AD;
+			}
+			break;
 		}
 
 		case 0xAF: // TODO
@@ -668,13 +725,22 @@ HbComResponseType hbComParseResponse(const uint8_t* data, int len)
 		case 0xB1: // EB BA 3F 08 P0 B1 P1 SUM
 		{
 			if (len != HbComResp_B1_len) { break; }
-			if (hbCheckSum(data, len)) { return HbComResp_B1; }
-			return HbComResp_B1;
+			if (hbCheckSum(data, len)) {
+				copy_data_to_com;
+				return HbComResp_B1;
+			}
+			break;
 		}
 
 		}
 	} while (0);
 	return HbComResp_Invalid;
+}
+
+HbComResponseType hbComParseXDataResponse(const AdemcoXDataSegment* xdata, HbComData* cd)
+{
+	if (!xdata) { return HbComReq_Invalid; }
+	return hbComParseResponse(ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata), cd);
 }
 
 void hbComMakeReqA0_getMachineStatus(HbComData* data)
@@ -767,6 +833,31 @@ void hbComMakeReqWR_acct(HbComData* data, const char* acct)
 	ademcoDecStrToHiLoArray(data->data + 5, 9, acct);
 	data->len = HbComReq_WR_acct_len;
 	hbSum(data->data, data->len);
+}
+
+void hbComResp_A2_Iter_init(HbComResp_A2_Iter* iter, const HbComData* com)
+{
+	if (!iter || !com)return;
+	memcpy(&iter->com, com, sizeof(HbComData));
+	iter->i = 0;
+	if (com->len > HbComResp_A2_len_min) {
+		iter->total = (com->len - HbComResp_A2_len_min) / 2;
+		iter->p1 = (com->data[com->len - 2] == 0xFF) ? HbComResp_A2_p1_nomore : HbComResp_A2_p1_more;
+	} else {
+		iter->total = 0;
+		iter->p1 = HbComResp_A2_p1_nomore;
+	}
+}
+
+HbComResp_A2_p1 hbComResp_A2_Iter_next(HbComResp_A2_Iter* iter, HbZoneAndProperty* zp)
+{
+	if (iter->i == iter->total) {
+		return HbComResp_A2_p1_nomore;
+	}
+	zp->zone = iter->com.data[6 + iter->i * 2];
+	zp->prop = (HbZoneProperty)iter->com.data[7 + iter->i * 2];
+	iter->i++;
+	return HbComResp_A2_p1_more;
 }
 
 void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status, HbMachineType type)

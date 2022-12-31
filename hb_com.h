@@ -104,6 +104,11 @@ typedef enum HbZoneProperty {
 	HZP_INVALID = -1,
 }HbZoneProperty;
 
+typedef struct HbZoneAndProperty {
+	AdemcoZone zone;
+	HbZoneProperty prop;
+}HbZoneAndProperty;
+
 typedef struct HbMachineTimePoint {
 	uint8_t hour;
 	uint8_t minute;
@@ -185,6 +190,11 @@ typedef enum HbComResp_A2_p1 {
 	HbComResp_A2_p1_more = 0x00, // 还有更多防区
 }HbComResp_A2_p1;
 #define HbComResp_A2_head "\xEB\xBA\x3F\x08\xCC\xA2"
+typedef struct HbComResp_A2_Iter {
+	HbComData com;
+	int i, total;
+	HbComResp_A2_p1 p1;
+}HbComResp_A2_Iter;
 
 //! 索要更多主机防区 EB AB 3F A2 77
 //! 仅应在收到ZoneResponse的param非0xFF时发送，以索要全部防区
@@ -301,6 +311,11 @@ typedef enum HbCom_3sec_which {
 //! 三区段主机状态回应 EB BA 3F 08 P0 B1 P1 SUM
 #define HbComResp_B1_len 8
 #define HbComResp_B1_head "\xEB\xBA\x3F\x08\xCC\xB1"
+#define hbComResp_B1_status(d)  ((((d)[6] >> 6) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
+#define hbComResp_B1_status1(d) ((((d)[6] >> 4) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
+#define hbComResp_B1_status2(d) ((((d)[6] >> 2) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
+#define hbComResp_B1_status3(d) ((((d)[6]) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
+
 
 //! 读取主机账号 
 #define HbComReq_RD_acct_len 7
@@ -386,9 +401,10 @@ ADEMCO_EXPORT_SYMBOL void hbSum(uint8_t* data, int len);
 // 校验和是否正确, return 0 for incorrect, otherwise correct
 ADEMCO_EXPORT_SYMBOL int hbCheckSum(const uint8_t* data, int len);
 
-ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseRequest(const uint8_t* buff, int len);
-ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata);
-ADEMCO_EXPORT_SYMBOL HbComResponseType hbComParseResponse(const uint8_t* buff, int len);
+ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseRequest(const uint8_t* buff, int len, HbComData* cd);
+ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata, HbComData* cd);
+ADEMCO_EXPORT_SYMBOL HbComResponseType hbComParseResponse(const uint8_t* buff, int len, HbComData* cd);
+ADEMCO_EXPORT_SYMBOL HbComResponseType hbComParseXDataResponse(const AdemcoXDataSegment* xdata, HbComData* cd);
 
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqA0_getMachineStatus(HbComData* data);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqA1_getMachineZones(HbComData* data);
@@ -406,6 +422,9 @@ ADEMCO_EXPORT_SYMBOL void hbComMakeReqAE_set3SectionMachineStatus(HbComData* dat
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqB0_get3SectionMachineStatus(HbComData* data);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqRD_acct(HbComData* data);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqWR_acct(HbComData* data, const char* acct);
+
+ADEMCO_EXPORT_SYMBOL void hbComResp_A2_Iter_init(HbComResp_A2_Iter* iter, const HbComData* com);
+ADEMCO_EXPORT_SYMBOL HbComResp_A2_p1 hbComResp_A2_Iter_next(HbComResp_A2_Iter* iter, HbZoneAndProperty* zp);
 
 ADEMCO_EXPORT_SYMBOL void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status, HbMachineType type);
 // zones and props length is count
