@@ -349,7 +349,7 @@ typedef struct AdemcoPacket {
 
 
 //////////////////////// Functions ////////////////////////
-void ademcoPrint(const uint8_t* buff, int len);
+ADEMCO_EXPORT_SYMBOL void ademcoPrint(const uint8_t* buff, int len);
 
 //////////////////////// AdemcoEvent functions
 //! 是否主机状态事件
