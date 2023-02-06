@@ -85,12 +85,12 @@ public class JavaDemo {
             String data = "\nC5C30053\"HENG-BO\"0000R000000L000000#90219125916578[#000000|1737 00 000]_09:11:19,08-05-2019\r";
             System.out.println("using data=" + data);
             AdemcoPacket pkt = new AdemcoPacket();
-            SWIGTYPE_p_int cb = libademco.new_intp();
+            SWIGTYPE_p_size_t cb = libademco.new_size_tp();
             AdemcoParseResult res = libademco.ademcoPacketParse(data.getBytes(), data.length(), pkt, cb);
             assert(res == AdemcoParseResult.RESULT_OK);
-            assert(libademco.intp_value(cb) == data.length());
-            System.out.println("parse result=" + res + ",cb_commited=" + libademco.intp_value(cb));
-            libademco.delete_intp(cb);
+            assert(libademco.size_tp_value(cb) == data.length());
+            System.out.println("parse result=" + res + ",cb_commited=" + libademco.size_tp_value(cb));
+            libademco.delete_size_tp(cb);
         }
 
         // test pack
@@ -165,7 +165,7 @@ public class JavaDemo {
         SocketChannel channel;
         byte[] buf = new byte[0];
         AdemcoPacket pkt = new AdemcoPacket();
-        SWIGTYPE_p_int cb = libademco.new_intp();
+        SWIGTYPE_p_size_t cb = libademco.new_size_tp();
         HbMachineType type = HbMachineType.HMT_INVALID;
         HbMachineStatus status = HbMachineStatus.HMS_INVALID;
         int seq = 0;
@@ -179,17 +179,17 @@ public class JavaDemo {
 
         public void offline(){
             System.out.println(id() + " is offline");
-            libademco.delete_intp(cb);
+            libademco.delete_size_tp(cb);
         }
 
         public void onMsg(byte[] data) throws IOException {
             buf = append(buf, data);
             //System.out.println(printable_bytes(buf));
             AdemcoParseResult res = libademco.ademcoPacketParse(buf, buf.length, pkt, cb);
-            System.out.println(res + ", " + libademco.intp_value(cb));
+            System.out.println(res + ", " + libademco.size_tp_value(cb));
             switch(res) {
                 case RESULT_OK:
-                    buf = trim(buf, libademco.intp_value(cb));
+                    buf = trim(buf, (int)libademco.size_tp_value(cb));
                     handleMsg();
                     break;
                 case RESULT_NOT_ENOUGH:
@@ -201,8 +201,8 @@ public class JavaDemo {
         }
 
         private byte[] getRawWithLen(){
-            byte[] b = new byte[pkt.getRaw_len()];
-            System.arraycopy(pkt.getRaw(), 0, b, 0, pkt.getRaw_len());
+            byte[] b = new byte[(int)pkt.getRaw_len()];
+            System.arraycopy(pkt.getRaw(), 0, b, 0, (int)pkt.getRaw_len());
             return b;
         }
 
@@ -300,7 +300,7 @@ public class JavaDemo {
         return printable_bytes(b, b.length);
     }
 
-    public static String printable_bytes(byte[] b, int length){
+    public static String printable_bytes(byte[] b, long length){
         String HEX_STRING = "0123456789ABCDEF";
         String s = "";
         for(int i = 0; i < length; i++){

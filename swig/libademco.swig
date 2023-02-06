@@ -33,6 +33,7 @@ JAVA_ARRAYS_TYPEMAPS(uint8_t, byte, jbyte, Uint8, "[B")
 %pointer_functions(int, intp);
 %pointer_functions(uint16_t, uint16p);
 %pointer_functions(uint32_t, uint32p);
+%pointer_functions(size_t, size_tp);
 
 /* Parse the header file to generate wrappers */
 %include "../ademco.h"

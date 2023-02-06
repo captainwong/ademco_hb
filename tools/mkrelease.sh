@@ -52,14 +52,14 @@ rm -rf win_csharp
 
 
 # ubuntu20.04 java
-ssh -t root@192.168.2.107 "cd /root/projects/ademco_hb && git reset --hard HEAD && git pull origin c && cd swig && export JAVA_HOME='/usr/lib/jvm/java-8-openjdk-amd64' && ./linux_java.sh && cd ../tools && ./linux_java.sh"
+ssh -t root@192.168.2.107 "cd /root/projects/ademco_hb && git checkout master && git reset --hard HEAD && git pull origin master && cd swig && export JAVA_HOME='/usr/lib/jvm/java-8-openjdk-amd64' && ./linux_java.sh && cd ../tools && ./linux_java.sh"
 scp root@192.168.2.107:/root/projects/ademco_hb/tools/linux_java.zip .
 ssh -t root@192.168.2.107 "rm -f /root/projects/ademco_hb/tools/linux_java.zip"
 
 # macOS java
-ssh -t jack@wangjackdeMacBook-Pro "cd /Users/jack/projects/ademco_hb && git reset --hard HEAD && git pull origin c && cd swig && source ~/.zshrc && export JAVA_HOME='/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home' && ./mac_java.sh && cd ../tools && ./mac_java.sh"
-scp jack@wangjackdeMacBook-Pro:/Users/jack/projects/ademco_hb/tools/mac_java.zip .
-ssh -t jack@wangjackdeMacBook-Pro "rm -f /Users/jack/projects/ademco_hb/tools/mac_java.zip"
+ssh -t jack@JackMacBook-Pro.local "cd /Users/jack/projects/ademco_hb && git checkout master && git reset --hard HEAD && git pull origin master && cd swig && source ~/.zshrc && export JAVA_HOME='/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home' && ./mac_java.sh && cd ../tools && ./mac_java.sh"
+scp jack@JackMacBook-Pro.local:/Users/jack/projects/ademco_hb/tools/mac_java.zip .
+ssh -t jack@JackMacBook-Pro.local "rm -f /Users/jack/projects/ademco_hb/tools/mac_java.zip"
 
 
 
