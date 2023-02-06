@@ -603,7 +603,7 @@ int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, Adem
 
 	xdata->lenghFormat = xlf;
 	if (xlf == TWO_HEX && translen + 4 < ADEMCO_PACKET_XDATA_MAX_LEN) {
-		uint8_t* p = xdata->raw;
+		char_t* p = xdata->raw;
 		*p++ = '[';
 		*p++ = (translen & 0xFFFF) >> 8;
 		*p++ = (translen & 0xFFFF) & 0xFF;
@@ -613,7 +613,7 @@ int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, Adem
 		xdata->raw_len = p - xdata->raw;
 		return ADEMCO_OK;
 	} else if (xlf == FOUR_DECIMAL && translen + 6 < ADEMCO_PACKET_XDATA_MAX_LEN) {
-		uint8_t* p = xdata->raw;
+		char_t* p = xdata->raw;
 		*p++ = '[';
 		char temp[5];
 		snprintf(temp, sizeof(temp), "%04zX", translen & 0xFFFF);
@@ -1046,7 +1046,7 @@ size_t ademcoDecStrToHiLoArray(uint8_t* arr, size_t len, const char* str)
 			break;
 		}
 	}
-	while (arr + len > p) {
+	while ((char*)arr + len > p) {
 		*p++ = 0xFF;
 	}
 	return len;
