@@ -45,7 +45,7 @@ struct Buffer
 {
 	size_t	rpos;
 	size_t	wpos;
-	uint8_t	buff[BUFF_SIZE];
+	char	buff[BUFF_SIZE];
 
 	Buffer() { clear(); }
 	void clear() { memset(this, 0, sizeof(Buffer)); }
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
 	};
 
 	auto do_handle = []() -> AdemcoParseResult {
-		AdemcoPacket pkt; int cb = 0;
+		AdemcoPacket pkt; size_t cb = 0;
 		AdemcoParseResult result = ademcoPacketParse(clientBuffer.buff + clientBuffer.rpos,
 													 clientBuffer.wpos - clientBuffer.rpos,
 													 &pkt,
@@ -158,8 +158,8 @@ int main(int argc, char** argv)
 
 			case AID_NULL: // reply ack				
 			{
-				uint8_t ack[1024];
-				int len = ademcoMakeAckPacket((uint8_t*)ack, sizeof(ack), pkt.seq, pkt.acct, 0);
+				char ack[1024];
+				int len = ademcoMakeAckPacket(ack, sizeof(ack), pkt.seq, pkt.acct, 0);
 				printf("S:"); ademcoPrint(ack, len);
 				send(clientSock, (const char*)ack, len, 0);
 				break;
@@ -174,8 +174,8 @@ int main(int argc, char** argv)
 
 				// reply ack
 				{
-					uint8_t ack[1024];
-					int len = ademcoMakeAckPacket((uint8_t*)ack, sizeof(ack), pkt.seq, pkt.acct, 0);
+					char ack[1024];
+					int len = ademcoMakeAckPacket(ack, sizeof(ack), pkt.seq, pkt.acct, 0);
 					printf("S:"); ademcoPrint(ack, len);
 					send(clientSock, (const char*)ack, len, 0);
 				}
@@ -218,7 +218,7 @@ int main(int argc, char** argv)
 		int bRead = FD_ISSET(clientSock, &fd_read);
 		if (!bRead) { return; }
 
-		uint8_t* temp = clientBuffer.buff + clientBuffer.wpos;
+		char* temp = clientBuffer.buff + clientBuffer.wpos;
 		size_t dwLenToRead = BUFF_SIZE - clientBuffer.wpos;
 		int bytes_transfered = recv(clientSock, (char*)temp, (int)dwLenToRead, 0);
 
@@ -268,11 +268,11 @@ int main(int argc, char** argv)
 
 			if (clientSock != INVALID_SOCKET && !evntsWaiting4Send.empty()) {
 				std::lock_guard<std::mutex> lg(mutex);
-				uint8_t buf[1024];
+				char buf[1024];
 				for (auto e : evntsWaiting4Send) {
 					if (e == EVENT_DISARM) {
 						AdemcoXDataSegment xdata;
-						ademcoMakeXData(&xdata, TWO_HEX, AdemcoXDataTransform::AdemcoXDataTransform_as_is, (const uint8_t*)pwd, 6);
+						ademcoMakeXData(&xdata, TWO_HEX, AdemcoXDataTransform::AdemcoXDataTransform_as_is, pwd, 6);
 						int len = ademcoMakeHbPacket(buf, sizeof(buf), 1, clientAcct.c_str(), clientAdemcoId, e, 0, 0, &xdata);
 						printf("S:"); ademcoPrint(buf, len);
 						send(clientSock, (const char*)buf, len, 0);

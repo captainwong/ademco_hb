@@ -467,7 +467,7 @@ const char* hbGetZoneFormatString(HbMachineType type)
 	if (10 < zone && zone < 100) { return "%02d"; } else if (zone < 1000) { return "%03d"; } else { return "%d"; }
 }
 
-void hbSum(uint8_t* data, int len)
+void hbSum(uint8_t* data, size_t len)
 {
 	uint8_t sum = 0;
 	uint8_t* p = data;
@@ -477,7 +477,7 @@ void hbSum(uint8_t* data, int len)
 	*p = sum;
 }
 
-int hbCheckSum(const uint8_t* data, int len)
+int hbCheckSum(const uint8_t* data, size_t len)
 {
 	uint8_t sum = 0;
 	const uint8_t* p = data;
@@ -489,11 +489,11 @@ int hbCheckSum(const uint8_t* data, int len)
 
 #define copy_data_to_com         \
 if (cd) {                        \
-	cd->len = len;               \
-	memcpy(cd->data, data, len); \
+	cd->len = len & 0xFF;               \
+	memcpy(cd->data, data, len & 0xFF); \
 }
 
-HbComRequestType hbComParseRequest(const uint8_t* data, int len, HbComData* cd)
+HbComRequestType hbComParseRequest(const uint8_t* data, size_t len, HbComData* cd)
 {
 	do {
 		if (len < 5) { break; }
@@ -614,7 +614,7 @@ ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSe
 	return hbComParseRequest(ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata), cd);
 }
 
-HbComResponseType hbComParseResponse(const uint8_t* data, int len, HbComData* cd)
+HbComResponseType hbComParseResponse(const uint8_t* data, size_t len, HbComData* cd)
 {
 	do {
 		if (len < 7) { break; } // 所有的 response ，长度最小为 7
@@ -869,18 +869,18 @@ void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status, H
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeRespA2_getMachineZones(HbComData* data, int count, AdemcoZone* zones, HbZoneProperty* props, HbComResp_A2_p1 p1)
+void hbComMakeRespA2_getMachineZones(HbComData* data, size_t count, AdemcoZone* zones, HbZoneProperty* props, HbComResp_A2_p1 p1)
 {
 	if (count > HbComResp_A2_max_zone) { return; }
 	memcpy(data->data, HbComResp_A2_head, 6);
-	data->data[3] = HbComResp_A2_len_min + count * 2;
+	data->data[3] = (HbComResp_A2_len_min + count * 2) & 0xFF;
 	uint8_t* p = data->data + 6;
-	for (int i = 0; i < count; i++) {
+	for (size_t i = 0; i < count; i++) {
 		*p++ = zones[i] & 0xFF;
 		*p++ = props[i];
 	}
 	*p++ = (count > 0) ? p1 : HbComResp_A2_p1_nomore;
-	data->len = ++p - data->data;
+	data->len = (++p - data->data) & 0xFF;
 	hbSum(data->data, data->len);
 }
 
@@ -929,14 +929,14 @@ void hbComMakeRespAB_modifyMachineZoneLostConfig(HbComData* data, AdemcoZone zon
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p1, int count, AdemcoZone* zones, HbComResp_AD_p2 p2)
+void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p1, size_t count, AdemcoZone* zones, HbComResp_AD_p2 p2)
 {
 	if (count > HbComResp_AD_max_zone) { return; }
 	memcpy(data->data, HbComResp_AD_head, 6);
-	data->data[3] = HbComResp_AD_len_min + (p1 == HbComResp_AD_p1_single ? count : count * 2);
+	data->data[3] = (HbComResp_AD_len_min + (p1 == HbComResp_AD_p1_single ? count : count * 2)) & 0xFF;
 	data->data[6] = p1;
 	uint8_t* p = data->data + 7;
-	for (int i = 0; i < count; i++) {
+	for (size_t i = 0; i < count; i++) {
 		if (p1 == HbComResp_AD_p1_single) {
 			*p++ = zones[i] & 0xFF;
 		} else {
@@ -945,7 +945,7 @@ void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p
 		}
 	}
 	*p++ = (count > 0) ? p2 : HbComResp_AD_p2_nomore;
-	data->len = ++p - data->data;
+	data->len = (++p - data->data) & 0xFF;
 	hbSum(data->data, data->len);
 }
 
