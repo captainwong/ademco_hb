@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source ~/.zshrc
 mkdir -p com/hb3344/ademco
 /usr/local/bin/swig -java -package com.hb3344.ademco -outdir com/hb3344/ademco -o libademco_java_wrap.c libademco.swig
 JAVA_INCLUDE=${JAVA_HOME}/include
