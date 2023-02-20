@@ -39,6 +39,14 @@ void ademcoPrint(const ademco_char_t* p, size_t len)
 	printf("\n");
 }
 
+uint8_t ademcoEncodeSignalStrength(int strength) {
+	return ((strength / 10) << 4) | (strength % 10);
+}
+
+int ademcoDecodeSignalStrength(uint8_t code) {
+	return ((code >> 4) & 0x0F) * 10 + (code & 0x0F);
+}
+
 int ademcoIsMachineStatusEvent(AdemcoEvent ademcoEvent) {
 	return ademcoEvent == EVENT_ARM
 		|| ademcoEvent == EVENT_HALFARM
@@ -962,7 +970,7 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len, Ademc
 				valid_len = strtoul(temp, NULL, 16);
 				p += 4 + valid_len;
 			} else {
-				valid_len = pxdata[1] * 256 + pxdata[2];
+				valid_len = (pxdata[1] << 8) | pxdata[2];
 				p += 2 + valid_len;
 			}
 

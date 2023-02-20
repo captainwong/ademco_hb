@@ -358,7 +358,8 @@ typedef struct AdemcoPacket {
 
 //! print as HEX
 ADEMCO_EXPORT_SYMBOL void ademcoPrint(const ademco_char_t* buff, size_t len);
-
+ADEMCO_EXPORT_SYMBOL uint8_t ademcoEncodeSignalStrength(int strength);
+ADEMCO_EXPORT_SYMBOL int ademcoDecodeSignalStrength(uint8_t code);
 
 //////////////////////// AdemcoEvent functions ////////////////////////
 

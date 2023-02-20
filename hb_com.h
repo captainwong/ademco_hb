@@ -403,7 +403,9 @@ ADEMCO_EXPORT_SYMBOL int hbCheckSum(const uint8_t* data, size_t len);
 
 ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseRequest(const uint8_t* buff, size_t len, HbComData* cd);
 ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata, HbComData* cd);
+// parse COM response and return response type. If cd is non-NULL, valid data will be copied to cd
 ADEMCO_EXPORT_SYMBOL HbComResponseType hbComParseResponse(const uint8_t* buff, size_t len, HbComData* cd);
+// parse COM response and return response type. If cd is non-NULL, valid data will be copied to cd
 ADEMCO_EXPORT_SYMBOL HbComResponseType hbComParseXDataResponse(const AdemcoXDataSegment* xdata, HbComData* cd);
 
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqA0_getMachineStatus(HbComData* data);
