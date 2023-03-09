@@ -611,7 +611,7 @@ HbComRequestType hbComParseRequest(const uint8_t* data, size_t len, HbComData* c
 ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata, HbComData* cd)
 {
 	if (!xdata) { return HbComReq_Invalid; }
-	return hbComParseRequest(ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata), cd);
+	return hbComParseRequest((const uint8_t*)ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata), cd);
 }
 
 HbComResponseType hbComParseResponse(const uint8_t* data, size_t len, HbComData* cd)
@@ -740,7 +740,7 @@ HbComResponseType hbComParseResponse(const uint8_t* data, size_t len, HbComData*
 HbComResponseType hbComParseXDataResponse(const AdemcoXDataSegment* xdata, HbComData* cd)
 {
 	if (!xdata) { return HbComReq_Invalid; }
-	return hbComParseResponse(ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata), cd);
+	return hbComParseResponse((const uint8_t*)ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata), cd);
 }
 
 void hbComMakeReqA0_getMachineStatus(HbComData* data)
@@ -969,7 +969,7 @@ void hbComMakeRespB1_get3SectionMachineStatus(HbComData* data, HbMachineStatus s
 
 void hbComDataToAdemcoXData(const HbComData* const data, AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr)
 {
-	ademcoMakeXData(xdata, xlf, xtr, data->data, data->len);
+	ademcoMakeXData(xdata, xlf, xtr, (const char*)data->data, data->len);
 }
 
 
