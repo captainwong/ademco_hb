@@ -1,8 +1,7 @@
 ﻿#include "hb_com.h"
 #include <string.h>
 
-int hbGetAvailableZoneProperties(HbMachineType type, HbZoneProperty props[12])
-{
+int hbGetAvailableZoneProperties(HbMachineType type, HbZoneProperty props[12]) {
 	switch (type) {
 	case HMT_WIFI:
 		break;
@@ -17,13 +16,15 @@ int hbGetAvailableZoneProperties(HbMachineType type, HbZoneProperty props[12])
 	}
 	case HMT_NETMOD:
 	{
-		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE, HZP_REMOTE_CONTROL, HZP_BUGLAR_HALF, HZP_SHIELD, HZP_DOOR_RING, };
+		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE,
+			HZP_REMOTE_CONTROL, HZP_BUGLAR_HALF, HZP_SHIELD, HZP_DOOR_RING, };
 		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
 	case HMT_LCD:
 	{
-		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE, HZP_REMOTE_CONTROL, HZP_BUGLAR_HALF, HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS };
+		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE,
+			HZP_REMOTE_CONTROL, HZP_BUGLAR_HALF, HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS };
 		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
@@ -35,19 +36,22 @@ int hbGetAvailableZoneProperties(HbMachineType type, HbZoneProperty props[12])
 	}
 	case HMT_TRUE_COLOR:
 	{
-		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL, HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS };
+		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL,
+			HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS };
 		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
 	case HMT_3_SECTION:
 	{
-		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL, HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS };
+		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL,
+			HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS };
 		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
 	case HMT_IOT:
 	{
-		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL, HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS };
+		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL,
+			HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS };
 		memcpy(props, hzps, sizeof(hzps));
 		return sizeof(hzps) / sizeof(HbZoneProperty);
 	}
@@ -68,8 +72,7 @@ int hbGetAvailableZoneProperties(HbMachineType type, HbZoneProperty props[12])
 	return 0;
 }
 
-uint16_t hbZoneMax(HbMachineType type)
-{
+uint16_t hbZoneMax(HbMachineType type) {
 	switch (type) {
 	case HMT_GPRS_IOT:
 	case HMT_GPRS:
@@ -101,18 +104,15 @@ uint16_t hbZoneMax(HbMachineType type)
 	}
 }
 
-int hbIsValidZone(HbMachineType type, uint16_t zone)
-{
+int hbIsValidZone(HbMachineType type, uint16_t zone) {
 	return ADEMCO_ZONE_FOR_MACHINE_SELF <= zone && zone <= hbZoneMax(type);
 }
 
-int hbIsValidZoneStrict(HbMachineType type, uint16_t zone)
-{
+int hbIsValidZoneStrict(HbMachineType type, uint16_t zone) {
 	return ADEMCO_ZONE_MIN <= zone && zone <= hbZoneMax(type);
 }
 
-int hbMachineIsSelling(HbMachineType type)
-{
+int hbMachineIsSelling(HbMachineType type) {
 	return type == HMT_NETMOD
 		|| type == HMT_GPRS
 		|| type == HMT_GPRS_IOT
@@ -126,30 +126,25 @@ int hbMachineIsSelling(HbMachineType type)
 		;
 }
 
-int hbMachineCanArm(HbMachineType type)
-{
+int hbMachineCanArm(HbMachineType type) {
 	return hbMachineIsSelling(type) && (type != HMT_NB);
 }
 
-int hbMachineCanDisarm(HbMachineType type)
-{
+int hbMachineCanDisarm(HbMachineType type) {
 	return hbMachineIsSelling(type) && (type != HMT_NB);
 }
 
-int hbMachineCanEnterSettings(HbMachineType type)
-{
+int hbMachineCanEnterSettings(HbMachineType type) {
 	return hbMachineIsSelling(type);
 }
 
-int hbMachineCanHalfArm(HbMachineType type)
-{
+int hbMachineCanHalfArm(HbMachineType type) {
 	return type == HMT_NETMOD
 		|| type == HMT_LCD
 		;
 }
 
-int hbMachineCanReportSignalStrength(HbMachineType type)
-{
+int hbMachineCanReportSignalStrength(HbMachineType type) {
 	return type == HMT_GPRS
 		|| type == HMT_GPRS_IOT
 		|| type == HMT_IOT
@@ -161,8 +156,7 @@ int hbMachineCanReportSignalStrength(HbMachineType type)
 		;
 }
 
-int hbMachineCanReportBySMS(HbMachineType type)
-{
+int hbMachineCanReportBySMS(HbMachineType type) {
 	return type == HMT_GPRS
 		|| type == HMT_LCD
 		|| type == HMT_TRUE_COLOR
@@ -171,46 +165,40 @@ int hbMachineCanReportBySMS(HbMachineType type)
 		;
 }
 
-int hbMachineHasWiredZone(HbMachineType type)
-{
+int hbMachineHasWiredZone(HbMachineType type) {
 	return type == HMT_NETMOD
 		|| type == HMT_TRUE_COLOR
 		|| type == HMT_3_SECTION
 		;
 }
 
-AdemcoZone hbWiredZoneMin(HbMachineType type)
-{
+AdemcoZone hbWiredZoneMin(HbMachineType type) {
 	switch (type) {
-	case HMT_NETMOD: return 1;
-	case HMT_TRUE_COLOR: return 1;
-	case HMT_3_SECTION: return 61;
+	case HMT_NETMOD:		return 1;
+	case HMT_TRUE_COLOR:	return 1;
+	case HMT_3_SECTION:		return 61;
 	default: return 0;
 	}
 }
 
-AdemcoZone hbWiredZoneMax(HbMachineType type)
-{
+AdemcoZone hbWiredZoneMax(HbMachineType type) {
 	switch (type) {
-	case HMT_NETMOD: return 8;
-	case HMT_TRUE_COLOR: return 8;
-	case HMT_3_SECTION: return 68;
+	case HMT_NETMOD:		return 8;
+	case HMT_TRUE_COLOR:	return 8;
+	case HMT_3_SECTION:		return 68;
 	default: return 0;
 	}
 }
 
-int hbMachineCanDirectlyWriteZone(HbMachineType type)
-{
+int hbMachineCanDirectlyWriteZone(HbMachineType type) {
 	return type == HMT_NETMOD;
 }
 
-int hbMachineCanLinkSubMachine(HbMachineType type)
-{
+int hbMachineCanLinkSubMachine(HbMachineType type) {
 	return type == HMT_NETMOD;
 }
 
-int hbZonePropCanReportLost(HbZoneProperty zp)
-{
+int hbZonePropCanReportLost(HbZoneProperty zp) {
 	switch (zp) {
 	case HZP_BUGLAR:
 	case HZP_EMERGENCY:
@@ -224,59 +212,48 @@ int hbZonePropCanReportLost(HbZoneProperty zp)
 	}
 }
 
-void hbInitMachineTimer(HbMachineTimer* timer)
-{
+void hbInitMachineTimer(HbMachineTimer* timer) {
 	memset(timer->data, 25, sizeof(timer));
 }
 
-int hbIsValidTimePoint(HbMachineTimePoint* tp)
-{
+int hbIsValidTimePoint(HbMachineTimePoint* tp) {
 	return tp && 0 <= tp->hour && tp->hour < 24 &&
 		0 <= tp->minute && tp->minute < 60;
 }
 
-void hbTimePointToGreenwich(HbMachineTimePoint* tp)
-{
-	if (tp && tp->hour != 25) {
+void hbTimePointToGreenwich(HbMachineTimePoint* tp) {
+	if (tp && tp->hour != 25)
 		tp->hour = (tp->hour + 16) % 24;
-	}
 }
 
-void hbTimePointFromGreenwich(HbMachineTimePoint* tp)
-{
-	if (tp && tp->hour != 25) {
+void hbTimePointFromGreenwich(HbMachineTimePoint* tp) {
+	if (tp && tp->hour != 25)
 		tp->hour = (tp->hour + 8) % 24;
-	}
 }
 
-int hbIsValidTimer(HbTimer* timer)
-{
+int hbIsValidTimer(HbTimer* timer) {
 	return timer && hbIsValidTimePoint(&timer->armAt) && hbIsValidTimePoint(&timer->disarmAt);
 }
 
-int hbIsValidMachineTimer(HbMachineTimer* timer)
-{
+int hbIsValidMachineTimer(HbMachineTimer* timer) {
 	return timer && hbIsValidTimer(&timer->timer[0]) && hbIsValidTimer(&timer->timer[1]);
 }
 
-void hbMachineTimerToGreenwich(HbMachineTimer* timer)
-{
+void hbMachineTimerToGreenwich(HbMachineTimer* timer) {
 	hbTimePointToGreenwich(&timer->timer[0].armAt);
 	hbTimePointToGreenwich(&timer->timer[0].disarmAt);
 	hbTimePointToGreenwich(&timer->timer[1].armAt);
 	hbTimePointToGreenwich(&timer->timer[1].disarmAt);
 }
 
-void hbMachineTimerFromGreenwich(HbMachineTimer* timer)
-{
+void hbMachineTimerFromGreenwich(HbMachineTimer* timer) {
 	hbTimePointFromGreenwich(&timer->timer[0].armAt);
 	hbTimePointFromGreenwich(&timer->timer[0].disarmAt);
 	hbTimePointFromGreenwich(&timer->timer[1].armAt);
 	hbTimePointFromGreenwich(&timer->timer[1].disarmAt);
 }
 
-AdemcoEvent hbMachineStatusToAdemcoEvent(HbMachineStatus status)
-{
+AdemcoEvent hbMachineStatusToAdemcoEvent(HbMachineStatus status) {
 	switch (status) {
 	case HMS_ARM:		return EVENT_ARM;
 	case HMS_DISARM:	return EVENT_DISARM;
@@ -286,8 +263,7 @@ AdemcoEvent hbMachineStatusToAdemcoEvent(HbMachineStatus status)
 	}
 }
 
-HbMachineStatus hbMachineStatusFromAdemcoEvent(AdemcoEvent ademcoEvent)
-{
+HbMachineStatus hbMachineStatusFromAdemcoEvent(AdemcoEvent ademcoEvent) {
 	switch (ademcoEvent) {
 	case EVENT_ARM:
 		return HMS_ARM;
@@ -304,8 +280,7 @@ HbMachineStatus hbMachineStatusFromAdemcoEvent(AdemcoEvent ademcoEvent)
 	}
 }
 
-AdemcoEvent hbMachineTypeToAdemcoEvent(HbMachineType type)
-{
+AdemcoEvent hbMachineTypeToAdemcoEvent(HbMachineType type) {
 	switch (type) {
 	case HMT_WIFI: 	        return EVENT_I_AM_WIFI_MACHINE;
 	case HMT_GPRS_IOT:		return EVENT_I_AM_GPRS_IOT;
@@ -322,8 +297,7 @@ AdemcoEvent hbMachineTypeToAdemcoEvent(HbMachineType type)
 	}
 }
 
-HbMachineType hbMachineTypeFromAdemcoEvent(AdemcoEvent ademcoEvent)
-{
+HbMachineType hbMachineTypeFromAdemcoEvent(AdemcoEvent ademcoEvent) {
 	switch (ademcoEvent) {
 	case EVENT_I_AM_NET_MODULE:		    return HMT_NETMOD;
 	case EVENT_I_AM_GPRS: 			    return HMT_GPRS;
@@ -340,8 +314,7 @@ HbMachineType hbMachineTypeFromAdemcoEvent(AdemcoEvent ademcoEvent)
 	}
 }
 
-AdemcoEvent hbZonePropertyToAdemcoEvent(HbZoneProperty zp)
-{
+AdemcoEvent hbZonePropertyToAdemcoEvent(HbZoneProperty zp) {
 	switch (zp) {
 	case HZP_BUGLAR:
 	case HZP_BUGLAR_HALF:	return EVENT_BURGLAR;
@@ -355,8 +328,7 @@ AdemcoEvent hbZonePropertyToAdemcoEvent(HbZoneProperty zp)
 	}
 }
 
-const char* hbMachineStatusToString(HbMachineStatus status)
-{
+const char* hbMachineStatusToString(HbMachineStatus status) {
 	switch (status) {
 	case HMS_ARM:		return "Arm";
 	case HMS_HALF_ARM:	return "Half-Arm";
@@ -366,8 +338,7 @@ const char* hbMachineStatusToString(HbMachineStatus status)
 	}
 }
 
-const char* hbMachineStatusToStringChinese(HbMachineStatus status)
-{
+const char* hbMachineStatusToStringChinese(HbMachineStatus status) {
 	switch (status) {
 	case HMS_ARM:		return "布防";
 	case HMS_HALF_ARM:	return "半布防";
@@ -377,8 +348,7 @@ const char* hbMachineStatusToStringChinese(HbMachineStatus status)
 	}
 }
 
-const char* hbMachineTypeToString(HbMachineType type)
-{
+const char* hbMachineTypeToString(HbMachineType type) {
 	switch (type) {
 	case HMT_WIFI:			return "0 WiFi";
 	case HMT_CAMERA:		return "1 Camera";
@@ -396,8 +366,7 @@ const char* hbMachineTypeToString(HbMachineType type)
 	}
 }
 
-const char* hbMachineTypeToStringChinese(HbMachineType type)
-{
+const char* hbMachineTypeToStringChinese(HbMachineType type) {
 	switch (type) {
 	case HMT_WIFI:			return "0 WiFi主机";
 	case HMT_CAMERA:		return "1 摄像头主机";
@@ -415,8 +384,7 @@ const char* hbMachineTypeToStringChinese(HbMachineType type)
 	}
 }
 
-const char* hbZonePropertyToString(HbZoneProperty zp)
-{
+const char* hbZonePropertyToString(HbZoneProperty zp) {
 	switch (zp) {
 	case HZP_BUGLAR:			return "HZP_BUGLAR";
 	case HZP_EMERGENCY:			return "HZP_EMERGENCY";
@@ -438,8 +406,7 @@ const char* hbZonePropertyToString(HbZoneProperty zp)
 	}
 }
 
-const char* hbZonePropertyToStringChinese(HbZoneProperty zp)
-{
+const char* hbZonePropertyToStringChinese(HbZoneProperty zp) {
 	switch (zp) {
 	case HZP_BUGLAR:			return "匪警全局";
 	case HZP_EMERGENCY:			return "匪警紧急";
@@ -461,29 +428,29 @@ const char* hbZonePropertyToStringChinese(HbZoneProperty zp)
 	}
 }
 
-const char* hbGetZoneFormatString(HbMachineType type)
-{
+const char* hbGetZoneFormatString(HbMachineType type) {
 	uint16_t zone = hbZoneMax(type);
-	if (10 < zone && zone < 100) { return "%02d"; } else if (zone < 1000) { return "%03d"; } else { return "%d"; }
+	if (10 < zone && zone < 100)
+		return "%02d";
+	else if (zone < 1000)
+		return "%03d";
+	else
+		return "%d";
 }
 
-void hbSum(uint8_t* data, size_t len)
-{
+void hbSum(uint8_t* data, size_t len) {
 	uint8_t sum = 0;
 	uint8_t* p = data;
-	while (p != data + len - 1) {
+	while (p != data + len - 1)
 		sum += *p++;
-	}
 	*p = sum;
 }
 
-int hbCheckSum(const uint8_t* data, size_t len)
-{
+int hbCheckSum(const uint8_t* data, size_t len) {
 	uint8_t sum = 0;
 	const uint8_t* p = data;
-	while (p != data + len - 1) {
+	while (p != data + len - 1)
 		sum += *p++;
-	}
 	return sum == *p;
 }
 
@@ -493,8 +460,7 @@ if (cd) {                        \
 	memcpy(cd->data, data, len & 0xFF); \
 }
 
-HbComRequestType hbComParseRequest(const uint8_t* data, size_t len, HbComData* cd)
-{
+HbComRequestType hbComParseRequest(const uint8_t* data, size_t len, HbComData* cd) {
 	do {
 		if (len < 5) { break; }
 		if (data[0] != 0xEB) { break; }
@@ -545,7 +511,6 @@ HbComRequestType hbComParseRequest(const uint8_t* data, size_t len, HbComData* c
 				copy_data_to_com;
 				return HbComReq_AD;
 			}
-
 			default:
 				break;
 			}
@@ -608,14 +573,12 @@ HbComRequestType hbComParseRequest(const uint8_t* data, size_t len, HbComData* c
 	return HbComReq_Invalid;
 }
 
-ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata, HbComData* cd)
-{
+ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata, HbComData* cd) {
 	if (!xdata) { return HbComReq_Invalid; }
 	return hbComParseRequest((const uint8_t*)ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata), cd);
 }
 
-HbComResponseType hbComParseResponse(const uint8_t* data, size_t len, HbComData* cd)
-{
+HbComResponseType hbComParseResponse(const uint8_t* data, size_t len, HbComData* cd) {
 	do {
 		if (len < 7) { break; } // 所有的 response ，长度最小为 7
 		if (data[0] != 0xEB || data[1] != 0xBA || data[2] != 0x3F) { break; }
@@ -737,32 +700,27 @@ HbComResponseType hbComParseResponse(const uint8_t* data, size_t len, HbComData*
 	return HbComResp_Invalid;
 }
 
-HbComResponseType hbComParseXDataResponse(const AdemcoXDataSegment* xdata, HbComData* cd)
-{
+HbComResponseType hbComParseXDataResponse(const AdemcoXDataSegment* xdata, HbComData* cd) {
 	if (!xdata) { return HbComReq_Invalid; }
 	return hbComParseResponse((const uint8_t*)ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata), cd);
 }
 
-void hbComMakeReqA0_getMachineStatus(HbComData* data)
-{
+void hbComMakeReqA0_getMachineStatus(HbComData* data) {
 	memcpy(data->data, HbComReq_A0_data, HbComReq_A0_len);
 	data->len = HbComReq_A0_len;
 }
 
-void hbComMakeReqA1_getMachineZones(HbComData* data)
-{
+void hbComMakeReqA1_getMachineZones(HbComData* data) {
 	memcpy(data->data, HbComReq_A1_data, HbComReq_A1_len);
 	data->len = HbComReq_A1_len;
 }
 
-void hbComMakeReqA2_getMoreMachineZones(HbComData* data)
-{
+void hbComMakeReqA2_getMoreMachineZones(HbComData* data) {
 	memcpy(data->data, HbComReq_A2_data, HbComReq_A2_len);
 	data->len = HbComReq_A2_len;
 }
 
-void hbComMakeReqA3_modifyMachineZone(HbComData* data, uint8_t zone, HbZoneProperty prop, HbComReq_A3_op op)
-{
+void hbComMakeReqA3_modifyMachineZone(HbComData* data, uint8_t zone, HbZoneProperty prop, HbComReq_A3_op op) {
 	memcpy(data->data, HbComReq_A3_head, 5);
 	data->data[5] = zone;
 	data->data[6] = prop;
@@ -771,22 +729,19 @@ void hbComMakeReqA3_modifyMachineZone(HbComData* data, uint8_t zone, HbZonePrope
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeReqA5_getMachineTimer(HbComData* data)
-{
+void hbComMakeReqA5_getMachineTimer(HbComData* data) {
 	memcpy(data->data, HbComReq_A5_data, HbComReq_A5_len);
 	data->len = HbComReq_A5_len;
 }
 
-void hbComMakeReqA7_setMachineTimer(HbComData* data, HbMachineTimer* timer)
-{
+void hbComMakeReqA7_setMachineTimer(HbComData* data, HbMachineTimer* timer) {
 	memcpy(data->data, HbComReq_A7_head, 5);
 	memcpy(data->data + 5, timer, sizeof(*timer));
 	data->len = HbComReq_A7_len;
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeReqAA_modifyMachineZoneLostConfig(HbComData* data, uint8_t zone, int on)
-{
+void hbComMakeReqAA_modifyMachineZoneLostConfig(HbComData* data, uint8_t zone, int on) {
 	memcpy(data->data, HbComReq_AA_head, 5);
 	data->data[5] = zone;
 	data->data[6] = !!on;
@@ -794,20 +749,17 @@ void hbComMakeReqAA_modifyMachineZoneLostConfig(HbComData* data, uint8_t zone, i
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeReqAC_getMachineZoneLostConfig(HbComData* data)
-{
+void hbComMakeReqAC_getMachineZoneLostConfig(HbComData* data) {
 	memcpy(data->data, HbComReq_AC_data, HbComReq_AC_len);
 	data->len = HbComReq_AC_len;
 }
 
-void hbComMakeReqAD_getMoreMachineZoneLostConfig(HbComData* data)
-{
+void hbComMakeReqAD_getMoreMachineZoneLostConfig(HbComData* data) {
 	memcpy(data->data, HbComReq_AD_data, HbComReq_AD_len);
 	data->len = HbComReq_AD_len;
 }
 
-void hbComMakeReqAE_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status)
-{
+void hbComMakeReqAE_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status) {
 	memcpy(data->data, HbComReq_AE_head, 5);
 	data->data[5] = p1;
 	data->data[6] = status;
@@ -815,28 +767,24 @@ void hbComMakeReqAE_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeReqB0_get3SectionMachineStatus(HbComData* data)
-{
+void hbComMakeReqB0_get3SectionMachineStatus(HbComData* data) {
 	memcpy(data->data, HbComReq_B0_data, HbComReq_B0_len);
 	data->len = HbComReq_B0_len;
 }
 
-void hbComMakeReqRD_acct(HbComData* data)
-{
+void hbComMakeReqRD_acct(HbComData* data) {
 	memcpy(data->data, HbComReq_RD_acct_data, HbComReq_RD_acct_len);
 	data->len = HbComReq_RD_acct_len;
 }
 
-void hbComMakeReqWR_acct(HbComData* data, const char* acct)
-{
+void hbComMakeReqWR_acct(HbComData* data, const char* acct) {
 	memcpy(data->data, HbComReq_WR_acct_head, 5);
 	ademcoDecStrToHiLoArray(data->data + 5, 9, acct);
 	data->len = HbComReq_WR_acct_len;
 	hbSum(data->data, data->len);
 }
 
-void hbComResp_A2_Iter_init(HbComResp_A2_Iter* iter, const HbComData* com)
-{
+void hbComResp_A2_Iter_init(HbComResp_A2_Iter* iter, const HbComData* com) {
 	if (!iter || !com)return;
 	memcpy(&iter->com, com, sizeof(HbComData));
 	iter->i = 0;
@@ -849,19 +797,16 @@ void hbComResp_A2_Iter_init(HbComResp_A2_Iter* iter, const HbComData* com)
 	}
 }
 
-HbComResp_A2_p1 hbComResp_A2_Iter_next(HbComResp_A2_Iter* iter, HbZoneAndProperty* zp)
-{
-	if (iter->i == iter->total) {
+HbComResp_A2_p1 hbComResp_A2_Iter_next(HbComResp_A2_Iter* iter, HbZoneAndProperty* zp) {
+	if (iter->i == iter->total)
 		return HbComResp_A2_p1_nomore;
-	}
 	zp->zone = iter->com.data[6 + iter->i * 2];
 	zp->prop = (HbZoneProperty)iter->com.data[7 + iter->i * 2];
 	iter->i++;
 	return HbComResp_A2_p1_more;
 }
 
-void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status, HbMachineType type)
-{
+void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status, HbMachineType type) {
 	memcpy(data->data, HbComResp_A0_head, 6);
 	data->data[6] = status;
 	data->data[7] = type;
@@ -869,8 +814,7 @@ void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status, H
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeRespA2_getMachineZones(HbComData* data, size_t count, AdemcoZone* zones, HbZoneProperty* props, HbComResp_A2_p1 p1)
-{
+void hbComMakeRespA2_getMachineZones(HbComData* data, size_t count, AdemcoZone* zones, HbZoneProperty* props, HbComResp_A2_p1 p1) {
 	if (count > HbComResp_A2_max_zone) { return; }
 	memcpy(data->data, HbComResp_A2_head, 6);
 	data->data[3] = (HbComResp_A2_len_min + count * 2) & 0xFF;
@@ -884,14 +828,12 @@ void hbComMakeRespA2_getMachineZones(HbComData* data, size_t count, AdemcoZone* 
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeRespA3_waitingSignal(HbComData* data)
-{
+void hbComMakeRespA3_waitingSignal(HbComData* data) {
 	memcpy(data->data, HbComResp_A3_data, HbComResp_A3_len);
 	data->len = HbComResp_A3_len;
 }
 
-void hbComMakeRespA4_modifyMachineZone(HbComData* data, AdemcoZone zone, HbZoneProperty prop, HbComResp_A4_p3 p3)
-{
+void hbComMakeRespA4_modifyMachineZone(HbComData* data, AdemcoZone zone, HbZoneProperty prop, HbComResp_A4_p3 p3) {
 	memcpy(data->data, HbComResp_A4_head, 6);
 	data->data[6] = zone & 0xFF;
 	data->data[7] = prop;
@@ -900,28 +842,24 @@ void hbComMakeRespA4_modifyMachineZone(HbComData* data, AdemcoZone zone, HbZoneP
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeRespA6_getMachineTimer(HbComData* data, HbMachineTimer* timer)
-{
+void hbComMakeRespA6_getMachineTimer(HbComData* data, HbMachineTimer* timer) {
 	memcpy(data->data, HbComResp_A6_head, 6);
 	memcpy(data->data + 6, timer->data, sizeof(*timer));
 	data->len = HbComResp_A6_len;
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeRespA7_setMachineTimer(HbComData* data)
-{
+void hbComMakeRespA7_setMachineTimer(HbComData* data) {
 	memcpy(data->data, HbComResp_A7_data, HbComResp_A7_len);
 	data->len = HbComResp_A7_len;
 }
 
-void hbComMakeRespA8_reject(HbComData* data)
-{
+void hbComMakeRespA8_reject(HbComData* data) {
 	memcpy(data->data, HbComResp_A8_data, HbComResp_A8_len);
 	data->len = HbComResp_A8_len;
 }
 
-void hbComMakeRespAB_modifyMachineZoneLostConfig(HbComData* data, AdemcoZone zone, HbComResp_AB_p2 p2)
-{
+void hbComMakeRespAB_modifyMachineZoneLostConfig(HbComData* data, AdemcoZone zone, HbComResp_AB_p2 p2) {
 	memcpy(data->data, HbComResp_AB_head, 6);
 	data->data[6] = zone & 0xFF;
 	data->data[7] = p2;
@@ -929,8 +867,7 @@ void hbComMakeRespAB_modifyMachineZoneLostConfig(HbComData* data, AdemcoZone zon
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p1, size_t count, AdemcoZone* zones, HbComResp_AD_p2 p2)
-{
+void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p1, size_t count, AdemcoZone* zones, HbComResp_AD_p2 p2) {
 	if (count > HbComResp_AD_max_zone) { return; }
 	memcpy(data->data, HbComResp_AD_head, 6);
 	data->data[3] = (HbComResp_AD_len_min + (p1 == HbComResp_AD_p1_single ? count : count * 2)) & 0xFF;
@@ -949,8 +886,7 @@ void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeRespAF_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status)
-{
+void hbComMakeRespAF_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status) {
 	memcpy(data->data, HbComResp_AF_head, 6);
 	data->data[6] = p1;
 	data->data[7] = status;
@@ -959,17 +895,13 @@ void hbComMakeRespAF_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which 
 }
 
 void hbComMakeRespB1_get3SectionMachineStatus(HbComData* data, HbMachineStatus statusMachine,
-											  HbMachineStatus statusSec1, HbMachineStatus statusSec2, HbMachineStatus statusSec3)
-{
+											  HbMachineStatus statusSec1, HbMachineStatus statusSec2, HbMachineStatus statusSec3) {
 	memcpy(data->data, HbComResp_B1_head, 6);
 	data->data[6] = (statusMachine << 6) | (statusSec1 << 4) | (statusSec2 << 2) | (statusSec3);
 	data->len = HbComResp_B1_len;
 	hbSum(data->data, data->len);
 }
 
-void hbComDataToAdemcoXData(const HbComData* const data, AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr)
-{
+void hbComDataToAdemcoXData(const HbComData* const data, AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr) {
 	ademcoMakeXData(xdata, xlf, xtr, (const char*)data->data, data->len);
 }
-
-

@@ -1,5 +1,4 @@
 #ifdef _WIN32
-#define _CRT_SECURE_NO_WARNINGS
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -28,21 +27,18 @@
 #include "../../ademco.h"
 
 
-void op_usage()
-{
+void op_usage() {
 	printf("Press A for Arm, D for Disarm, E for Emergency, Q for Quit\n");
 }
 
-void usage(const char* name)
-{
+void usage(const char* name) {
 	printf("Usage: %s listening_port\n", name);
 	op_usage();
 }
 
 constexpr size_t BUFF_SIZE = 4096;
 
-struct Buffer
-{
+struct Buffer {
 	size_t	rpos;
 	size_t	wpos;
 	char	buff[BUFF_SIZE];
@@ -60,8 +56,7 @@ std::mutex mutex = {};
 std::vector<AdemcoEvent> evntsWaiting4Send = {};
 char pwd[1024] = {};
 
-int setNonBlocking(SOCKET socket)
-{
+int setNonBlocking(SOCKET socket) {
 	u_long lngMode = 1;
 	int ret = ioctl(socket, FIONBIO, (u_long*)&lngMode);
 	if (ret != 0) {
@@ -71,9 +66,8 @@ int setNonBlocking(SOCKET socket)
 	return ret;
 }
 
-int main(int argc, char** argv)
-{
-	usage(argv[0]);	
+int main(int argc, char** argv) {
+	usage(argv[0]);
 
 #ifdef _WIN32
 	WSADATA wsaData;
@@ -97,11 +91,11 @@ int main(int argc, char** argv)
 	sAddrIn.sin_addr.s_addr = INADDR_ANY;
 
 	auto serverSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	int ret = setNonBlocking(serverSock); 
+	int ret = setNonBlocking(serverSock);
 	if (ret != 0) {
 		return ret;
 	}
-	ret = bind(serverSock, (struct sockaddr*) & sAddrIn, sizeof(sAddrIn));
+	ret = bind(serverSock, (struct sockaddr*)&sAddrIn, sizeof(sAddrIn));
 	if (ret != 0) {
 		fprintf(stderr, "bind failed %d\n", ret);
 		return ret;
@@ -129,7 +123,7 @@ int main(int argc, char** argv)
 		printf("do_accept, select ret=%d\n", nfds);
 		if (nfds > 0) {
 			FD_CLR(serverSock, &rfd);
-			clientSock = accept(serverSock, (struct sockaddr*) & sForeignAddrIn, &nLength);
+			clientSock = accept(serverSock, (struct sockaddr*)&sForeignAddrIn, &nLength);
 			int ret = setNonBlocking(clientSock);
 			if (ret != 0) {
 				exit(0);
@@ -159,7 +153,7 @@ int main(int argc, char** argv)
 			case AID_NULL: // reply ack				
 			{
 				char ack[1024];
-				int len = ademcoMakeAckPacket(ack, sizeof(ack), pkt.seq, pkt.acct, 0);
+				size_t len = ademcoMakeAckPacket(ack, sizeof(ack), pkt.seq, pkt.acct, 0);
 				printf("S:"); ademcoPrint(ack, len);
 				send(clientSock, (const char*)ack, len, 0);
 				break;
@@ -233,14 +227,14 @@ int main(int argc, char** argv)
 			close(clientSock); clientSock = INVALID_SOCKET;
 			clientBuffer.clear();
 		} else {
-			clientBuffer.wpos += bytes_transfered;			
+			clientBuffer.wpos += bytes_transfered;
 			auto result = do_handle();
 			while (1) {
 				size_t bytes_not_commited = clientBuffer.wpos - clientBuffer.rpos;
-				if (bytes_not_commited == 0) { 
-					if (clientBuffer.wpos == BUFF_SIZE) { 
-						clientBuffer.clear(); 
-					} 
+				if (bytes_not_commited == 0) {
+					if (clientBuffer.wpos == BUFF_SIZE) {
+						clientBuffer.clear();
+					}
 					break;
 				}
 
@@ -249,7 +243,7 @@ int main(int argc, char** argv)
 					memset(clientBuffer.buff + bytes_not_commited, 0, BUFF_SIZE - bytes_not_commited);
 					clientBuffer.wpos -= clientBuffer.rpos; clientBuffer.rpos = 0;
 					result = do_handle();
-				} else { 
+				} else {
 					result = do_handle();
 				}
 
@@ -281,7 +275,7 @@ int main(int argc, char** argv)
 						printf("S:"); ademcoPrint(buf, len);
 						send(clientSock, (const char*)buf, len, 0);
 					}
-					
+
 				}
 				evntsWaiting4Send.clear();
 			}
