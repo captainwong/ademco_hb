@@ -425,7 +425,7 @@ const char* hbZonePropertyToString(HbZoneProperty zp)
 	case HZP_GAS:				return "HZP_GAS";
 	case HZP_WATER:				return "HZP_WATER";
 	case HZP_SUB_MACHINE:		return "HZP_SUB_MACHINE";
-	case HZP_REMOTE_CONTROL:	return "HZP_REMOTE_CONTRO";
+	case HZP_REMOTE_CONTROL:	return "HZP_REMOTE_CONTROL";
 	case HZP_BUGLAR_HALF:		return "HZP_BUGLAR_HALF";
 	case HZP_SHIELD:			return "HZP_SHIELD";
 	case HZP_DOOR_RING:			return "HZP_DOOR_RING";

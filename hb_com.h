@@ -209,7 +209,7 @@ typedef enum HbComReq_A3_p3 {
 	HbComReq_A3_p3_del = 0x00, //! 删除防区
 	HbComReq_A3_p3_learn = 0x01, //! 学码
 	HbComReq_A3_p3_stop = 0x02, //! 停止学码
-	HbComReq_A3_p3_modify = 0x04, //! 修改防区属性
+	HbComReq_A3_p3_modify = 0x03, //! 修改防区属性
 }HbComReq_A3_op;
 
 //! 学码开始回应 EB BA 3F 07 P0 A3 5A
