@@ -295,9 +295,9 @@ void print_imgs()
 	printf("\n\n");
 }
 
-bool zprop_is_contain(HbZoneProperty prop) {
-	for (const auto& zp : hbZoneProperties) {
-		if (zp == prop)return true;
+bool zprop_is_contain(HbZoneProperty* props, int count, HbZoneProperty prop) {
+	for (int i = 0; i < count; i++) {
+		if (props[i] == prop)return true;
 	}
 	return false;
 }
@@ -361,7 +361,7 @@ void print_available_zone_props()
 			HbZoneProperty avail_props[12];
 			int count = hbGetAvailableZoneProperties(t, avail_props);
 			for (auto zp : hbZoneProperties) {
-				printf("|%s", print_bool(zprop_is_contain(zp)));
+				printf("|%s", print_bool(zprop_is_contain(avail_props, count, zp)));
 			}
 			printf("|\n");
 		}
