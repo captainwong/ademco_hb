@@ -20,6 +20,27 @@
 #define dline dprintf("%s %d\n", __FILE__, __LINE__);
 #define dmsg dline; dprintf
 
+
+static uint8_t hex2char(uint8_t h) {
+	h &= 0x0F;
+	if (h > 9)
+		return 'A' + h - 10;
+	else
+		return '0' + h;
+}
+
+static uint8_t char2hex(uint8_t c) {
+	if ('0' <= c && c <= '9')
+		return c - '0';
+	else if ('A' <= c && c <= 'F')
+		return c - 'A' + 10;
+	else if ('a' <= c && c <= 'f')
+		return c - 'a' + 10;
+	else
+		return 0xFF;
+}
+
+
 void ademcoPrint(const ademco_char_t* p, size_t len) {
 	while (len--) {
 		if (isprint(*(const uint8_t*)p))
@@ -336,7 +357,7 @@ uint16_t ademcoCRC16(const ademco_char_t* buff, size_t len) {
 	return crc;
 }
 
-size_t ademcoAppendDataSegment(ademco_char_t* buff, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone) {
+size_t ademcoAppendDataSegment(ademco_char_t* buff, const char* acct, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone) {
 	char* p = (char*)buff;
 	if (ademcoEvent == EVENT_INVALID_EVENT) {
 		*p++ = '[';
@@ -346,8 +367,12 @@ size_t ademcoAppendDataSegment(ademco_char_t* buff, AdemcoId ademcoId, AdemcoEve
 		*p++ = '[';
 
 		*p++ = '#';
-		snprintf(p, 6 + 1, "%06X", ademcoId % ADEMCO_ID_SENTINEL);
-		p += 6;
+		if (acct && ademcoId == 0) {
+			p += snprintf(p, 20, "%s", acct);
+		} else {
+			snprintf(p, 6 + 1, "%06X", ademcoId % ADEMCO_ID_SENTINEL);
+			p += 6;
+		}
 
 		*p++ = '|';
 
@@ -374,20 +399,20 @@ size_t ademcoAppendDataSegment(ademco_char_t* buff, AdemcoId ademcoId, AdemcoEve
 
 		*p++ = ']';
 
-		assert(p - (char*)buff == ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN);
+		//assert(p - (char*)buff == ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN);
 
-		*p++ = '\0'; // for debug convenience
+		*p = '\0'; // for debug convenience
 
-		return ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN;
+		return p - (char*)buff;
 	}
 }
 
-size_t ademcoAppendDataSegment2(AdemcoDataSegment* dataSegment, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone) {
+size_t ademcoAppendDataSegment2(AdemcoDataSegment* dataSegment, const char* acct, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone) {
 	dataSegment->ademcoId = ademcoId;
 	dataSegment->ademcoEvent = ademcoEvent;
 	dataSegment->gg = gg;
 	dataSegment->zone = zone;
-	return dataSegment->raw_len = ademcoAppendDataSegment(dataSegment->raw, ademcoId, ademcoEvent, gg, zone);
+	return dataSegment->raw_len = ademcoAppendDataSegment(dataSegment->raw, acct, ademcoId, ademcoEvent, gg, zone);
 }
 
 AdemcoParseResult ademcoParseDataSegment(const ademco_char_t* packet, size_t packet_len, AdemcoDataSegment* dataSegment) {
@@ -725,7 +750,7 @@ size_t ademcoMakeHbPacket(ademco_char_t* dst_buff, size_t len, uint16_t seq, con
 		snprintf(p, 7, "%06X", ademcoId);
 		p += 6;
 	}
-	p += ademcoAppendDataSegment(p, ademcoId, ademcoEvent, gg, zone);
+	p += ademcoAppendDataSegment(p, acct, ademcoId, ademcoEvent, gg, zone);
 	if (xdata && xdata->raw_len > 0) {
 		memcpy(p, xdata->raw, xdata->raw_len);
 		p += xdata->raw_len;
@@ -788,7 +813,7 @@ size_t ademcoMakeHbPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, Ad
 						   AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, const AdemcoXDataSegment* xdata) {
 	pkt->seq = seq;
 	copyAcct2AdemcoPacket(pkt, acct);
-	ademcoAppendDataSegment2(&pkt->data, ademcoId, ademcoEvent, gg, zone);
+	ademcoAppendDataSegment2(&pkt->data, acct, ademcoId, ademcoEvent, gg, zone);
 	if (xdata && xdata->raw_len > 0) {
 		pkt->xdata.lenghFormat = xdata->lenghFormat;
 		memcpy(pkt->xdata.raw, xdata->raw, xdata->raw_len);
@@ -882,7 +907,7 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len, Ademc
 		// #acct
 		const char* pacct = ++p;
 		while (p < pcr && *p != '[') {
-			if (!isalnum(*p)) { p = NULL; dline; break; }
+			if (!isxdigit(*p)) { p = NULL; dline; break; }
 			p++;
 		}
 		if (p == NULL || p >= pcr || *p != '[' || p - pacct >= ADEMCO_PACKET_ACCT_MAX_LEN) { dline; break; }
@@ -965,6 +990,34 @@ size_t ademcoHiLoArrayToDecStr(ademco_char_t* str, const uint8_t* arr, size_t le
 	return p - str;
 }
 
+size_t ademcoHiLoArrayToDecStr2(ademco_char_t* str, const uint8_t* arr, size_t len) {
+	char* p = str;
+	for (size_t i = 0; i < len; i++) {
+		char c = (arr[i] >> 4) & 0x0F;
+		if (c > 9) {
+			if (i < 6) {
+				*p++ = c - 10 + 'A';
+			} else {
+				return p - str;
+			}
+		} else {
+			*p++ = c + '0';
+		}
+		
+		c = (arr[i] & 0x0F);
+		if (c > 9) {
+			if (i < 6) {
+				*p++ = c - 10 + 'A';
+			} else {
+				return p - str;
+			}
+		} else {
+			*p++ = c + '0';
+		}
+	}
+	return p - str;
+}
+
 size_t ademcoDecStrToHiLoArray(uint8_t* arr, size_t len, const char* str) {
 	char* p = (char*)arr;
 	size_t slen = str ? strlen(str) : 0;
@@ -993,13 +1046,35 @@ size_t ademcoDecStrToHiLoArray(uint8_t* arr, size_t len, const char* str) {
 	return len;
 }
 
-static uint8_t hex2char(uint8_t h) {
-	h &= 0x0F;
-	if (h > 9)
-		return 'A' + h - 10;
-	else
-		return '0' + h;
+size_t ademcoDecStrToHiLoArray2(uint8_t* arr, size_t len, const char* str) {
+	char* p = (char*)arr;
+	size_t slen = str ? strlen(str) : 0;
+	if (slen > len * 2)
+		slen = len * 2;
+	for (size_t i = 0; i < slen; i += 2) {
+		char hi = str[i];
+		if (isxdigit(hi)) {
+			if (i + 1 < slen) {
+				char lo = str[i + 1];
+				if (isxdigit(lo))
+					*p++ = (char2hex(hi) << 4) | (char2hex(lo) & 0x0F);
+				else {
+					*p++ = (char2hex(hi) << 4) | 0x0F;
+					break;
+				}
+			} else {
+				*p++ = (char2hex(hi) << 4) | 0x0F;
+				break;
+			}
+		} else {
+			break;
+		}
+	}
+	while ((char*)arr + len > p)
+		*p++ = 0xFF;
+	return len;
 }
+
 
 size_t ademcoHexArrayToStr(char* str, const uint8_t* arr, size_t len) {
 	char* p = str;
@@ -1008,17 +1083,6 @@ size_t ademcoHexArrayToStr(char* str, const uint8_t* arr, size_t len) {
 		*p++ = hex2char(arr[i] & 0x0F);
 	}
 	return p - str;
-}
-
-static uint8_t char2hex(uint8_t c) {
-	if ('0' <= c && c <= '9')
-		return c - '0';
-	else if ('A' <= c && c <= 'F')
-		return c - 'A' + 10;
-	else if ('a' <= c && c <= 'f')
-		return c - 'a' + 10;
-	else 
-		return 0xFF;
 }
 
 size_t ademcoHexStrToArray(uint8_t* arr, const char* str, uint8_t padding) {

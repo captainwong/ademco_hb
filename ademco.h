@@ -380,9 +380,9 @@ ADEMCO_EXPORT_SYMBOL const char* ademcoEventToStringChinese(AdemcoEvent ademcoEv
 //////////////////////// AdemcoDataSegment functions ////////////////////////
 
 //! make a `DATA` packet and store to `packet`, return length
-ADEMCO_EXPORT_SYMBOL size_t ademcoAppendDataSegment(ademco_char_t* packet, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone);
+ADEMCO_EXPORT_SYMBOL size_t ademcoAppendDataSegment(ademco_char_t* packet, const char* acct, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone);
 //! make a `DATA` packet and store to `dataSegment`, return length
-ADEMCO_EXPORT_SYMBOL size_t ademcoAppendDataSegment2(AdemcoDataSegment* dataSegment, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone);
+ADEMCO_EXPORT_SYMBOL size_t ademcoAppendDataSegment2(AdemcoDataSegment* dataSegment, const char* acct, AdemcoId ademcoId, AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone);
 //! parse `DATA` packet, if ok, `dataSegment`'s members will be useful
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoParseDataSegment(const ademco_char_t* packet, size_t packet_len, AdemcoDataSegment* dataSegment);
 // return 0 for empty packet, CONGWIN_FE100_PACKET_LEN for success
@@ -459,6 +459,16 @@ ADEMCO_EXPORT_SYMBOL uint16_t ademcoCRC16(const ademco_char_t* buff, size_t len)
 // 示例：输入数组：0x18 0x24 0x08 0x88 0x10 0x1f 0xff，输出字符串"18240888101"
 ADEMCO_EXPORT_SYMBOL size_t ademcoHiLoArrayToDecStr(ademco_char_t* str, const uint8_t* arr, size_t len);
 
+// 将一串以高低字节表示的十六进制数组转换为字符串
+// 每个字节的高四位和低四位若不大于9，将该四位表示的数字以10进制ascii码填入str，否则：
+// 若定长6字节包含a~f，说明是WiFi主机
+// 返回字符串长度
+// 注意：函数不会在str末尾补 null terminator
+// 调用者应确保str有足够空间，至少len的2倍，否则会崩溃
+// 示例：输入数组：0x18 0x24 0x08 0x88 0x10 0x1f 0xff，输出字符串"18240888101"
+// 示例：输入数组：0x24 0x94 0x94 0x4c 0x48 0x15 0xff，输出字符串"2494944C4815"
+ADEMCO_EXPORT_SYMBOL size_t ademcoHiLoArrayToDecStr2(ademco_char_t* str, const uint8_t* arr, size_t len);
+
 // 将一个10进制数字符串转为高低字节表示的数组，节省空间
 // str应只包含'0'~'9'，否则失败返回0
 // str长度若大于len * 2，str[len]及之后的内容将被舍弃以避免溢出
@@ -468,6 +478,16 @@ ADEMCO_EXPORT_SYMBOL size_t ademcoHiLoArrayToDecStr(ademco_char_t* str, const ui
 // 示例：输入字符串 "12345678901234567890", len=9, 则arr内容为 0x12 0x34 0x56 0x78 0x90 0x12 0x34 0x56 0x78, return 9
 // 示例：输入NULL，返回 9个 0xFF
 ADEMCO_EXPORT_SYMBOL size_t ademcoDecStrToHiLoArray(uint8_t* arr, size_t len, const char* str);
+
+// 将一个16进制数字符串转为高低字节表示的数组，节省空间
+// str应只包含'0'~'9', 'A'~'F', 'a'~'f'，否则失败返回0
+// str长度若大于len * 2，str[len]及之后的内容将被舍弃以避免溢出
+// 转换后的长度若不满len，则以0xF补满。
+// 示例：输入字符串"123ABC"，len=6, 则 arr 内容为 0x12 0x3a 0xbc 0xff 0xff 0xff
+// 示例：输入字符串 "18240888101", len=9, 则arr内容为 0x18 0x24 0x08 0x88 0x10 0x1f 0xff 0xff 0xff, return 9
+// 示例：输入字符串 "12345678901234567890", len=9, 则arr内容为 0x12 0x34 0x56 0x78 0x90 0x12 0x34 0x56 0x78, return 9
+// 示例：输入NULL，返回 9个 0xFF
+ADEMCO_EXPORT_SYMBOL size_t ademcoDecStrToHiLoArray2(uint8_t* arr, size_t len, const char* str);
 
 // 将一串字节流转换为可打印形式
 // 返回str长度（len * 2)
