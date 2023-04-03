@@ -364,7 +364,8 @@ ADEMCO_EXPORT_SYMBOL uint8_t ademcoEncodeSignalStrength(int strength);
 ADEMCO_EXPORT_SYMBOL int ademcoDecodeSignalStrength(uint8_t code);
 
 //////////////////////// AdemcoEvent functions ////////////////////////
-
+//! 是否合法主机账号
+ADEMCO_EXPORT_SYMBOL int ademcoIsValidAccount(const char* acct);
 //! 是否主机状态事件
 ADEMCO_EXPORT_SYMBOL int ademcoIsMachineStatusEvent(AdemcoEvent ademcoEvent);
 //! 是否主机类型事件

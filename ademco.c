@@ -60,6 +60,14 @@ int ademcoDecodeSignalStrength(uint8_t code) {
 	return ((code >> 4) & 0x0F) * 10 + (code & 0x0F);
 }
 
+int ademcoIsValidAccount(const char* acct) {
+	while (*acct) {
+		if (!isxdigit(*acct++))
+			return 0;
+	}
+	return 1;
+}
+
 int ademcoIsMachineStatusEvent(AdemcoEvent ademcoEvent) {
 	return ademcoEvent == EVENT_ARM
 		|| ademcoEvent == EVENT_HALFARM
