@@ -9,6 +9,7 @@ int hbGetAvailableZoneProperties(HbMachineType type, HbZoneProperty props[12]) {
 		break;
 	case HMT_GPRS_IOT:
 	case HMT_GPRS:
+	case HMT_WIFI2:
 	{
 		HbZoneProperty hzps[] = { HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL, };
 		memcpy(props, hzps, sizeof(hzps));
@@ -77,6 +78,7 @@ uint16_t hbZoneMax(HbMachineType type) {
 	case HMT_GPRS_IOT:
 	case HMT_GPRS:
 	case HMT_WIRED:
+	case HMT_WIFI2:
 		return 99;
 
 	case HMT_NETMOD:
@@ -123,6 +125,7 @@ int hbMachineIsSelling(HbMachineType type) {
 		|| type == HMT_3_SECTION
 		|| type == HMT_GPRS_PHONE
 		|| type == HMT_NB
+		|| type == HMT_WIFI2
 		;
 }
 
@@ -293,6 +296,7 @@ AdemcoEvent hbMachineTypeToAdemcoEvent(HbMachineType type) {
 	case HMT_IOT:			return EVENT_I_AM_IOT_MACHINE;
 	case HMT_GPRS_PHONE:	return EVENT_I_AM_GPRS_PHONE;
 	case HMT_NB:			return EVENT_I_AM_NB_MACHINE;
+	case HMT_WIFI2:			return EVENT_I_AM_WIFI2_MACHINE;
 	default: 				return EVENT_INVALID_EVENT;
 	}
 }
@@ -310,6 +314,7 @@ HbMachineType hbMachineTypeFromAdemcoEvent(AdemcoEvent ademcoEvent) {
 	case EVENT_I_AM_GPRS_IOT:			return HMT_GPRS_IOT;
 	case EVENT_I_AM_GPRS_PHONE:			return HMT_GPRS_PHONE;
 	case EVENT_I_AM_NB_MACHINE:			return HMT_NB;
+	case EVENT_I_AM_WIFI2_MACHINE:		return HMT_WIFI2;
 	default: 							return HMT_INVALID;
 	}
 }
@@ -362,6 +367,7 @@ const char* hbMachineTypeToString(HbMachineType type) {
 	case HMT_IOT:			return "9 IoT";
 	case HMT_GPRS_PHONE:	return "10 Gprs_Phone";
 	case HMT_NB:			return "11 Nb";
+	case HMT_WIFI2:			return "12 WiFi2";
 	default:				return "Unknown HbMachineType";
 	}
 }
@@ -380,6 +386,7 @@ const char* hbMachineTypeToStringChinese(HbMachineType type) {
 	case HMT_IOT:			return "9 物联卡主机";
 	case HMT_GPRS_PHONE:	return "10 GPRS主机能打电话";
 	case HMT_NB:			return "11 NB报警接收主机";
+	case HMT_WIFI2:			return "12 WiFi主机新版";
 	default:				return "未知主机";
 	}
 }

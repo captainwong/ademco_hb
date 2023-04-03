@@ -78,7 +78,8 @@ int ademcoIsMachineTypeEvent(AdemcoEvent ademcoEvent) {
 		|| ademcoEvent == EVENT_I_AM_TRUE_COLOR
 		|| ademcoEvent == EVENT_I_AM_GPRS_IOT
 		|| ademcoEvent == EVENT_I_AM_GPRS_PHONE
-		|| ademcoEvent == EVENT_I_AM_NB_MACHINE;
+		|| ademcoEvent == EVENT_I_AM_NB_MACHINE
+		|| ademcoEvent == EVENT_I_AM_WIFI2_MACHINE;
 }
 
 int ademcoIsEventNeedControlSource(AdemcoEvent ademcoEvent) {
@@ -220,6 +221,7 @@ const char* ademcoEventToString(AdemcoEvent ademcoEvent) {
 	case EVENT_I_AM_GPRS_IOT:						return "I_AM_GPRS_IOT";
 	case EVENT_I_AM_GPRS_PHONE:						return "I_AM_GPRS_PHONE";
 	case EVENT_I_AM_NB_MACHINE:						return "I_AM_NB_MACHINE";
+	case EVENT_I_AM_WIFI2_MACHINE:					return "I_AM_WIFI2_MACHINE";
 	case EVENT_SIM_IS_IOT_CARD:						return "SIM card is IOT";
 	case EVENT_SIM_IS_IOT_PLATFORM_CARD:			return "SIM card is Platform IOT";
 	case EVENT_SIM_IS_NOT_IOT_CARD:					return "SIM card is not IOT";
@@ -299,6 +301,7 @@ const char* ademcoEventToStringChinese(AdemcoEvent ademcoEvent) {
 	case EVENT_I_AM_GPRS_IOT:						return "我是简化版物联卡主机";
 	case EVENT_I_AM_GPRS_PHONE:						return "我是GPRS主机能打电话";
 	case EVENT_I_AM_NB_MACHINE:						return "我是NB报警接收主机";
+	case EVENT_I_AM_WIFI2_MACHINE:					return "我是WiFi主机新版";
 	case EVENT_SIM_IS_IOT_CARD:						return "SIM卡为物联卡";
 	case EVENT_SIM_IS_IOT_PLATFORM_CARD:			return "SIM卡为平台物联卡";
 	case EVENT_SIM_IS_NOT_IOT_CARD:					return "SIM卡为非物联卡";

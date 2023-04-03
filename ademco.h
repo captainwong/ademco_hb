@@ -158,13 +158,14 @@ typedef enum AdemcoEvent {
 	EVENT_I_AM_GPRS								= 1717, // 主机类型--GPRS主机
 	EVENT_I_AM_LCD_MACHINE						= 1727, // 主机类型--液晶主机
 	EVENT_I_AM_WIRE_MACHINE						= 1737, // 主机类型--网线主机
-	EVENT_I_AM_WIFI_MACHINE						= 1747, // 主机类型--WiFi主机
+	EVENT_I_AM_WIFI_MACHINE						= 1747, // 主机类型--WiFi主机(停用)
 	EVENT_I_AM_3_SECTION_MACHINE				= 1757, // 主机类型--三区段主机
 	EVENT_I_AM_IOT_MACHINE						= 1767, // 主机类型--物联卡主机
 	EVENT_I_AM_TRUE_COLOR						= 1777, // 主机类型--真彩主机
 	EVENT_I_AM_GPRS_IOT							= 1787, // 主机类型--物联卡主机
 	EVENT_I_AM_GPRS_PHONE						= 1797, // 主机类型--GRPS主机带电话功能
 	EVENT_I_AM_NB_MACHINE						= 1807, // 主机类型--NB报警接收主机
+	EVENT_I_AM_WIFI2_MACHINE					= 1817, // 主机类型--WiFi主机(新版)
 
 	EVENT_PHONE_USER_SOS						= 1709, // 手机用户SOS
 	EVENT_PHONE_USER_CANCLE_ALARM				= 1711, // 手机用户消警
@@ -253,6 +254,7 @@ static const AdemcoEvent AdemcoEvents[] = {
 	EVENT_I_AM_GPRS_IOT,
 	EVENT_I_AM_GPRS_PHONE,
 	EVENT_I_AM_NB_MACHINE,
+	EVENT_I_AM_WIFI2_MACHINE,
 
 	EVENT_SIM_IS_IOT_CARD,
 	EVENT_SIM_IS_IOT_PLATFORM_CARD,

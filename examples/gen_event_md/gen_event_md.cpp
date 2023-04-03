@@ -109,6 +109,7 @@ AdemcoEvent privateEvents[] = {
 	EVENT_I_AM_GPRS_IOT,
 	EVENT_I_AM_GPRS_PHONE,
 	EVENT_I_AM_NB_MACHINE,
+	EVENT_I_AM_WIFI2_MACHINE,
 
 	EVENT_PHONE_USER_SOS,
 	EVENT_PHONE_USER_CANCLE_ALARM,
@@ -149,6 +150,7 @@ const char* get_core_author(HbMachineType t)
 	case HMT_GPRS_IOT:
 	case HMT_GPRS:
 	case HMT_WIRED:
+	case HMT_WIFI2:
 		return "wzq";
 
 	case HMT_NETMOD:
@@ -169,8 +171,6 @@ const char* get_net_author(HbMachineType t)
 	case HMT_WIFI:
 	case HMT_WIRED:
 	case HMT_NETMOD:
-		return "wzq";
-
 	case HMT_GPRS_IOT:
 	case HMT_GPRS:
 	case HMT_LCD:
@@ -178,7 +178,7 @@ const char* get_net_author(HbMachineType t)
 	case HMT_3_SECTION:
 	case HMT_IOT:
 	case HMT_GPRS_PHONE:
-	//case hb::common::Nb:
+	case HMT_WIFI2:
 		return "qfm";
 	}
 
@@ -440,7 +440,7 @@ void print_g250_alarm_codes()
 
 int main()
 {
-	if (0) {
+	if (1) {
 		printf("### 主机状态\n\n");
 		printEvents(statusEvents, _countof(statusEvents));
 

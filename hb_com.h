@@ -60,6 +60,8 @@ typedef enum HbMachineType {
 	HMT_GPRS_PHONE,
 	//! 11 NB报警接收主机
 	HMT_NB,
+	//! 12 WiFi主机新版
+	HMT_WIFI2,
 
 	HMT_COUNT,
 	HMT_INVALID = -1,
