@@ -425,18 +425,25 @@ ADEMCO_EXPORT_SYMBOL const char* admecoPacketIdToString(AdemcoPacketId id);
 */
 
 ADEMCO_EXPORT_SYMBOL size_t ademcoMakeEmptyDataPacket(ademco_char_t* dst_buff, size_t len, const char* id, uint16_t seq, const char* acct, AdemcoId ademcoId);
+ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAdmEmptyDataPacket(ademco_char_t* dst_buff, size_t len, const char* id, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL size_t ademcoMakeNullPacket(ademco_char_t* buff, size_t len, uint16_t seq, const char* acct, AdemcoId ademcoId);
+ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAdmNullPacket(ademco_char_t* buff, size_t len, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAckPacket(ademco_char_t* buff, size_t len, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL size_t ademcoMakeNakPacket(ademco_char_t* buff, size_t len, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL size_t ademcoMakeHbPacket(ademco_char_t* buff, size_t len, uint16_t seq, const char* acct, AdemcoId ademcoId,
 											   AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, const AdemcoXDataSegment* xdata);
+ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAdmPacket(ademco_char_t* buff, size_t len, uint16_t seq, const char* acct, AdemcoId ademcoId,
+												AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, const AdemcoXDataSegment* xdata);
 
 // like upper funcs, store buff and len to pkt->raw, pkt->raw_len
 ADEMCO_EXPORT_SYMBOL size_t ademcoMakeNullPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId);
+ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAdmNullPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAckPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL size_t ademcoMakeNakPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId);
 ADEMCO_EXPORT_SYMBOL size_t ademcoMakeHbPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId,
 												AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, const AdemcoXDataSegment* xdata);
+ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAdmPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId,
+												 AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, const AdemcoXDataSegment* xdata);
 
 //! parse a ademco packet, if everything is OK, cb_commited is the packet length
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len, AdemcoPacket* pkt, size_t* cb_commited);

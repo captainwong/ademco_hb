@@ -675,6 +675,14 @@ static void getNowTimestamp(char* buff) {
 			 tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900);
 }
 
+static void getGmtTimestamp(char* buff) {
+	time_t now = time(NULL);
+	struct tm* tm = gmtime(&now);
+	snprintf(buff, ADEMCO_PACKET_TIMESTAMP_LEN + 1, "_%02d:%02d:%02d,%02d-%02d-%04d",
+			 tm->tm_hour, tm->tm_min, tm->tm_sec,
+			 tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900);
+}
+
 size_t ademcoMakeEmptyDataPacket(ademco_char_t* dst_buff, size_t len, 
 								 const char* id, uint16_t seq, const char* acct, AdemcoId ademcoId) {
 	char buff[ADEMCO_PACKET_MAX_LEN];
@@ -724,8 +732,62 @@ size_t ademcoMakeEmptyDataPacket(ademco_char_t* dst_buff, size_t len,
 		return 0;
 }
 
+
+size_t ademcoMakeAdmEmptyDataPacket(ademco_char_t* dst_buff, size_t len,
+								    const char* id, uint16_t seq, const char* acct, AdemcoId ademcoId) {
+	char buff[ADEMCO_PACKET_MAX_LEN];
+	char* p = buff;
+	char* pcrc = buff + 1;
+	char* plen = buff + 5;
+	char* pid = buff + 9;
+
+	buff[0] = ADEMCO_PACKET_PREFIX;
+	memcpy(pid, id, strlen(id));
+	p = pid + strlen(id);
+	snprintf((char*)p, 5, "%04d", seq);
+	p += 4;
+	memcpy(p, ADEMCO_RRCVR_DEFAULT, strlen(ADEMCO_RRCVR_DEFAULT));
+	p += strlen(ADEMCO_RRCVR_DEFAULT);
+	memcpy(p, ADEMCO_LPREF_DEFAULT, strlen(ADEMCO_LPREF_DEFAULT));
+	p += strlen(ADEMCO_LPREF_DEFAULT);
+	*p++ = '#';
+	if (acct != NULL && strlen(acct) > 0) {
+		memcpy(p, acct, strlen(acct));
+		p += strlen(acct);
+	} else {
+		snprintf((char*)p, 7, "%06X", ademcoId);
+		p += 6;
+	}
+	*p++ = '[';
+	*p++ = ']';
+	getGmtTimestamp((char*)p);
+	p += ADEMCO_PACKET_TIMESTAMP_LEN;
+	*p++ = ADEMCO_PACKET_SUFIX;
+
+	char temp[5];
+	size_t packet_len = p - buff;
+	//                           \n  crc len  \r
+	size_t ademco_len = packet_len - 1 - 4 - 4 - 1;
+	snprintf(temp, 5, "%04zX", ademco_len);
+	memcpy(plen, temp, 4);
+	uint16_t crc = ademcoCRC16(pid, ademco_len);
+	snprintf(temp, 5, "%04X", crc);
+	memcpy(pcrc, temp, 4);
+
+	if (dst_buff != NULL && len > packet_len) {
+		memcpy(dst_buff, buff, packet_len);
+		dst_buff[packet_len] = '\0'; // for debug convenience
+		return packet_len;
+	} else
+		return 0;
+}
+
 size_t ademcoMakeNullPacket(ademco_char_t* buff, size_t len, uint16_t seq, const char* acct, AdemcoId ademcoId) {
 	return ademcoMakeEmptyDataPacket(buff, len, ADEMCO_PACKET_ID_NULL, seq, acct, ademcoId);
+}
+
+size_t ademcoMakeAdmNullPacket(ademco_char_t* buff, size_t len, uint16_t seq, const char* acct, AdemcoId ademcoId) {
+	return ademcoMakeAdmEmptyDataPacket(buff, len, ADEMCO_PACKET_ID_NULL, seq, acct, ademcoId);
 }
 
 size_t ademcoMakeAckPacket(ademco_char_t* buff, size_t len, uint16_t seq, const char* acct, AdemcoId ademcoId) {
@@ -788,6 +850,59 @@ size_t ademcoMakeHbPacket(ademco_char_t* dst_buff, size_t len, uint16_t seq, con
 	return 0;
 }
 
+
+size_t ademcoMakeAdmPacket(ademco_char_t* dst_buff, size_t len, uint16_t seq, const char* acct, AdemcoId ademcoId,
+						   AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, const AdemcoXDataSegment* xdata) {
+	char buff[ADEMCO_PACKET_MAX_LEN];
+	char* p = buff;
+	char* pcrc = buff + 1;
+	char* plen = buff + 5;
+	char* pid = buff + 9;
+
+	buff[0] = ADEMCO_PACKET_PREFIX;
+	memcpy(pid, ADEMCO_PACKET_ID_ADM_CID, strlen(ADEMCO_PACKET_ID_ADM_CID));
+	p = pid + strlen(ADEMCO_PACKET_ID_ADM_CID);
+	snprintf((char*)p, 5, "%04d", seq);
+	p += 4;
+	memcpy(p, ADEMCO_RRCVR_DEFAULT, strlen(ADEMCO_RRCVR_DEFAULT));
+	p += strlen(ADEMCO_RRCVR_DEFAULT);
+	memcpy(p, ADEMCO_LPREF_DEFAULT, strlen(ADEMCO_LPREF_DEFAULT));
+	p += strlen(ADEMCO_LPREF_DEFAULT);
+	*p++ = '#';
+	if (acct != NULL) {
+		memcpy(p, acct, strlen(acct));
+		p += strlen(acct);
+	} else {
+		snprintf(p, 7, "%06X", ademcoId);
+		p += 6;
+	}
+	p += ademcoAppendDataSegment(p, acct, ademcoId, ademcoEvent, gg, zone);
+	if (xdata && xdata->raw_len > 0) {
+		memcpy(p, xdata->raw, xdata->raw_len);
+		p += xdata->raw_len;
+	}
+	getGmtTimestamp(p);
+	p += ADEMCO_PACKET_TIMESTAMP_LEN;
+	*p++ = ADEMCO_PACKET_SUFIX;
+
+	char temp[5];
+	size_t packet_len = p - buff;
+	//                           \n  crc len  \r
+	size_t ademco_len = packet_len - 1 - 4 - 4 - 1;
+	snprintf(temp, 5, "%04zX", ademco_len);
+	memcpy(plen, temp, 4);
+	uint16_t crc = ademcoCRC16(pid, ademco_len);
+	snprintf(temp, 5, "%04X", crc);
+	memcpy(pcrc, temp, 4);
+
+	if (dst_buff != NULL && len > packet_len) {
+		memcpy(dst_buff, buff, packet_len);
+		dst_buff[packet_len] = '\0'; // for debug convenience
+		return packet_len;
+	}
+	return 0;
+}
+
 static void copyAcct2AdemcoPacket(AdemcoPacket* pkt, const char* acct) {
 	if (acct) {
 		size_t len = strlen(acct);
@@ -804,6 +919,13 @@ size_t ademcoMakeNullPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, 
 	copyAcct2AdemcoPacket(pkt, acct);
 	pkt->data.ademcoId = ademcoId;
 	return pkt->raw_len = ademcoMakeNullPacket(pkt->raw, sizeof(pkt->raw), seq, acct, ademcoId);
+}
+
+size_t ademcoMakeAdmNullPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId) {
+	pkt->seq = seq;
+	copyAcct2AdemcoPacket(pkt, acct);
+	pkt->data.ademcoId = ademcoId;
+	return pkt->raw_len = ademcoMakeAdmNullPacket(pkt->raw, sizeof(pkt->raw), seq, acct, ademcoId);
 }
 
 size_t ademcoMakeAckPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId) {
@@ -833,6 +955,21 @@ size_t ademcoMakeHbPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, Ad
 		memset(&pkt->xdata, 0, sizeof(*xdata));
 	return pkt->raw_len = ademcoMakeHbPacket(pkt->raw, sizeof(pkt->raw),
 											 seq, acct, ademcoId, ademcoEvent, gg, zone, xdata);
+}
+
+size_t ademcoMakeAdmPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId,
+						    AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, const AdemcoXDataSegment* xdata) {
+	pkt->seq = seq;
+	copyAcct2AdemcoPacket(pkt, acct);
+	ademcoAppendDataSegment2(&pkt->data, acct, ademcoId, ademcoEvent, gg, zone);
+	if (xdata && xdata->raw_len > 0) {
+		pkt->xdata.lenghFormat = xdata->lenghFormat;
+		memcpy(pkt->xdata.raw, xdata->raw, xdata->raw_len);
+		pkt->xdata.raw_len = xdata->raw_len;
+	} else
+		memset(&pkt->xdata, 0, sizeof(*xdata));
+	return pkt->raw_len = ademcoMakeAdmPacket(pkt->raw, sizeof(pkt->raw),
+											  seq, acct, ademcoId, ademcoEvent, gg, zone, xdata);
 }
 
 AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len, AdemcoPacket* pkt, size_t* cb_commited) {
