@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Ademco library
 * captainwong
 * 2022-6-13 rewrited this C version
