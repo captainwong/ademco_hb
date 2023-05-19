@@ -15,7 +15,7 @@ namespace CSharpDemo
 {
     class Program
     {
-        static void Main(string[] args) 
+        static void Main(string[] args)
         {
             // test parse
             {
@@ -36,7 +36,7 @@ namespace CSharpDemo
                 Debug.Assert(pkt.data.ademcoEvent == AdemcoEvent.EVENT_I_AM_WIRE_MACHINE);
                 Debug.Assert(pkt.data.gg == 0);
                 Debug.Assert(pkt.data.zone == 0);
-                Console.WriteLine("res={0:D}, commited={1:D}", res, libademco.size_tp_value(cb));                
+                Console.WriteLine("res={0:D}, commited={1:D}", res, libademco.size_tp_value(cb));
             }
 
             // test pack
@@ -46,11 +46,11 @@ namespace CSharpDemo
                 uint len = libademco.ademcoMakeHbPacket(buff, 1024, 1, "861234567890", 666666, AdemcoEvent.EVENT_ARM, 0, 0, null);
                 Debug.Assert(len > 0);
                 Console.WriteLine("len={0:D}", len);
-                libademco.ademcoPrint(buff, len);                
+                libademco.ademcoPrint(buff, len);
 
-                Console.WriteLine("test parse packed data");                
+                Console.WriteLine("test parse packed data");
                 AdemcoPacket pkt = new AdemcoPacket();
-                SWIGTYPE_p_size_t cb = libademco.new_size_tp();                
+                SWIGTYPE_p_size_t cb = libademco.new_size_tp();
                 AdemcoParseResult res = libademco.ademcoPacketParse(buff, len, pkt, cb);
                 Debug.Assert(res == AdemcoParseResult.RESULT_OK);
                 Debug.Assert(libademco.size_tp_value(cb) == len);
@@ -84,34 +84,39 @@ namespace CSharpDemo
             {
                 var listener = new TcpListener(IPAddress.Any, port);
                 listener.Start();
-                while(true){
+                while (true)
+                {
                     TcpClient client = listener.AcceptTcpClient();
                     Thread thread = new Thread(new ParameterizedThreadStart(clientHandler));
                     thread.Start(client);
                 }
 
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
         }
 
-        static byte[] append(byte[] origin, byte[] buf, int len){
+        static byte[] append(byte[] origin, byte[] buf, int len)
+        {
             byte[] dst = new byte[origin.Length + len];
             Array.ConstrainedCopy(origin, 0, dst, 0, origin.Length);
             Array.ConstrainedCopy(buf, 0, dst, origin.Length, len);
             return dst;
         }
 
-        static byte[] eat(byte[] origin, int len){
-            if(origin.Length == len){return new byte[0];}
+        static byte[] eat(byte[] origin, int len)
+        {
+            if (origin.Length == len) { return new byte[0]; }
             byte[] dst = new byte[origin.Length - len];
             Array.ConstrainedCopy(origin, len, dst, 0, origin.Length - len);
             return dst;
         }
 
-        static ushort nextSeq(ushort seq){
-            if(++seq == 10000){ seq = 1;}
+        static ushort nextSeq(ushort seq)
+        {
+            if (++seq == 10000) { seq = 1; }
             return seq;
         }
 
@@ -141,14 +146,16 @@ namespace CSharpDemo
                 {
                     break;
                 }
-                if(nread == 0){break;}                
+                if (nread == 0) { break; }
                 buff = append(buff, msg, nread);
 
-                AdemcoParseResult res = AdemcoParseResult.RESULT_OK;                
-                while(res == AdemcoParseResult.RESULT_OK){
+                AdemcoParseResult res = AdemcoParseResult.RESULT_OK;
+                while (res == AdemcoParseResult.RESULT_OK)
+                {
                     res = libademco.ademcoPacketParse(buff, (uint)buff.Length, pkt, cb);
-                    switch(res){
-                        case AdemcoParseResult.RESULT_OK: 
+                    switch (res)
+                    {
+                        case AdemcoParseResult.RESULT_OK:
                             Console.Write("C:"); libademco.ademcoPrint(buff, libademco.size_tp_value(cb));
                             buff = eat(buff, (int)libademco.size_tp_value(cb));
                             switch (pkt.id)
@@ -161,18 +168,24 @@ namespace CSharpDemo
                                     replyAck(stream, pkt.seq, pkt.acct);
                                     acct = pkt.acct;
                                     ademco_id = pkt.data.ademcoId;
-                                    if(libademco.ademcoIsMachineTypeEvent(pkt.data.ademcoEvent) != 0){
+                                    if (libademco.ademcoIsMachineTypeEvent(pkt.data.ademcoEvent) != 0)
+                                    {
                                         type = libademco.hbMachineTypeFromAdemcoEvent(pkt.data.ademcoEvent);
                                     }
-                                    if(libademco.ademcoIsMachineStatusEvent(pkt.data.ademcoEvent) != 0){
+                                    if (libademco.ademcoIsMachineStatusEvent(pkt.data.ademcoEvent) != 0)
+                                    {
                                         status = libademco.hbMachineStatusFromAdemcoEvent(pkt.data.ademcoEvent);
                                     }
 
-                                    // 示范布撤防的调用方式                                    
-                                    if(++counter % 5 == 0){
-                                        if(status == HbMachineStatus.HMS_ARM){
+                                    // 演示如何进行布撤防，真实项目里可以删改本段                             
+                                    if (++counter % 5 == 0)
+                                    {
+                                        if (status == HbMachineStatus.HMS_ARM)
+                                        {
                                             sendDisarm(stream, nextSeq(seq), acct, ademco_id, "123456");
-                                        }else{
+                                        }
+                                        else
+                                        {
                                             sendArm(stream, nextSeq(seq), acct, ademco_id);
                                         }
                                     }
@@ -190,7 +203,8 @@ namespace CSharpDemo
             }
         }
 
-        static void replyAck(NetworkStream stream, ushort seq, string acct){
+        static void replyAck(NetworkStream stream, ushort seq, string acct)
+        {
             byte[] buff = new byte[1024];
             uint len = libademco.ademcoMakeAckPacket(buff, 1024, seq, acct, 0);
             Console.Write("S:");
@@ -198,7 +212,8 @@ namespace CSharpDemo
             stream.Write(buff, 0, (int)len);
         }
 
-        static void sendArm(NetworkStream stream, ushort seq, string acct, uint ademcoId){
+        static void sendArm(NetworkStream stream, ushort seq, string acct, uint ademcoId)
+        {
             byte[] buff = new byte[1024];
             uint len = libademco.ademcoMakeHbPacket(buff, 1024, seq, acct, ademcoId, AdemcoEvent.EVENT_ARM, 0, 0, null);
             Console.Write("S:");
@@ -206,10 +221,12 @@ namespace CSharpDemo
             stream.Write(buff, 0, (int)len);
         }
 
-        static void sendDisarm(NetworkStream stream, ushort seq, string acct, uint ademcoId, string pwd){
+        static void sendDisarm(NetworkStream stream, ushort seq, string acct, uint ademcoId, string pwd)
+        {
             byte[] buff = new byte[1024];
             AdemcoXDataSegment xdata = null;
-            if(!string.IsNullOrEmpty(pwd)){
+            if (!string.IsNullOrEmpty(pwd))
+            {
                 xdata = new AdemcoXDataSegment();
                 libademco.ademcoMakeXData(xdata, AdemcoXDataLengthFormat.TWO_HEX, AdemcoXDataTransform.AdemcoXDataTransform_as_is, Encoding.ASCII.GetBytes(pwd), (uint)pwd.Length);
             }
