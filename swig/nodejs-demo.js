@@ -1,5 +1,8 @@
 const assert = require('assert');
+// windows:
 const libademco = require('./build/Release/libademco_js');
+// linux:
+// const libademco = require('./build/Release/ademco_js');
 
 libademco.ademcoPrint("hello nodejs", "hello nodejs".length);
 

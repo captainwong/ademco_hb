@@ -61,3 +61,43 @@ brew install swig
 4. 运行示例
 
    `node nodejs-demo.js`
+
+### Ubuntu20.04
+
+
+#### 1. 更新 `swig`
+   
+`apt` 安装的 `swig` 版本是 `4.0.1`不匹配，需要卸载后编译安装.
+
+```bash
+apt update -y
+# 卸载旧版 swig
+apt purge swig -y
+# 安装依赖库
+apt install libpcre2-dev libbison-dev -y
+# 下载解压 swig 4.1.1
+wget https://sourceforge.net/projects/swig/files/swig/swig-4.1.1/swig-4.1.1.tar.gz/download -Oswig-4.1.1.tar.gz
+tar -xzf swig-4.1.1.tar.gz
+# 编译
+cd swig-4.1.1
+mkdir build && cd build
+cmake ..
+make && make install
+```
+
+#### 2. 安装 `node`
+
+```bash
+curl -sL https://deb.nodesource.com/setup_18.x -o /tmp/nodesource_setup.sh
+bash /tmp/nodesource_setup.sh
+sudo apt-get install -y nodejs
+npm install -g node-gyp
+```
+
+#### 3. 生成 `libademco_js.node` 动态库
+
+```bash
+# cd /path/to/ademco_hb/swig
+node-gyp configure build
+# node nodejs-demo.js
+```
