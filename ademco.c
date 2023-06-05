@@ -245,6 +245,7 @@ const char* ademcoEventToString(AdemcoEvent ademcoEvent) {
 	}
 }
 
+#ifdef ADEMCO_ENABLE_CHINESE
 const char* ademcoEventToStringChinese(AdemcoEvent ademcoEvent) {
 	switch (ademcoEvent) {
 	case EVENT_ARM:									return "布防";
@@ -324,6 +325,7 @@ const char* ademcoEventToStringChinese(AdemcoEvent ademcoEvent) {
 	default:										return "未定义的安定宝事件";
 	}
 }
+#endif
 
 static const uint16_t crc16Table[256] = {
 	/* DEFINE THE FIRST ORDER POLYINOMIAL TABLE */

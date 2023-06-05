@@ -391,11 +391,13 @@ ADEMCO_EXPORT_SYMBOL AdemcoEvent hbMachineTypeToAdemcoEvent(HbMachineType type);
 ADEMCO_EXPORT_SYMBOL HbMachineType hbMachineTypeFromAdemcoEvent(AdemcoEvent ademcoEvent);
 ADEMCO_EXPORT_SYMBOL AdemcoEvent hbZonePropertyToAdemcoEvent(HbZoneProperty zp);
 ADEMCO_EXPORT_SYMBOL const char* hbMachineStatusToString(HbMachineStatus status);
-ADEMCO_EXPORT_SYMBOL const char* hbMachineStatusToStringChinese(HbMachineStatus status);
 ADEMCO_EXPORT_SYMBOL const char* hbMachineTypeToString(HbMachineType type);
-ADEMCO_EXPORT_SYMBOL const char* hbMachineTypeToStringChinese(HbMachineType type);
 ADEMCO_EXPORT_SYMBOL const char* hbZonePropertyToString(HbZoneProperty zp);
+#ifdef ADEMCO_ENABLE_CHINESE
+ADEMCO_EXPORT_SYMBOL const char* hbMachineStatusToStringChinese(HbMachineStatus status);
+ADEMCO_EXPORT_SYMBOL const char* hbMachineTypeToStringChinese(HbMachineType type);
 ADEMCO_EXPORT_SYMBOL const char* hbZonePropertyToStringChinese(HbZoneProperty zp);
+#endif
 ADEMCO_EXPORT_SYMBOL const char* hbGetZoneFormatString(HbMachineType type);
 
 // 累加校验，计算data[0] ~ data[len-2]，校验和放在data[len-1]

@@ -39,3 +39,25 @@ brew install swig
 ### 2.2 其他系统
 
 请自行研究。
+
+## 3. Node.js 绑定
+
+### Windows 环境
+
+1. 安装 `node-gyp`: `npm install -g node-gyp`
+
+2. 使用 `swig` 生成代码
+   
+    ```
+    swig -c++ -javascript -node libademco.swig
+    ```
+
+    将生成 `libademco_wrap.cxx`.
+
+3. 编译
+   
+   执行 `node-gyp configure build`，将以配置文件 `binding.gyp` 生成工程并编译得到 `libadmeco_js.node`，`Windows` 下应为 `build/Release/libadmeoc_js.node`
+
+4. 运行示例
+
+   `node nodejs-demo.js`

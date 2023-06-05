@@ -343,16 +343,6 @@ const char* hbMachineStatusToString(HbMachineStatus status) {
 	}
 }
 
-const char* hbMachineStatusToStringChinese(HbMachineStatus status) {
-	switch (status) {
-	case HMS_ARM:		return "布防";
-	case HMS_HALF_ARM:	return "半布防";
-	case HMS_DISARM:	return "撤防";
-	case HMS_SETTING:	return "设置";
-	default:			return "InvalidMachineStatus";
-	}
-}
-
 const char* hbMachineTypeToString(HbMachineType type) {
 	switch (type) {
 	case HMT_WIFI:			return "0 WiFi";
@@ -369,25 +359,6 @@ const char* hbMachineTypeToString(HbMachineType type) {
 	case HMT_NB:			return "11 Nb";
 	case HMT_WIFI2:			return "12 WiFi2";
 	default:				return "Unknown HbMachineType";
-	}
-}
-
-const char* hbMachineTypeToStringChinese(HbMachineType type) {
-	switch (type) {
-	case HMT_WIFI:			return "0 WiFi主机";
-	case HMT_CAMERA:		return "1 摄像头主机";
-	case HMT_GPRS_IOT:		return "2 简化的物联卡主机";
-	case HMT_NETMOD:		return "3 网络模块+工程主机";
-	case HMT_GPRS:			return "4 GPRS主机";
-	case HMT_LCD:			return "5 液晶主机";
-	case HMT_WIRED:			return "6 网线主机";
-	case HMT_TRUE_COLOR:	return "7 真彩主机";
-	case HMT_3_SECTION:		return "8 三区段主机";
-	case HMT_IOT:			return "9 物联卡主机";
-	case HMT_GPRS_PHONE:	return "10 GPRS主机能打电话";
-	case HMT_NB:			return "11 NB报警接收主机";
-	case HMT_WIFI2:			return "12 WiFi主机新版";
-	default:				return "未知主机";
 	}
 }
 
@@ -413,6 +384,36 @@ const char* hbZonePropertyToString(HbZoneProperty zp) {
 	}
 }
 
+#ifdef ADEMCO_ENABLE_CHINESE
+const char* hbMachineStatusToStringChinese(HbMachineStatus status) {
+	switch (status) {
+	case HMS_ARM:		return "布防";
+	case HMS_HALF_ARM:	return "半布防";
+	case HMS_DISARM:	return "撤防";
+	case HMS_SETTING:	return "设置";
+	default:			return "InvalidMachineStatus";
+	}
+}
+
+const char* hbMachineTypeToStringChinese(HbMachineType type) {
+	switch (type) {
+	case HMT_WIFI:			return "0 WiFi主机";
+	case HMT_CAMERA:		return "1 摄像头主机";
+	case HMT_GPRS_IOT:		return "2 简化的物联卡主机";
+	case HMT_NETMOD:		return "3 网络模块+工程主机";
+	case HMT_GPRS:			return "4 GPRS主机";
+	case HMT_LCD:			return "5 液晶主机";
+	case HMT_WIRED:			return "6 网线主机";
+	case HMT_TRUE_COLOR:	return "7 真彩主机";
+	case HMT_3_SECTION:		return "8 三区段主机";
+	case HMT_IOT:			return "9 物联卡主机";
+	case HMT_GPRS_PHONE:	return "10 GPRS主机能打电话";
+	case HMT_NB:			return "11 NB报警接收主机";
+	case HMT_WIFI2:			return "12 WiFi主机新版";
+	default:				return "未知主机";
+	}
+}
+
 const char* hbZonePropertyToStringChinese(HbZoneProperty zp) {
 	switch (zp) {
 	case HZP_BUGLAR:			return "匪警全局";
@@ -434,6 +435,7 @@ const char* hbZonePropertyToStringChinese(HbZoneProperty zp) {
 	default:					return "无效属性";
 	}
 }
+#endif
 
 const char* hbGetZoneFormatString(HbMachineType type) {
 	uint16_t zone = hbZoneMax(type);

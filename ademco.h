@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 
-#ifdef SWIG
+#if defined(SWIGJAVA) || defined(SWIGCSHARP)
 #define ademco_char_t uint8_t
 #else
 #define ademco_char_t char
@@ -377,8 +377,9 @@ ADEMCO_EXPORT_SYMBOL AdemcoEventLevel ademcoGetEventLevel(AdemcoEvent ademcoEven
 //! 获取异常恢复事件所对应的异常事件
 ADEMCO_EXPORT_SYMBOL AdemcoEvent ademcoGetExceptionEventByResumeEvent(AdemcoEvent resumeEvent);
 ADEMCO_EXPORT_SYMBOL const char* ademcoEventToString(AdemcoEvent ademcoEvent);
+#ifdef ADEMCO_ENABLE_CHINESE
 ADEMCO_EXPORT_SYMBOL const char* ademcoEventToStringChinese(AdemcoEvent ademcoEvent);
-
+#endif
 
 //////////////////////// AdemcoDataSegment functions ////////////////////////
 
