@@ -1,7 +1,6 @@
 const assert = require('assert');
 // windows:
 const libademco = require('./build/Release/libademco_js');
-const { send } = require('process');
 // linux:
 // const libademco = require('./build/Release/ademco_js');
 
@@ -55,6 +54,8 @@ class AlarmHost {
 
     constructor(socket) {
         this.socket = socket;
+        this.address = socket.address().address;
+        this.port = socket.address().port;
         this.buf = null;
         this.inpkt = new libademco.AdemcoPacket();
         this.outpkt = new libademco.AdemcoPacket();
@@ -83,7 +84,7 @@ class AlarmHost {
         });
     
         socket.on('close', (error) => {
-            console.log(this.tag() + error);
+            console.log(this.tag() + ' disconnected, hadError=' + error);
         });
 
         console.log(this.tag() + ' connectd');
@@ -111,7 +112,7 @@ class AlarmHost {
     }
 
     tag() {
-        var str = this.socket.address().address + ':' + this.socket.address().port;
+        var str = this.address + ':' + this.port;
         if (this.acct) {
             str += ' acct=' + this.acct;
         }
