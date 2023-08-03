@@ -1,6 +1,6 @@
 #!/bin/bash
 
-branch=http
+branch=master
 
 # examples
 ./clean.sh
