@@ -20,7 +20,7 @@ cp ../examples/x64/Release/server_demo_x64.exe examples/x64/
 cp ../examples/x64/Release/ademco.dll examples/x64/
 cp ../examples/x64/Release/ademco.lib examples/x64/
 cp ../examples/x64/Release/httprelay.exe examples/x64/
-cp "/g/dev_libs/curl-7.87.0/builds/libcurl-vc14-x64-release-dll-ipv6-sspi-schannel/bin/libcurl_debug.dll" examples/x86/
+cp "/g/dev_libs/curl-7.87.0/builds/libcurl-vc14-x64-release-dll-ipv6-sspi-schannel/bin/libcurl.dll" examples/x64/
 rm -f examples.zip
 cd examples
 zip -r ../examples.zip . *

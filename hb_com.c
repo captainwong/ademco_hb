@@ -1,4 +1,4 @@
-#include "hb_com.h"
+﻿#include "hb_com.h"
 #include <string.h>
 
 int hbGetAvailableZoneProperties(HbMachineType type, HbZoneProperty props[12]) {
