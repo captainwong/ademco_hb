@@ -3,13 +3,14 @@
 mkdir -p build
 cd build
 
-opt="-std=c++11 -O3"
-
-eb=0
-if [ x$1 != x ] ;then
-    if [ $1 -eq 1 ]; then
-        eb=1
-    fi
+cc=gcc
+cxx=g++
+if [ $(command -v clang++ &> /dev/null ; echo $?) -eq 0 ]
+    cc=clang
+    cxx=clang++
 fi
 
-g++ $opt ../server_demo/server_demo.cpp ../../ademco.c -I../../ -lpthread -o server_demo
+
+${cxx} -std=c++11 -O3 ../server_demo/server_demo.cpp ../../ademco.c -I../../ -lpthread -o server_demo
+
+${cc} ../../ademco.c ../../hb_com.c ../httprelay/cJSON/cJSON.c ../httprelay/uvlib/*.c ../httprelay/uvlib/llhttp/src/*.c ../httprelay/*.c -I ../httprelay/uvlib/llhttp/include -luv -lcurl -o httprelay

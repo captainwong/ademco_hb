@@ -4,6 +4,7 @@
 #include "uvlib/uv_tcpserver.h"
 #include "cJSON/cJSON.h"
 #include <curl/curl.h>
+#include <string.h>
 
 typedef struct machine_info_s {
 	char acct[ADEMCO_PACKET_ACCT_MAX_LEN + 1];
@@ -123,7 +124,7 @@ void on_tcp_connection(uv_tcpserver_client_context_t* client, int connected) {
 
 uv_tcp_parse_result_t on_tcp_parse(uv_tcpserver_client_context_t* client, const char* buf, size_t len, size_t* ate) {
 	AdemcoPacket pkt;
-	auto res = ademcoPacketParse(buf, len, &pkt, ate);
+	AdemcoParseResult res = ademcoPacketParse(buf, len, &pkt, ate);
 	switch (res) {
 	case RESULT_OK:
 		switch (pkt.id) {
@@ -175,34 +176,34 @@ uv_tcp_parse_result_t on_tcp_parse(uv_tcpserver_client_context_t* client, const 
 	}
 }
 
-int init_tcpd(const char* addr, int port) {
+int init_tcpd(int port) {
 	static uv_tcpserver_settings_t settings = { on_tcp_connection, on_tcp_parse, NULL };
 	int r = uv_tcpserver_create(&context.tcpd, context.loop, &settings);
 	fatal_on_uv_err(r, "uv_tcpserver_create");
-	r = uv_tcpserver_start_listen(context.tcpd, addr, port);
+	r = uv_tcpserver_start_listen(context.tcpd, "0.0.0.0", port);
 	fatal_on_uv_err(r, "uv_tcpserver_start_listen");
-	printf("tcp server listening on %s:%d\n", addr, port);
+	printf("tcp server listening on %s:%d\n", "0.0.0.0", port);
 	return r;
 }
 
 int main(int argc, char** argv) {
-	if (argc != 4) {
-		fprintf(stderr, "Usage: %s tcp_bind_addr tcp_server_listening_port http_client_relay_to_uri\n"
-				"	Example: %s 0.0.0.0 12345 http://your-http-server.com/ademco:8080\n",
+	if (argc != 3) {
+		fprintf(stderr, "Usage: %s tcp_server_listening_port http_client_relay_to_uri\n"
+				"	Example: %s 12345 http://your-http-server.com:8080/ademco\n",
 				argv[0], argv[0]);
 		exit(1);
 	}
 
 	uv_log_set_level(uv_log_level_debug);
 	memset(&context, 0, sizeof(context));
-	context.uri = argv[3];
+	context.uri = argv[2];
 
 	context.loop = uv_default_loop();
 	fatal_if_null(context.loop);
 
 	curl_global_init(CURL_GLOBAL_ALL);
 
-	if (init_tcpd(argv[1], atoi(argv[2]))) {
+	if (init_tcpd(atoi(argv[1]))) {
 		abort();
 	}
 
