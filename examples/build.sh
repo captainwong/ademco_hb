@@ -6,6 +6,7 @@ cd build
 cc=gcc
 cxx=g++
 if [ $(command -v clang++ &> /dev/null ; echo $?) -eq 0 ]
+then
     cc=clang
     cxx=clang++
 fi
