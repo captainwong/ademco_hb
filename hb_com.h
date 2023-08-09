@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Hengbo COM library
 * captainwong
 * 2022-8-12 rewrited this C version
