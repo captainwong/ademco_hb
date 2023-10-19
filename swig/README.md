@@ -30,7 +30,7 @@ brew install swig
 
 ### 2.1 Windows环境
 
-下载 [swig](https://www.swig.org/download.html)，解压，修改 `win_java.bat`，将 `swig.exe` 路径修改为你的路径。
+下载 [swig](https://www.swig.org/download.html)，解压，修改 `win_csharp.bat`，将 `swig.exe` 路径修改为你的路径。
 
 需要已安装 `Visual Studio`。
 
