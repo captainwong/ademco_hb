@@ -1,4 +1,3 @@
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
 mkdir com\hb3344\ademco
 "C:\Users\Jack\Downloads\swigwin-4.0.2\swig.exe" -java -package com.hb3344.ademco -outdir com/hb3344/ademco -o libademco_java_wrap.c libademco.swig
 cl -c ../ademco.c ../hb_com.c libademco_java_wrap.c -I"../" -I"%JAVA_HOME%include" -I"%JAVA_HOME%include/win32"
