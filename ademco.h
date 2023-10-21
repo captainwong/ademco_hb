@@ -59,6 +59,7 @@ typedef uint32_t AdemcoGG;
 typedef uint32_t AdemcoZone;
 
 //! 安定宝ID范围
+#define ADEMCO_ID_INVALID 0
 #define ADEMCO_ID_MIN 1
 #define ADEMCO_ID_MAX 999999 // 兼容性考虑，最大安定宝 ID 为 0x0F423F
 #define ADEMCO_ID_SENTINEL (ADEMCO_ID_MAX + 1)
