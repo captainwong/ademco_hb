@@ -89,6 +89,10 @@ static inline int ademcoIsValidZoneStrict(AdemcoZone zone) {
 #define ADEMCO_GG_MAX 99
 #define ADEMCO_GG_SENTINEL 100
 
+//! 信号强度范围 [0, 31]
+#define ADEMCO_SIGNAL_STRENGTH_MIN 0
+#define ADEMCO_SIGNAL_STRENGTH_MAX 31
+
 // Ademco events
 typedef enum AdemcoEvent {
 	EVENT_INVALID_EVENT							= 0,
@@ -182,7 +186,7 @@ typedef enum AdemcoEvent {
 	EVENT_SIM_IS_NOT_IOT_CARD					= 3756, // 主机SIM卡为非物联卡，启用主机侧电话设置
 
 	EVENT_WHAT_IS_YOUR_TYPE						= 1798, // 索要主机类型
-	EVENT_SIGNAL_STRENGTH_CHANGED				= 1799, // 主机信号强度变化
+	EVENT_SIGNAL_STRENGTH_CHANGED				= 1799, // 主机信号强度变化，强度值编码后以 xdata 传输
 
 	// 2021年1月24日17:06:55修改，对标丛文3B0 3B2
 	EVENT_OFFLINE								= 1944, // 主机断线
@@ -361,8 +365,8 @@ typedef struct AdemcoPacket {
 
 //! print as HEX
 ADEMCO_EXPORT_SYMBOL void ademcoPrint(const ademco_char_t* buff, size_t len);
-ADEMCO_EXPORT_SYMBOL uint8_t ademcoEncodeSignalStrength(int strength);
-ADEMCO_EXPORT_SYMBOL int ademcoDecodeSignalStrength(uint8_t code);
+ADEMCO_EXPORT_SYMBOL uint8_t ademcoEncodeSignalStrength(uint8_t strength);
+ADEMCO_EXPORT_SYMBOL uint8_t ademcoDecodeSignalStrength(uint8_t code);
 
 //////////////////////// AdemcoEvent functions ////////////////////////
 //! 是否合法主机账号

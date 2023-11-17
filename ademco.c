@@ -52,12 +52,17 @@ void ademcoPrint(const ademco_char_t* p, size_t len) {
 	printf("\n");
 }
 
-uint8_t ademcoEncodeSignalStrength(int strength) {
+uint8_t ademcoEncodeSignalStrength(uint8_t strength) {
+	if (strength > ADEMCO_SIGNAL_STRENGTH_MAX)
+		strength = ADEMCO_SIGNAL_STRENGTH_MAX;
 	return ((strength / 10) << 4) | (strength % 10);
 }
 
-int ademcoDecodeSignalStrength(uint8_t code) {
-	return ((code >> 4) & 0x0F) * 10 + (code & 0x0F);
+uint8_t ademcoDecodeSignalStrength(uint8_t code) {
+	uint8_t strength = ((code >> 4) & 0x0F) * 10 + (code & 0x0F);
+	if (strength > ADEMCO_SIGNAL_STRENGTH_MAX)
+		strength = ADEMCO_SIGNAL_STRENGTH_MAX;
+	return strength;
 }
 
 int ademcoIsValidAccount(const char* acct) {
