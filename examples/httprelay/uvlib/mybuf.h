@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <stddef.h> // size_t
+#include <stddef.h>  // size_t
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,10 +14,10 @@ extern "C" {
 #endif
 
 typedef struct {
-	char* buf;
-	char mybuf[MYBUF_DEFAULT_SIZE];
-	size_t size, capacity;
-}mybuf_t;
+    char* buf;
+    char mybuf[MYBUF_DEFAULT_SIZE];
+    size_t size, capacity;
+} mybuf_t;
 
 void mybuf_init(mybuf_t* buf);
 size_t mybuf_space(mybuf_t* buf);
@@ -26,12 +26,14 @@ void mybuf_append(mybuf_t* buf, const char* data, size_t len);
 
 #ifdef __GNUC__
 void mybuf_cat_printf(mybuf_t* buf, const char* fmt, ...)
-	__attribute__((format(printf, 2, 3)));
+    __attribute__((format(printf, 2, 3)));
 #else
 void mybuf_cat_printf(mybuf_t* buf, const char* fmt, ...);
 #endif
 
 void mybuf_clear(mybuf_t* buf);
+// safe to call me when data in buf
+void mybuf_clear_append(mybuf_t* buf, const char* data, size_t len);
 
 #ifdef __cplusplus
 }

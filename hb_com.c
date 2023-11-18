@@ -115,18 +115,17 @@ int hbIsValidZoneStrict(HbMachineType type, uint16_t zone) {
 }
 
 int hbMachineIsSelling(HbMachineType type) {
-	return type == HMT_NETMOD
-		|| type == HMT_GPRS
-		|| type == HMT_GPRS_IOT
-		|| type == HMT_IOT
-		|| type == HMT_LCD
-		|| type == HMT_WIRED
-		|| type == HMT_TRUE_COLOR
-		|| type == HMT_3_SECTION
-		|| type == HMT_GPRS_PHONE
-		|| type == HMT_NB
-		|| type == HMT_WIFI2
-		;
+    return type == HMT_GPRS_IOT ||
+           type == HMT_NETMOD ||
+           type == HMT_GPRS ||
+           type == HMT_IOT ||
+           type == HMT_LCD ||
+           type == HMT_WIRED ||
+           type == HMT_TRUE_COLOR ||
+           type == HMT_3_SECTION ||
+           type == HMT_GPRS_PHONE ||
+           type == HMT_NB ||
+           type == HMT_WIFI2;
 }
 
 int hbMachineCanArm(HbMachineType type) {
@@ -142,37 +141,32 @@ int hbMachineCanEnterSettings(HbMachineType type) {
 }
 
 int hbMachineCanHalfArm(HbMachineType type) {
-	return type == HMT_NETMOD
-		|| type == HMT_LCD
-		;
+    return type == HMT_NETMOD || type == HMT_LCD;
 }
 
 int hbMachineCanReportSignalStrength(HbMachineType type) {
-	return type == HMT_GPRS
-		|| type == HMT_GPRS_IOT
-		|| type == HMT_IOT
-		|| type == HMT_LCD
-		|| type == HMT_TRUE_COLOR
-		|| type == HMT_3_SECTION
-		|| type == HMT_GPRS_PHONE
-		|| type == HMT_NB
-		;
+    return type == HMT_GPRS ||
+           type == HMT_GPRS_IOT ||
+           type == HMT_IOT ||
+           type == HMT_LCD ||
+           type == HMT_TRUE_COLOR ||
+           type == HMT_3_SECTION ||
+           type == HMT_GPRS_PHONE ||
+           type == HMT_NB;
 }
 
 int hbMachineCanReportBySMS(HbMachineType type) {
-	return type == HMT_GPRS
-		|| type == HMT_LCD
-		|| type == HMT_TRUE_COLOR
-		|| type == HMT_3_SECTION
-		|| type == HMT_GPRS_PHONE
-		;
+    return type == HMT_GPRS ||
+           type == HMT_LCD ||
+           type == HMT_TRUE_COLOR ||
+           type == HMT_3_SECTION ||
+           type == HMT_GPRS_PHONE;
 }
 
 int hbMachineHasWiredZone(HbMachineType type) {
-	return type == HMT_NETMOD
-		|| type == HMT_TRUE_COLOR
-		|| type == HMT_3_SECTION
-		;
+    return type == HMT_NETMOD ||
+           type == HMT_TRUE_COLOR ||
+           type == HMT_3_SECTION;
 }
 
 AdemcoZone hbWiredZoneMin(HbMachineType type) {
@@ -463,11 +457,11 @@ int hbCheckSum(const uint8_t* data, size_t len) {
 	return sum == *p;
 }
 
-#define copy_data_to_com         \
-if (cd) {                        \
-	cd->len = len & 0xFF;               \
-	memcpy(cd->data, data, len & 0xFF); \
-}
+#define copy_data_to_com                    \
+    if (cd) {                               \
+        cd->len = len & 0xFF;               \
+        memcpy(cd->data, data, len & 0xFF); \
+    }
 
 HbComRequestType hbComParseRequest(const uint8_t* data, size_t len, HbComData* cd) {
 	do {

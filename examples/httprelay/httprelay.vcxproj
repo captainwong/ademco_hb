@@ -158,6 +158,7 @@
     <ClCompile Include="uvlib\uv_httpc.c" />
     <ClCompile Include="uvlib\uv_httpd.c" />
     <ClCompile Include="uvlib\uv_log.c" />
+    <ClCompile Include="uvlib\uv_tcp.c" />
     <ClCompile Include="uvlib\uv_tcpclient.c" />
     <ClCompile Include="uvlib\uv_tcpserver.c" />
   </ItemGroup>

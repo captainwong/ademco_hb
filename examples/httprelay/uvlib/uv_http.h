@@ -3,9 +3,4 @@
 
 #pragma once
 
-
-
-
-
-
-#endif // !__UV_HTTP_H__
+#endif  // !__UV_HTTP_H__

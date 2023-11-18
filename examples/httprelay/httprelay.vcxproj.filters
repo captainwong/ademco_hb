@@ -66,6 +66,9 @@
     <ClCompile Include="cJSON\cJSON.c">
       <Filter>cJSON</Filter>
     </ClCompile>
+    <ClCompile Include="uvlib\uv_tcp.c">
+      <Filter>uvlib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ademco.h">
