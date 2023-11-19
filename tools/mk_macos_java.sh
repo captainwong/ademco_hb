@@ -11,6 +11,7 @@ ssh -t ${MACOS_TARGET} <<EOF
   git pull
   git checkout ${PROJECT_BRANCH} 
   git pull origin ${PROJECT_BRANCH}
+  chmod +x ./swig/*.sh ./tools/*.sh
   cd swig 
   ./mac_java.sh 
   cd ../tools

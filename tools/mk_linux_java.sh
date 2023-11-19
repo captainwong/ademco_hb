@@ -11,6 +11,7 @@ ssh -t ${LINUX_TARGET} <<EOF
   git pull
   git checkout ${PROJECT_BRANCH} 
   git pull origin ${PROJECT_BRANCH}
+  chmod +x ./swig/*.sh ./tools/*.sh
   cd swig 
   export JAVA_HOME=${LINUX_JAVA_HOME}
   ./linux_java.sh 

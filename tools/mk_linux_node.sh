@@ -11,6 +11,7 @@ ssh -t ${LINUX_TARGET} <<EOF
   git pull
   git checkout ${PROJECT_BRANCH} 
   git pull origin ${PROJECT_BRANCH}
+  chmod +x ./swig/*.sh ./tools/*.sh
   cd swig 
   ./linux_mac_node.sh 
   cd ../tools
