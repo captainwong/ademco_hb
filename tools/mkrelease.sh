@@ -1,83 +1,44 @@
 #!/bin/bash
 
-branch=master
+set -e
+
+CURRENT_DIR=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+cd $CURRENT_DIR
+
+if [ $# -ne 1 ]; then
+  export PROJECT_BRANCH=master
+else
+  export PROJECT_BRANCH=$1
+fi
+
+export LINUX_TARGET=root@192.168.2.107
+export LINUX_PROJECT_PATH=/root/projects/ademco_hb
+export LINUX_JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export MACOS_TARGET=jack@JackMacBook-Pro.local
+export MACOS_PROJECT_PATH=/Users/jack/projects/ademco_hb
+export MACOS_JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_291.jdk/Contents/Home
+
+rm -rf dist
+mkdir -p dist
 
 # examples
-./clean.sh
-./examples.bat
-./examples_x64.bat
-mkdir examples
-mkdir examples/x86
-mkdir examples/x64
-cp "/h/dev/AlarmCenterTestTools/Release/直连型主机模拟器V1.13.exe" examples/x86/
-cp "/g/dev_libs/libevent-2.1.12-stable-install/lib/event_core.dll" examples/x86/
-cp "/g/dev_libs/curl-7.87.0/builds/libcurl-vc14-x86-release-dll-ipv6-sspi-schannel/bin/libcurl.dll" examples/x86/
-cp ../examples/Win32/Release/server_demo.exe examples/x86/
-cp ../examples/Release/httprelay.exe examples/x86/
-cp ../examples/Release/ademco.dll examples/x86/
-cp ../examples/Release/ademco.lib examples/x86/
-cp ../examples/x64/Release/server_demo_x64.exe examples/x64/
-cp ../examples/x64/Release/ademco.dll examples/x64/
-cp ../examples/x64/Release/ademco.lib examples/x64/
-cp ../examples/x64/Release/httprelay.exe examples/x64/
-cp "/g/dev_libs/curl-7.87.0/builds/libcurl-vc14-x64-release-dll-ipv6-sspi-schannel/bin/libcurl.dll" examples/x64/
-rm -f examples.zip
-cd examples
-zip -r ../examples.zip . *
-cd ..
-rm -rf examples
+./mk_examples.sh
 
 # win-java
-./clean.sh
-./win_java.bat
-mkdir -p win_java
-cp -r ../swig/com/ win_java/
-rm -f win_java/com/hb3344/ademco/*.class
-cp ../swig/*.java win_java/
-cp ../swig/*.dll win_java/
-rm -f win_java.zip
-cd win_java
-zip -r ../win_java.zip . *
-cd ..
-rm -rf win_java
-
+./mk_win_java.sh
 
 # win-c#
-./clean.sh
-./win_csharp.bat
-mkdir -p win_csharp
-cp -r ../swig/com/ win_csharp/
-cp ../swig/*.cs win_csharp/
-cp ../swig/*.dll win_csharp/
-cp ../swig/*.exe win_csharp/
-rm -f win_csharp.zip
-cd win_csharp
-zip -r ../win_csharp.zip . *
-cd ..
-rm -rf win_csharp
-
+./mk_win_csharp.sh
 
 # ubuntu20.04 java
-ssh -t root@192.168.2.107 "cd /root/projects/ademco_hb && git checkout ${branch} && git reset --hard HEAD && git pull origin ${branch} && cd swig && export JAVA_HOME='/usr/lib/jvm/java-8-openjdk-amd64' && ./linux_java.sh && cd ../tools && ./linux_java.sh"
-scp root@192.168.2.107:/root/projects/ademco_hb/tools/linux_java.zip .
-ssh -t root@192.168.2.107 "rm -f /root/projects/ademco_hb/tools/linux_java.zip"
+./mk_linux_java.sh
 
 # macOS java
-ssh -t jack@JackMacBook-Pro.local "cd /Users/jack/projects/ademco_hb && git checkout ${branch} && git reset --hard HEAD && git pull origin ${branch} && cd swig && ./mac_java.sh && cd ../tools && ./mac_java.sh"
-scp jack@JackMacBook-Pro.local:/Users/jack/projects/ademco_hb/tools/mac_java.zip .
-ssh -t jack@JackMacBook-Pro.local "rm -f /Users/jack/projects/ademco_hb/tools/mac_java.zip"
+./mk_macos_java.sh
 
 # win-node
-./clean.sh
-mkdir -p win_node
-./win_node.bat
-cp -r ../swig/build/ win_node/
-cp ../swig/nodejs-demo.js win_node/
-rm -f win_node.zip
-cd win_node
-zip -r ../win_node.zip . *
-cd ..
-rm -rf win_node/
+./mk_win_node.sh
 
-
+# linux-node
+./mk_linux_node.sh
 

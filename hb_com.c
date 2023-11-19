@@ -522,7 +522,8 @@ HbComRequestType hbComParseRequest(const uint8_t* data, size_t len, HbComData* c
 		case 0xBA:
 		{
 			if (data[2] != 0x3F) { break; }
-			if (len == HbComReq_RD_acct_len && memcmp(data, HbComReq_RD_acct_data, len) == 0) {
+			if (len == HbComReq_RD_acct_len &&
+				memcmp(data, HbComReq_RD_acct_data, len) == 0) {
 				copy_data_to_com;
 				return HbComReq_RD_acct;
 			}
@@ -532,17 +533,23 @@ HbComRequestType hbComParseRequest(const uint8_t* data, size_t len, HbComData* c
 		{
 			if (data[2] != 0x3F) { break; }
 
-			if (data[3] == 0x09 && data[4] == 0xA3 && len == HbComReq_A3_len) { // EB CB 3F 09 A3 P1 P2 P3 SUM
+			if (data[3] == 0x09 &&
+				data[4] == 0xA3 &&
+				len == HbComReq_A3_len) { // EB CB 3F 09 A3 P1 P2 P3 SUM
 				if (hbCheckSum(data, len)) {
 					copy_data_to_com;
 					return HbComReq_A3;
 				}
-			} else if (data[3] == 0x0F && data[4] == 0x4D && len == HbComReq_WR_acct_len) {
+			} else if (data[3] == 0x0F &&
+					   data[4] == 0x4D &&
+					   len == HbComReq_WR_acct_len) {
 				if (hbCheckSum(data, len)) {
 					copy_data_to_com;
 					return HbComReq_WR_acct;
 				}
-			} else if (data[3] == 0x0E && data[4] == 0xA7 && len == HbComReq_A7_len) { // EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
+			} else if (data[3] == 0x0E &&
+					   data[4] == 0xA7 &&
+					   len == HbComReq_A7_len) { // EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
 				if (hbCheckSum(data, len)) {
 					copy_data_to_com;
 					return HbComReq_A7;
@@ -554,7 +561,9 @@ HbComRequestType hbComParseRequest(const uint8_t* data, size_t len, HbComData* c
 				if (data[len - 1] == req.data[len - 1]) { return A7; }
 			}*/
 
-			else if (data[3] == 0x08 && data[4] == 0xAA && len == HbComReq_AA_len) { // EB CB 3F 08 AA P1 P2 SUM
+			else if (data[3] == 0x08 &&
+					 data[4] == 0xAA &&
+					 len == HbComReq_AA_len) { // EB CB 3F 08 AA P1 P2 SUM
 				if (hbCheckSum(data, len)) {
 					copy_data_to_com;
 					return HbComReq_AA;
@@ -566,7 +575,9 @@ HbComRequestType hbComParseRequest(const uint8_t* data, size_t len, HbComData* c
 				if (data[len - 1] == req.data[len - 1]) { return AA; }
 			}*/
 
-			else if (data[3] == 0x06 && data[4] == 0xB0 && len == HbComReq_B0_len && memcmp(HbComReq_B0_data, data, len) == 0) { // EB CB 3F 06 B0 AB
+			else if (data[3] == 0x06 && data[4] == 0xB0 &&
+					 len == HbComReq_B0_len &&
+					 memcmp(HbComReq_B0_data, data, len) == 0) { // EB CB 3F 06 B0 AB
 				copy_data_to_com;
 				return HbComReq_B0;
 			}
@@ -576,9 +587,11 @@ HbComRequestType hbComParseRequest(const uint8_t* data, size_t len, HbComData* c
 	return HbComReq_Invalid;
 }
 
-ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata, HbComData* cd) {
+ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata,
+															 HbComData* cd) {
 	if (!xdata) { return HbComReq_Invalid; }
-	return hbComParseRequest((const uint8_t*)ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata), cd);
+	return hbComParseRequest((const uint8_t*)ademcoXDataGetValidContentAddr(xdata),
+							 ademcoXDataGetValidContentLen(xdata), cd);
 }
 
 HbComResponseType hbComParseResponse(const uint8_t* data, size_t len, HbComData* cd) {
@@ -703,9 +716,11 @@ HbComResponseType hbComParseResponse(const uint8_t* data, size_t len, HbComData*
 	return HbComResp_Invalid;
 }
 
-HbComResponseType hbComParseXDataResponse(const AdemcoXDataSegment* xdata, HbComData* cd) {
-	if (!xdata) { return HbComReq_Invalid; }
-	return hbComParseResponse((const uint8_t*)ademcoXDataGetValidContentAddr(xdata), ademcoXDataGetValidContentLen(xdata), cd);
+HbComResponseType hbComParseXDataResponse(const AdemcoXDataSegment* xdata,
+										  HbComData* cd) {
+	if (!xdata) { return HbComResp_Invalid; }
+	return hbComParseResponse((const uint8_t*)ademcoXDataGetValidContentAddr(xdata),
+							  ademcoXDataGetValidContentLen(xdata), cd);
 }
 
 void hbComMakeReqA0_getMachineStatus(HbComData* data) {
@@ -723,7 +738,8 @@ void hbComMakeReqA2_getMoreMachineZones(HbComData* data) {
 	data->len = HbComReq_A2_len;
 }
 
-void hbComMakeReqA3_modifyMachineZone(HbComData* data, uint8_t zone, HbZoneProperty prop, HbComReq_A3_op op) {
+void hbComMakeReqA3_modifyMachineZone(HbComData* data, uint8_t zone,
+									  HbZoneProperty prop, HbComReq_A3_op op) {
 	memcpy(data->data, HbComReq_A3_head, 5);
 	data->data[5] = zone;
 	data->data[6] = prop;
@@ -762,7 +778,8 @@ void hbComMakeReqAD_getMoreMachineZoneLostConfig(HbComData* data) {
 	data->len = HbComReq_AD_len;
 }
 
-void hbComMakeReqAE_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status) {
+void hbComMakeReqAE_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1,
+											 HbCom_3sec_status status) {
 	memcpy(data->data, HbComReq_AE_head, 5);
 	data->data[5] = p1;
 	data->data[6] = status;
@@ -793,7 +810,9 @@ void hbComResp_A2_Iter_init(HbComResp_A2_Iter* iter, const HbComData* com) {
 	iter->i = 0;
 	if (com->len > HbComResp_A2_len_min) {
 		iter->total = (com->len - HbComResp_A2_len_min) / 2;
-		iter->p1 = (com->data[com->len - 2] == 0xFF) ? HbComResp_A2_p1_nomore : HbComResp_A2_p1_more;
+		iter->p1 = (com->data[com->len - 2] == 0xFF) ?
+			HbComResp_A2_p1_nomore :
+			HbComResp_A2_p1_more;
 	} else {
 		iter->total = 0;
 		iter->p1 = HbComResp_A2_p1_nomore;
@@ -809,7 +828,8 @@ HbComResp_A2_p1 hbComResp_A2_Iter_next(HbComResp_A2_Iter* iter, HbZoneAndPropert
 	return HbComResp_A2_p1_more;
 }
 
-void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status, HbMachineType type) {
+void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status,
+									  HbMachineType type) {
 	memcpy(data->data, HbComResp_A0_head, 6);
 	data->data[6] = status;
 	data->data[7] = type;
@@ -817,7 +837,8 @@ void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status, H
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeRespA2_getMachineZones(HbComData* data, size_t count, AdemcoZone* zones, HbZoneProperty* props, HbComResp_A2_p1 p1) {
+void hbComMakeRespA2_getMachineZones(HbComData* data, size_t count, AdemcoZone* zones,
+									 HbZoneProperty* props, HbComResp_A2_p1 p1) {
 	if (count > HbComResp_A2_max_zone) { return; }
 	memcpy(data->data, HbComResp_A2_head, 6);
 	data->data[3] = (HbComResp_A2_len_min + count * 2) & 0xFF;
@@ -836,7 +857,8 @@ void hbComMakeRespA3_waitingSignal(HbComData* data) {
 	data->len = HbComResp_A3_len;
 }
 
-void hbComMakeRespA4_modifyMachineZone(HbComData* data, AdemcoZone zone, HbZoneProperty prop, HbComResp_A4_p3 p3) {
+void hbComMakeRespA4_modifyMachineZone(HbComData* data, AdemcoZone zone, 
+									   HbZoneProperty prop, HbComResp_A4_p3 p3) {
 	memcpy(data->data, HbComResp_A4_head, 6);
 	data->data[6] = zone & 0xFF;
 	data->data[7] = prop;
@@ -862,7 +884,8 @@ void hbComMakeRespA8_reject(HbComData* data) {
 	data->len = HbComResp_A8_len;
 }
 
-void hbComMakeRespAB_modifyMachineZoneLostConfig(HbComData* data, AdemcoZone zone, HbComResp_AB_p2 p2) {
+void hbComMakeRespAB_modifyMachineZoneLostConfig(HbComData* data, AdemcoZone zone,
+												 HbComResp_AB_p2 p2) {
 	memcpy(data->data, HbComResp_AB_head, 6);
 	data->data[6] = zone & 0xFF;
 	data->data[7] = p2;
@@ -870,7 +893,9 @@ void hbComMakeRespAB_modifyMachineZoneLostConfig(HbComData* data, AdemcoZone zon
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p1, size_t count, AdemcoZone* zones, HbComResp_AD_p2 p2) {
+void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p1, 
+											  size_t count, AdemcoZone* zones,
+											  HbComResp_AD_p2 p2) {
 	if (count > HbComResp_AD_max_zone) { return; }
 	memcpy(data->data, HbComResp_AD_head, 6);
 	data->data[3] = (HbComResp_AD_len_min + (p1 == HbComResp_AD_p1_single ? count : count * 2)) & 0xFF;
@@ -889,7 +914,8 @@ void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeRespAF_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status) {
+void hbComMakeRespAF_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1,
+											  HbCom_3sec_status status) {
 	memcpy(data->data, HbComResp_AF_head, 6);
 	data->data[6] = p1;
 	data->data[7] = status;
@@ -897,14 +923,18 @@ void hbComMakeRespAF_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which 
 	hbSum(data->data, data->len);
 }
 
-void hbComMakeRespB1_get3SectionMachineStatus(HbComData* data, HbMachineStatus statusMachine,
-											  HbMachineStatus statusSec1, HbMachineStatus statusSec2, HbMachineStatus statusSec3) {
+void hbComMakeRespB1_get3SectionMachineStatus(HbComData* data,
+											  HbMachineStatus statusMachine,
+											  HbMachineStatus statusSec1,
+											  HbMachineStatus statusSec2,
+											  HbMachineStatus statusSec3) {
 	memcpy(data->data, HbComResp_B1_head, 6);
 	data->data[6] = (statusMachine << 6) | (statusSec1 << 4) | (statusSec2 << 2) | (statusSec3);
 	data->len = HbComResp_B1_len;
 	hbSum(data->data, data->len);
 }
 
-void hbComDataToAdemcoXData(const HbComData* const data, AdemcoXDataSegment* xdata, AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr) {
+void hbComDataToAdemcoXData(const HbComData* const data, AdemcoXDataSegment* xdata,
+							AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr) {
 	ademcoMakeXData(xdata, xlf, xtr, (const char*)data->data, data->len);
 }
