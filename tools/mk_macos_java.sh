@@ -7,9 +7,10 @@ CURRENT_DIR=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd $CURRENT_DIR
 ssh -t ${MACOS_TARGET} <<EOF
   cd ${MACOS_PROJECT_PATH}
-  git checkout ${PROJECT_BRANCH} 
   git reset --hard HEAD
-  git pull origin ${PROJECT_BRANCH} 
+  git pull
+  git checkout ${PROJECT_BRANCH} 
+  git pull
   cd swig 
   ./mac_java.sh 
   cd ../tools

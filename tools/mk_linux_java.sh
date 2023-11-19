@@ -7,9 +7,10 @@ CURRENT_DIR=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd $CURRENT_DIR
 ssh -t ${LINUX_TARGET} <<EOF
   cd ${LINUX_PROJECT_PATH}
+  git reset --hard HEAD
+  git pull
   git checkout ${PROJECT_BRANCH} 
-  git reset --hard HEAD 
-  git pull origin ${PROJECT_BRANCH} 
+  git pull
   cd swig 
   export JAVA_HOME=${LINUX_JAVA_HOME}
   ./linux_java.sh 
