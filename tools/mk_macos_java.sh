@@ -18,5 +18,5 @@ ssh -t ${MACOS_TARGET} <<EOF
   ./mac_java.sh
 EOF
 
-scp ${MACOS_TARGET}:${MACOS_PROJECT_PATH}/tools/mac_java.zip .
+scp ${MACOS_TARGET}:${MACOS_PROJECT_PATH}/tools/mac_java.zip ./dist/mac_java.zip
 ssh -t ${MACOS_TARGET} "rm -f ${MACOS_PROJECT_PATH}/tools/mac_java.zip"
