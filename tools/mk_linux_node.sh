@@ -10,7 +10,7 @@ ssh -t ${LINUX_TARGET} <<EOF
   git reset --hard HEAD
   git pull
   git checkout ${PROJECT_BRANCH} 
-  git pull
+  git pull origin ${PROJECT_BRANCH}
   cd swig 
   ./linux_mac_node.sh 
   cd ../tools

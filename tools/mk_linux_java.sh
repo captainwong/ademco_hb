@@ -10,7 +10,7 @@ ssh -t ${LINUX_TARGET} <<EOF
   git reset --hard HEAD
   git pull
   git checkout ${PROJECT_BRANCH} 
-  git pull
+  git pull origin ${PROJECT_BRANCH}
   cd swig 
   export JAVA_HOME=${LINUX_JAVA_HOME}
   ./linux_java.sh 
