@@ -101,3 +101,7 @@ npm install -g node-gyp
 node-gyp configure build
 # node nodejs-demo.js
 ```
+
+### macOS
+
+`./linux_mac_node.sh`
