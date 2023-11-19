@@ -680,7 +680,7 @@ AdemcoPacketId getAdemcoPacketId(const char* id, size_t len) {
 	return AID_INVALID;
 }
 
-const char* admecoPacketIdToString(AdemcoPacketId id) {
+const char* ademcoPacketIdToString(AdemcoPacketId id) {
 	if (0 <= id && id < AID_COUNT)
 		return ids[id];
 	else
@@ -942,20 +942,15 @@ size_t ademcoMakeNullPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, 
 	pkt->seq = seq;
 	copyAcct2AdemcoPacket(pkt, acct);
 	pkt->data.ademcoId = ademcoId;
+	pkt->id = AID_NULL;
 	return pkt->raw_len = ademcoMakeNullPacket(pkt->raw, sizeof(pkt->raw), seq, acct, ademcoId);
-}
-
-size_t ademcoMakeAdmNullPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId) {
-	pkt->seq = seq;
-	copyAcct2AdemcoPacket(pkt, acct);
-	pkt->data.ademcoId = ademcoId;
-	return pkt->raw_len = ademcoMakeAdmNullPacket(pkt->raw, sizeof(pkt->raw), seq, acct, ademcoId);
 }
 
 size_t ademcoMakeAckPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, AdemcoId ademcoId) {
 	pkt->seq = seq;
 	copyAcct2AdemcoPacket(pkt, acct);
 	pkt->data.ademcoId = ademcoId;
+	pkt->id = AID_ACK;
 	return pkt->raw_len = ademcoMakeAckPacket(pkt->raw, sizeof(pkt->raw), seq, acct, ademcoId);
 }
 
@@ -963,6 +958,7 @@ size_t ademcoMakeNakPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, A
 	pkt->seq = seq;
 	copyAcct2AdemcoPacket(pkt, acct);
 	pkt->data.ademcoId = ademcoId;
+	pkt->id = AID_NAK;
 	return pkt->raw_len = ademcoMakeNakPacket(pkt->raw, sizeof(pkt->raw), seq, acct, ademcoId);
 }
 
@@ -977,6 +973,7 @@ size_t ademcoMakeHbPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, Ad
 		pkt->xdata.raw_len = xdata->raw_len;
 	} else
 		memset(&pkt->xdata, 0, sizeof(*xdata));
+	pkt->id = AID_HB;
 	return pkt->raw_len = ademcoMakeHbPacket(pkt->raw, sizeof(pkt->raw),
 											 seq, acct, ademcoId, ademcoEvent, gg, zone, xdata);
 }
@@ -992,6 +989,7 @@ size_t ademcoMakeAdmPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, A
 		pkt->xdata.raw_len = xdata->raw_len;
 	} else
 		memset(&pkt->xdata, 0, sizeof(*xdata));
+	pkt->id = AID_ADM_CID;
 	return pkt->raw_len = ademcoMakeAdmPacket(pkt->raw, sizeof(pkt->raw),
 											  seq, acct, ademcoId, ademcoEvent, gg, zone, xdata);
 }

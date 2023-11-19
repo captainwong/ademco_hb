@@ -432,7 +432,7 @@ ADEMCO_EXPORT_SYMBOL int ademcoMakeXData(AdemcoXDataSegment* xdata, AdemcoXDataL
 
 ADEMCO_EXPORT_SYMBOL int isAdemcoPacketId(const char* standard, const char* id, size_t len);
 ADEMCO_EXPORT_SYMBOL AdemcoPacketId getAdemcoPacketId(const char* id, size_t len);
-ADEMCO_EXPORT_SYMBOL const char* admecoPacketIdToString(AdemcoPacketId id);
+ADEMCO_EXPORT_SYMBOL const char* ademcoPacketIdToString(AdemcoPacketId id);
 
 /*
  * ademcoMake*Packet functions
@@ -471,9 +471,6 @@ ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAdmPacket(ademco_char_t* buff, size_t len,
 // like upper funcs, store buff and len to pkt->raw, pkt->raw_len
 ADEMCO_EXPORT_SYMBOL size_t ademcoMakeNullPacket2(AdemcoPacket* pkt, 
                                                   uint16_t seq, const char* acct, AdemcoId ademcoId);
-
-ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAdmNullPacket2(AdemcoPacket* pkt,
-                                                     uint16_t seq, const char* acct, AdemcoId ademcoId);
 
 ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAckPacket2(AdemcoPacket* pkt,
                                                  uint16_t seq, const char* acct, AdemcoId ademcoId);
