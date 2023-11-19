@@ -492,12 +492,15 @@ AdemcoParseResult ademcoParseDataSegment(const ademco_char_t* packet, size_t pac
 	return RESULT_ERROR;
 }
 
-size_t ademcoDataSegmentToCongwinFe100(ademco_char_t* fe100, const AdemcoDataSegment* dataSegment) {
+size_t ademcoDataSegmentToCongwinFe100(ademco_char_t* fe100, size_t fe100_len, const AdemcoDataSegment* dataSegment) {
 	if (dataSegment->raw_len == ADEMCO_PACKET_DATA_SEGMENT_EMPTY_LEN) {
+		if (fe100_len < 2) return 0;
 		fe100[0] = '\n';
 		fe100[1] = '\r';
 		return 2;
 	} else if (dataSegment->raw_len >= ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN) {
+		if (fe100_len < CONGWIN_FE100_PACKET_LEN) return 0;
+
 		char* p = fe100;
 		*p++ = '\n';
 		*p++ = ' ';
@@ -506,7 +509,7 @@ size_t ademcoDataSegmentToCongwinFe100(ademco_char_t* fe100, const AdemcoDataSeg
 		*p++ = '0';
 		*p++ = ' ';
 
-		sprintf(p, "%08d", dataSegment->ademcoId);
+		snprintf(p, fe100_len - (p - fe100), "%08d", dataSegment->ademcoId % 100000000);
 		p += 8;
 
 		*p++ = ' '; // 18
@@ -530,7 +533,7 @@ size_t ademcoDataSegmentToCongwinFe100(ademco_char_t* fe100, const AdemcoDataSeg
 			*p++ = 'B';
 			*p++ = '0';
 		} else {
-			sprintf(p, "%03d", dataSegment->ademcoEvent % 1000);
+			snprintf(p, fe100_len - (p - fe100), "%03d", dataSegment->ademcoEvent % 1000);
 			p += 3;
 		}
 
@@ -544,7 +547,7 @@ size_t ademcoDataSegmentToCongwinFe100(ademco_char_t* fe100, const AdemcoDataSeg
 		else
 			*p++ = 'C'; // zone event
 
-		sprintf(p, "%03d", dataSegment->zone);
+		snprintf(p, fe100_len - (p - fe100), "%03d", dataSegment->zone % 1000);
 		p += 3;
 
 		*p++ = ' ';

@@ -405,7 +405,7 @@ ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoParseDataSegment(const ademco_char_
                                                               AdemcoDataSegment* dataSegment);
 
 // return 0 for empty packet, CONGWIN_FE100_PACKET_LEN for success
-ADEMCO_EXPORT_SYMBOL size_t ademcoDataSegmentToCongwinFe100(ademco_char_t* fe100,
+ADEMCO_EXPORT_SYMBOL size_t ademcoDataSegmentToCongwinFe100(ademco_char_t* fe100, size_t fe100_len,
                                                             const AdemcoDataSegment* dataSegment);
 
 //////////////////////// AdemcoXDataSegment functions ////////////////////////
