@@ -42,3 +42,5 @@ mkdir -p dist
 # linux-node
 ./mk_linux_node.sh
 
+# mac-node
+./mk_macos_node.sh
