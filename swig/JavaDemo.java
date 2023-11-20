@@ -90,7 +90,8 @@ public class JavaDemo {
             System.out.println("using data=" + data);
             AdemcoPacket pkt = new AdemcoPacket();
             SWIGTYPE_p_size_t cb = libademco.new_size_tp();
-            AdemcoParseResult res = libademco.ademcoPacketParse(data.getBytes(), data.length(), pkt, cb);
+            AdemcoParseError err = new AdemcoParseError();
+            AdemcoParseResult res = libademco.ademcoPacketParse(data.getBytes(), data.length(), pkt, cb, err);
             assert (res == AdemcoParseResult.RESULT_OK);
             assert (libademco.size_tp_value(cb) == data.length());
             System.out.println("parse result=" + res + ",cb_commited=" + libademco.size_tp_value(cb));
@@ -173,6 +174,7 @@ public class JavaDemo {
         SocketChannel channel;
         byte[] buf = new byte[0];
         AdemcoPacket pkt = new AdemcoPacket();
+        AdemcoParseError err = new AdemcoParseError();
         SWIGTYPE_p_size_t cb = libademco.new_size_tp();
         HbMachineType type = HbMachineType.HMT_INVALID;
         HbMachineStatus status = HbMachineStatus.HMS_INVALID;
@@ -193,7 +195,7 @@ public class JavaDemo {
         public void onMsg(byte[] data) throws IOException {
             buf = append(buf, data);
             // System.out.println(printable_bytes(buf));
-            AdemcoParseResult res = libademco.ademcoPacketParse(buf, buf.length, pkt, cb);
+            AdemcoParseResult res = libademco.ademcoPacketParse(buf, buf.length, pkt, cb, err);
             System.out.println(res + ", " + libademco.size_tp_value(cb));
             switch (res) {
                 case RESULT_OK:

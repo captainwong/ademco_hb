@@ -12,7 +12,7 @@ function test_parse() {
     var str = "\nC5C30053\"HENG-BO\"0000R000000L000000#90219125916578[#000000|1737 00 000]_09:11:19,08-05-2019\r";
     var cb = libademco.new_size_tp();
     var pkt = new libademco.AdemcoPacket();
-    var res = libademco.ademcoPacketParse(str, str.length, pkt, cb);
+    var res = libademco.ademcoPacketParse(str, str.length, pkt, cb, null);
     assert.strictEqual(res, libademco.RESULT_OK);
     assert.strictEqual(libademco.size_tp_value(cb), str.length);
     assert.strictEqual(pkt.crc, 0xC5C3);
@@ -37,7 +37,7 @@ function test_pack() {
     console.log("test parse packed data");
     var pkt2 = new libademco.AdemcoPacket();
     var cb = libademco.new_size_tp();
-    var res = libademco.ademcoPacketParse(pkt.raw, pkt.raw_len, pkt2, cb);
+    var res = libademco.ademcoPacketParse(pkt.raw, pkt.raw_len, pkt2, cb, null);
     assert.strictEqual(res, libademco.RESULT_OK);
     assert.strictEqual(libademco.size_tp_value(cb), pkt.raw_len);
     assert.strictEqual(pkt2.id, libademco.AID_HB);
@@ -58,6 +58,7 @@ class AlarmHost {
         this.buf = null;
         this.inpkt = new libademco.AdemcoPacket();
         this.outpkt = new libademco.AdemcoPacket();
+        this.parseErr = new libademco.AdemcoParseError();
         this.cb = libademco.new_size_tp();
         this.ademcoId = 0;
         this.acct = '';
@@ -68,14 +69,15 @@ class AlarmHost {
                 chunk = Buffer.concat([this.buf, chunk]);
             } 
             
-            let res = libademco.ademcoPacketParse(chunk.toString(), chunk.length, this.inpkt, this.cb);
+            let res = libademco.ademcoPacketParse(chunk.toString(), chunk.length, this.inpkt, this.cb, this.parseErr);
             while (res === libademco.RESULT_OK) {
                 chunk = chunk.slice(libademco.size_tp_value(this.cb));
                 this.handleMsg();
-                res = libademco.ademcoPacketParse(chunk.toString(), chunk.length, this.inpkt, this.cb);
+                res = libademco.ademcoPacketParse(chunk.toString(), chunk.length, this.inpkt, this.cb, this.parseErr);
             }
     
             if (res === libademco.RESULT_ERROR) {
+                console.log('parse error at line=%d, msg=%s', this.parseErr.line, this.parseErr.msg);
                 chunk = null;
             } 
             

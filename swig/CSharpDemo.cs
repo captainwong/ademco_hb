@@ -24,7 +24,7 @@ namespace CSharpDemo
                 byte[] raw = Encoding.ASCII.GetBytes(str);
                 SWIGTYPE_p_size_t cb = libademco.new_size_tp();
                 AdemcoPacket pkt = new AdemcoPacket();
-                AdemcoParseResult res = libademco.ademcoPacketParse(raw, (uint)raw.Length, pkt, cb);
+                AdemcoParseResult res = libademco.ademcoPacketParse(raw, (uint)raw.Length, pkt, cb, null);
                 Debug.Assert(res == AdemcoParseResult.RESULT_OK);
                 Debug.Assert(libademco.size_tp_value(cb) == (uint)str.Length);
                 Debug.Assert(pkt.crc == 0xC5C3);
@@ -51,7 +51,7 @@ namespace CSharpDemo
                 Console.WriteLine("test parse packed data");
                 AdemcoPacket pkt = new AdemcoPacket();
                 SWIGTYPE_p_size_t cb = libademco.new_size_tp();
-                AdemcoParseResult res = libademco.ademcoPacketParse(buff, len, pkt, cb);
+                AdemcoParseResult res = libademco.ademcoPacketParse(buff, len, pkt, cb, null);
                 Debug.Assert(res == AdemcoParseResult.RESULT_OK);
                 Debug.Assert(libademco.size_tp_value(cb) == len);
                 Debug.Assert(pkt.id == AdemcoPacketId.AID_HB);
@@ -152,7 +152,7 @@ namespace CSharpDemo
                 AdemcoParseResult res = AdemcoParseResult.RESULT_OK;
                 while (res == AdemcoParseResult.RESULT_OK)
                 {
-                    res = libademco.ademcoPacketParse(buff, (uint)buff.Length, pkt, cb);
+                    res = libademco.ademcoPacketParse(buff, (uint)buff.Length, pkt, cb, null);
                     switch (res)
                     {
                         case AdemcoParseResult.RESULT_OK:
