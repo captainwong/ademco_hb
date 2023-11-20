@@ -25,109 +25,38 @@ const char* print_bool(bool b) {
 }
 
 AdemcoEvent statusEvents[] = {
-
-	// 主机或分机状态报告
-	EVENT_ARM,
-	EVENT_DISARM,
-	EVENT_HALFARM_1456,
-	EVENT_HALFARM,
-	EVENT_EMERGENCY,
+#define XX(name, code, zh) EVENT_##name,
+	ADEMCO_STATUS_EVENTS_MAP(XX)
+#undef XX
 };
 
 AdemcoEvent alarmEvents[] = {
-
-	// 防区报警
-	EVENT_BURGLAR,
-	EVENT_DOORRINGING,
-	EVENT_FIRE,
-	EVENT_DURESS,
-	EVENT_GAS,
-	EVENT_WATER,
-	EVENT_TAMPER,
-	EVENT_ZONE_TAMPER,
-	EVENT_BYPASS,
-	EVENT_BYPASS_RESUME,
-
+#define XX(name, code, zh) EVENT_##name,
+	ADEMCO_ALARM_EVENTS_MAP(XX)
+#undef XX
 };
 
 AdemcoEvent excepEvents[] = {
-
-	// 防区异常
-	EVENT_AC_BROKE,
-	EVENT_AC_RECOVER,
-	EVENT_LOWBATTERY,
-	EVENT_BATTERY_RECOVER,
-	EVENT_BADBATTERY,
-	EVENT_BADBATTERY_RECOVER,
-	EVENT_SOLARDISTURB,
-	EVENT_SOLARDISTURB_RECOVER,
-	EVENT_DISCONNECT,
-	EVENT_RECONNECT,
-	EVENT_BATTERY_EXCEPTION,
-	EVENT_BATTERY_EXCEPTION_RECOVER,
-	EVENT_OTHER_EXCEPTION,
-	EVENT_OTHER_EXCEPTION_RECOVER,
-	EVENT_LOST,
-	EVENT_LOST_RECOVER,
-
-	// 标准事件，但不做处理
-	EVENT_3100,
-
+#define XX(name, code, zh) EVENT_##name,
+	ADEMCO_EXEPTION_EVENTS_MAP(XX)
+	ADEMCO_RESUME_EVENTS_MAP(XX)
+#undef XX
 };
 
 AdemcoEvent privateEvents[] = {
+#define XX(name, code, zh) EVENT_##name,
+	ADEMCO_HB_EVENTS_MAP(XX)
+#undef XX
+};
 
-	// ------------------私有事件-----------------------------------------
-	EVENT_SERIAL485DIS,
-	EVENT_SERIAL485CONN,
-
-	EVENT_CONN_HANGUP,
-	EVENT_CONN_RESUME,
-
-	EVENT_DISARM_PWD_ERR,
-
-	EVENT_SUB_MACHINE_SENSOR_EXCEPTION ,
-	EVENT_SUB_MACHINE_SENSOR_RESUME,
-	EVENT_SUB_MACHINE_POWER_EXCEPTION,
-	EVENT_SUB_MACHINE_POWER_RESUME,
-
-	EVENT_COM_PASSTHROUGH,
-	EVENT_ENTER_SET_MODE,
-	EVENT_EXIT_SET_MODE,
-
-	EVENT_QUERY_SUB_MACHINE,
-	EVENT_WRITE_TO_MACHINE,
-
-	EVENT_I_AM_NET_MODULE,
-	EVENT_I_AM_GPRS,
-	EVENT_I_AM_LCD_MACHINE,
-	EVENT_I_AM_WIRE_MACHINE,
-	EVENT_I_AM_WIFI_MACHINE,
-	EVENT_I_AM_3_SECTION_MACHINE,
-	EVENT_I_AM_IOT_MACHINE,
-	EVENT_I_AM_TRUE_COLOR,
-	EVENT_I_AM_GPRS_IOT,
-	EVENT_I_AM_GPRS_PHONE,
-	EVENT_I_AM_NB_MACHINE,
-	EVENT_I_AM_WIFI2_MACHINE,
-
-	EVENT_PHONE_USER_SOS,
-	EVENT_PHONE_USER_CANCLE_ALARM,
-
-	EVENT_ENTER_SETTING_MODE,
-	EVENT_EXIT_SETTING_MODE,
-	EVENT_RESTORE_FACTORY_SETTINGS_710,
-	EVENT_RESTORE_FACTORY_SETTINGS,
-
-	EVENT_SIM_IS_IOT_CARD,
-	EVENT_SIM_IS_IOT_PLATFORM_CARD,
-	EVENT_SIM_IS_NOT_IOT_CARD,
-
-	EVENT_WHAT_IS_YOUR_TYPE,
-	EVENT_SIGNAL_STRENGTH_CHANGED,
-
-	EVENT_OFFLINE,
-	EVENT_ONLINE,
+AdemcoEvent allEvents[] = {
+#define XX(name, code, zh) EVENT_##name,
+	ADEMCO_STATUS_EVENTS_MAP(XX)
+	ADEMCO_ALARM_EVENTS_MAP(XX)
+	ADEMCO_EXEPTION_EVENTS_MAP(XX)
+	ADEMCO_RESUME_EVENTS_MAP(XX)
+	ADEMCO_HB_EVENTS_MAP(XX)
+#undef XX
 };
 
 void printEvents(const AdemcoEvent* events, size_t len)
@@ -239,7 +168,7 @@ void print_machineTypes()
 	printf("|事件码类型|主机类型|布防|撤防|半布防|设置|信号强度|防区|有线防区|SMS|内核|网络|型号|\n"
 		   "|---------|-------|----|----|-----|----|-------|----|-------|---|----|---|----|\n");
 
-	for (auto e : AdemcoEvents) {
+	for (auto e : allEvents) {
 		if (ademcoIsMachineTypeEvent(e)) { 
 			auto t = hbMachineTypeFromAdemcoEvent(e); 
 			if(!hbMachineIsSelling(t)) continue; 
@@ -275,7 +204,7 @@ void print_imgs()
 		   "|---|--------|\n");
 
 	std::map<std::string, std::string> imgs;
-	for (auto e : AdemcoEvents) {
+	for (auto e : allEvents) {
 		if (ademcoIsMachineTypeEvent(e)) {
 			auto t = hbMachineTypeFromAdemcoEvent(e);
 			if (!hbMachineIsSelling(t)) continue;
@@ -350,8 +279,7 @@ void print_available_zone_props()
 	}
 	printf("|\n");
 
-
-	for (auto e : AdemcoEvents) {
+	for (auto e : allEvents) {
 		if (ademcoIsMachineTypeEvent(e)) {
 			auto t = hbMachineTypeFromAdemcoEvent(e);
 			if (!hbMachineIsSelling(t)) continue;

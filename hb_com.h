@@ -1,9 +1,3 @@
-/*
- * Hengbo COM library
- * captainwong
- * 2022-8-12 rewrited this C version
- */
-
 #ifndef __HB_COM_H__
 #define __HB_COM_H__
 
@@ -21,7 +15,8 @@ extern "C" {
 
 //! 是否合法的三防区主机状态GG
 static inline int hbIsValid3SectionMachineGG(AdemcoGG gg) {
-    return HB_3SECTION_MACHINE_GG_MIN <= gg && gg <= HB_3SECTION_MACHINE_GG_MAX;
+    return HB_3SECTION_MACHINE_GG_MIN <= gg &&
+        gg <= HB_3SECTION_MACHINE_GG_MAX;
 }
 
 //! 主机状态
@@ -226,39 +221,47 @@ typedef enum HbComReq_A3_p3 {
 #define HbComResp_A4_len 10
 #define HbComResp_A4_head "\xEB\xBA\x3F\x0A\xCC\xA4"
 typedef enum HbComResp_A4_p3 {
-    HbComResp_A4_p3_fail = 0x00,  //! 失败
-    HbComResp_A4_p3_ok = 0x01,    //! 成功
-    HbComResp_A4_p3_dup = 0x02,   //! 失败--重码
-    HbComResp_A4_p3_ne = 0x03,    //! 失败--防区未对码 not exists
+    HbComResp_A4_p3_fail = 0x00, //! 失败
+    HbComResp_A4_p3_ok = 0x01,   //! 成功
+    HbComResp_A4_p3_dup = 0x02,  //! 失败--重码
+    HbComResp_A4_p3_ne = 0x03,   //! 失败--防区未对码 not exists
 } HbComResp_A4_p3;
 
-//! 获取主机定时器 EB AB 3F A5 7A
+//! 获取主机定时器
+//! EB AB 3F A5 7A
 #define HbComReq_A5_len 5
 #define HbComReq_A5_data "\xEB\xAB\x3F\xA5\x7A"
 
-//! 获取主机定时器回应 EB BA 3F 0F P0 A6 H1 M1 H2 M2 H3 M3 H4 M4 SUM
+//! 获取主机定时器回应
+//! EB BA 3F 0F P0 A6 H1 M1 H2 M2 H3 M3 H4 M4 SUM
 #define HbComResp_A6_len 15
 #define HbComResp_A6_head "\xEB\xBA\x3F\x0F\xCC\xA6"
 
-//! 设置主机定时器 EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
+//! 设置主机定时器
+//! EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
 #define HbComReq_A7_len 14
 #define HbComReq_A7_head "\xEB\xCB\x3F\x0E\xA7"
-#define hbComResq_A7_to_timer(a7, timer) memcpy((timer)->data, (a7) + 5, 8);
+#define hbComResq_A7_to_timer(a7, timer) \
+    memcpy((timer)->data, (a7) + 5, 8);
 
-//! 设置主机定时器回应 EB BA 3F 07 P0 A7 SUM
+//! 设置主机定时器回应
+//! EB BA 3F 07 P0 A7 SUM
 #define HbComResp_A7_len 7
 #define HbComResp_A7_data "\xEB\xBA\x3F\x07\xCC\xA7\x5E"
 
-//! 拒绝设置回应 EB BA 3F 07 P0 A8 SUM
+//! 拒绝设置回应
+//! EB BA 3F 07 P0 A8 SUM
 //! 任何操作，主机如果认为非法，都可以用A8直接回复
 #define HbComResp_A8_len 7
 #define HbComResp_A8_data "\xEB\xBA\x3F\x07\xCC\xA8\x5F"
 
-//! 修改防区探头遗失/失联 EB CB 3F 08 AA P1 P2 SUM
+//! 修改防区探头遗失/失联
+//! EB CB 3F 08 AA P1 P2 SUM
 #define HbComReq_AA_len 8
 #define HbComReq_AA_head "\xEB\xAB\x3F\x08\xAA"
 
-//! 修改防区探头遗失/失联回应 EB BA 3F 09 P0 AB P1 P2 SUM
+//! 修改防区探头遗失/失联回应
+//! EB BA 3F 09 P0 AB P1 P2 SUM
 #define HbComResp_AB_len 9
 #define HbComResp_AB_head "\xEB\xBA\x3F\x09\xCC\xAB"
 typedef enum HbComResp_AB_p2 {
@@ -267,21 +270,26 @@ typedef enum HbComResp_AB_p2 {
     HbComResp_AB_p2_reject = 2,  // 拒绝操作
 } HbComResp_AB_p2;
 
-//! 索要防区探头遗失/失联  第一次索要 EB AB 3F AC 81
+//! 索要防区探头遗失/失联，第一次索要 
+//! EB AB 3F AC 81
 #define HbComReq_AC_len 5
 #define HbComReq_AC_data "\xEB\xAB\x3F\xAC\x81"
 
-//! 索要防区探头遗失/失联  索要更多 EB AB 3F AD 82
+//! 索要防区探头遗失/失联,索要更多
+//! EB AB 3F AD 82
 #define HbComReq_AD_len 5
 #define HbComReq_AD_data "\xEB\xAB\x3F\xAD\x82"
 
-//! 索要防区探头遗失/失联回应 EB BA 3F PN P0 AD P1 DATA P2 SUM
+//! 索要防区探头遗失/失联回应
+//! EB BA 3F PN P0 AD P1 DATA P2 SUM
 // 无防区失联数据时一包长度最小为9
 #define HbComResp_AD_len_min 9
 // 一包最多包含20个防区
 #define HbComResp_AD_max_zone 20
 // 一包最多有 9 + 20 *2 = 49 个字节
-#define HbComResp_AD_len_max (HbComResp_AD_len_min + HbComResp_AD_max_zone * 2)
+#define HbComResp_AD_len_max \
+    (HbComResp_AD_len_min + HbComResp_AD_max_zone * 2)
+
 typedef enum HbComResp_AD_p1 {
     HbComResp_AD_p1_single = 0xF0,  // 防区号以单字节表示
     HbComResp_AD_p1_double = 0xF1,  // 防区号以双字节表示
@@ -319,10 +327,17 @@ typedef enum HbCom_3sec_which {
 //! 三区段主机状态回应 EB BA 3F 08 P0 B1 P1 SUM
 #define HbComResp_B1_len 8
 #define HbComResp_B1_head "\xEB\xBA\x3F\x08\xCC\xB1"
-#define hbComResp_B1_status(d) ((((d)[6] >> 6) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
-#define hbComResp_B1_status1(d) ((((d)[6] >> 4) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
-#define hbComResp_B1_status2(d) ((((d)[6] >> 2) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
-#define hbComResp_B1_status3(d) ((((d)[6]) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
+#define hbComResp_B1_status(d) \
+    ((((d)[6] >> 6) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
+
+#define hbComResp_B1_status1(d) \
+    ((((d)[6] >> 4) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
+
+#define hbComResp_B1_status2(d) \
+    ((((d)[6] >> 2) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
+
+#define hbComResp_B1_status3(d) \
+    ((((d)[6]) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
 
 //! 读取主机账号
 #define HbComReq_RD_acct_len 7
@@ -341,11 +356,14 @@ typedef enum HbCom_3sec_which {
 #define HbComResp_WR_acct_head HbComReq_WR_acct_head
 
 static const HbZoneProperty hbZoneProperties[12] = {
-    HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE,
-    HZP_REMOTE_CONTROL, HZP_BUGLAR_HALF, HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS};
+    HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS,
+    HZP_GAS, HZP_WATER, HZP_SUB_MACHINE, HZP_REMOTE_CONTROL,
+    HZP_BUGLAR_HALF, HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS,
+};
 
 // return available count
-ADEMCO_EXPORT_SYMBOL int hbGetAvailableZoneProperties(HbMachineType type, HbZoneProperty props[12]);
+ADEMCO_EXPORT_SYMBOL int hbGetAvailableZoneProperties(HbMachineType type,
+                                                      HbZoneProperty props[12]);
 
 //! 最大防区号根据型号不同而不同
 ADEMCO_EXPORT_SYMBOL uint16_t hbZoneMax(HbMachineType type);
@@ -409,56 +427,106 @@ ADEMCO_EXPORT_SYMBOL void hbSum(uint8_t* data, size_t len);
 // 校验和是否正确, return 0 for incorrect, otherwise correct
 ADEMCO_EXPORT_SYMBOL int hbCheckSum(const uint8_t* data, size_t len);
 
-ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseRequest(const uint8_t* buff, size_t len, HbComData* cd);
-ADEMCO_EXPORT_SYMBOL HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata, HbComData* cd);
-// parse COM response and return response type. If cd is non-NULL, valid data will be copied to cd
-ADEMCO_EXPORT_SYMBOL HbComResponseType hbComParseResponse(const uint8_t* buff, size_t len, HbComData* cd);
-// parse COM response and return response type. If cd is non-NULL, valid data will be copied to cd
-ADEMCO_EXPORT_SYMBOL HbComResponseType hbComParseXDataResponse(const AdemcoXDataSegment* xdata, HbComData* cd);
+ADEMCO_EXPORT_SYMBOL
+HbComRequestType hbComParseRequest(const uint8_t* buff, size_t len, HbComData* cd);
+
+ADEMCO_EXPORT_SYMBOL
+HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata,
+                                        HbComData* cd);
+
+// parse COM response and return response type.
+// If cd is non-NULL, valid data will be copied to cd
+ADEMCO_EXPORT_SYMBOL
+HbComResponseType hbComParseResponse(const uint8_t* buff, size_t len,
+                                     HbComData* cd);
+
+// parse COM response and return response type.
+// If cd is non-NULL, valid data will be copied to cd
+ADEMCO_EXPORT_SYMBOL
+HbComResponseType hbComParseXDataResponse(const AdemcoXDataSegment* xdata, HbComData* cd);
 
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqA0_getMachineStatus(HbComData* data);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqA1_getMachineZones(HbComData* data);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqA2_getMoreMachineZones(HbComData* data);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqA3_modifyMachineZone(HbComData* data, uint8_t zone, HbZoneProperty prop, HbComReq_A3_op op);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA3_modifyMachineZone(HbComData* data,
+                                                           uint8_t zone,
+                                                           HbZoneProperty prop,
+                                                           HbComReq_A3_op op);
+
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqA5_getMachineTimer(HbComData* data);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqA7_setMachineTimer(HbComData* data, HbMachineTimer* timer);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqA7_setMachineTimer(HbComData* data,
+                                                         HbMachineTimer* timer);
 // TODO
 // ADEMCO_EXPORT_SYMBOL void hbComMakeReqA9(HbComData* data, HbMachineStatus status, HbMachineType type);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqAA_modifyMachineZoneLostConfig(HbComData* data, uint8_t zone, int on);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqAA_modifyMachineZoneLostConfig(HbComData* data,
+                                                                     uint8_t zone,
+                                                                     int on);
+
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqAC_getMachineZoneLostConfig(HbComData* data);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqAD_getMoreMachineZoneLostConfig(HbComData* data);
 // p2 must be HbCom_3sec_arm or HbCom_3sec_disarm
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqAE_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqAE_set3SectionMachineStatus(HbComData* data,
+                                                                  HbCom_3sec_which p1,
+                                                                  HbCom_3sec_status status);
+
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqB0_get3SectionMachineStatus(HbComData* data);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqRD_acct(HbComData* data);
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqWR_acct(HbComData* data, const char* acct);
 
-ADEMCO_EXPORT_SYMBOL void hbComResp_A2_Iter_init(HbComResp_A2_Iter* iter, const HbComData* com);
-ADEMCO_EXPORT_SYMBOL HbComResp_A2_p1 hbComResp_A2_Iter_next(HbComResp_A2_Iter* iter, HbZoneAndProperty* zp);
+ADEMCO_EXPORT_SYMBOL void hbComResp_A2_Iter_init(HbComResp_A2_Iter* iter,
+                                                 const HbComData* com);
 
-ADEMCO_EXPORT_SYMBOL void hbComMakeRespA0_getMachineStatus(HbComData* data, HbMachineStatus status, HbMachineType type);
+ADEMCO_EXPORT_SYMBOL HbComResp_A2_p1 hbComResp_A2_Iter_next(HbComResp_A2_Iter* iter,
+                                                            HbZoneAndProperty* zp);
+
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA0_getMachineStatus(HbComData* data,
+                                                           HbMachineStatus status,
+                                                           HbMachineType type);
 // zones and props length is count
 // if count is 0, p1 wil be set to HbComResp_A2_p1_nomore
-ADEMCO_EXPORT_SYMBOL void hbComMakeRespA2_getMachineZones(HbComData* data, size_t count,
-                                                          AdemcoZone* zones, HbZoneProperty* props, HbComResp_A2_p1 p1);
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA2_getMachineZones(HbComData* data,
+                                                          size_t count,
+                                                          AdemcoZone* zones,
+                                                          HbZoneProperty* props,
+                                                          HbComResp_A2_p1 p1);
 // 学码开始，等待探测器无线信号中
 ADEMCO_EXPORT_SYMBOL void hbComMakeRespA3_waitingSignal(HbComData* data);
-ADEMCO_EXPORT_SYMBOL void hbComMakeRespA4_modifyMachineZone(HbComData* data, AdemcoZone zone, HbZoneProperty prop, HbComResp_A4_p3 p3);
-ADEMCO_EXPORT_SYMBOL void hbComMakeRespA6_getMachineTimer(HbComData* data, HbMachineTimer* timer);
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA4_modifyMachineZone(HbComData* data,
+                                                            AdemcoZone zone,
+                                                            HbZoneProperty prop,
+                                                            HbComResp_A4_p3 p3);
+
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespA6_getMachineTimer(HbComData* data,
+                                                          HbMachineTimer* timer);
+
 ADEMCO_EXPORT_SYMBOL void hbComMakeRespA7_setMachineTimer(HbComData* data);
 ADEMCO_EXPORT_SYMBOL void hbComMakeRespA8_reject(HbComData* data);
 // TODO
 // ADEMCO_EXPORT_SYMBOL void hbComMakeRespA9_(HbComData* data);
-ADEMCO_EXPORT_SYMBOL void hbComMakeRespAB_modifyMachineZoneLostConfig(HbComData* data, AdemcoZone zone, HbComResp_AB_p2 p2);
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespAB_modifyMachineZoneLostConfig(HbComData* data,
+                                                                      AdemcoZone zone,
+                                                                      HbComResp_AB_p2 p2);
 // 返回所有失联开的防区
-ADEMCO_EXPORT_SYMBOL void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data, HbComResp_AD_p1 p1, size_t count, AdemcoZone* zones, HbComResp_AD_p2 p2);
-ADEMCO_EXPORT_SYMBOL void hbComMakeRespAF_set3SectionMachineStatus(HbComData* data, HbCom_3sec_which p1, HbCom_3sec_status status);
-ADEMCO_EXPORT_SYMBOL void hbComMakeRespB1_get3SectionMachineStatus(HbComData* data, HbMachineStatus statusMachine,
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data,
+                                                                   HbComResp_AD_p1 p1,
+                                                                   size_t count,
+                                                                   AdemcoZone* zones,
+                                                                   HbComResp_AD_p2 p2);
+
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespAF_set3SectionMachineStatus(HbComData* data,
+                                                                   HbCom_3sec_which p1,
+                                                                   HbCom_3sec_status status);
+
+ADEMCO_EXPORT_SYMBOL void hbComMakeRespB1_get3SectionMachineStatus(HbComData* data,
+                                                                   HbMachineStatus statusMachine,
                                                                    HbMachineStatus statusSec1,
                                                                    HbMachineStatus statusSec2,
                                                                    HbMachineStatus statusSec3);
-ADEMCO_EXPORT_SYMBOL void hbComDataToAdemcoXData(const HbComData* const data, AdemcoXDataSegment* xdata,
-                                                 AdemcoXDataLengthFormat xlf, AdemcoXDataTransform xtr);
+
+ADEMCO_EXPORT_SYMBOL void hbComDataToAdemcoXData(const HbComData* const data,
+                                                 AdemcoXDataSegment* xdata,
+                                                 AdemcoXDataLengthFormat xlf,
+                                                 AdemcoXDataTransform xtr);
 
 #ifdef __cplusplus
 }

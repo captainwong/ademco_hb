@@ -18,6 +18,14 @@ export MACOS_TARGET=jack@JackMacBook-Pro.local
 export MACOS_PROJECT_PATH=/Users/jack/projects/ademco_hb
 export MACOS_JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_291.jdk/Contents/Home
 
+major=`cat ../ademco_version.h | grep ADEMCO_VERSION_MAJOR | head -n1 | awk '{print $3}'`
+minor=`cat ../ademco_version.h | grep ADEMCO_VERSION_MINOR | head -n1 | awk '{print $3}'`
+patch=`cat ../ademco_version.h | grep ADEMCO_VERSION_PATCH | head -n1 | awk '{print $3}'`
+
+version=$major.$minor.$patch
+
+echo "version: $version"
+
 rm -rf dist
 mkdir -p dist
 
@@ -44,3 +52,8 @@ mkdir -p dist
 
 # mac-node
 ./mk_macos_node.sh
+
+mv dist ademco_hb-$version
+tar -zcvf ademco_hb-$version.tar.gz ademco_hb-$version
+zip -r ademco_hb-$version.zip ademco_hb-$version
+rm -rf ademco_hb-$version
