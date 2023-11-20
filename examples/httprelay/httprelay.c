@@ -124,7 +124,7 @@ void on_tcp_connection(uv_tcpserver_client_context_t* client, int connected) {
 
 uv_tcp_parse_result_t on_tcp_parse(uv_tcpserver_client_context_t* client, const char* buf, size_t len, size_t* ate) {
 	AdemcoPacket pkt;
-	AdemcoParseResult res = ademcoPacketParse(buf, len, &pkt, ate);
+	AdemcoParseResult res = ademcoPacketParse(buf, len, &pkt, ate, NULL);
 	switch (res) {
 	case RESULT_OK:
 		switch (pkt.id) {

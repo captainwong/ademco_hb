@@ -137,7 +137,8 @@ int main(int argc, char** argv) {
 		AdemcoParseResult result = ademcoPacketParse(clientBuffer.buff + clientBuffer.rpos,
 													 clientBuffer.wpos - clientBuffer.rpos,
 													 &pkt,
-													 &cb);
+													 &cb,
+													 nullptr);
 
 		switch (result) {
 		case AdemcoParseResult::RESULT_OK:
