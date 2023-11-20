@@ -437,8 +437,9 @@ size_t ademcoAppendDataSegment2(AdemcoDataSegment* dataSegment, const char* acct
 														  ademcoEvent, gg, zone);
 }
 
+
 AdemcoParseResult ademcoParseDataSegment(const ademco_char_t* packet, size_t packet_len,
-										 AdemcoDataSegment* dataSegment) {
+										 AdemcoDataSegment* dataSegment, AdemcoParseError* err) {
 	if (packet_len == ADEMCO_PACKET_DATA_SEGMENT_EMPTY_LEN &&
 		packet[0] == '[' && packet[1] == ']') {
 		memset(dataSegment, 0, sizeof(*dataSegment));
@@ -451,8 +452,10 @@ AdemcoParseResult ademcoParseDataSegment(const ademco_char_t* packet, size_t pac
 		do {
 			const char* p = packet + 2;
 			size_t acct_len = packet_len - 15;
-			if (acct_len < 6)
+			if (acct_len < 6) {
+				ADEMCO_FILL_PARSE_ERROR(err, "acct_len < 6");
 				break;
+			}
 
 			char temp[ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN_MAX] = { 0 };
 			strncpy(temp, (const char*)p, acct_len);
@@ -460,13 +463,19 @@ AdemcoParseResult ademcoParseDataSegment(const ademco_char_t* packet, size_t pac
 			dataSegment->ademcoId = (AdemcoId)strtoul(temp, NULL, 16);
 			p += acct_len;
 
-			if (*p++ != '|') { break; }
+			if (*p++ != '|') {
+				ADEMCO_FILL_PARSE_ERROR(err, "*p++ != '|'"); 
+				break;
+			}
 			strncpy(temp, (const char*)p, 4);
 			temp[4] = '\0';
 			dataSegment->ademcoEvent = (AdemcoEvent)(atoi(temp));
 			p += 4;
 
-			if (*p++ != ' ') { break; }
+			if (*p++ != ' ') {
+				ADEMCO_FILL_PARSE_ERROR(err, "*p++ != ' '"); 
+				break;
+			}
 			if (*p == 'E' && *(p + 1) == 'E') {
 				dataSegment->gg = 0xEE;
 			} else if (*p == 'C' && *(p + 1) == 'C') {
@@ -476,7 +485,10 @@ AdemcoParseResult ademcoParseDataSegment(const ademco_char_t* packet, size_t pac
 			}
 			p += 2;
 
-			if (*p++ != ' ') { break; }
+			if (*p++ != ' ') {
+				ADEMCO_FILL_PARSE_ERROR(err, "*p++ != ' '"); 
+				break;
+			}
 			strncpy(temp, (const char*)p, 3);
 			temp[3] = '\0';
 			dataSegment->zone = atoi(temp);
@@ -489,6 +501,7 @@ AdemcoParseResult ademcoParseDataSegment(const ademco_char_t* packet, size_t pac
 		} while (0);
 	}
 
+	ADEMCO_FILL_PARSE_ERROR(err, "dig in source code for more info");
 	return RESULT_ERROR;
 }
 
@@ -874,7 +887,6 @@ size_t ademcoMakeHbPacket(ademco_char_t* dst_buff, size_t len, uint16_t seq, con
 	return 0;
 }
 
-
 size_t ademcoMakeAdmPacket(ademco_char_t* dst_buff, size_t len, uint16_t seq, const char* acct, AdemcoId ademcoId,
 						   AdemcoEvent ademcoEvent, AdemcoGG gg, AdemcoZone zone, const AdemcoXDataSegment* xdata) {
 	char buff[ADEMCO_PACKET_MAX_LEN];
@@ -995,12 +1007,15 @@ size_t ademcoMakeAdmPacket2(AdemcoPacket* pkt, uint16_t seq, const char* acct, A
 }
 
 AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
-									AdemcoPacket* pkt, size_t* cb_commited) {
+									AdemcoPacket* pkt, size_t* cb_commited,
+									AdemcoParseError* err) {
 	if (len < 9) { return RESULT_NOT_ENOUGH; }
 	do {
 		const char* p = buff;
-		if (*p++ != ADEMCO_PACKET_PREFIX)
+		if (*p++ != ADEMCO_PACKET_PREFIX) {
+			ADEMCO_FILL_PARSE_ERROR(err, "*p++ != ADEMCO_PACKET_PREFIX");
 			break;
+		}
 
 		char temp[5];
 
@@ -1020,6 +1035,7 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
 			return RESULT_NOT_ENOUGH;
 		if (len_needed >= ADEMCO_PACKET_MAX_LEN) {
 			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "len_needed >= ADEMCO_PACKET_MAX_LEN");
 			return RESULT_ERROR;
 		}
 
@@ -1028,30 +1044,45 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
 
 		if (pcr > buff + len || *pcr != ADEMCO_PACKET_SUFIX) {
 			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "pcr > buff + len || *pcr != ADEMCO_PACKET_SUFIX");
 			break;
 		}
 
 		pkt->crc = ademcoCRC16(pid, pkt->len);
 		if (pkt->crc != crc) {
 			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "pkt->crc != crc");
 			break;
 		}
 
 		// id
 		if (*pid != '\"') {
 			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "*pid != '\"'");
 			break;
 		}
 		p = pid + 1;
 		while (p < pcr && *p != '\"') { p++; }
-		if (p >= pcr || *p != '\"') { dline; break; }
+		if (p >= pcr || *p != '\"') {
+			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "p >= pcr || *p != '\"'");
+			break;
+		}
 		pkt->id = getAdemcoPacketId((const char*)pid, ++p - pid);
-		if (pkt->id == AID_INVALID) { dline; break; }
+		if (pkt->id == AID_INVALID) {
+			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "pkt->id == AID_INVALID");
+			break;
+		}
 
 		// seq
 		const char* pseq = p;
 		while (p < pcr && *p != 'R' && *p != 'L') { p++; }
-		if (p - pseq != 4 || (*p != 'R' && *p != 'L')) { dline; break; }
+		if (p - pseq != 4 || (*p != 'R' && *p != 'L')) {
+			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "p - pseq != 4 || (*p != 'R' && *p != 'L')");
+			break;
+		}
 		memcpy(temp, pseq, 4); temp[4] = '\0';
 		pkt->seq = strtoul(temp, NULL, 10) & 0xFFFF;
 		if (pkt->seq >= 10000) { pkt->seq = 0; }
@@ -1060,32 +1091,53 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
 		if (*p == 'R') { // rrcvr exists
 			//const char* prcvr = p;
 			while (p < pcr && *p != 'L' && *p != '#') { p++; }
-			if (p >= pcr || (*p != 'L' && *p != '#')) { dline; break; }
+			if (p >= pcr || (*p != 'L' && *p != '#')) {
+				dline;
+				ADEMCO_FILL_PARSE_ERROR(err, "p >= pcr || (*p != 'L' && *p != '#')");
+				break;
+			}
 			// only check if format is correct, ignore it's content
 		} else if (*p == 'L') { // rrcvr not exits
 			// pass
 		} else {
-			dline; break;
+			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "both LPREF and RRCVR not found");
+			break;
 		}
 
 		// lpref
-		if (*p != 'L') { dline; break; }
+		if (*p != 'L') {
+			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "LPREF not found");
+			break;
+		}
 		while (p < pcr && *p != '#') { p++; }
-		if (p >= pcr || *p != '#') { dline; break; }
 		// only check if format is correct, ignore it's content
-		// pass
+		if (p >= pcr || *p != '#') {
+			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "# not found");
+			break;
+		}
+		// lpref passed
 
 		// #acct
 		const char* pacct = ++p;
 		while (p < pcr && *p != '[') {
-			if (!isxdigit(*p)) { p = NULL; dline; break; }
+			if (!isxdigit(*p)) {
+				p = NULL;
+				dline;
+				ADEMCO_FILL_PARSE_ERROR(err, "acct contains non-hex characters");
+				break;
+			}
 			p++;
 		}
 		if (p == NULL ||
 			p >= pcr ||
 			*p != '[' ||
 			p - pacct >= ADEMCO_PACKET_ACCT_MAX_LEN) {
-			dline; break;
+			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "data's [ not found");
+			break;
 		}
 		strncpy(pkt->acct, (const char*)pacct, p - pacct);
 		pkt->acct[p - pacct] = '\0';
@@ -1093,8 +1145,12 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
 		// data
 		const char* pdata = p;
 		while (p < pcr && *p != ']') { p++; }
-		if (p >= pcr || *p != ']') { dline; break; }
-		if (ademcoParseDataSegment(pdata, ++p - pdata, &pkt->data) != RESULT_OK) { dline; break; }
+		if (p >= pcr || *p != ']') {
+			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "data's ] not found");
+			break;
+		}
+		if (ademcoParseDataSegment(pdata, ++p - pdata, &pkt->data, err) != RESULT_OK) { dline; break; }
 
 		// *xdata
 		if (*p == '[') { // xdata exists
@@ -1114,7 +1170,11 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
 				p += 2 + valid_len;
 			}
 
-			if (p >= pcr || *p != ']' || *(p + 1) != '_') { dline; break; }
+			if (p >= pcr || *p != ']' || *(p + 1) != '_') {
+				dline;
+				ADEMCO_FILL_PARSE_ERROR(err, "xdata's ] not found or next char is not _");
+				break;
+			}
 			pkt->xdata.lenghFormat = xlf;
 			pkt->xdata.raw_len = ++p - pxdata;
 			memcpy(pkt->xdata.raw, pxdata, pkt->xdata.raw_len);
@@ -1123,7 +1183,11 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
 		}
 
 		// timestamp
-		if (pcr - p != ADEMCO_PACKET_TIMESTAMP_LEN) { dline; break; }
+		if (pcr - p != ADEMCO_PACKET_TIMESTAMP_LEN) {
+			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "timestamp length not correct");
+			break;
+		}
 		{
 			struct tm tm;
 			int ret = sscanf((const char*)p, "_%02d:%02d:%02d,%02d-%02d-%04d",
@@ -1143,7 +1207,11 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
 			p += ADEMCO_PACKET_TIMESTAMP_LEN;
 		}
 
-		if (p++ != pcr) { dline; break; }
+		if (p++ != pcr) {
+			dline;
+			ADEMCO_FILL_PARSE_ERROR(err, "packet length not correct");
+			break;
+		}
 		pkt->raw_len = *cb_commited = p - buff;
 		if (pkt->raw != buff)
 			memcpy(pkt->raw, buff, pkt->raw_len);

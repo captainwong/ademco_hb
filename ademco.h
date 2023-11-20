@@ -288,6 +288,20 @@ typedef enum AdemcoParseResult {
     RESULT_ERROR,       //! 解析到错误的数据，应当丢弃该数据包
 } AdemcoParseResult;
 
+// 安定宝协议解析错误信息
+typedef struct AdemcoParseError {
+    int line;
+    const char* msg; // user do not free
+} AdemcoParseError;
+
+#define ADEMCO_FILL_PARSE_ERROR(err, msg_) \
+    do {                                   \
+        if (err) {                         \
+            err->line = __LINE__;          \
+            err->msg = (msg_);             \
+        }                                  \
+    } while (0);
+
 // 安定宝协议data段
 typedef struct AdemcoDataSegment {
     ademco_char_t raw[ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN_MAX];
@@ -400,9 +414,11 @@ ADEMCO_EXPORT_SYMBOL size_t ademcoAppendDataSegment2(AdemcoDataSegment* dataSegm
                                                      AdemcoZone zone);
 
 //! parse `DATA` packet, if ok, `dataSegment`'s members will be useful
+//! err can be NULL; caller should only check err on got RESULT_ERROR
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoParseDataSegment(const ademco_char_t* packet,
                                                               size_t packet_len,
-                                                              AdemcoDataSegment* dataSegment);
+                                                              AdemcoDataSegment* dataSegment,
+                                                              AdemcoParseError* err);
 
 // return 0 for empty packet, CONGWIN_FE100_PACKET_LEN for success
 ADEMCO_EXPORT_SYMBOL size_t ademcoDataSegmentToCongwinFe100(ademco_char_t* fe100, size_t fe100_len,
@@ -469,7 +485,7 @@ ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAdmPacket(ademco_char_t* buff, size_t len,
                                                 const AdemcoXDataSegment* xdata);
 
 // like upper funcs, store buff and len to pkt->raw, pkt->raw_len
-ADEMCO_EXPORT_SYMBOL size_t ademcoMakeNullPacket2(AdemcoPacket* pkt, 
+ADEMCO_EXPORT_SYMBOL size_t ademcoMakeNullPacket2(AdemcoPacket* pkt,
                                                   uint16_t seq, const char* acct, AdemcoId ademcoId);
 
 ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAckPacket2(AdemcoPacket* pkt,
@@ -489,8 +505,10 @@ ADEMCO_EXPORT_SYMBOL size_t ademcoMakeAdmPacket2(AdemcoPacket* pkt,
                                                  const AdemcoXDataSegment* xdata);
 
 //! parse a ademco packet, if everything is OK, cb_commited is the packet length
+//! err can be NULL; caller should only check err on got RESULT_ERROR
 ADEMCO_EXPORT_SYMBOL AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
-                                                         AdemcoPacket* pkt, size_t* cb_commited);
+                                                         AdemcoPacket* pkt, size_t* cb_commited,
+                                                         AdemcoParseError* err);
 
 /* CRC16 implementation according to ARC
  * Name                       : CRC-16/ARC

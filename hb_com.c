@@ -145,14 +145,15 @@ int hbMachineCanHalfArm(HbMachineType type) {
 }
 
 int hbMachineCanReportSignalStrength(HbMachineType type) {
-    return type == HMT_GPRS ||
-           type == HMT_GPRS_IOT ||
-           type == HMT_IOT ||
-           type == HMT_LCD ||
-           type == HMT_TRUE_COLOR ||
-           type == HMT_3_SECTION ||
-           type == HMT_GPRS_PHONE ||
-           type == HMT_NB;
+	return type == HMT_GPRS ||
+		type == HMT_GPRS_IOT ||
+		type == HMT_IOT ||
+		type == HMT_LCD ||
+		type == HMT_TRUE_COLOR ||
+		type == HMT_3_SECTION ||
+		type == HMT_GPRS_PHONE ||
+		type == HMT_NB ||
+		type == HMT_WIFI2;
 }
 
 int hbMachineCanReportBySMS(HbMachineType type) {
