@@ -162,6 +162,8 @@ typedef enum HbComResponseType {
     HbComResp_AD,  // 索要防区探头遗失/失联回应
     HbComResp_AF,  // 三区段主机布撤防命令回应
     HbComResp_B1,  // 三区段主机状态回应
+    HbComResp_RA,  // 读取主机账号回应
+    HbComResp_WA,  // 写入主机账号回应
     HbComResp_Invalid = -1,
 } HbComResponseType;
 
@@ -340,20 +342,20 @@ typedef enum HbCom_3sec_which {
     ((((d)[6]) & 0x03) == HbCom_3sec_arm ? HMS_ARM : HMS_DISARM)
 
 //! 读取主机账号
-#define HbComReq_RD_acct_len 7
-#define HbComReq_RD_acct_data "\xEB\xBA\x3F\x07\x00\x4C\x37"
+#define HbComReq_READ_acct_len 7
+#define HbComReq_READ_acct_data "\xEB\xBA\x3F\x07\x00\x4C\x37"
 
 //! 读取主机账号回应
-#define HbComResp_RD_acct_len 15
-#define HbComResp_RD_acct_head "\xEB\xCB\x3F\x0F\x4C"
+#define HbComResp_READ_acct_len 15
+#define HbComResp_READ_acct_head "\xEB\xCB\x3F\x0F\x4C"
 
 //! 写入主机账号
-#define HbComReq_WR_acct_len 15
-#define HbComReq_WR_acct_head "\xEB\xCB\x3F\x0F\x4D"
+#define HbComReq_WRITE_acct_len 15
+#define HbComReq_WRITE_acct_head "\xEB\xCB\x3F\x0F\x4D"
 
-//! 写入主机账号回应（与读取主机账号命令相同）
-#define HbComResp_WR_acct_len HbComReq_RD_acct_len
-#define HbComResp_WR_acct_head HbComReq_WR_acct_head
+//! 写入主机账号回应（与读取命令相同）
+#define HbComResp_WRITE_acct_len HbComReq_READ_acct_len
+#define HbComResp_WRITE_acct_data HbComReq_READ_acct_data
 
 static const HbZoneProperty hbZoneProperties[12] = {
     HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE, HZP_DURESS,
@@ -470,8 +472,8 @@ ADEMCO_EXPORT_SYMBOL void hbComMakeReqAE_set3SectionMachineStatus(HbComData* dat
                                                                   HbCom_3sec_status status);
 
 ADEMCO_EXPORT_SYMBOL void hbComMakeReqB0_get3SectionMachineStatus(HbComData* data);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqRD_acct(HbComData* data);
-ADEMCO_EXPORT_SYMBOL void hbComMakeReqWR_acct(HbComData* data, const char* acct);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqRead_acct(HbComData* data);
+ADEMCO_EXPORT_SYMBOL void hbComMakeReqWrite_acct(HbComData* data, const char* acct);
 
 ADEMCO_EXPORT_SYMBOL void hbComResp_A2_Iter_init(HbComResp_A2_Iter* iter,
                                                  const HbComData* com);

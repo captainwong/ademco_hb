@@ -560,8 +560,8 @@ HbComRequestType hbComParseRequest(const uint8_t* data,
 		case 0xBA:
 		{
 			if (data[2] != 0x3F) { break; }
-			if (len == HbComReq_RD_acct_len &&
-				memcmp(data, HbComReq_RD_acct_data, len) == 0) {
+			if (len == HbComReq_READ_acct_len &&
+				memcmp(data, HbComReq_READ_acct_data, len) == 0) {
 				copy_data_to_com;
 				return HbComReq_RD_acct;
 			}
@@ -581,7 +581,7 @@ HbComRequestType hbComParseRequest(const uint8_t* data,
 				}
 			} else if (data[3] == 0x0F &&
 					   data[4] == 0x4D &&
-					   len == HbComReq_WR_acct_len) {
+					   len == HbComReq_WRITE_acct_len) {
 				if (hbCheckSum(data, len)) {
 					copy_data_to_com;
 					return HbComReq_WR_acct;
@@ -760,6 +760,21 @@ HbComResponseType hbComParseResponse(const uint8_t* data,
 
 		}
 	} while (0);
+
+	// 处理读写主机账号回应
+	do {
+		if (len >= HbComResp_WRITE_acct_len &&
+			memcmp(HbComResp_WRITE_acct_data, data, HbComResp_WRITE_acct_len) == 0) {
+			return HbComResp_WA;
+		}
+
+		if (len >= HbComResp_READ_acct_len &&
+			memcmp(HbComResp_READ_acct_head, data, sizeof(HbComResp_READ_acct_head) - 1) == 0 &&
+			hbCheckSum(data, len)) {
+			copy_data_to_com;
+			return HbComResp_RA;
+		}
+	} while (0);
 	return HbComResp_Invalid;
 }
 
@@ -848,15 +863,15 @@ void hbComMakeReqB0_get3SectionMachineStatus(HbComData* data) {
 	data->len = HbComReq_B0_len;
 }
 
-void hbComMakeReqRD_acct(HbComData* data) {
-	memcpy(data->data, HbComReq_RD_acct_data, HbComReq_RD_acct_len);
-	data->len = HbComReq_RD_acct_len;
+void hbComMakeReqRead_acct(HbComData* data) {
+	memcpy(data->data, HbComReq_READ_acct_data, HbComReq_READ_acct_len);
+	data->len = HbComReq_READ_acct_len;
 }
 
-void hbComMakeReqWR_acct(HbComData* data, const char* acct) {
-	memcpy(data->data, HbComReq_WR_acct_head, 5);
-	ademcoDecStrToHiLoArray(data->data + 5, 9, acct);
-	data->len = HbComReq_WR_acct_len;
+void hbComMakeReqWrite_acct(HbComData* data, const char* acct) {
+	memcpy(data->data, HbComReq_WRITE_acct_head, 5);
+	ademcoDecStrToHiLoArray2(data->data + 5, ADEMCO_PACKET_ACCT_MAX_LEN / 2, acct);
+	data->len = HbComReq_WRITE_acct_len;
 	hbSum(data->data, data->len);
 }
 

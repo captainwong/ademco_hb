@@ -37,7 +37,8 @@ extern "C" {
 #define ADEMCO_OK 0
 #define ADEMCO_ERR -1
 
-#define ADEMCO_PACKET_ACCT_MAX_LEN 64               // #acct之acct最大长度
+#define ADEMCO_PACKET_ACCT_MAX_LEN 18               // #acct之acct最大长度
+#define ADEMCO_PACKET_ACCT_MAC_LEN 12               // WiFi主机账号使用MAC地址
 #define ADEMCO_PACKET_DATA_SEGMENT_EMPTY_LEN 2      // 空data段[]长度
 #define ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN 21      // 非空data段长度，acct长度6
 #define ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN_MAX 64  // 非空data段长度，acct长度未知

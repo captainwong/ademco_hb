@@ -12,4 +12,4 @@ rm -rf win_java
 rm -rf server_demo
 rm -rf win_node
 cd ../swig
-rm -rf *.exp *.lib *.dll *.exe *.obj *.class com/ build/
+rm -rf *.exp *.lib *.dll *.exe *.obj *.class com/ build/ *_wrap.c*
