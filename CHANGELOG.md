@@ -1,5 +1,11 @@
 # Ademco Change Log
 
+## 1.2.0
+
+- add config
+- add `offset` for parse error
+- refactor parser
+
 ## 1.1.0
 
 - ADEMCO_PACKET_ACCT_MAX_LEN changed from 64 to 18

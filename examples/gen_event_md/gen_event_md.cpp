@@ -59,6 +59,12 @@ AdemcoEvent allEvents[] = {
 #undef XX
 };
 
+HbZoneProperty allZoneProperties[] = {
+#define XX(name, value, str) HZP_##name,
+	HB_ZONE_PROPERTY_MAP(XX)
+#undef XX
+};
+
 void printEvents(const AdemcoEvent* events, size_t len)
 {
 	printf("|事件码|含义|en|\n|-----|----|--|\n");
@@ -85,7 +91,7 @@ const char* get_core_author(HbMachineType t)
 	case HMT_NETMOD:
 	case HMT_LCD:
 	case HMT_TRUE_COLOR:
-	case HMT_3_SECTION:
+	case HMT_THREE_SECTION:
 	case HMT_IOT:
 	case HMT_GPRS_PHONE:
 		return "jjf";
@@ -104,7 +110,7 @@ const char* get_net_author(HbMachineType t)
 	case HMT_GPRS:
 	case HMT_LCD:
 	case HMT_TRUE_COLOR:
-	case HMT_3_SECTION:
+	case HMT_THREE_SECTION:
 	case HMT_IOT:
 	case HMT_GPRS_PHONE:
 	case HMT_WIFI2:
@@ -125,7 +131,7 @@ std::vector<std::string> get_machine_brands(HbMachineType t)
 	case HMT_LCD: return { "BJQ560", "BJQ560B" };
 	case HMT_WIRED: return { "4040R", "5050R" };
 	case HMT_TRUE_COLOR:return { "G1000", "G1000-4G" };
-	case HMT_3_SECTION:return { "G1000", "G1000-4G" };
+	case HMT_THREE_SECTION:return { "G1000", "G1000-4G" };
 	case HMT_IOT: return { "2050-4GW" };
 	case HMT_GPRS_PHONE: return { "2050" };
 	//case hb::common::Nb: return { "" };
@@ -247,19 +253,19 @@ void print_available_zone_props()
 
 	printf("* 防区属性是否支持失联报告\n\n");
 	printf("|");
-	for (auto zp : hbZoneProperties) {
+	for (auto zp : allZoneProperties) {
 		printf("|"); print_prop(zp);
 	}
 	printf("|\n");
 
 	printf("|----");
-	for (size_t i = 0; i < sizeof(hbZoneProperties) / sizeof(hbZoneProperties[0]); i++) {
+	for (size_t i = 0; i < sizeof(allZoneProperties) / sizeof(allZoneProperties[0]); i++) {
 		printf("|----");
 	}
 	printf("|\n");
 
 	printf("|失联支持");
-	for (auto zp : hbZoneProperties) {
+	for (auto zp : allZoneProperties) {
 		printf("|%s", print_bool(hbZonePropCanReportLost(zp)));
 	}
 	printf("|\n\n");
@@ -267,14 +273,14 @@ void print_available_zone_props()
 
 	printf("* 主机类型与支持的防区属性对照表\n\n");
 	printf("|事件码|类型|型号");
-	for (auto zp : hbZoneProperties) {
+	for (auto zp : allZoneProperties) {
 		//printf("|"); print_prop(zp);
 		printf("|%02X", (int)zp);
 	}
 	printf("|\n");
 
 	printf("|----|----|----");
-	for (size_t i = 0; i < sizeof(hbZoneProperties) / sizeof(hbZoneProperties[0]); i++) {
+	for (size_t i = 0; i < sizeof(allZoneProperties) / sizeof(allZoneProperties[0]); i++) {
 		printf("|----");
 	}
 	printf("|\n");
@@ -288,7 +294,7 @@ void print_available_zone_props()
 			print_machine_brands(t);
 			HbZoneProperty avail_props[12];
 			int count = hbGetAvailableZoneProperties(t, avail_props);
-			for (auto zp : hbZoneProperties) {
+			for (auto zp : allZoneProperties) {
 				printf("|%s", print_bool(zprop_is_contain(avail_props, count, zp)));
 			}
 			printf("|\n");

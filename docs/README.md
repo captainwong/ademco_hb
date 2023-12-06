@@ -62,15 +62,14 @@
 * `1/3` 前缀，`1` 表示打开，`3` 表示关闭。如 `3400` 表示布防，`1400` 表示撤防。
 * `E/R` 前缀，`E` 表示打开，`R` 表示关闭。如 `R400` 表示布防，`E400` 表示撤防。
 * 报警时 `1/E` 前缀表示警情触发，`3/R` 表示警情恢复，如 `1387` 表示探测器受到强光干扰，`3387` 表示防区从光扰状态恢复。
-
 ### 主机状态
 
 |事件码|含义|en|
 |-----|----|--|
 |3400|布防|ARM|
 |1400|撤防|DISARM|
-|1456|半布防|HALFARM|
 |3456|半布防|HALFARM|
+|1456|半布防|HALFARM_1456|
 |1120|紧急报警|EMERGENCY|
 
 ### 防区报警
@@ -83,93 +82,93 @@
 |1121|胁迫|DURESS|
 |1151|煤气|GAS|
 |1113|水警|WATER|
-|1137|防拆|TAMPER|
+|1137|主机防拆|TAMPER|
 |1383|防区防拆|ZONE_TAMPER|
 |1570|旁路|BYPASS|
-|3570|解除旁路|BYPASS_RESUME|
 
 ### 防区异常
 
 |事件码|含义|en|
 |-----|----|--|
-|1301|主机AC掉电|AC BROKE|
-|3301|主机AC恢复|AC RECOVER|
+|1301|主机AC掉电|AC_BROKE|
 |1302|低电|LOWBATTERY|
-|3302|复电|BATATTERY_RECOVER|
 |1311|坏电|BADBATTERY|
-|3311|坏电恢复|BADBATTERY_RECOVER|
 |1387|光扰|SOLARDISTURB|
-|3387|光扰恢复|SOLARDISTURB_RECOVER|
 |1381|失效|DISCONNECT|
-|3381|恢复|RECONNECT|
-|1384|防区电源故障|BATTERY_EXCEPTION|
-|3384|防区电源故障恢复|BATTERY_EXCEPTION_RECOVER|
-|1380|防区其他故障|OTHER_EXCEPTION|
-|3380|防区其他故障恢复|OTHER_EXCEPTION_RECOVER|
 |1393|失联|LOST|
-|3393|恢复|LOST_RECOVER|
-|3100|液晶主机清除异常指示|LCD CLEAR EXCEPTION|
+|1384|电源故障|BATTERY_EXCEPTION|
+|1380|其他故障|OTHER_EXCEPTION|
+|3570|解除旁路|BYPASS_RESUME|
+|3301|主机AC复电|AC_RECOVER|
+|3302|低电恢复|BATTERY_RECOVER|
+|3311|坏电恢复|BADBATTERY_RECOVER|
+|3387|光扰恢复|SOLARDISTURB_RECOVER|
+|3381|失效恢复|RECONNECT|
+|3393|失联恢复|LOST_RECOVER|
+|3384|电源故障恢复|BATTERY_EXCEPTION_RECOVER|
+|3380|其他故障恢复|OTHER_EXCEPTION_RECOVER|
+|3100|清除异常指示|CLEAR_EXCPTION|
 
 ### *恒博私有事件码*
 
 |事件码|含义|en|
 |-----|----|--|
-|1485|485断开|485DIS|
-|3485|485恢复|485CONN|
+|1485|485断开|SERIAL485DIS|
+|3485|485连接|SERIAL485CONN|
 |1700|链路挂起|CONN_HANGUP|
 |3700|链路恢复|CONN_RESUME|
 |1701|撤防密码错误|DISARM_PWD_ERR|
-|1702|分防区异常|SUB_SENSOR_EXCEPTION|
-|3702|分防区恢复|SUB_SENSOR_RESUME|
-|1703|分防区电源异常|SUB_POWER_EXCEPTION|
-|3703|分防区电源恢复|SUB_POWER_RESUME|
+|1702|分机探头异常|SUB_MACHINE_SENSOR_EXCEPTION|
+|3702|分机探头恢复|SUB_MACHINE_SENSOR_RESUME|
+|1703|分机电源异常|SUB_MACHINE_POWER_EXCEPTION|
+|3703|分机电源恢复|SUB_MACHINE_POWER_RESUME|
 |1704|串口透传|COM_PASSTHROUGH|
 |2704|进入设置状态|ENTER_SET_MODE|
-|3704|拒绝/停止设置|EXIT_SET_MODE|
-|1705|查询|QUERY|
+|3704|退出设置状态|EXIT_SET_MODE|
+|1705|查询分机信息|QUERY_SUB_MACHINE|
 |1706|写入主机信息|WRITE_TO_MACHINE|
-|1707|我是网络模块|I_AM_NET_MODULE|
-|1717|我是GPRS主机|I_AM_GPRS_MACHINE|
-|1727|我是液晶主机|I_AM_LCD_MACHINE|
-|1737|我是网线主机|I_AM_WIRE_MACHINE|
-|1747|我是WiFi主机|I_AM_WIFI_MACHINE|
-|1757|我是三区段主机|I_AM_3_SECTION_MACHINE|
-|1767|我是物联卡主机|I_AM_IOT_MACHINE|
-|1777|我是真彩主机|I_AM_TRUE_COLOR|
-|1787|我是简化版物联卡主机|I_AM_GPRS_IOT|
-|1797|我是GPRS主机能打电话|I_AM_GPRS_PHONE|
-|1807|我是NB报警接收主机|I_AM_NB_MACHINE|
-|1817|我是WiFi主机新版|I_AM_WIFI2_MACHINE|
-|1709|手机用户SOS|SOS|
+|1707|主机类型--网络模块|I_AM_NET_MODULE|
+|1717|主机类型--GPRS主机|I_AM_GPRS|
+|1727|主机类型--液晶主机|I_AM_LCD_MACHINE|
+|1737|主机类型--网线主机|I_AM_WIRE_MACHINE|
+|1747|主机类型--WiFi主机(停用)|I_AM_WIFI_MACHINE|
+|1757|主机类型--三区段主机|I_AM_3_SECTION_MACHINE|
+|1767|主机类型--物联卡主机|I_AM_IOT_MACHINE|
+|1777|主机类型--真彩主机|I_AM_TRUE_COLOR|
+|1787|主机类型--物联卡主机|I_AM_GPRS_IOT|
+|1797|主机类型--GRPS主机带电话功能|I_AM_GPRS_PHONE|
+|1807|主机类型--NB报警接收主机|I_AM_NB_MACHINE|
+|1817|主机类型--WiFi主机(新版)|I_AM_WIFI2_MACHINE|
+|1709|手机用户SOS|PHONE_USER_SOS|
 |1711|手机用户消警|PHONE_USER_CANCLE_ALARM|
 |1712|主机进入设置状态|ENTER_SETTING_MODE|
 |3712|主机退出设置状态|EXIT_SETTING_MODE|
-|1710|主机恢复出厂设置|RESTORE_FACTORY_SETTINGS|
+|1710|主机恢复出厂设置|RESTORE_FACTORY_SETTINGS_710|
 |1713|主机恢复出厂设置|RESTORE_FACTORY_SETTINGS|
-|1756|SIM卡为物联卡|SIM card is IOT|
-|2756|SIM卡为平台物联卡|SIM card is Platform IOT|
-|3756|SIM卡为非物联卡|SIM card is not IOT|
+|1756|物联卡|SIM_IS_IOT_CARD|
+|2756|平台物联卡|SIM_IS_IOT_PLATFORM_CARD|
+|3756|非物联卡|SIM_IS_NOT_IOT_CARD|
 |1798|索要主机类型|WHAT_IS_YOUR_TYPE|
-|1799|信号强度变化|SIGNAL_STRENGTH_CHANGED|
-|1944|上线|EVENT_OFFLINE|
-|1946|离线|EVENT_ONLINE|
+|1799|信号强度|SIGNAL_STRENGTH_CHANGED|
+|1944|主机断线|OFFLINE|
+|1946|主机上线|ONLINE|
 
 ### *恒博主机类型对照表*
 
 *SMS指主机自身是否可以拨打电话、发送短信，不是指通过阿里语音打电话*
 |事件码类型|主机类型|布防|撤防|半布防|设置|信号强度|防区|有线防区|SMS|内核|网络|型号|
 |---------|-------|----|----|-----|----|-------|----|-------|---|----|---|----|
-|1707 我是网络模块|3 网络模块+工程主机|√|√|√|√| |1~999|1~8| |jjf|qfm|<ul><li>G250</li></ul>|
-|1717 我是GPRS主机|4 GPRS主机|√|√| |√|√|1~99| |√|wzq|qfm|<ul><li>4040G</li><li>5050G</li><li>5050G-4G</li></ul>|
-|1727 我是液晶主机|5 液晶主机|√|√|√|√|√|1~249| |√|jjf|qfm|<ul><li>BJQ560</li><li>BJQ560B</li></ul>|
-|1737 我是网线主机|6 网线主机|√|√| |√| |1~99| | |wzq|qfm|<ul><li>4040R</li><li>5050R</li></ul>|
-|1757 我是三区段主机|8 三区段主机|√|√| |√|√|1~191|61~68|√|jjf|qfm|<ul><li>G1000</li><li>G1000-4G</li></ul>|
-|1767 我是物联卡主机|9 物联卡主机|√|√| |√|√|1~60| | |jjf|qfm|<ul><li>2050-4GW</li></ul>|
-|1777 我是真彩主机|7 真彩主机|√|√| |√|√|1~68|1~8|√|jjf|qfm|<ul><li>G1000</li><li>G1000-4G</li></ul>|
-|1787 我是简化版物联卡主机|2 简化的物联卡主机|√|√| |√|√|1~99| | |wzq|qfm|<ul><li>5050G-4GW</li></ul>|
-|1797 我是GPRS主机能打电话|10 GPRS主机能打电话|√|√| |√|√|1~60| |√|jjf|qfm|<ul><li>2050</li></ul>|
-|1807 我是NB报警接收主机|11 NB报警接收主机| | | |√|√|1~999| | |||<ul></ul>|
-|1817 我是WiFi主机新版|12 WiFi主机新版|√|√| |√| |1~99| | |wzq|qfm|<ul></ul>|
+|1707 主机类型--网络模块|网络模块主机|√|√|√|√| |1~999|1~8| |jjf|qfm|<ul><li>G250</li></ul>|
+|1717 主机类型--GPRS主机|GPRS主机|√|√| |√|√|1~99| |√|wzq|qfm|<ul><li>4040G</li><li>5050G</li><li>5050G-4G</li></ul>|
+|1727 主机类型--液晶主机|液晶主机|√|√|√|√|√|1~249| |√|jjf|qfm|<ul><li>BJQ560</li><li>BJQ560B</li></ul>|
+|1737 主机类型--网线主机|网线主机|√|√| |√| |1~99| | |wzq|qfm|<ul><li>4040R</li><li>5050R</li></ul>|
+|1757 主机类型--三区段主机|三区段主机|√|√| |√|√|1~191|61~68|√|jjf|qfm|<ul><li>G1000</li><li>G1000-4G</li></ul>|
+|1767 主机类型--物联卡主机|物联卡主机|√|√| |√|√|1~60| | |jjf|qfm|<ul><li>2050-4GW</li></ul>|
+|1777 主机类型--真彩主机|真彩主机|√|√| |√|√|1~68|1~8|√|jjf|qfm|<ul><li>G1000</li><li>G1000-4G</li></ul>|
+|1787 主机类型--物联卡主机|简化物联卡主机|√|√| |√|√|1~99| | |wzq|qfm|<ul><li>5050G-4GW</li></ul>|
+|1797 主机类型--GRPS主机带电话功能|GPRS主机可电话|√|√| |√|√|1~60| |√|jjf|qfm|<ul><li>2050</li></ul>|
+|1807 主机类型--NB报警接收主机|NB报警接收主机| | | |√|√|1~999| | |||<ul></ul>|
+|1817 主机类型--WiFi主机(新版)|WiFi主机新版|√|√| |√|√|1~99| | |wzq|qfm|<ul></ul>|
 
 
 ### *恒博主机型号示例图片*
