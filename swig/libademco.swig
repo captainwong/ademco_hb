@@ -15,6 +15,8 @@
 
 %{
 /* Includes the header in the wrapper code */
+#include "../ademco_config.h"
+#include "../ademco_version.h"
 #include "../hb_com.h"
 %}
 
@@ -36,6 +38,8 @@ JAVA_ARRAYS_TYPEMAPS(uint8_t, byte, jbyte, Uint8, "[B")
 %pointer_functions(size_t, size_tp);
 
 /* Parse the header file to generate wrappers */
+%include "../ademco_config.h"
+%include "../ademco_version.h"
 %include "../ademco.h"
 %include "../hb_com.h"
 
