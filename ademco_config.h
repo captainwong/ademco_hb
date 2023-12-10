@@ -37,6 +37,7 @@
 #define ADEMCO_FILL_PARSE_ERROR(err, offset_, msg_) \
     do {                                            \
         if (err) {                                  \
+            err->file = __FILE__;                   \
             err->line = __LINE__;                   \
             err->offset = (offset_);                \
             err->msg = (msg_);                      \

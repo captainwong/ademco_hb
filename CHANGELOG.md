@@ -1,5 +1,11 @@
 # Ademco Change Log
 
+## 1.3.0
+
+- add `file` for parse error
+- fix `struct tm not initilized` on parse
+- fix parsing pointer on parse timestamp failed
+
 ## 1.2.0
 
 - add config

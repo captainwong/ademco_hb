@@ -194,6 +194,7 @@ typedef enum AdemcoParseResult {
 
 // 安定宝协议解析错误信息
 typedef struct AdemcoParseError {
+    const char* file; // user do not free
     int line;         // line number in ademco.c
     size_t offset;    // error offset
     const char* msg;  // user do not free

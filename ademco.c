@@ -991,6 +991,7 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
 
 
     if (len < 9) {
+        ADEMCO_FILL_PARSE_ERROR(err, 0, "RESULT_NOT_ENOUGH");
         return RESULT_NOT_ENOUGH;
     }
 
@@ -1023,6 +1024,7 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
     }
     len_needed = 9 + pkt->len + 1;
     if (len < len_needed) {
+        ADEMCO_FILL_PARSE_ERROR(err, p - buff, "RESULT_NOT_ENOUGH");
         return RESULT_NOT_ENOUGH;
     } else if (len_needed >= ADEMCO_PACKET_MAX_LEN) {
         dline;
@@ -1141,7 +1143,7 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
         dline;
         ADEMCO_FILL_PARSE_ERROR(err, p - buff, "acct too long");
         return RESULT_ERROR;
-    }        
+    }
     strncpy(pkt->acct, (const char*)pacct, p - pacct);
     pkt->acct[p - pacct] = '\0';
 
@@ -1200,7 +1202,7 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
     // timestamp, _%02d:%02d:%02d,%02d-%02d-%04d
     // only check lengh, if format is incorrect, use local time instead
     if (pend - p == ADEMCO_PACKET_TIMESTAMP_LEN) {
-        struct tm tm;
+        struct tm tm = { 0 };
         do {
             if (*p++ != '_') {
                 break;
@@ -1247,6 +1249,7 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
         pkt->timestamp = mktime(&tm);
         if (pkt->timestamp <= 0) {  // use local time instead
             pkt->timestamp = time(NULL);
+            p = pend;
         }
     } else {
         dline;
