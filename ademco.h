@@ -36,9 +36,8 @@ typedef uint32_t AdemcoZone;
 #define ADEMCO_ID_MIN 1
 #define ADEMCO_ID_MAX 999999  // 兼容性考虑，最大安定宝 ID 为 0x0F423F
 #define ADEMCO_ID_SENTINEL (ADEMCO_ID_MAX + 1)
-static inline int ademcoIsValidAdemcoId(AdemcoId ademcoId) {
-    return ADEMCO_ID_MIN <= ademcoId && ademcoId <= ADEMCO_ID_MAX;
-}
+#define ademcoIsValidAdemcoId(ademcoId) \
+    ((ADEMCO_ID_MIN <= (ademcoId)) && ((ademcoId) <= ADEMCO_ID_MAX))
 
 // 防区号为0时表示主机自身
 #define ADEMCO_ZONE_FOR_MACHINE_SELF 0
@@ -49,14 +48,12 @@ static inline int ademcoIsValidAdemcoId(AdemcoId ademcoId) {
 #define ADEMCO_ZONE_SENTINEL (ADEMCO_ZONE_MAX + 1)
 
 // 对任何主机类型，防区号是否合法（可以包含0防区）
-static inline int ademcoIsValidZone(AdemcoZone zone) {
-    return ADEMCO_ZONE_FOR_MACHINE_SELF <= zone && zone <= ADEMCO_ZONE_MAX;
-}
+#define ademcoIsValidZone(zone) \
+    ((ADEMCO_ZONE_FOR_MACHINE_SELF <= (zone)) && ((zone) <= ADEMCO_ZONE_MAX))
 
 // 对任何主机类型，防区号是否合法（不可以包含0防区）
-static inline int ademcoIsValidZoneStrict(AdemcoZone zone) {
-    return ADEMCO_ZONE_MIN <= zone && zone <= ADEMCO_ZONE_MAX;
-}
+#define ademcoIsValidZoneStrict(zone) \
+    ((ADEMCO_ZONE_MIN <= (zone)) && ((zone) <= ADEMCO_ZONE_MAX))
 
 #define ADEMCO_GG_MIN 0
 #define ADEMCO_GG_MAX 99

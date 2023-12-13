@@ -970,7 +970,7 @@ void hbComMakeRespA2_getMachineZones(HbComData* data,
         *p++ = zones[i] & 0xFF;
         *p++ = props[i];
     }
-    *p++ = (count > 0) ? p1 : HbComResp_A2_p1_nomore;
+    *p++ = (count > 0) ? (uint8_t)p1 : (uint8_t)HbComResp_A2_p1_nomore;
     data->len = (++p - data->data) & 0xFF;
     hbSum(data->data, data->len);
 }
@@ -1042,7 +1042,7 @@ void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data,
             *p++ = zones[i] & 0xFF;
         }
     }
-    *p++ = (count > 0) ? p2 : HbComResp_AD_p2_nomore;
+    *p++ = (count > 0) ? (uint8_t)p2 : (uint8_t)HbComResp_AD_p2_nomore;
     data->len = (++p - data->data) & 0xFF;
     hbSum(data->data, data->len);
 }
@@ -1063,10 +1063,10 @@ void hbComMakeRespB1_get3SectionMachineStatus(HbComData* data,
                                               HbMachineStatus statusSec2,
                                               HbMachineStatus statusSec3) {
     memcpy(data->data, HbComResp_B1_head, 6);
-    data->data[6] = (statusMachine << 6) |
-                    (statusSec1 << 4) |
-                    (statusSec2 << 2) |
-                    (statusSec3);
+    data->data[6] = ((uint8_t)statusMachine << 6) |
+                    ((uint8_t)statusSec1 << 4) |
+                    ((uint8_t)statusSec2 << 2) |
+                    ((uint8_t)statusSec3);
     data->len = HbComResp_B1_len;
     hbSum(data->data, data->len);
 }

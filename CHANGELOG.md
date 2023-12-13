@@ -1,5 +1,10 @@
 # Ademco Change Log
 
+## 1.3.1
+
+- compile with warning level 4
+- change `static inline` function to micro
+
 ## 1.3.0
 
 - add `file` for parse error

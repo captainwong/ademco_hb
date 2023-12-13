@@ -616,7 +616,9 @@ int ademcoMakeXData(AdemcoXDataSegment* xdata,
 }
 
 int isAdemcoPacketId(const char* standard, const char* id, size_t len) {
-    return strncmp(standard, id, strlen(standard)) == 0;
+    size_t standard_len = strlen(standard);
+    len = standard_len < len ? standard_len : len;
+    return strncmp(standard, id, len) == 0;
 }
 
 static const char* const ids[AID_COUNT] = {
@@ -1003,7 +1005,7 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
 
     // crc
     crc = 0;
-    for (const char* q = p; p - q < 4; p++) {
+    for (q = p; p - q < 4; p++) {
         uint8_t h = char2hex(*p);
         if (h == 0xFF) {
             ADEMCO_FILL_PARSE_ERROR(err, p - buff, "crc contains non-hex characters");
@@ -1014,7 +1016,7 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
 
     // len
     pkt->len = 0;
-    for (const char* q = p; p - q < 4; p++) {
+    for (q = p; p - q < 4; p++) {
         uint8_t h = char2hex(*p);
         if (h == 0xFF) {
             ADEMCO_FILL_PARSE_ERROR(err, p - buff, "len contains non-hex characters");
