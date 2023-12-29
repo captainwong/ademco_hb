@@ -372,9 +372,42 @@ void print_g250_alarm_codes()
 
 }
 
+void gen_sources() {
+	const char* comment = R"(
+```c
+/* control source defs
+ * 范围 0~255
+ * 0: 主机
+ * 1~50: 遥控器
+ * 51~97: 智能家居
+ * 98: 中转接警中心
+ * 99: 直连接警中心
+ * 100~199: 手机APP，末二位为手机尾号
+ * 200: web用户，web端包括 网页，H5, 公众号，小程序等
+ * 201~255: web分享用户
+ * 特别注意：三区段主机，0 代表主机，1~255 都是遥控器
+ */
+```
+)";
+	printf("%s\n", comment);
+	printf("|zone|name|source|\n");
+	printf("|----|----|------|\n");
+#define XX(name, code, zh) \
+	printf("|%d|%s|%s|\n", code, #name, zh);
+	ADEMCO_CONTROL_SOURCES_MAP(XX)
+#undef XX
+}
+
 int main()
 {
-	if (1) {
+
+#define GEN_EVENTS 1
+#define GEN_G250_CODES 2
+#define GEN_CONTROL_SOURCES 3
+
+	const int what = GEN_CONTROL_SOURCES;
+
+	if (what == GEN_EVENTS) {
 		printf("### 主机状态\n\n");
 		printEvents(statusEvents, _countof(statusEvents));
 
@@ -393,9 +426,11 @@ int main()
 		print_available_zone_props();
 
 
-	} else {
+	} else if (what == GEN_G250_CODES) {
 		print_g250_alarm_codes();
 
+	} else if (what == GEN_CONTROL_SOURCES) {
+		gen_sources();
 	}
 
 

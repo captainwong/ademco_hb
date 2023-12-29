@@ -9,23 +9,45 @@
 extern "C" {
 #endif
 
+#define UV_LOG_LEVELS_MAP(XX) \
+    XX(all, 0)                \
+    XX(verbose, 1)            \
+    XX(debug, 2)              \
+    XX(info, 3)               \
+    XX(warn, 4)               \
+    XX(error, 5)              \
+    XX(fatal, 6)
+
 typedef enum {
-    uv_log_level_all,
-    uv_log_level_debug,
-    uv_log_level_info,
-    uv_log_level_warn,
-    uv_log_level_error,
-    uv_log_level_fatal,
-    uv_log_level_raw = 1 << 10,  // modifier to log without timestamp
+#define XX(name, value) uv_log_level_##name = value,
+    UV_LOG_LEVELS_MAP(XX)
+#undef XX
+    // modifier to log without timestamp
+    uv_log_level_raw = 1 << 10,
+    // invalid
+    uv_log_level_invalid = 1 << 11,
 } uv_log_level_t;
 
+uv_log_level_t uv_log_level_from_string(const char* str);
+const char* uv_log_level_to_string(uv_log_level_t level);
 void uv_log_set_level(uv_log_level_t level);
 void uv_log_set_log_file(const char* file);
 uv_log_level_t uv_log_get_level();
 void uv_log(uv_log_level_t level, const char* fmt, ...);
 void uv_log_raw(uv_log_level_t level, const char* msg);
 
+/**
+ * log hex dump
+ * show_header: show 00~0F address header, default is 0
+ * show_address: show 0000~FFFF address on left
+ * show_ascii: show ascii on right if can print, default is 0
+ * def_ascii: when show_ascii but can't print, show def_ascii instead, default is '?'
+ */
+void uv_log_hexdump(uv_log_level_t level, const char* buf, size_t len,
+                    int show_header, int show_address, int show_ascii, char def_ascii);
+
 #define uvlog_all(...) uv_log(uv_log_level_all, __VA_ARGS__)
+#define uvlog_verbose(...) uv_log(uv_log_level_verbose, __VA_ARGS__)
 #define uvlog_debug(...) uv_log(uv_log_level_debug, __VA_ARGS__)
 #define uvlog_dline uvlog_debug("%s:%d", __FILE__, __LINE__)
 #define uvlog_info(...) uv_log(uv_log_level_info, __VA_ARGS__)

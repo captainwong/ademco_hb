@@ -58,6 +58,52 @@ void mybuf_append(mybuf_t* buf, const char* data, size_t len) {
     }
 }
 
+void mybuf_append_hexdump(mybuf_t* buf, const char* data, size_t len,
+                          int show_header, int show_address, int show_ascii, char def_ascii) {
+    size_t addr = 0;
+    if (show_header) {
+        if (show_address)
+            mybuf_cat_printf(buf, "addr ");
+        mybuf_cat_printf(buf, "00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E OF");
+        if (show_ascii) {
+            mybuf_cat_printf(buf, " 0123456789ABCDEF");
+        }
+        mybuf_cat_printf(buf, "\n");
+    }
+    if (def_ascii < 32 || def_ascii > 126) {
+        def_ascii = '.';  // default ascii
+    }
+    for (size_t i = 0; i < len; i++) {
+        if (show_address) {
+            if (i % 16 == 0) {
+                mybuf_cat_printf(buf, "%04zX ", addr);
+                addr += 16;
+            }
+        }
+        mybuf_cat_printf(buf, "%02X ", (unsigned char)data[i]);
+        if (i % 16 == 15 || i == len - 1) {
+            if (show_ascii) {
+                if (i % 16 != 15) {
+                    for (size_t j = 0; j < 16 - (i % 16) - 1; j++) {
+                        mybuf_cat_printf(buf, "   ");
+                    }
+                }
+                mybuf_cat_printf(buf, "| ");
+                for (size_t j = i - (i % 16); j <= i; j++) {
+                    if (data[j] >= 32 && data[j] <= 126) {
+                        mybuf_cat_printf(buf, "%c", data[j]);
+                    } else {
+                        mybuf_cat_printf(buf, "%c", def_ascii);
+                    }
+                }
+                mybuf_cat_printf(buf, "\n");
+            } else {
+                mybuf_cat_printf(buf, "\n");
+            }
+        }
+    }
+}
+
 static void mybuf_cat_vprintf(mybuf_t* buf, const char* fmt, va_list ap) {
     va_list cpy;
     int l;

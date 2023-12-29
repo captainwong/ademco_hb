@@ -422,6 +422,32 @@ const char* hbZonePropertyToString(HbZoneProperty zp) {
     }
 }
 
+const char* hbComReqTypeToString(HbComRequestType type) {
+    switch (type) {
+#define XX(name, str)     \
+    case HbComReq_##name: \
+        return #name;
+        HB_COM_REQUESTS_MAP(XX)
+#undef XX
+
+        default:
+            return "InvalidRequestType";
+    }
+}
+
+const char* hbComRespTypeToString(HbComResponseType type) {
+    switch (type) {
+#define XX(name, str)      \
+    case HbComResp_##name: \
+        return #name;
+        HB_COM_RESPONSES_MAP(XX)
+#undef XX
+
+        default:
+            return "InvalidResponseType";
+    }
+}
+
 #if ADEMCO_ENABLE_CHINESE
 const char* hbMachineStatusToStringChinese(HbMachineStatus status) {
     switch (status) {
@@ -461,7 +487,34 @@ const char* hbZonePropertyToStringChinese(HbZoneProperty zp) {
             return "无效属性";
     }
 }
-#endif
+
+const char* hbComReqTypeToStringChinese(HbComRequestType type) {
+    switch (type) {
+#define XX(name, str)     \
+    case HbComReq_##name: \
+        return str;
+        HB_COM_REQUESTS_MAP(XX)
+#undef XX
+
+        default:
+            return "无效请求";
+    }
+}
+
+const char* hbComRespTypeToStringChinese(HbComResponseType type) {
+    switch (type) {
+#define XX(name, str)      \
+    case HbComResp_##name: \
+        return str;
+        HB_COM_RESPONSES_MAP(XX)
+#undef XX
+
+        default:
+            return "无效回应";
+    }
+}
+
+#endif  // ADEMCO_ENABLE_CHINESE
 
 const char* hbGetZoneFormatString(HbMachineType type) {
     uint16_t zone = hbZoneMax(type);
@@ -586,10 +639,10 @@ HbComRequestType hbComParseRequest(const uint8_t* data,
                 if (data[2] != 0x3F) {
                     break;
                 }
-                if (len == HbComReq_READ_acct_len &&
-                    memcmp(data, HbComReq_READ_acct_data, len) == 0) {
+                if (len == HbComReq_RA_len &&
+                    memcmp(data, HbComReq_RA_data, len) == 0) {
                     copy_data_to_com;
-                    return HbComReq_RD_acct;
+                    return HbComReq_RA;
                 }
                 break;
             }
@@ -608,10 +661,10 @@ HbComRequestType hbComParseRequest(const uint8_t* data,
                     }
                 } else if (data[3] == 0x0F &&
                            data[4] == 0x4D &&
-                           len == HbComReq_WRITE_acct_len) {
+                           len == HbComReq_WA_len) {
                     if (hbCheckSum(data, len)) {
                         copy_data_to_com;
-                        return HbComReq_WR_acct;
+                        return HbComReq_WA;
                     }
                 } else if (data[3] == 0x0E &&
                            data[4] == 0xA7 &&
@@ -806,13 +859,13 @@ HbComResponseType hbComParseResponse(const uint8_t* data,
 
     // 处理读写主机账号回应
     do {
-        if (len >= HbComResp_WRITE_acct_len &&
-            memcmp(HbComResp_WRITE_acct_data, data, HbComResp_WRITE_acct_len) == 0) {
+        if (len >= HbComResp_WA_len &&
+            memcmp(HbComResp_WA_data, data, HbComResp_WA_len) == 0) {
             return HbComResp_WA;
         }
 
-        if (len >= HbComResp_READ_acct_len &&
-            memcmp(HbComResp_READ_acct_head, data, sizeof(HbComResp_READ_acct_head) - 1) == 0 &&
+        if (len >= HbComResp_RA_len &&
+            memcmp(HbComResp_RA_head, data, sizeof(HbComResp_RA_head) - 1) == 0 &&
             hbCheckSum(data, len)) {
             copy_data_to_com;
             return HbComResp_RA;
@@ -907,22 +960,24 @@ void hbComMakeReqB0_get3SectionMachineStatus(HbComData* data) {
     data->len = HbComReq_B0_len;
 }
 
-void hbComMakeReqRead_acct(HbComData* data) {
-    memcpy(data->data, HbComReq_READ_acct_data, HbComReq_READ_acct_len);
-    data->len = HbComReq_READ_acct_len;
+void hbComMakeReqRA_readAcct(HbComData* data) {
+    memcpy(data->data, HbComReq_RA_data, HbComReq_RA_len);
+    data->len = HbComReq_RA_len;
 }
 
-void hbComMakeReqWrite_acct(HbComData* data, const char* acct) {
-    memcpy(data->data, HbComReq_WRITE_acct_head, 5);
-    ademcoDecStrToHiLoArray2(data->data + 5, ADEMCO_PACKET_ACCT_MAX_LEN / 2, acct);
-    data->len = HbComReq_WRITE_acct_len;
+void hbComMakeReqWA_writeAcct(HbComData* data, const char* acct) {
+    memcpy(data->data, HbComReq_WA_head, 5);
+    ademcoDecStrToHiLoArray2(data->data + 5,
+                             ADEMCO_PACKET_ACCT_MAX_LEN / 2,
+                             acct);
+    data->len = HbComReq_WA_len;
     hbSum(data->data, data->len);
 }
 
-void hbComResp_A2_Iter_init(HbComResp_A2_Iter* iter,
-                            const HbComData* com) {
+void hbComRespA2_IterInit(HbComResp_A2_Iter* iter,
+                          const HbComData* com) {
     if (!iter || !com) return;
-    memcpy(&iter->com, com, sizeof(HbComData));
+    iter->com = com;
     iter->i = 0;
     if (com->len > HbComResp_A2_len_min) {
         iter->total = (com->len - HbComResp_A2_len_min) / 2;
@@ -935,12 +990,12 @@ void hbComResp_A2_Iter_init(HbComResp_A2_Iter* iter,
     }
 }
 
-HbComResp_A2_p1 hbComResp_A2_Iter_next(HbComResp_A2_Iter* iter,
-                                       HbZoneAndProperty* zp) {
+HbComResp_A2_p1 hbComRespA2_IterNext(HbComResp_A2_Iter* iter,
+                                     HbZoneAndProperty* zp) {
     if (iter->i == iter->total)
         return HbComResp_A2_p1_nomore;
-    zp->zone = iter->com.data[6 + iter->i * 2];
-    zp->prop = (HbZoneProperty)iter->com.data[7 + iter->i * 2];
+    zp->zone = iter->com->data[6 + iter->i * 2];
+    zp->prop = (HbZoneProperty)iter->com->data[7 + iter->i * 2];
     iter->i++;
     return HbComResp_A2_p1_more;
 }

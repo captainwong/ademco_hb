@@ -36,7 +36,7 @@
 # define ADEMCO_VERSION_STRING  ADEMCO_VERSION_STRING_BASE "-" ADEMCO_VERSION_SUFFIX
 #endif
 
-unsigned int ademcoVersion(void) {
+uint32_t ademcoVersion(void) {
     return ADEMCO_VERSION_HEX;
 }
 
@@ -991,7 +991,6 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
     uint16_t crc;
     size_t len_needed;
 
-
     if (len < 9) {
         ADEMCO_FILL_PARSE_ERROR(err, 0, "RESULT_NOT_ENOUGH");
         return RESULT_NOT_ENOUGH;
@@ -1084,7 +1083,6 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
         if ('0' <= *p && *p <= '9') {
             pkt->seq = (pkt->seq * 10) + (*p - '0');
         } else {
-            dline;
             ADEMCO_FILL_PARSE_ERROR(err, p - buff, "seq contains non-digit characters");
             // some apps use FFFF, wtf
             // return RESULT_ERROR;
@@ -1243,12 +1241,13 @@ AdemcoParseResult ademcoPacketParse(const ademco_char_t* buff, size_t len,
             tm.tm_year = tm.tm_year * 10 + char2hex(*p++);
             tm.tm_year = tm.tm_year * 10 + char2hex(*p++);
             tm.tm_year = tm.tm_year * 10 + char2hex(*p++);
+
+            tm.tm_year -= 1900;
+            tm.tm_mon--;
+            tm.tm_isdst = -1;
+            pkt->timestamp = mktime(&tm);
         } while (0);
 
-        tm.tm_year -= 1900;
-        tm.tm_mon--;
-        tm.tm_isdst = -1;
-        pkt->timestamp = mktime(&tm);
         if (pkt->timestamp <= 0) {  // use local time instead
             pkt->timestamp = time(NULL);
             p = pend;

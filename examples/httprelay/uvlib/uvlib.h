@@ -10,6 +10,7 @@
 #include "uv_log.h"
 #include "uv_tcpclient.h"
 #include "uv_tcpserver.h"
+#include "uvlib_version.h"
 
 #ifdef _WIN32
 

@@ -21,10 +21,10 @@ extern "C" {
 #define ADEMCO_PACKET_DATA_SEGMENT_EMPTY_LEN 2      // 空data段[]长度
 #define ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN 21      // 非空data段长度，acct长度6
 #define ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN_MAX 64  // 非空data段长度，acct长度未知
-#define ADEMCO_PACKET_MAX_LEN 512
-#define CONGWIN_FE100_PACKET_LEN 31  // 丛文FE100协议长度
-#define ADEMCO_PACKET_TIMESTAMP_LEN 20
-#define ADEMCO_PACKET_XDATA_MAX_LEN 128
+#define ADEMCO_PACKET_MAX_LEN 512                   // 安定宝协议最大长度，包括前缀、后缀、data段、xdata段
+#define CONGWIN_FE100_PACKET_LEN 31                 // 丛文FE100协议长度
+#define ADEMCO_PACKET_TIMESTAMP_LEN 20              // 时间戳长度
+#define ADEMCO_PACKET_XDATA_MAX_LEN 128             // xdata段最大长度
 
 // Prototypes
 typedef uint32_t AdemcoId;
@@ -191,10 +191,10 @@ typedef enum AdemcoParseResult {
 
 // 安定宝协议解析错误信息
 typedef struct AdemcoParseError {
-    const char* file; // user do not free
-    int line;         // line number in ademco.c
-    size_t offset;    // error offset
-    const char* msg;  // user do not free
+    const char* file;  // user do not free
+    int line;          // line number in ademco.c
+    size_t offset;     // error offset
+    const char* msg;   // user do not free
 } AdemcoParseError;
 
 // 安定宝协议data段
@@ -266,10 +266,48 @@ typedef struct AdemcoPacket {
     size_t raw_len;
 } AdemcoPacket;
 
+/* control source defs
+ * 范围 0~255
+ * 0: 主机
+ * 1~50: 遥控器
+ * 51~97: 智能家居
+ * 98: 中转接警中心
+ * 99: 直连接警中心
+ * 100~199: 手机APP，末二位为手机尾号
+ * 200: web用户，web端包括 网页，H5, 公众号，小程序等
+ * 201~255: web分享用户
+ * 特别注意：三区段主机，0 代表主机，1~255 都是遥控器
+ */
+#define ADEMCO_CONTROL_SOURCES_MAP(XX)                \
+    XX(MACHINE, 0, "主机")                            \
+    XX(REMOTE, 1, "遥控器")                           \
+    XX(REMOTE_MAX, 50, "遥控器MAX")                   \
+    XX(SMART_HOME_ALEXA, 51, "Amazon Alexa")          \
+    XX(SMART_HOME_GOOGLE, 52, "Google Home")          \
+    XX(SMART_HOME_APPLE, 54, "Apple Homekit")         \
+    XX(SMART_HOME_SAMSUNG, 55, "Samsung Smartthings") \
+    XX(SMART_HOME_ALI_GENIE, 56, "阿里天猫精灵")      \
+    XX(SMART_HOME_MI_AI, 57, "小米小爱同学")          \
+    XX(SMART_HOME_BAIDU, 58, "百度小度")              \
+    XX(SMART_HOME_MAX, 97, "智能家居MAX")             \
+    XX(CENTER_TRANSMIT, 98, "中转接警中心")           \
+    XX(CENTER_DIRECT, 99, "直连接警中心")             \
+    XX(PHONE_APP, 100, "手机APP")                     \
+    XX(PHONE_APP_MAX, 199, "手机APP_MAX")             \
+    XX(OWNER, 200, "web用户")                         \
+    XX(SHAREE, 201, "web分享用户")                    \
+    XX(SHAREE_MAX, 255, "web分享用户MAX")
+
+typedef enum AdemcoControlSource {
+#define XX(name, code, zh) ADEMCO_CONTROL_SOURCE_##name = code,
+    ADEMCO_CONTROL_SOURCES_MAP(XX)
+#undef XX
+} AdemcoControlSource;
+
 //////////////////////// Functions ////////////////////////
 
 ADEMCO_EXPORT_SYMBOL
-unsigned int ademcoVersion(void);
+uint32_t ademcoVersion(void);
 
 ADEMCO_EXPORT_SYMBOL
 const char* ademcoVersionString(void);
