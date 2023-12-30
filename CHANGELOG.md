@@ -1,5 +1,10 @@
 # Ademco Change Log
 
+## 1.5.1
+
+- account minimum length is 6
+- `ademcoIsValidAccount` check length
+
 
 ## 1.5.0
 

@@ -16,6 +16,7 @@ extern "C" {
 #define ADEMCO_OK 0
 #define ADEMCO_ERR -1
 
+#define ADEMCO_PACKET_ACCT_MIN_LEN 6                // #acct之acct最小长度
 #define ADEMCO_PACKET_ACCT_MAX_LEN 18               // #acct之acct最大长度
 #define ADEMCO_PACKET_ACCT_MAC_LEN 12               // WiFi主机账号使用MAC地址
 #define ADEMCO_PACKET_DATA_SEGMENT_EMPTY_LEN 2      // 空data段[]长度
@@ -321,10 +322,11 @@ uint8_t ademcoEncodeSignalStrength(uint8_t strength);
 ADEMCO_EXPORT_SYMBOL
 uint8_t ademcoDecodeSignalStrength(uint8_t code);
 
-//////////////////////// AdemcoEvent functions ////////////////////////
 // 是否合法主机账号
 ADEMCO_EXPORT_SYMBOL
 int ademcoIsValidAccount(const char* acct);
+
+//////////////////////// AdemcoEvent functions ////////////////////////
 
 // 是否主机状态事件
 ADEMCO_EXPORT_SYMBOL

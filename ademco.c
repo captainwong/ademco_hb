@@ -88,11 +88,21 @@ uint8_t ademcoDecodeSignalStrength(uint8_t code) {
 }
 
 int ademcoIsValidAccount(const char* acct) {
-    while (*acct) {
-        if (!isxdigit(*acct++))
+    size_t len = 0;
+    int ishex = 0;
+    while (*acct && len < ADEMCO_PACKET_ACCT_MAX_LEN) {
+        if (isdigit(*acct)) {
+            len++;
+        } else if (isxdigit(*acct) && len < ADEMCO_PACKET_ACCT_MAC_LEN) {
+            len++;
+            ishex = 1;
+        } else {
             return 0;
+        }
+        acct++;
     }
-    return 1;
+    return *acct == '\0' && 
+        (ishex ? len == ADEMCO_PACKET_ACCT_MAC_LEN : (len >= ADEMCO_PACKET_ACCT_MIN_LEN));
 }
 
 int ademcoIsMachineStatusEvent(AdemcoEvent ademcoEvent) {
