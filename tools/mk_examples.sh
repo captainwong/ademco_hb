@@ -9,7 +9,7 @@ cd $CURRENT_DIR
 
 ./examples.bat
 mkdir -p dist/examples/x86
-cp "/h/dev/AlarmCenterTestTools/Release/直连型主机模拟器V1.17.exe" dist/examples/x86/
+cp "/h/dev_hb/AlarmCenterTestTools/Release/直连型主机模拟器V1.18.exe" dist/examples/x86/
 cp "/g/dev_libs/curl-7.87.0/builds/libcurl-vc14-x86-release-dll-ipv6-sspi-schannel/bin/libcurl.dll" dist/examples/x86/
 cp ../examples/Win32/Release/server_demo.exe dist/examples/x86/
 cp ../examples/Release/httprelay.exe dist/examples/x86/

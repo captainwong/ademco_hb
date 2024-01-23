@@ -11,7 +11,7 @@ else
   export PROJECT_BRANCH=$1
 fi
 
-export LINUX_TARGET=root@192.168.2.107
+export LINUX_TARGET=root@192.168.50.107
 export LINUX_PROJECT_PATH=/root/projects/ademco_hb
 export LINUX_JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export MACOS_TARGET=jack@JackMacBook-Pro.local
