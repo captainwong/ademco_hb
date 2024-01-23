@@ -2,8 +2,8 @@
 
 #include <string.h>
 
-int hbGetAvailableZoneProperties(HbMachineType type,
-                                 HbZoneProperty props[HZP_COUNT]) {
+size_t hb_get_available_zone_properties_by_type(hb_machine_type_t type,
+                                                hb_zone_property_t props[HZP_COUNT]) {
     switch (type) {
         case HMT_WIFI:
             break;
@@ -12,7 +12,7 @@ int hbGetAvailableZoneProperties(HbMachineType type,
         case HMT_GPRS_IOT:
         case HMT_GPRS:
         case HMT_WIFI2: {
-            HbZoneProperty hzps[] = {
+            hb_zone_property_t hzps[] = {
                 HZP_BUGLAR,
                 HZP_EMERGENCY,
                 HZP_FIRE,
@@ -22,10 +22,10 @@ int hbGetAvailableZoneProperties(HbMachineType type,
                 HZP_REMOTE_CONTROL,
             };
             memcpy(props, hzps, sizeof(hzps));
-            return sizeof(hzps) / sizeof(HbZoneProperty);
+            return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_NETMOD: {
-            HbZoneProperty hzps[] = {
+            hb_zone_property_t hzps[] = {
                 HZP_BUGLAR,
                 HZP_EMERGENCY,
                 HZP_FIRE,
@@ -39,19 +39,19 @@ int hbGetAvailableZoneProperties(HbMachineType type,
                 HZP_DOOR_RING,
             };
             memcpy(props, hzps, sizeof(hzps));
-            return sizeof(hzps) / sizeof(HbZoneProperty);
+            return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_LCD: {
-            HbZoneProperty hzps[] = {
+            hb_zone_property_t hzps[] = {
                 HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE,
                 HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE,
                 HZP_REMOTE_CONTROL, HZP_BUGLAR_HALF, HZP_SHIELD,
                 HZP_DOOR_RING, HZP_BYPASS};
             memcpy(props, hzps, sizeof(hzps));
-            return sizeof(hzps) / sizeof(HbZoneProperty);
+            return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_WIRED: {
-            HbZoneProperty hzps[] = {
+            hb_zone_property_t hzps[] = {
                 HZP_BUGLAR,
                 HZP_EMERGENCY,
                 HZP_FIRE,
@@ -61,34 +61,34 @@ int hbGetAvailableZoneProperties(HbMachineType type,
                 HZP_REMOTE_CONTROL,
             };
             memcpy(props, hzps, sizeof(hzps));
-            return sizeof(hzps) / sizeof(HbZoneProperty);
+            return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_TRUE_COLOR: {
-            HbZoneProperty hzps[] = {
+            hb_zone_property_t hzps[] = {
                 HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE,
                 HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL,
                 HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS};
             memcpy(props, hzps, sizeof(hzps));
-            return sizeof(hzps) / sizeof(HbZoneProperty);
+            return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_THREE_SECTION: {
-            HbZoneProperty hzps[] = {
+            hb_zone_property_t hzps[] = {
                 HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE,
                 HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL,
                 HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS};
             memcpy(props, hzps, sizeof(hzps));
-            return sizeof(hzps) / sizeof(HbZoneProperty);
+            return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_IOT: {
-            HbZoneProperty hzps[] = {
+            hb_zone_property_t hzps[] = {
                 HZP_BUGLAR, HZP_EMERGENCY, HZP_FIRE,
                 HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL,
                 HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS};
             memcpy(props, hzps, sizeof(hzps));
-            return sizeof(hzps) / sizeof(HbZoneProperty);
+            return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_GPRS_PHONE: {
-            HbZoneProperty hzps[] = {
+            hb_zone_property_t hzps[] = {
                 HZP_BUGLAR,
                 HZP_EMERGENCY,
                 HZP_FIRE,
@@ -98,10 +98,10 @@ int hbGetAvailableZoneProperties(HbMachineType type,
                 HZP_REMOTE_CONTROL,
             };
             memcpy(props, hzps, sizeof(hzps));
-            return sizeof(hzps) / sizeof(HbZoneProperty);
+            return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_NB: {
-            HbZoneProperty hzps[] = {
+            hb_zone_property_t hzps[] = {
                 HZP_BUGLAR,
                 HZP_EMERGENCY,
                 HZP_FIRE,
@@ -111,7 +111,7 @@ int hbGetAvailableZoneProperties(HbMachineType type,
                 HZP_DOOR_RING,
             };
             memcpy(props, hzps, sizeof(hzps));
-            return sizeof(hzps) / sizeof(HbZoneProperty);
+            return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         default:
             return 0;
@@ -119,7 +119,7 @@ int hbGetAvailableZoneProperties(HbMachineType type,
     return 0;
 }
 
-uint16_t hbZoneMax(HbMachineType type) {
+ademco_zone_t hb_get_max_zone_by_type(hb_machine_type_t type) {
     switch (type) {
         case HMT_GPRS_IOT:
         case HMT_GPRS:
@@ -152,16 +152,16 @@ uint16_t hbZoneMax(HbMachineType type) {
     }
 }
 
-int hbIsValidZone(HbMachineType type, uint16_t zone) {
+int hb_is_valid_zone_by_type(hb_machine_type_t type, ademco_zone_t zone) {
     return ADEMCO_ZONE_FOR_MACHINE_SELF <= zone &&
-           zone <= hbZoneMax(type);
+           zone <= hb_get_max_zone_by_type(type);
 }
 
-int hbIsValidZoneStrict(HbMachineType type, uint16_t zone) {
-    return ADEMCO_ZONE_MIN <= zone && zone <= hbZoneMax(type);
+int hb_is_valid_zone_by_type_strict(hb_machine_type_t type, ademco_zone_t zone) {
+    return ADEMCO_ZONE_MIN <= zone && zone <= hb_get_max_zone_by_type(type);
 }
 
-int hbMachineIsSelling(HbMachineType type) {
+int hb_is_machine_on_sale(hb_machine_type_t type) {
     return type == HMT_GPRS_IOT ||
            type == HMT_NETMOD ||
            type == HMT_GPRS ||
@@ -175,23 +175,23 @@ int hbMachineIsSelling(HbMachineType type) {
            type == HMT_WIFI2;
 }
 
-int hbMachineCanArm(HbMachineType type) {
-    return hbMachineIsSelling(type) && (type != HMT_NB);
+int hb_machine_can_arm(hb_machine_type_t type) {
+    return hb_is_machine_on_sale(type) && (type != HMT_NB);
 }
 
-int hbMachineCanDisarm(HbMachineType type) {
-    return hbMachineIsSelling(type) && (type != HMT_NB);
+int hb_machine_can_disarm(hb_machine_type_t type) {
+    return hb_is_machine_on_sale(type) && (type != HMT_NB);
 }
 
-int hbMachineCanEnterSettings(HbMachineType type) {
-    return hbMachineIsSelling(type);
+int hb_machine_can_config(hb_machine_type_t type) {
+    return hb_is_machine_on_sale(type);
 }
 
-int hbMachineCanHalfArm(HbMachineType type) {
+int hb_machine_can_half_arm(hb_machine_type_t type) {
     return type == HMT_NETMOD || type == HMT_LCD;
 }
 
-int hbMachineCanReportSignalStrength(HbMachineType type) {
+int hb_machine_can_report_signal_strength(hb_machine_type_t type) {
     return type == HMT_GPRS ||
            type == HMT_GPRS_IOT ||
            type == HMT_IOT ||
@@ -203,7 +203,7 @@ int hbMachineCanReportSignalStrength(HbMachineType type) {
            type == HMT_WIFI2;
 }
 
-int hbMachineCanReportBySMS(HbMachineType type) {
+int hb_machine_can_report_by_sms(hb_machine_type_t type) {
     return type == HMT_GPRS ||
            type == HMT_LCD ||
            type == HMT_TRUE_COLOR ||
@@ -211,13 +211,13 @@ int hbMachineCanReportBySMS(HbMachineType type) {
            type == HMT_GPRS_PHONE;
 }
 
-int hbMachineHasWiredZone(HbMachineType type) {
+int hb_machine_has_wired_zones(hb_machine_type_t type) {
     return type == HMT_NETMOD ||
            type == HMT_TRUE_COLOR ||
            type == HMT_THREE_SECTION;
 }
 
-AdemcoZone hbWiredZoneMin(HbMachineType type) {
+ademco_zone_t hb_wired_zone_min(hb_machine_type_t type) {
     switch (type) {
         case HMT_NETMOD:
             return 1;
@@ -230,7 +230,7 @@ AdemcoZone hbWiredZoneMin(HbMachineType type) {
     }
 }
 
-AdemcoZone hbWiredZoneMax(HbMachineType type) {
+ademco_zone_t hb_wired_zone_max(hb_machine_type_t type) {
     switch (type) {
         case HMT_NETMOD:
             return 8;
@@ -243,15 +243,15 @@ AdemcoZone hbWiredZoneMax(HbMachineType type) {
     }
 }
 
-int hbMachineCanDirectlyWriteZone(HbMachineType type) {
+int hb_machine_can_write_zone(hb_machine_type_t type) {
     return type == HMT_NETMOD;
 }
 
-int hbMachineCanLinkSubMachine(HbMachineType type) {
+int hb_machine_can_link_sub_machine(hb_machine_type_t type) {
     return type == HMT_NETMOD;
 }
 
-int hbZonePropCanReportLost(HbZoneProperty zp) {
+int hb_zone_can_report_lost(hb_zone_property_t zp) {
     switch (zp) {
         case HZP_BUGLAR:
         case HZP_EMERGENCY:
@@ -265,53 +265,53 @@ int hbZonePropCanReportLost(HbZoneProperty zp) {
     }
 }
 
-void hbInitMachineTimer(HbMachineTimer* timer) {
+void hb_machine_timer_init(hb_machine_timer_t* timer) {
     memset(timer->data, 25, sizeof(timer));
 }
 
-int hbIsValidTimePoint(HbMachineTimePoint* tp) {
+int hb_is_valid_time_point(hb_machine_time_point_t* tp) {
     return tp &&
            tp->hour < 24 &&
            tp->minute < 60;
 }
 
-void hbTimePointToGreenwich(HbMachineTimePoint* tp) {
+void hb_time_point_to_greenwich(hb_machine_time_point_t* tp) {
     if (tp && tp->hour != 25)
         tp->hour = (tp->hour + 16) % 24;
 }
 
-void hbTimePointFromGreenwich(HbMachineTimePoint* tp) {
+void hb_time_point_from_greenwich(hb_machine_time_point_t* tp) {
     if (tp && tp->hour != 25)
         tp->hour = (tp->hour + 8) % 24;
 }
 
-int hbIsValidTimer(HbTimer* timer) {
+int hb_is_valid_timer_one(hb_machine_timer_one_t* timer) {
     return timer &&
-           hbIsValidTimePoint(&timer->armAt) &&
-           hbIsValidTimePoint(&timer->disarmAt);
+           hb_is_valid_time_point(&timer->arm_at) &&
+           hb_is_valid_time_point(&timer->disarm_at);
 }
 
-int hbIsValidMachineTimer(HbMachineTimer* timer) {
+int hb_is_valid_machine_timer(hb_machine_timer_t* timer) {
     return timer &&
-           hbIsValidTimer(&timer->timer[0]) &&
-           hbIsValidTimer(&timer->timer[1]);
+           hb_is_valid_timer_one(&timer->timer[0]) &&
+           hb_is_valid_timer_one(&timer->timer[1]);
 }
 
-void hbMachineTimerToGreenwich(HbMachineTimer* timer) {
-    hbTimePointToGreenwich(&timer->timer[0].armAt);
-    hbTimePointToGreenwich(&timer->timer[0].disarmAt);
-    hbTimePointToGreenwich(&timer->timer[1].armAt);
-    hbTimePointToGreenwich(&timer->timer[1].disarmAt);
+void hb_machine_timer_to_greenwich(hb_machine_timer_t* timer) {
+    hb_time_point_to_greenwich(&timer->timer[0].arm_at);
+    hb_time_point_to_greenwich(&timer->timer[0].disarm_at);
+    hb_time_point_to_greenwich(&timer->timer[1].arm_at);
+    hb_time_point_to_greenwich(&timer->timer[1].disarm_at);
 }
 
-void hbMachineTimerFromGreenwich(HbMachineTimer* timer) {
-    hbTimePointFromGreenwich(&timer->timer[0].armAt);
-    hbTimePointFromGreenwich(&timer->timer[0].disarmAt);
-    hbTimePointFromGreenwich(&timer->timer[1].armAt);
-    hbTimePointFromGreenwich(&timer->timer[1].disarmAt);
+void hb_machine_timer_from_greenwich(hb_machine_timer_t* timer) {
+    hb_time_point_from_greenwich(&timer->timer[0].arm_at);
+    hb_time_point_from_greenwich(&timer->timer[0].disarm_at);
+    hb_time_point_from_greenwich(&timer->timer[1].arm_at);
+    hb_time_point_from_greenwich(&timer->timer[1].disarm_at);
 }
 
-AdemcoEvent hbMachineStatusToAdemcoEvent(HbMachineStatus status) {
+ademco_event_t hb_machine_status_to_ademco_event(hb_machine_status_t status) {
     switch (status) {
 #define XX(hms, ae) \
     case hms:       \
@@ -324,8 +324,8 @@ AdemcoEvent hbMachineStatusToAdemcoEvent(HbMachineStatus status) {
     }
 }
 
-HbMachineStatus hbMachineStatusFromAdemcoEvent(AdemcoEvent ademcoEvent) {
-    switch (ademcoEvent) {
+hb_machine_status_t hb_machine_status_from_ademco_event(ademco_event_t ademco_event) {
+    switch (ademco_event) {
 #define XX(hms, ae) \
     case ae:        \
         return hms;
@@ -342,7 +342,7 @@ HbMachineStatus hbMachineStatusFromAdemcoEvent(AdemcoEvent ademcoEvent) {
     }
 }
 
-AdemcoEvent hbMachineTypeToAdemcoEvent(HbMachineType type) {
+ademco_event_t hb_machine_type_to_ademco_event(hb_machine_type_t type) {
     switch (type) {
 #define XX(hmt, ae) \
     case hmt:       \
@@ -356,8 +356,8 @@ AdemcoEvent hbMachineTypeToAdemcoEvent(HbMachineType type) {
     }
 }
 
-HbMachineType hbMachineTypeFromAdemcoEvent(AdemcoEvent ademcoEvent) {
-    switch (ademcoEvent) {
+hb_machine_type_t hb_machine_type_from_ademco_event(ademco_event_t ademco_event) {
+    switch (ademco_event) {
 #define XX(hmt, ae) \
     case ae:        \
         return hmt;
@@ -370,7 +370,7 @@ HbMachineType hbMachineTypeFromAdemcoEvent(AdemcoEvent ademcoEvent) {
     }
 }
 
-AdemcoEvent hbZonePropertyToAdemcoEvent(HbZoneProperty zp) {
+ademco_event_t hb_zone_property_to_ademco_event(hb_zone_property_t zp) {
     switch (zp) {
 #define XX(hzp, ae) \
     case hzp:       \
@@ -384,7 +384,7 @@ AdemcoEvent hbZonePropertyToAdemcoEvent(HbZoneProperty zp) {
     }
 }
 
-const char* hbMachineStatusToString(HbMachineStatus status) {
+const char* hb_machine_status_to_string(hb_machine_status_t status) {
     switch (status) {
 #define XX(name, value, str) \
     case HMS_##name:         \
@@ -396,7 +396,7 @@ const char* hbMachineStatusToString(HbMachineStatus status) {
     }
 }
 
-const char* hbMachineTypeToString(HbMachineType type) {
+const char* hb_machine_type_to_string(hb_machine_type_t type) {
     switch (type) {
 #define XX(name, value, str) \
     case HMT_##name:         \
@@ -405,11 +405,11 @@ const char* hbMachineTypeToString(HbMachineType type) {
 #undef XX
 
         default:
-            return "Unknown HbMachineType";
+            return "Unknown hb_machine_type_t";
     }
 }
 
-const char* hbZonePropertyToString(HbZoneProperty zp) {
+const char* hb_zone_property_to_string(hb_zone_property_t zp) {
     switch (zp) {
 #define XX(name, value, str) \
     case HZP_##name:         \
@@ -422,10 +422,10 @@ const char* hbZonePropertyToString(HbZoneProperty zp) {
     }
 }
 
-const char* hbComReqTypeToString(HbComRequestType type) {
+const char* hb_com_req_to_string(hb_com_req_t type) {
     switch (type) {
-#define XX(name, str)     \
-    case HbComReq_##name: \
+#define XX(name, str)       \
+    case HB_COM_REQ_##name: \
         return #name;
         HB_COM_REQUESTS_MAP(XX)
 #undef XX
@@ -435,10 +435,10 @@ const char* hbComReqTypeToString(HbComRequestType type) {
     }
 }
 
-const char* hbComRespTypeToString(HbComResponseType type) {
+const char* hb_com_resp_to_string(hb_com_resp_t type) {
     switch (type) {
-#define XX(name, str)      \
-    case HbComResp_##name: \
+#define XX(name, str)        \
+    case HB_COM_RESP_##name: \
         return #name;
         HB_COM_RESPONSES_MAP(XX)
 #undef XX
@@ -449,7 +449,7 @@ const char* hbComRespTypeToString(HbComResponseType type) {
 }
 
 #if ADEMCO_ENABLE_CHINESE
-const char* hbMachineStatusToStringChinese(HbMachineStatus status) {
+const char* hb_machine_status_to_string_chinese(hb_machine_status_t status) {
     switch (status) {
 #define XX(name, value, str) \
     case HMS_##name:         \
@@ -462,7 +462,7 @@ const char* hbMachineStatusToStringChinese(HbMachineStatus status) {
     }
 }
 
-const char* hbMachineTypeToStringChinese(HbMachineType type) {
+const char* hb_machine_type_to_string_chinese(hb_machine_type_t type) {
     switch (type) {
 #define XX(name, value, str) \
     case HMT_##name:         \
@@ -475,7 +475,7 @@ const char* hbMachineTypeToStringChinese(HbMachineType type) {
     }
 }
 
-const char* hbZonePropertyToStringChinese(HbZoneProperty zp) {
+const char* hb_zone_property_to_string_chinese(hb_zone_property_t zp) {
     switch (zp) {
 #define XX(name, value, str) \
     case HZP_##name:         \
@@ -488,10 +488,10 @@ const char* hbZonePropertyToStringChinese(HbZoneProperty zp) {
     }
 }
 
-const char* hbComReqTypeToStringChinese(HbComRequestType type) {
+const char* hb_com_req_to_string_chinese(hb_com_req_t type) {
     switch (type) {
-#define XX(name, str)     \
-    case HbComReq_##name: \
+#define XX(name, str)       \
+    case HB_COM_REQ_##name: \
         return str;
         HB_COM_REQUESTS_MAP(XX)
 #undef XX
@@ -501,10 +501,10 @@ const char* hbComReqTypeToStringChinese(HbComRequestType type) {
     }
 }
 
-const char* hbComRespTypeToStringChinese(HbComResponseType type) {
+const char* hb_com_resp_to_string_chinese(hb_com_resp_t type) {
     switch (type) {
-#define XX(name, str)      \
-    case HbComResp_##name: \
+#define XX(name, str)        \
+    case HB_COM_RESP_##name: \
         return str;
         HB_COM_RESPONSES_MAP(XX)
 #undef XX
@@ -516,8 +516,8 @@ const char* hbComRespTypeToStringChinese(HbComResponseType type) {
 
 #endif  // ADEMCO_ENABLE_CHINESE
 
-const char* hbGetZoneFormatString(HbMachineType type) {
-    uint16_t zone = hbZoneMax(type);
+const char* hb_get_zone_format_str(hb_machine_type_t type) {
+    ademco_zone_t zone = hb_get_max_zone_by_type(type);
     if (10 < zone && zone < 100)
         return "%02d";
     else if (zone < 1000)
@@ -526,7 +526,7 @@ const char* hbGetZoneFormatString(HbMachineType type) {
         return "%d";
 }
 
-void hbSum(uint8_t* data, size_t len) {
+void hb_sum(uint8_t* data, size_t len) {
     uint8_t sum = 0;
     uint8_t* p = data;
     while (p != data + len - 1)
@@ -534,7 +534,7 @@ void hbSum(uint8_t* data, size_t len) {
     *p = sum;
 }
 
-int hbCheckSum(const uint8_t* data, size_t len) {
+int hb_chksum(const uint8_t* data, size_t len) {
     uint8_t sum = 0;
     const uint8_t* p = data;
     while (p != data + len - 1)
@@ -548,9 +548,9 @@ int hbCheckSum(const uint8_t* data, size_t len) {
         memcpy(cd->data, data, len & 0xFF); \
     }
 
-HbComRequestType hbComParseRequest(const uint8_t* data,
-                                   size_t len,
-                                   HbComData* cd) {
+hb_com_req_t hb_com_parse_req(const uint8_t* data,
+                              size_t len,
+                              hb_com_data_t* cd) {
     do {
         if (len < 5) {
             break;
@@ -566,69 +566,69 @@ HbComRequestType hbComParseRequest(const uint8_t* data,
                 switch (data[3]) {
                     case 0xA0:  // EB AB 3F A0 75
                     {
-                        if (len != HbComReq_A0_len) {
+                        if (len != HB_COM_REQ_A0_LEN) {
                             break;
                         }
-                        if (memcmp(HbComReq_A0_data, data, len) != 0) {
+                        if (memcmp(HB_COM_REQ_A0_DATA, data, len) != 0) {
                             break;
                         }
                         copy_data_to_com;
-                        return HbComReq_A0;
+                        return HB_COM_REQ_A0;
                     }
                     case 0xA1:  // EB AB 3F A1 76
                     {
-                        if (len != HbComReq_A1_len) {
+                        if (len != HB_COM_REQ_A1_LEN) {
                             break;
                         }
-                        if (memcmp(HbComReq_A1_data, data, len) != 0) {
+                        if (memcmp(HB_COM_REQ_A1_DATA, data, len) != 0) {
                             break;
                         }
                         copy_data_to_com;
-                        return HbComReq_A1;
+                        return HB_COM_REQ_A1;
                     }
                     case 0xA2:  // EB AB 3F A2 77
                     {
-                        if (len != HbComReq_A2_len) {
+                        if (len != HB_COM_REQ_A2_LEN) {
                             break;
                         }
-                        if (memcmp(HbComReq_A2_data, data, len) != 0) {
+                        if (memcmp(HB_COM_REQ_A2_DATA, data, len) != 0) {
                             break;
                         }
                         copy_data_to_com;
-                        return HbComReq_A2;
+                        return HB_COM_REQ_A2;
                     }
                     case 0xA5:  // EB AB 3F A5 7A
                     {
-                        if (len != HbComReq_A5_len) {
+                        if (len != HB_COM_REQ_A5_LEN) {
                             break;
                         }
-                        if (memcmp(HbComReq_A5_data, data, len) != 0) {
+                        if (memcmp(HB_COM_REQ_A5_DATA, data, len) != 0) {
                             break;
                         }
                         copy_data_to_com;
-                        return HbComReq_A5;
+                        return HB_COM_REQ_A5;
                     }
                     case 0xAC:  // EB AB 3F AC 81
                     {
-                        if (len != HbComReq_AC_len) {
+                        if (len != HB_COM_REQ_AC_LEN) {
                             break;
                         }
-                        if (memcmp(HbComReq_AC_data, data, len) != 0) {
+                        if (memcmp(HB_COM_REQ_AC_DATA, data, len) != 0) {
                             break;
                         }
                         copy_data_to_com;
-                        return HbComReq_AC;
+                        return HB_COM_REQ_AC;
                     }
                     case 0xAD:  // EB AB 3F AD 82
                     {
-                        if (len != HbComReq_AD_len) {
+                        if (len != HB_COM_REQ_AD_LEN) {
                             break;
                         }
-                        if (memcmp(HbComReq_AD_data, data, len) != 0) {
+                        if (memcmp(HB_COM_REQ_AD_DATA, data, len) != 0) {
                             break;
                         }
                         copy_data_to_com;
-                        return HbComReq_AD;
+                        return HB_COM_REQ_AD;
                     }
                     default:
                         break;
@@ -639,10 +639,10 @@ HbComRequestType hbComParseRequest(const uint8_t* data,
                 if (data[2] != 0x3F) {
                     break;
                 }
-                if (len == HbComReq_RA_len &&
-                    memcmp(data, HbComReq_RA_data, len) == 0) {
+                if (len == HB_COM_REQ_RA_LEN &&
+                    memcmp(data, HB_COM_REQ_RA_DATA, len) == 0) {
                     copy_data_to_com;
-                    return HbComReq_RA;
+                    return HB_COM_REQ_RA;
                 }
                 break;
             }
@@ -653,26 +653,26 @@ HbComRequestType hbComParseRequest(const uint8_t* data,
 
                 if (data[3] == 0x09 &&
                     data[4] == 0xA3 &&
-                    len == HbComReq_A3_len) {
+                    len == HB_COM_REQ_A3_LEN) {
                     // EB CB 3F 09 A3 P1 P2 P3 SUM
-                    if (hbCheckSum(data, len)) {
+                    if (hb_chksum(data, len)) {
                         copy_data_to_com;
-                        return HbComReq_A3;
+                        return HB_COM_REQ_A3;
                     }
                 } else if (data[3] == 0x0F &&
                            data[4] == 0x4D &&
-                           len == HbComReq_WA_len) {
-                    if (hbCheckSum(data, len)) {
+                           len == HB_COM_REQ_WA_LEN) {
+                    if (hb_chksum(data, len)) {
                         copy_data_to_com;
-                        return HbComReq_WA;
+                        return HB_COM_REQ_WA;
                     }
                 } else if (data[3] == 0x0E &&
                            data[4] == 0xA7 &&
-                           len == HbComReq_A7_len) {
+                           len == HB_COM_REQ_A7_LEN) {
                     // EB CB 3F 0E A7 H1 M1 H2 M2 H3 M3 H4 M4 SUM
-                    if (hbCheckSum(data, len)) {
+                    if (hb_chksum(data, len)) {
                         copy_data_to_com;
-                        return HbComReq_A7;
+                        return HB_COM_REQ_A7;
                     }
                 }
 
@@ -683,11 +683,11 @@ HbComRequestType hbComParseRequest(const uint8_t* data,
 
                 else if (data[3] == 0x08 &&
                          data[4] == 0xAA &&
-                         len == HbComReq_AA_len) {
+                         len == HB_COM_REQ_AA_LEN) {
                     // EB CB 3F 08 AA P1 P2 SUM
-                    if (hbCheckSum(data, len)) {
+                    if (hb_chksum(data, len)) {
                         copy_data_to_com;
-                        return HbComReq_AA;
+                        return HB_COM_REQ_AA;
                     }
                 }
 
@@ -697,32 +697,32 @@ HbComRequestType hbComParseRequest(const uint8_t* data,
                 }*/
 
                 else if (data[3] == 0x06 && data[4] == 0xB0 &&
-                         len == HbComReq_B0_len &&
-                         memcmp(HbComReq_B0_data, data, len) == 0) {
+                         len == HB_COM_REQ_B0_LEN &&
+                         memcmp(HB_COM_REQ_B0_DATA, data, len) == 0) {
                     // EB CB 3F 06 B0 AB
                     copy_data_to_com;
-                    return HbComReq_B0;
+                    return HB_COM_REQ_B0;
                 }
             }
         }
     } while (0);
-    return HbComReq_Invalid;
+    return HB_COM_REQ_INVALID;
 }
 
-HbComRequestType hbComParseXDataRequest(const AdemcoXDataSegment* xdata,
-                                        HbComData* cd) {
+hb_com_req_t hb_com_parse_xdata_req(const ademco_xdata_t* xdata,
+                                    hb_com_data_t* cd) {
     if (!xdata) {
-        return HbComReq_Invalid;
+        return HB_COM_REQ_INVALID;
     }
-    return hbComParseRequest(
-        (const uint8_t*)ademcoXDataGetValidContentAddr(xdata),
-        ademcoXDataGetValidContentLen(xdata),
+    return hb_com_parse_req(
+        (const uint8_t*)ademco_xdata_get_valid_content_addr(xdata),
+        ademco_xdata_get_valid_content_len(xdata),
         cd);
 }
 
-HbComResponseType hbComParseResponse(const uint8_t* data,
-                                     size_t len,
-                                     HbComData* cd) {
+hb_com_resp_t hb_com_parse_resp(const uint8_t* data,
+                                size_t len,
+                                hb_com_data_t* cd) {
     do {
         if (len < 7) {
             break;
@@ -733,12 +733,12 @@ HbComResponseType hbComParseResponse(const uint8_t* data,
         switch (data[5]) {
             case 0xA0:  // EB BA 3F 07 P0 A0 P1 P2 P3 SUM
             {
-                if (len != HbComResp_A0_len) {
+                if (len != HB_COM_RESP_A0_LEN) {
                     break;
                 }
-                if (hbCheckSum(data, len)) {
+                if (hb_chksum(data, len)) {
                     copy_data_to_com;
-                    return HbComResp_A0;
+                    return HB_COM_RESP_A0;
                 }
                 break;
             }
@@ -748,64 +748,64 @@ HbComResponseType hbComParseResponse(const uint8_t* data,
                 if (len != data[3]) {
                     break;
                 }
-                if (hbCheckSum(data, len)) {
+                if (hb_chksum(data, len)) {
                     copy_data_to_com;
-                    return HbComResp_A2;
+                    return HB_COM_RESP_A2;
                 }
                 break;
             }
 
             case 0xA3: {
-                if (len != HbComResp_A3_len) {
+                if (len != HB_COM_RESP_A3_LEN) {
                     break;
                 }
-                if (hbCheckSum(data, len)) {
+                if (hb_chksum(data, len)) {
                     copy_data_to_com;
-                    return HbComResp_A3;
+                    return HB_COM_RESP_A3;
                 }
                 break;
             }
 
             case 0xA4: {
-                if (len != HbComResp_A4_len) {
+                if (len != HB_COM_RESP_A4_LEN) {
                     break;
                 }
-                if (hbCheckSum(data, len)) {
+                if (hb_chksum(data, len)) {
                     copy_data_to_com;
-                    return HbComResp_A4;
+                    return HB_COM_RESP_A4;
                 }
                 break;
             }
 
             case 0xA6: {
-                if (len != HbComResp_A6_len) {
+                if (len != HB_COM_RESP_A6_LEN) {
                     break;
                 }
-                if (hbCheckSum(data, len)) {
+                if (hb_chksum(data, len)) {
                     copy_data_to_com;
-                    return HbComResp_A6;
+                    return HB_COM_RESP_A6;
                 }
                 break;
             }
 
             case 0xA7: {
-                if (len != HbComResp_A7_len) {
+                if (len != HB_COM_RESP_A7_LEN) {
                     break;
                 }
-                if (hbCheckSum(data, len)) {
+                if (hb_chksum(data, len)) {
                     copy_data_to_com;
-                    return HbComResp_A7;
+                    return HB_COM_RESP_A7;
                 }
                 break;
             }
 
             case 0xA8: {
-                if (len != HbComResp_A8_len) {
+                if (len != HB_COM_RESP_A8_LEN) {
                     break;
                 }
-                if (hbCheckSum(data, len)) {
+                if (hb_chksum(data, len)) {
                     copy_data_to_com;
-                    return HbComResp_A8;
+                    return HB_COM_RESP_A8;
                 }
                 break;
             }
@@ -816,12 +816,12 @@ HbComResponseType hbComParseResponse(const uint8_t* data,
             }
 
             case 0xAB: {
-                if (len != HbComResp_AB_len) {
+                if (len != HB_COM_RESP_AB_LEN) {
                     break;
                 }
-                if (hbCheckSum(data, len)) {
+                if (hb_chksum(data, len)) {
                     copy_data_to_com;
-                    return HbComResp_AB;
+                    return HB_COM_RESP_AB;
                 }
                 break;
             }
@@ -831,9 +831,9 @@ HbComResponseType hbComParseResponse(const uint8_t* data,
                 if (len != data[3]) {
                     break;
                 }
-                if (hbCheckSum(data, len)) {
+                if (hb_chksum(data, len)) {
                     copy_data_to_com;
-                    return HbComResp_AD;
+                    return HB_COM_RESP_AD;
                 }
                 break;
             }
@@ -845,12 +845,12 @@ HbComResponseType hbComParseResponse(const uint8_t* data,
 
             case 0xB1:  // EB BA 3F 08 P0 B1 P1 SUM
             {
-                if (len != HbComResp_B1_len) {
+                if (len != HB_COM_RESP_B1_LEN) {
                     break;
                 }
-                if (hbCheckSum(data, len)) {
+                if (hb_chksum(data, len)) {
                     copy_data_to_com;
-                    return HbComResp_B1;
+                    return HB_COM_RESP_B1;
                 }
                 break;
             }
@@ -859,276 +859,313 @@ HbComResponseType hbComParseResponse(const uint8_t* data,
 
     // 处理读写主机账号回应
     do {
-        if (len >= HbComResp_WA_len &&
-            memcmp(HbComResp_WA_data, data, HbComResp_WA_len) == 0) {
-            return HbComResp_WA;
+        if (len >= HB_COM_RESP_WA_LEN &&
+            memcmp(HB_COM_RESP_WA_DATA, data, HB_COM_RESP_WA_LEN) == 0) {
+            return HB_COM_RESP_WA;
         }
 
-        if (len >= HbComResp_RA_len &&
-            memcmp(HbComResp_RA_head, data, sizeof(HbComResp_RA_head) - 1) == 0 &&
-            hbCheckSum(data, len)) {
+        if (len >= HB_COM_RESP_RA_LEN &&
+            memcmp(HB_COM_RESP_RA_HEAD, data, sizeof(HB_COM_RESP_RA_HEAD) - 1) == 0 &&
+            hb_chksum(data, len)) {
             copy_data_to_com;
-            return HbComResp_RA;
+            return HB_COM_RESP_RA;
         }
     } while (0);
-    return HbComResp_Invalid;
+    return HB_COM_RESP_INVALID;
 }
 
-HbComResponseType hbComParseXDataResponse(const AdemcoXDataSegment* xdata,
-                                          HbComData* cd) {
+hb_com_resp_t hb_com_parse_xdata_resp(const ademco_xdata_t* xdata,
+                                      hb_com_data_t* cd) {
     if (!xdata) {
-        return HbComResp_Invalid;
+        return HB_COM_RESP_INVALID;
     }
-    return hbComParseResponse(
-        (const uint8_t*)ademcoXDataGetValidContentAddr(xdata),
-        ademcoXDataGetValidContentLen(xdata),
+    return hb_com_parse_resp(
+        (const uint8_t*)ademco_xdata_get_valid_content_addr(xdata),
+        ademco_xdata_get_valid_content_len(xdata),
         cd);
 }
 
-void hbComMakeReqA0_getMachineStatus(HbComData* data) {
-    memcpy(data->data, HbComReq_A0_data, HbComReq_A0_len);
-    data->len = HbComReq_A0_len;
+void hb_com_make_req_a0_get_machine_status(hb_com_data_t* data) {
+    memcpy(data->data, HB_COM_REQ_A0_DATA, HB_COM_REQ_A0_LEN);
+    data->len = HB_COM_REQ_A0_LEN;
 }
 
-void hbComMakeReqA1_getMachineZones(HbComData* data) {
-    memcpy(data->data, HbComReq_A1_data, HbComReq_A1_len);
-    data->len = HbComReq_A1_len;
+void hb_com_make_req_a1_get_machine_zones(hb_com_data_t* data) {
+    memcpy(data->data, HB_COM_REQ_A1_DATA, HB_COM_REQ_A1_LEN);
+    data->len = HB_COM_REQ_A1_LEN;
 }
 
-void hbComMakeReqA2_getMoreMachineZones(HbComData* data) {
-    memcpy(data->data, HbComReq_A2_data, HbComReq_A2_len);
-    data->len = HbComReq_A2_len;
+void hb_com_make_req_a2_get_more_machine_zones(hb_com_data_t* data) {
+    memcpy(data->data, HB_COM_REQ_A2_DATA, HB_COM_REQ_A2_LEN);
+    data->len = HB_COM_REQ_A2_LEN;
 }
 
-void hbComMakeReqA3_modifyMachineZone(HbComData* data,
-                                      uint8_t zone,
-                                      HbZoneProperty prop,
-                                      HbComReq_A3_op op) {
-    memcpy(data->data, HbComReq_A3_head, 5);
+void hb_com_make_req_a3_modify_machine_zone(hb_com_data_t* data,
+                                            uint8_t zone,
+                                            hb_zone_property_t prop,
+                                            hb_com_req_a3_p3_t op) {
+    memcpy(data->data, HB_COM_REQ_A3_DATA, 5);
     data->data[5] = zone;
     data->data[6] = prop;
     data->data[7] = op;
-    data->len = HbComReq_A3_len;
-    hbSum(data->data, data->len);
+    data->len = HB_COM_REQ_A3_LEN;
+    hb_sum(data->data, data->len);
 }
 
-void hbComMakeReqA5_getMachineTimer(HbComData* data) {
-    memcpy(data->data, HbComReq_A5_data, HbComReq_A5_len);
-    data->len = HbComReq_A5_len;
+void hb_com_make_req_a5_get_machine_timer(hb_com_data_t* data) {
+    memcpy(data->data, HB_COM_REQ_A5_DATA, HB_COM_REQ_A5_LEN);
+    data->len = HB_COM_REQ_A5_LEN;
 }
 
-void hbComMakeReqA7_setMachineTimer(HbComData* data,
-                                    HbMachineTimer* timer) {
-    memcpy(data->data, HbComReq_A7_head, 5);
+void hb_com_make_req_a7_set_machine_timer(hb_com_data_t* data,
+                                          hb_machine_timer_t* timer) {
+    memcpy(data->data, HB_COM_REQ_A7_HEAD, 5);
     memcpy(data->data + 5, timer, sizeof(*timer));
-    data->len = HbComReq_A7_len;
-    hbSum(data->data, data->len);
+    data->len = HB_COM_REQ_A7_LEN;
+    hb_sum(data->data, data->len);
 }
 
-void hbComMakeReqAA_modifyMachineZoneLostConfig(HbComData* data,
-                                                uint8_t zone,
-                                                int on) {
-    memcpy(data->data, HbComReq_AA_head, 5);
+void hb_com_make_req_aa_modify_machine_zone_lost_config(hb_com_data_t* data,
+                                                        uint8_t zone,
+                                                        int on) {
+    memcpy(data->data, HB_COM_REQ_AA_HEAD, 5);
     data->data[5] = zone;
     data->data[6] = !!on;
-    data->len = HbComReq_AA_len;
-    hbSum(data->data, data->len);
+    data->len = HB_COM_REQ_AA_LEN;
+    hb_sum(data->data, data->len);
 }
 
-void hbComMakeReqAC_getMachineZoneLostConfig(HbComData* data) {
-    memcpy(data->data, HbComReq_AC_data, HbComReq_AC_len);
-    data->len = HbComReq_AC_len;
+void hb_com_make_req_ac_get_machine_zone_lost_config(hb_com_data_t* data) {
+    memcpy(data->data, HB_COM_REQ_AC_DATA, HB_COM_REQ_AC_LEN);
+    data->len = HB_COM_REQ_AC_LEN;
 }
 
-void hbComMakeReqAD_getMoreMachineZoneLostConfig(HbComData* data) {
-    memcpy(data->data, HbComReq_AD_data, HbComReq_AD_len);
-    data->len = HbComReq_AD_len;
+void hb_com_make_req_ad_get_more_machine_zone_lost_config(hb_com_data_t* data) {
+    memcpy(data->data, HB_COM_REQ_AD_DATA, HB_COM_REQ_AD_LEN);
+    data->len = HB_COM_REQ_AD_LEN;
 }
 
-void hbComMakeReqAE_set3SectionMachineStatus(HbComData* data,
-                                             HbCom_3sec_which p1,
-                                             HbCom_3sec_status status) {
-    memcpy(data->data, HbComReq_AE_head, 5);
+void hb_com_make_req_ae_set_3sec_machine_status(hb_com_data_t* data,
+                                                hb_com_3sec_which_t p1,
+                                                hb_com_3sec_status_t status) {
+    memcpy(data->data, HB_COM_REQ_AE_HEAD, 5);
     data->data[5] = p1;
     data->data[6] = status;
-    data->len = HbComReq_AE_len;
-    hbSum(data->data, data->len);
+    data->len = HB_COM_REQ_AE_LEN;
+    hb_sum(data->data, data->len);
 }
 
-void hbComMakeReqB0_get3SectionMachineStatus(HbComData* data) {
-    memcpy(data->data, HbComReq_B0_data, HbComReq_B0_len);
-    data->len = HbComReq_B0_len;
+void hb_com_make_req_b0_get_3sec_machine_status(hb_com_data_t* data) {
+    memcpy(data->data, HB_COM_REQ_B0_DATA, HB_COM_REQ_B0_LEN);
+    data->len = HB_COM_REQ_B0_LEN;
 }
 
-void hbComMakeReqRA_readAcct(HbComData* data) {
-    memcpy(data->data, HbComReq_RA_data, HbComReq_RA_len);
-    data->len = HbComReq_RA_len;
+void hb_com_make_req_ra_read_acct(hb_com_data_t* data) {
+    memcpy(data->data, HB_COM_REQ_RA_DATA, HB_COM_REQ_RA_LEN);
+    data->len = HB_COM_REQ_RA_LEN;
 }
 
-void hbComMakeReqWA_writeAcct(HbComData* data, const char* acct) {
-    memcpy(data->data, HbComReq_WA_head, 5);
-    ademcoDecStrToHiLoArray2(data->data + 5,
-                             ADEMCO_PACKET_ACCT_MAX_LEN / 2,
-                             acct);
-    data->len = HbComReq_WA_len;
-    hbSum(data->data, data->len);
+void hb_com_make_req_wa_write_acct(hb_com_data_t* data, const char* acct) {
+    memcpy(data->data, HB_COM_REQ_WA_HEAD, 5);
+    ademco_hex_str_to_hilo_array(data->data + 5,
+                                 ADEMCO_PACKET_ACCT_MAX_LEN / 2,
+                                 acct);
+    data->len = HB_COM_REQ_WA_LEN;
+    hb_sum(data->data, data->len);
 }
 
-void hbComRespA2_IterInit(HbComResp_A2_Iter* iter,
-                          const HbComData* com) {
+void hb_com_resp_a2_iter_init(hb_com_resp_a2_iter_t* iter,
+                              const hb_com_data_t* com) {
     if (!iter || !com) return;
     iter->com = com;
     iter->i = 0;
-    if (com->len > HbComResp_A2_len_min) {
-        iter->total = (com->len - HbComResp_A2_len_min) / 2;
+    if (com->len > HB_COM_RESP_A2_MIN_LEN) {
+        iter->total = (com->len - HB_COM_RESP_A2_MIN_LEN) / 2;
         iter->p1 = (com->data[com->len - 2] == 0xFF)
-                       ? HbComResp_A2_p1_nomore
-                       : HbComResp_A2_p1_more;
+                       ? HB_COM_RESP_A2_P1_NOMORE
+                       : HB_COM_RESP_A2_P1_MORE;
     } else {
         iter->total = 0;
-        iter->p1 = HbComResp_A2_p1_nomore;
+        iter->p1 = HB_COM_RESP_A2_P1_NOMORE;
     }
 }
 
-HbComResp_A2_p1 hbComRespA2_IterNext(HbComResp_A2_Iter* iter,
-                                     HbZoneAndProperty* zp) {
+hb_com_resp_a2_p1_t hb_com_resp_a2_iter_next(hb_com_resp_a2_iter_t* iter,
+                                             hb_zone_and_property_t* zp) {
     if (iter->i == iter->total)
-        return HbComResp_A2_p1_nomore;
+        return HB_COM_RESP_A2_P1_NOMORE;
     zp->zone = iter->com->data[6 + iter->i * 2];
-    zp->prop = (HbZoneProperty)iter->com->data[7 + iter->i * 2];
+    zp->prop = (hb_zone_property_t)iter->com->data[7 + iter->i * 2];
     iter->i++;
-    return HbComResp_A2_p1_more;
+    return HB_COM_RESP_A2_P1_MORE;
 }
 
-void hbComMakeRespA0_getMachineStatus(HbComData* data,
-                                      HbMachineStatus status,
-                                      HbMachineType type) {
-    memcpy(data->data, HbComResp_A0_head, 6);
+void hb_com_make_resp_a0_machine_status(hb_com_data_t* data,
+                                        hb_machine_status_t status,
+                                        hb_machine_type_t type) {
+    memcpy(data->data, HB_COM_RESP_A0_HEAD, 6);
     data->data[6] = status;
     data->data[7] = type;
-    data->len = HbComResp_A0_len;
-    hbSum(data->data, data->len);
+    data->len = HB_COM_RESP_A0_LEN;
+    hb_sum(data->data, data->len);
 }
 
-void hbComMakeRespA2_getMachineZones(HbComData* data,
-                                     size_t count,
-                                     AdemcoZone* zones,
-                                     HbZoneProperty* props,
-                                     HbComResp_A2_p1 p1) {
-    if (count > HbComResp_A2_max_zone) {
+void hb_com_make_resp_a2_machine_zones(hb_com_data_t* data,
+                                       size_t count,
+                                       ademco_zone_t* zones,
+                                       hb_zone_property_t* props,
+                                       hb_com_resp_a2_p1_t p1) {
+    if (count > HB_COM_RESP_A2_MAX_ZONE) {
         return;
     }
-    memcpy(data->data, HbComResp_A2_head, 6);
-    data->data[3] = (HbComResp_A2_len_min + count * 2) & 0xFF;
+    memcpy(data->data, HB_COM_RESP_A2_HEAD, 6);
+    data->data[3] = (HB_COM_RESP_A2_MIN_LEN + count * 2) & 0xFF;
     uint8_t* p = data->data + 6;
     for (size_t i = 0; i < count; i++) {
         *p++ = zones[i] & 0xFF;
         *p++ = props[i];
     }
-    *p++ = (count > 0) ? (uint8_t)p1 : (uint8_t)HbComResp_A2_p1_nomore;
+    *p++ = (count > 0) ? (uint8_t)p1 : (uint8_t)HB_COM_RESP_A2_P1_NOMORE;
     data->len = (++p - data->data) & 0xFF;
-    hbSum(data->data, data->len);
+    hb_sum(data->data, data->len);
 }
 
-void hbComMakeRespA3_waitingSignal(HbComData* data) {
-    memcpy(data->data, HbComResp_A3_data, HbComResp_A3_len);
-    data->len = HbComResp_A3_len;
+void hb_com_make_resp_a3_waiting_sensor_signal(hb_com_data_t* data) {
+    memcpy(data->data, HB_COM_RESP_A3_DATA, HB_COM_RESP_A3_LEN);
+    data->len = HB_COM_RESP_A3_LEN;
 }
 
-void hbComMakeRespA4_modifyMachineZone(HbComData* data,
-                                       AdemcoZone zone,
-                                       HbZoneProperty prop,
-                                       HbComResp_A4_p3 p3) {
-    memcpy(data->data, HbComResp_A4_head, 6);
+void hb_com_make_resp_a4_modify_zone_result(hb_com_data_t* data,
+                                            ademco_zone_t zone,
+                                            hb_zone_property_t prop,
+                                            hb_com_resp_a4_p3_t p3) {
+    memcpy(data->data, HB_COM_RESP_A4_HEAD, 6);
     data->data[6] = zone & 0xFF;
     data->data[7] = prop;
     data->data[8] = p3;
-    data->len = HbComResp_A4_len;
-    hbSum(data->data, data->len);
+    data->len = HB_COM_RESP_A4_LEN;
+    hb_sum(data->data, data->len);
 }
 
-void hbComMakeRespA6_getMachineTimer(HbComData* data,
-                                     HbMachineTimer* timer) {
-    memcpy(data->data, HbComResp_A6_head, 6);
+void hb_com_resp_a7_to_timer(hb_com_data_t* data, hb_machine_timer_t* timer) {
+    memcpy(timer->data, &data->data[2], 8);
+}
+
+void hb_com_make_resp_a6_machine_timer(hb_com_data_t* data,
+                                       hb_machine_timer_t* timer) {
+    memcpy(data->data, HB_COM_RESP_A6_HEAD, 6);
     memcpy(data->data + 6, timer->data, sizeof(*timer));
-    data->len = HbComResp_A6_len;
-    hbSum(data->data, data->len);
+    data->len = HB_COM_RESP_A6_LEN;
+    hb_sum(data->data, data->len);
 }
 
-void hbComMakeRespA7_setMachineTimer(HbComData* data) {
-    memcpy(data->data, HbComResp_A7_data, HbComResp_A7_len);
-    data->len = HbComResp_A7_len;
+void hb_com_make_resp_a7_set_machine_timer_result(hb_com_data_t* data) {
+    memcpy(data->data, HB_COM_RESP_A7_DATA, HB_COM_RESP_A7_LEN);
+    data->len = HB_COM_RESP_A7_LEN;
 }
 
-void hbComMakeRespA8_reject(HbComData* data) {
-    memcpy(data->data, HbComResp_A8_data, HbComResp_A8_len);
-    data->len = HbComResp_A8_len;
+void hb_com_make_resp_a8_reject(hb_com_data_t* data) {
+    memcpy(data->data, HB_COM_RESP_A8_DATA, HB_COM_RESP_A8_LEN);
+    data->len = HB_COM_RESP_A8_LEN;
 }
 
-void hbComMakeRespAB_modifyMachineZoneLostConfig(HbComData* data,
-                                                 AdemcoZone zone,
-                                                 HbComResp_AB_p2 p2) {
-    memcpy(data->data, HbComResp_AB_head, 6);
+void hb_com_make_resp_ab_modify_machine_zone_lost_config_result(hb_com_data_t* data,
+                                                                ademco_zone_t zone,
+                                                                hb_com_resp_ab_p2_t p2) {
+    memcpy(data->data, HB_COM_RESP_AB_HEAD, 6);
     data->data[6] = zone & 0xFF;
     data->data[7] = p2;
-    data->len = HbComResp_AB_len;
-    hbSum(data->data, data->len);
+    data->len = HB_COM_RESP_AB_LEN;
+    hb_sum(data->data, data->len);
 }
 
-void hbComMakeRespAD_getMachineZoneLostConfig(HbComData* data,
-                                              HbComResp_AD_p1 p1,
-                                              size_t count,
-                                              AdemcoZone* zones,
-                                              HbComResp_AD_p2 p2) {
-    if (count > HbComResp_AD_max_zone) {
+void hb_com_make_resp_ad_machine_zone_lost_config(hb_com_data_t* data,
+                                                  hb_com_resp_ad_p1_t p1,
+                                                  size_t count,
+                                                  ademco_zone_t* zones,
+                                                  hb_com_resp_ad_p2_t p2) {
+    if (count > HB_COM_RESP_AD_MAX_ZONE) {
         return;
     }
-    memcpy(data->data, HbComResp_AD_head, 6);
-    data->data[3] = (HbComResp_AD_len_min +
-                     (p1 == HbComResp_AD_p1_single ? count : count * 2)) &
+    memcpy(data->data, HB_COM_RESP_AD_HEAD, 6);
+    data->data[3] = (HB_COM_RESP_AD_MIN_LEN +
+                     (p1 == HB_COM_RESP_AD_P1_SINGLE ? count : count * 2)) &
                     0xFF;
     data->data[6] = p1;
     uint8_t* p = data->data + 7;
     for (size_t i = 0; i < count; i++) {
-        if (p1 == HbComResp_AD_p1_single) {
+        if (p1 == HB_COM_RESP_AD_P1_SINGLE) {
             *p++ = zones[i] & 0xFF;
         } else {
             *p++ = zones[i] >> 8 & 0xFF;
             *p++ = zones[i] & 0xFF;
         }
     }
-    *p++ = (count > 0) ? (uint8_t)p2 : (uint8_t)HbComResp_AD_p2_nomore;
+    *p++ = (count > 0) ? (uint8_t)p2 : (uint8_t)HB_COM_RESP_AD_P2_NOMORE;
     data->len = (++p - data->data) & 0xFF;
-    hbSum(data->data, data->len);
+    hb_sum(data->data, data->len);
 }
 
-void hbComMakeRespAF_set3SectionMachineStatus(HbComData* data,
-                                              HbCom_3sec_which p1,
-                                              HbCom_3sec_status status) {
-    memcpy(data->data, HbComResp_AF_head, 6);
+void hb_com_resp_ad_iter_init(hb_com_resp_ad_iter_t* iter, const hb_com_data_t* com) {
+    if (!iter || !com) return;
+    iter->com = com;
+    iter->i = 0;
+    if (com->len > HB_COM_RESP_AD_MIN_LEN) {
+        iter->p1 = com->data[6];
+        iter->total = (com->len - HB_COM_RESP_AD_MIN_LEN);
+        if (iter->p1 == HB_COM_RESP_AD_P1_DOUBLE) {
+            iter->total >>= 1;
+        }
+        iter->p2 = (com->data[com->len - 2] == 0xFF)
+                       ? HB_COM_RESP_AD_P2_NOMORE
+                       : HB_COM_RESP_AD_P2_MORE;
+    } else {
+        iter->total = 0;
+        iter->p1 = HB_COM_RESP_AD_P1_SINGLE;
+        iter->p2 = HB_COM_RESP_AD_P2_NOMORE;
+    }
+}
+
+hb_com_resp_ad_p2_t hb_com_resp_ad_iter_next(hb_com_resp_ad_iter_t* iter, ademco_zone_t* zone) {
+    if (iter->i == iter->total)
+        return HB_COM_RESP_AD_P2_NOMORE;
+    if (iter->p1 == HB_COM_RESP_AD_P1_SINGLE) {
+        *zone = iter->com->data[7 + iter->i];
+    } else {
+        *zone = iter->com->data[7 + iter->i * 2] << 8;
+        *zone += iter->com->data[7 + iter->i * 2 + 1];
+    }
+    iter->i++;
+    return HB_COM_RESP_AD_P2_MORE;
+}
+
+void hb_com_make_resp_af_set_3sec_machine_status_result(hb_com_data_t* data,
+                                                        hb_com_3sec_which_t p1,
+                                                        hb_com_3sec_status_t status) {
+    memcpy(data->data, HB_COM_RESP_AF_HEAD, 6);
     data->data[6] = p1;
     data->data[7] = status;
-    data->len = HbComResp_AF_len;
-    hbSum(data->data, data->len);
+    data->len = HB_COM_RESP_AF_LEN;
+    hb_sum(data->data, data->len);
 }
 
-void hbComMakeRespB1_get3SectionMachineStatus(HbComData* data,
-                                              HbMachineStatus statusMachine,
-                                              HbMachineStatus statusSec1,
-                                              HbMachineStatus statusSec2,
-                                              HbMachineStatus statusSec3) {
-    memcpy(data->data, HbComResp_B1_head, 6);
+void hb_com_make_resp_b1_3sec_machine_status(hb_com_data_t* data,
+                                             hb_machine_status_t statusMachine,
+                                             hb_machine_status_t statusSec1,
+                                             hb_machine_status_t statusSec2,
+                                             hb_machine_status_t statusSec3) {
+    memcpy(data->data, HB_COM_RESP_B1_HEAD, 6);
     data->data[6] = ((uint8_t)statusMachine << 6) |
                     ((uint8_t)statusSec1 << 4) |
                     ((uint8_t)statusSec2 << 2) |
                     ((uint8_t)statusSec3);
-    data->len = HbComResp_B1_len;
-    hbSum(data->data, data->len);
+    data->len = HB_COM_RESP_B1_LEN;
+    hb_sum(data->data, data->len);
 }
 
-void hbComDataToAdemcoXData(const HbComData* const data,
-                            AdemcoXDataSegment* xdata,
-                            AdemcoXDataLengthFormat xlf,
-                            AdemcoXDataTransform xtr) {
-    ademcoMakeXData(xdata, xlf, xtr, (const char*)data->data, data->len);
+void hb_com_data_to_ademco_xdata(const hb_com_data_t* const data,
+                                 ademco_xdata_t* xdata,
+                                 ademco_xdata_length_format_t xlf,
+                                 ademco_xdata_transform_t xtr) {
+    ademco_make_xdata(xdata, xlf, xtr, (const char*)data->data, data->len);
 }

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <uv.h>
+#include "uvlib_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,7 +16,7 @@ typedef enum {
     uv_tcp_parse_error,
 } uv_tcp_parse_result_t;
 
-int getpeeraddr(uv_tcp_t* tcp, char* ip, size_t len, uint16_t* port);
+UVLIB_EXPORT_SYMBOL int getpeeraddr(uv_tcp_t* tcp, char* ip, size_t len, uint16_t* port);
 
 #ifdef __cplusplus
 }

@@ -6,6 +6,7 @@ CURRENT_DIR=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd ${CURRENT_DIR}
 
 mkdir -p ./uvlib
-cp -r /g/dev_libs/ademco/uvlib/llhttp ./uvlib/
-cp /g/dev_libs/ademco/uvlib/*.h ./uvlib/
-cp /g/dev_libs/ademco/uvlib/*.c ./uvlib/
+repo=/h/dev_hb/libhb
+cp -r ${repo}/uvlib/llhttp ./uvlib/
+cp ${repo}/uvlib/*.h ./uvlib/
+cp ${repo}/uvlib/*.c ./uvlib/

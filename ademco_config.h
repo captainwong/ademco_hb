@@ -20,9 +20,9 @@
 #endif // ADEMCO_EXPORTS
 
 #if defined(SWIGJAVA) || defined(SWIGCSHARP)
-#define ademco_char_t uint8_t
+typedef uint8_t ademco_char_t;
 #else
-#define ademco_char_t char
+typedef char ademco_char_t;
 #endif
 
 #ifndef ADEMCO_ENABLE_CHINESE

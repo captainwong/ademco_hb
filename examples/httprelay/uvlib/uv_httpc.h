@@ -40,16 +40,16 @@ typedef struct uv_httpc_response_s {
 
 typedef void (*uv_httpc_on_response_t)(uv_httpc_t* httpc, uv_httpc_response_t* res);
 
-int uv_httpc_create(uv_httpc_t** httpc, uv_loop_t* loop, const char* host, const char* port,
+UVLIB_EXPORT_SYMBOL int uv_httpc_create(uv_httpc_t** httpc, uv_loop_t* loop, const char* host, const char* port,
                     uv_httpc_on_response_t on_response);
-int uv_httpc_post(uv_httpc_t* httpc, const char* url, uv_httpc_headers_t* headers,
+UVLIB_EXPORT_SYMBOL int uv_httpc_post(uv_httpc_t* httpc, const char* url, uv_httpc_headers_t* headers,
                   const char* data, size_t len, int timeout);
-int uv_httpc_stop(uv_httpc_t* httpc);
-void uv_httpc_free(uv_httpc_t* httpc);
-uv_httpc_headers_t* uv_httpc_headers_append(uv_httpc_headers_t* headers, char* data);
-uv_httpc_headers_t* uv_httpc_headers_append_nodup(uv_httpc_headers_t* headers, char* data);
-uv_httpc_headers_t* uv_httpc_headers_dup(uv_httpc_headers_t* headers);
-void uv_httpc_headers_free_all(uv_httpc_headers_t* headers, int freedata);
+UVLIB_EXPORT_SYMBOL int uv_httpc_stop(uv_httpc_t* httpc);
+UVLIB_EXPORT_SYMBOL void uv_httpc_free(uv_httpc_t* httpc);
+UVLIB_EXPORT_SYMBOL uv_httpc_headers_t* uv_httpc_headers_append(uv_httpc_headers_t* headers, char* data);
+UVLIB_EXPORT_SYMBOL uv_httpc_headers_t* uv_httpc_headers_append_nodup(uv_httpc_headers_t* headers, char* data);
+UVLIB_EXPORT_SYMBOL uv_httpc_headers_t* uv_httpc_headers_dup(uv_httpc_headers_t* headers);
+UVLIB_EXPORT_SYMBOL void uv_httpc_headers_free_all(uv_httpc_headers_t* headers, int freedata);
 
 #ifdef WEUV_TEST
 int uv_httpc_test_main(int argc, char** argv);

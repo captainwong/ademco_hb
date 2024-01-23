@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "uvlib_config.h"
 #include <uv.h>
 #include "llhttp/include/llhttp.h"
 
@@ -41,24 +42,24 @@ typedef struct uv_httpd_server_s uv_httpd_server_t;
 
 typedef void(*on_request_t)(uv_httpd_server_t* server, uv_httpd_client_t* client, uv_httpd_request_t* req);
 
-void nprintf(const char* msg, size_t len, int newline);
-int string_ncmp(const char* s1, size_t len1, const char* s2, size_t len2);
-int string0_ncmp(const char* s1, const char* s2, size_t len2);
-int string_nicmp(const char* s1, size_t len1, const char* s2, size_t len2);
-int string0_nicmp(const char* s1, const char* s2, size_t len2);
+UVLIB_EXPORT_SYMBOL void nprintf(const char* msg, size_t len, int newline);
+UVLIB_EXPORT_SYMBOL int string_ncmp(const char* s1, size_t len1, const char* s2, size_t len2);
+UVLIB_EXPORT_SYMBOL int string0_ncmp(const char* s1, const char* s2, size_t len2);
+UVLIB_EXPORT_SYMBOL int string_nicmp(const char* s1, size_t len1, const char* s2, size_t len2);
+UVLIB_EXPORT_SYMBOL int string0_nicmp(const char* s1, const char* s2, size_t len2);
 
 // enable `printf`s, default is disabled
-void uv_httpd_enable_printf(int enable);
+UVLIB_EXPORT_SYMBOL void uv_httpd_enable_printf(int enable);
 // return 0 for success, otherwise it is `uv_errno_t`
 // if your want to use a existing `uv_loop_t`, pass it by `loop`
 // otherwise a new `uv_loop_t` will be created.
-int uv_httpd_create(uv_httpd_server_t** server, uv_loop_t* loop, on_request_t on_request);
-void uv_httpd_stop(uv_httpd_server_t* server);
-void uv_httpd_free(uv_httpd_server_t* server);
+UVLIB_EXPORT_SYMBOL int uv_httpd_create(uv_httpd_server_t** server, uv_loop_t* loop, on_request_t on_request);
+UVLIB_EXPORT_SYMBOL void uv_httpd_stop(uv_httpd_server_t* server);
+UVLIB_EXPORT_SYMBOL void uv_httpd_free(uv_httpd_server_t* server);
 // return 0 for success, otherwise it is uv_errno_t
-int uv_httpd_listen(uv_httpd_server_t* server, const char* ip, int port);
+UVLIB_EXPORT_SYMBOL int uv_httpd_listen(uv_httpd_server_t* server, const char* ip, int port);
 // return 0 for success, otherwise it is uv_errno_t
-int uv_httpd_write_response(uv_httpd_client_t* client, char* response, size_t len);
+UVLIB_EXPORT_SYMBOL int uv_httpd_write_response(uv_httpd_client_t* client, char* response, size_t len);
 
 
 struct uv_httpd_server_s {

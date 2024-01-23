@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "uvlib_config.h"
 #include <stdlib.h>
 
 #ifdef __cplusplus
@@ -28,23 +29,25 @@ typedef enum {
     uv_log_level_invalid = 1 << 11,
 } uv_log_level_t;
 
-uv_log_level_t uv_log_level_from_string(const char* str);
-const char* uv_log_level_to_string(uv_log_level_t level);
-void uv_log_set_level(uv_log_level_t level);
-void uv_log_set_log_file(const char* file);
-uv_log_level_t uv_log_get_level();
-void uv_log(uv_log_level_t level, const char* fmt, ...);
-void uv_log_raw(uv_log_level_t level, const char* msg);
+UVLIB_EXPORT_SYMBOL uv_log_level_t uv_log_level_from_string(const char* str);
+UVLIB_EXPORT_SYMBOL const char* uv_log_level_to_string(uv_log_level_t level);
+UVLIB_EXPORT_SYMBOL void uv_log_set_level(uv_log_level_t level);
+UVLIB_EXPORT_SYMBOL void uv_log_set_log_file(const char* file);
+UVLIB_EXPORT_SYMBOL uv_log_level_t uv_log_get_level();
+UVLIB_EXPORT_SYMBOL void uv_log(uv_log_level_t level, const char* fmt, ...);
+UVLIB_EXPORT_SYMBOL void uv_log_raw(uv_log_level_t level, const char* msg);
 
 /**
  * log hex dump
  * show_header: show 00~0F address header, default is 0
  * show_address: show 0000~FFFF address on left
  * show_ascii: show ascii on right if can print, default is 0
- * def_ascii: when show_ascii but can't print, show def_ascii instead, default is '?'
+ * def_ascii: when show_ascii but can't print, show def_ascii instead, default is '.'
+ * newline: default is "\n"
  */
-void uv_log_hexdump(uv_log_level_t level, const char* buf, size_t len,
-                    int show_header, int show_address, int show_ascii, char def_ascii);
+UVLIB_EXPORT_SYMBOL void uv_log_hexdump(uv_log_level_t level, const char* buf, size_t len,
+                                        int show_header, int show_address, int show_ascii, char def_ascii,
+                                        const char* newline);
 
 #define uvlog_all(...) uv_log(uv_log_level_all, __VA_ARGS__)
 #define uvlog_verbose(...) uv_log(uv_log_level_verbose, __VA_ARGS__)

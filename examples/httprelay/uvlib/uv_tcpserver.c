@@ -39,7 +39,7 @@ static void on_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 
     if (cli->server->settings->on_parse) {
         cli->buf.size += nread;
-        size_t cb, total = cli->buf.size;
+        size_t cb = 0, total = cli->buf.size;
         const char* p = cli->buf.buf;
         uv_tcp_parse_result_t r = cli->server->settings->on_parse(cli, p, total, &cb);
         while (r == uv_tcp_parse_ok && total > 0) {
@@ -49,8 +49,10 @@ static void on_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
                 r = cli->server->settings->on_parse(cli, p, total, &cb);
         }
         if (r == uv_tcp_parse_error) {
-            mybuf_clear(&cli->buf);
-        } else if (p != cli->buf.buf) {
+            p += cb;
+            total -= cb;
+        }
+        if (p != cli->buf.buf) {
             if (total > 0) {
                 mybuf_clear_append(&cli->buf, p, total);
             } else {

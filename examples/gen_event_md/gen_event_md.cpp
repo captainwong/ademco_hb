@@ -24,32 +24,32 @@ const char* print_bool(bool b) {
 	return b ? "√" : " "; // "×";
 }
 
-AdemcoEvent statusEvents[] = {
+ademco_event_t statusEvents[] = {
 #define XX(name, code, zh) EVENT_##name,
 	ADEMCO_STATUS_EVENTS_MAP(XX)
 #undef XX
 };
 
-AdemcoEvent alarmEvents[] = {
+ademco_event_t alarmEvents[] = {
 #define XX(name, code, zh) EVENT_##name,
 	ADEMCO_ALARM_EVENTS_MAP(XX)
 #undef XX
 };
 
-AdemcoEvent excepEvents[] = {
+ademco_event_t excepEvents[] = {
 #define XX(name, code, zh) EVENT_##name,
 	ADEMCO_EXEPTION_EVENTS_MAP(XX)
 	ADEMCO_RESUME_EVENTS_MAP(XX)
 #undef XX
 };
 
-AdemcoEvent privateEvents[] = {
+ademco_event_t privateEvents[] = {
 #define XX(name, code, zh) EVENT_##name,
 	ADEMCO_HB_EVENTS_MAP(XX)
 #undef XX
 };
 
-AdemcoEvent allEvents[] = {
+ademco_event_t allEvents[] = {
 #define XX(name, code, zh) EVENT_##name,
 	ADEMCO_STATUS_EVENTS_MAP(XX)
 	ADEMCO_ALARM_EVENTS_MAP(XX)
@@ -59,26 +59,26 @@ AdemcoEvent allEvents[] = {
 #undef XX
 };
 
-HbZoneProperty allZoneProperties[] = {
+hb_zone_property_t allZoneProperties[] = {
 #define XX(name, value, str) HZP_##name,
 	HB_ZONE_PROPERTY_MAP(XX)
 #undef XX
 };
 
-void printEvents(const AdemcoEvent* events, size_t len)
+void printEvents(const ademco_event_t* events, size_t len)
 {
 	printf("|事件码|含义|en|\n|-----|----|--|\n");
 	for (size_t i = 0; i < len; i++) {
 		auto e = events[i];
 		printf("|%04d|%s|%s|\n", e, 
-			   ademcoEventToStringChinese(e), 
-			   ademcoEventToString(e));
+			   ademco_event_to_string_chinese(e), 
+			   ademco_event_to_string(e));
 	}
 	printf("\n");
 }
 
 
-const char* get_core_author(HbMachineType t)
+const char* get_core_author(hb_machine_type_t t)
 {
 	switch (t) {
 	case HMT_WIFI:
@@ -100,7 +100,7 @@ const char* get_core_author(HbMachineType t)
 	return "";
 }
 
-const char* get_net_author(HbMachineType t)
+const char* get_net_author(hb_machine_type_t t)
 {
 	switch (t) {
 	case HMT_WIFI:
@@ -120,7 +120,7 @@ const char* get_net_author(HbMachineType t)
 	return "";
 }
 
-std::vector<std::string> get_machine_brands(HbMachineType t)
+std::vector<std::string> get_machine_brands(hb_machine_type_t t)
 {
 	switch (t) {
 	case HMT_WIFI:
@@ -152,7 +152,7 @@ std::string brand_to_path(const std::string& brand)
 	return {};
 }
 
-void print_machine_brands(HbMachineType t)
+void print_machine_brands(hb_machine_type_t t)
 {
 	printf("|<ul>");
 	for (auto brand : get_machine_brands(t)) {		
@@ -175,24 +175,24 @@ void print_machineTypes()
 		   "|---------|-------|----|----|-----|----|-------|----|-------|---|----|---|----|\n");
 
 	for (auto e : allEvents) {
-		if (ademcoIsMachineTypeEvent(e)) { 
-			auto t = hbMachineTypeFromAdemcoEvent(e); 
-			if(!hbMachineIsSelling(t)) continue; 
+		if (ademco_is_machine_type_event(e)) { 
+			auto t = hb_machine_type_from_ademco_event(e); 
+			if(!hb_is_machine_on_sale(t)) continue; 
 
-			printf("|%04d %s", (int)e, ademcoEventToStringChinese(e));
-			printf("|%s", hbMachineTypeToStringChinese(t));
-			printf("|%s", print_bool(hbMachineCanArm(t)));
-			printf("|%s", print_bool(hbMachineCanDisarm(t)));
-			printf("|%s", print_bool(hbMachineCanHalfArm(t)));
-			printf("|%s", print_bool(hbMachineCanEnterSettings(t)));
-			printf("|%s", print_bool(hbMachineCanReportSignalStrength(t)));
-			printf("|1~%d", hbZoneMax(t));
-			if (hbMachineHasWiredZone(t)) {
-				printf("|%d~%d", hbWiredZoneMin(t), hbWiredZoneMax(t));
+			printf("|%04d %s", (int)e, ademco_event_to_string_chinese(e));
+			printf("|%s", hb_machine_type_to_string_chinese(t));
+			printf("|%s", print_bool(hb_machine_can_arm(t)));
+			printf("|%s", print_bool(hb_machine_can_disarm(t)));
+			printf("|%s", print_bool(hb_machine_can_half_arm(t)));
+			printf("|%s", print_bool(hb_machine_can_config(t)));
+			printf("|%s", print_bool(hb_machine_can_report_signal_strength(t)));
+			printf("|1~%d", hb_get_max_zone_by_type(t));
+			if (hb_machine_has_wired_zones(t)) {
+				printf("|%d~%d", hb_wired_zone_min(t), hb_wired_zone_max(t));
 			} else {
 				printf("| ");
 			}
-			printf("|%s", print_bool(hbMachineCanReportBySMS(t)));
+			printf("|%s", print_bool(hb_machine_can_report_by_sms(t)));
 			printf("|%s", get_core_author(t));
 			printf("|%s", get_net_author(t));
 			print_machine_brands(t);
@@ -211,9 +211,9 @@ void print_imgs()
 
 	std::map<std::string, std::string> imgs;
 	for (auto e : allEvents) {
-		if (ademcoIsMachineTypeEvent(e)) {
-			auto t = hbMachineTypeFromAdemcoEvent(e);
-			if (!hbMachineIsSelling(t)) continue;
+		if (ademco_is_machine_type_event(e)) {
+			auto t = hb_machine_type_from_ademco_event(e);
+			if (!hb_is_machine_on_sale(t)) continue;
 
 			for (auto brand : get_machine_brands(t)) {
 				auto path = brand_to_path(brand);
@@ -230,7 +230,7 @@ void print_imgs()
 	printf("\n\n");
 }
 
-bool zprop_is_contain(HbZoneProperty* props, int count, HbZoneProperty prop) {
+bool zprop_is_contain(hb_zone_property_t* props, int count, hb_zone_property_t prop) {
 	for (int i = 0; i < count; i++) {
 		if (props[i] == prop)return true;
 	}
@@ -244,8 +244,8 @@ void print_available_zone_props()
 	
 	//auto all_props = getAvailableZoneProperties();
 
-	auto print_prop = [](HbZoneProperty zp) {
-		printf("%02X %s", zp, hbZonePropertyToStringChinese(zp));
+	auto print_prop = [](hb_zone_property_t zp) {
+		printf("%02X %s", zp, hb_zone_property_to_string_chinese(zp));
 	};
 
 
@@ -266,7 +266,7 @@ void print_available_zone_props()
 
 	printf("|失联支持");
 	for (auto zp : allZoneProperties) {
-		printf("|%s", print_bool(hbZonePropCanReportLost(zp)));
+		printf("|%s", print_bool(hb_zone_can_report_lost(zp)));
 	}
 	printf("|\n\n");
 
@@ -286,14 +286,14 @@ void print_available_zone_props()
 	printf("|\n");
 
 	for (auto e : allEvents) {
-		if (ademcoIsMachineTypeEvent(e)) {
-			auto t = hbMachineTypeFromAdemcoEvent(e);
-			if (!hbMachineIsSelling(t)) continue;
+		if (ademco_is_machine_type_event(e)) {
+			auto t = hb_machine_type_from_ademco_event(e);
+			if (!hb_is_machine_on_sale(t)) continue;
 			printf("|%04d", (int)e);
 			printf("|%d", (int)t);
 			print_machine_brands(t);
-			HbZoneProperty avail_props[12];
-			int count = hbGetAvailableZoneProperties(t, avail_props);
+			hb_zone_property_t avail_props[HZP_COUNT];
+			int count = hb_get_available_zone_properties_by_type(t, avail_props);
 			for (auto zp : allZoneProperties) {
 				printf("|%s", print_bool(zprop_is_contain(avail_props, count, zp)));
 			}
@@ -367,7 +367,7 @@ void print_g250_alarm_codes()
 	//};
 
 	//for (auto code : codes) {
-	//	printf("|%02X|%04d|%s|\n", code, ademcoEventFromCode(code), jlib::win32::utf16_to_mbcs(ademcoEventToStringChinese(ademcoEventFromCode(code), false)).c_str());
+	//	printf("|%02X|%04d|%s|\n", code, ademcoEventFromCode(code), jlib::win32::utf16_to_mbcs(ademco_event_to_string_chinese(ademcoEventFromCode(code), false)).c_str());
 	//}
 
 }

@@ -14,27 +14,40 @@
 
 #ifdef _WIN32
 
-#define UVLIB_DIR "G:/dev_libs/ademco/"
+#ifdef UVLIB_LOAD_DLL
 
-#ifdef UVLIB_USE_MT
-#define UVLIB_NAME "uvlib_mt.lib"
-#else
-#define UVLIB_NAME "uvlib.lib"
-#endif
+#define LIB_DIR "H:/dev_hb/libhb/"
+#define LIB_NAME "uvlib.lib"
 
+#elif defined(UVLIB_LINK_STATIC)
+
+#define LIB_DIR "H:/dev_hb/libhb/"
+#define LIB_NAME "uvlib_s.lib"
+
+#elif defined(UVLIB_LINK_STATIC_MT)
+
+#define LIB_DIR "H:/dev_hb/libhb/"
+#define LIB_NAME "uvlib_smt.lib"
+
+#endif  // UVLIB_LOAD_DLL
+
+#if defined(LIB_DIR) && defined(LIB_NAME)
 #ifdef _WIN64
 #ifdef _DEBUG
-#pragma comment(lib, UVLIB_DIR "x64/Debug/" UVLIB_NAME)
+#pragma comment(lib, LIB_DIR "x64/Debug/" LIB_NAME)
 #else
-#pragma comment(lib, UVLIB_DIR "x64/Release/" UVLIB_NAME)
+#pragma comment(lib, LIB_DIR "x64/Release/" LIB_NAME)
 #endif
 #else  // WIN32
 #ifdef _DEBUG
-#pragma comment(lib, UVLIB_DIR "Debug/" UVLIB_NAME)
+#pragma comment(lib, LIB_DIR "Debug/" LIB_NAME)
 #else
-#pragma comment(lib, UVLIB_DIR "Release/" UVLIB_NAME)
+#pragma comment(lib, LIB_DIR "Release/" LIB_NAME)
 #endif
 #endif
+#undef LIB_DIR
+#undef LIB_NAME
+#endif // defined(LIB_DIR) && defined(LIB_NAME)
 
 #endif  // _WIN32
 

@@ -50,10 +50,10 @@ struct Buffer {
 SOCKET clientSock = INVALID_SOCKET;
 Buffer clientBuffer = {};
 std::string clientAcct = {};
-AdemcoId clientAdemcoId = 0;
+ademco_id_t clientAdemcoId = 0;
 
 std::mutex mutex = {};
-std::vector<AdemcoEvent> evntsWaiting4Send = {};
+std::vector<ademco_event_t> evntsWaiting4Send = {};
 char pwd[1024] = {};
 
 int setNonBlocking(SOCKET socket) {
@@ -132,20 +132,20 @@ int main(int argc, char** argv) {
 		}
 	};
 
-	auto do_handle = []() -> AdemcoParseResult {
-		AdemcoPacket pkt; size_t cb = 0;
-		AdemcoParseResult result = ademcoPacketParse(clientBuffer.buff + clientBuffer.rpos,
+	auto do_handle = []() -> ademco_parse_result_t {
+		ademco_packet_t pkt; size_t cb = 0;
+		ademco_parse_result_t result = ademco_parse_packet(clientBuffer.buff + clientBuffer.rpos,
 													 clientBuffer.wpos - clientBuffer.rpos,
 													 &pkt,
 													 &cb,
 													 nullptr);
 
 		switch (result) {
-		case AdemcoParseResult::RESULT_OK:
+		case ademco_parse_result_t::ADEMCO_PARSE_RESULT_OK:
 		{
 			clientBuffer.rpos += cb;
 			//printf("id=%s\n", ap.id_.data());
-			printf("C:"); ademcoPrint(pkt.raw, pkt.raw_len);
+			printf("C:"); ademco_print(pkt.raw, pkt.raw_len);
 			switch (pkt.id) {
 			case AID_ACK:
 				// success
@@ -154,8 +154,8 @@ int main(int argc, char** argv) {
 			case AID_NULL: // reply ack				
 			{
 				char ack[1024];
-				size_t len = ademcoMakeAckPacket(ack, sizeof(ack), pkt.seq, pkt.acct, 0);
-				printf("S:"); ademcoPrint(ack, len);
+				size_t len = ademco_make_ack_packet(ack, sizeof(ack), pkt.seq, pkt.acct, 0);
+				printf("S:"); ademco_print(ack, len);
 				send(clientSock, (const char*)ack, len, 0);
 				break;
 			}
@@ -164,14 +164,14 @@ int main(int argc, char** argv) {
 			case AID_ADM_CID:
 			{
 				clientAcct = pkt.acct;
-				clientAdemcoId = pkt.data.ademcoId;
+				clientAdemcoId = pkt.data.ademco_id;
 				// handle event
 
 				// reply ack
 				{
 					char ack[1024];
-					int len = ademcoMakeAckPacket(ack, sizeof(ack), pkt.seq, pkt.acct, 0);
-					printf("S:"); ademcoPrint(ack, len);
+					int len = ademco_make_ack_packet(ack, sizeof(ack), pkt.seq, pkt.acct, 0);
+					printf("S:"); ademco_print(ack, len);
 					send(clientSock, (const char*)ack, len, 0);
 				}
 
@@ -184,11 +184,11 @@ int main(int argc, char** argv) {
 			break;
 		}
 
-		case AdemcoParseResult::RESULT_NOT_ENOUGH:
+		case ademco_parse_result_t::ADEMCO_PARSE_RESULT_NOT_ENOUGH:
 			// do nothing
 			break;
 
-		case AdemcoParseResult::RESULT_ERROR:
+		case ademco_parse_result_t::ADEMCO_PARSE_RESULT_ERROR:
 		default:
 			// error handle, e.g. clear buff
 			clientBuffer.clear();
@@ -248,7 +248,7 @@ int main(int argc, char** argv) {
 					result = do_handle();
 				}
 
-				if (result == AdemcoParseResult::RESULT_NOT_ENOUGH) { break; }
+				if (result == ademco_parse_result_t::ADEMCO_PARSE_RESULT_NOT_ENOUGH) { break; }
 			}
 		}
 	};
@@ -266,14 +266,14 @@ int main(int argc, char** argv) {
 				char buf[1024];
 				for (auto e : evntsWaiting4Send) {
 					if (e == EVENT_DISARM) {
-						AdemcoXDataSegment xdata;
-						ademcoMakeXData(&xdata, TWO_HEX, AdemcoXDataTransform::AdemcoXDataTransform_as_is, pwd, 6);
-						int len = ademcoMakeHbPacket(buf, sizeof(buf), 1, clientAcct.c_str(), clientAdemcoId, e, 0, 0, &xdata);
-						printf("S:"); ademcoPrint(buf, len);
+						ademco_xdata_t xdata;
+						ademco_make_xdata(&xdata, ADEMCO_XDATA_LENGTH_FMT_TWO_HEX, ADEMCO_XDATA_TRANSFORM_AS_IS, pwd, 6);
+						int len = ademco_make_hb_packet(buf, sizeof(buf), 1, clientAcct.c_str(), clientAdemcoId, e, 0, 0, &xdata);
+						printf("S:"); ademco_print(buf, len);
 						send(clientSock, (const char*)buf, len, 0);
 					} else {
-						int len = ademcoMakeHbPacket(buf, sizeof(buf), 1, clientAcct.c_str(), clientAdemcoId, e, 0, 0, nullptr);
-						printf("S:"); ademcoPrint(buf, len);
+						int len = ademco_make_hb_packet(buf, sizeof(buf), 1, clientAcct.c_str(), clientAdemcoId, e, 0, 0, nullptr);
+						printf("S:"); ademco_print(buf, len);
 						send(clientSock, (const char*)buf, len, 0);
 					}
 

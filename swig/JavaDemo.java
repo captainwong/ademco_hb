@@ -86,13 +86,13 @@ public class JavaDemo {
         // test parse
         {
             System.out.println("testing parse...");
-            String data = "\nC5C30053\"HENG-BO\"0000R000000L000000#90219125916578[#000000|1737 00 000]_09:11:19,08-05-2019\r";
+            String data = "\nC5C30053\"HENG-BO\"0000R000000000000#90219125916578[#000000|1737 00 000]_09:11:19,08-05-2019\r";
             System.out.println("using data=" + data);
-            AdemcoPacket pkt = new AdemcoPacket();
+            ademco_packet_t pkt = new ademco_packet_t();
             SWIGTYPE_p_size_t cb = libademco.new_size_tp();
-            AdemcoParseError err = new AdemcoParseError();
-            AdemcoParseResult res = libademco.ademcoPacketParse(data.getBytes(), data.length(), pkt, cb, err);
-            assert (res == AdemcoParseResult.RESULT_OK);
+            ademco_parse_error_t err = new ademco_parse_error_t();
+            ademco_parse_result_t res = libademco.ademco_parse_packet(data.getBytes(), data.length(), pkt, cb, err);
+            assert (res == ademco_parse_result_t.ADEMCO_PARSE_RESULT_OK);
             assert (libademco.size_tp_value(cb) == data.length());
             System.out.println("parse result=" + res + ",cb_commited=" + libademco.size_tp_value(cb));
             libademco.delete_size_tp(cb);
@@ -102,8 +102,8 @@ public class JavaDemo {
         {
             System.out.println("testing pack...");
             System.out.println("using seq=1234, acct=861234567890, ademco_id=666666, event=3400, zone=0, gg=0");
-            AdemcoPacket pkt = new AdemcoPacket();
-            libademco.ademcoMakeHbPacket2(pkt, 1234, "861234567890", 666666l, AdemcoEvent.EVENT_ARM, 0l, 0l, null);
+            ademco_packet_t pkt = new ademco_packet_t();
+            libademco.ademco_make_hb_packet2(pkt, 1234, "861234567890", 666666l, ademco_event_t.EVENT_ARM, (short)0, 0, null);
             System.out.println("data=" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }
 
@@ -112,11 +112,11 @@ public class JavaDemo {
             System.out.println("testing pack with xdata...");
             System.out.println(
                     "using seq=1234, acct=861234567890, ademco_id=666666, event=3400, zone=0, gg=0, xdata=123456");
-            AdemcoXDataSegment xdata = new AdemcoXDataSegment();
-            libademco.ademcoMakeXData(xdata, AdemcoXDataLengthFormat.TWO_HEX,
-                    AdemcoXDataTransform.AdemcoXDataTransform_as_is, "123456".getBytes(), 6);
-            AdemcoPacket pkt = new AdemcoPacket();
-            libademco.ademcoMakeHbPacket2(pkt, 1234, "861234567890", 666666l, AdemcoEvent.EVENT_ARM, 0l, 0l, xdata);
+            ademco_xdata_t xdata = new ademco_xdata_t();
+            libademco.ademco_make_xdata(xdata, ademco_xdata_length_format_t.ADEMCO_XDATA_LENGTH_FMT_TWO_HEX,
+                    ademco_xdata_transform_t.ADEMCO_XDATA_TRANSFORM_AS_IS, "123456".getBytes(), 6);
+            ademco_packet_t pkt = new ademco_packet_t();
+            libademco.ademco_make_hb_packet2(pkt, 1234, "861234567890", 666666l, ademco_event_t.EVENT_ARM, (short)0, 0, xdata);
             System.out.println("data=" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }
 
@@ -131,11 +131,11 @@ public class JavaDemo {
             xdatacontent[2] = (byte) 0x3F;
             xdatacontent[3] = (byte) 0xA1;
             xdatacontent[4] = (byte) 0x76;
-            AdemcoXDataSegment xdata = new AdemcoXDataSegment();
-            libademco.ademcoMakeXData(xdata, AdemcoXDataLengthFormat.TWO_HEX,
-                    AdemcoXDataTransform.AdemcoXDataTransform_as_is, xdatacontent, 5);
-            AdemcoPacket pkt = new AdemcoPacket();
-            libademco.ademcoMakeHbPacket2(pkt, 1234, "861234567890", 666666l, AdemcoEvent.EVENT_ARM, 0l, 0l, xdata);
+            ademco_xdata_t xdata = new ademco_xdata_t();
+            libademco.ademco_make_xdata(xdata, ademco_xdata_length_format_t.ADEMCO_XDATA_LENGTH_FMT_TWO_HEX,
+                    ademco_xdata_transform_t.ADEMCO_XDATA_TRANSFORM_AS_IS, xdatacontent, 5);
+            ademco_packet_t pkt = new ademco_packet_t();
+            libademco.ademco_make_hb_packet2(pkt, 1234, "861234567890", 666666l, ademco_event_t.EVENT_ARM, (short)0, 0, xdata);
             System.out.println("data=" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }
 
@@ -143,8 +143,8 @@ public class JavaDemo {
         {
             System.out.println("testing pack ack...");
             System.out.println("using seq=1234, acct=861234567890");
-            AdemcoPacket pkt = new AdemcoPacket();
-            libademco.ademcoMakeAckPacket2(pkt, 1234, "861234567890", 0l);
+            ademco_packet_t pkt = new ademco_packet_t();
+            libademco.ademco_make_ack_packet2(pkt, 1234, "861234567890", 0);
             System.out.println("data=" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }
 
@@ -152,8 +152,8 @@ public class JavaDemo {
         {
             System.out.println("testing pack ack without acct...");
             System.out.println("using seq=1234, acct=\"\" ademco_id=666666");
-            AdemcoPacket pkt = new AdemcoPacket();
-            libademco.ademcoMakeAckPacket2(pkt, 1234, "", 666666l);
+            ademco_packet_t pkt = new ademco_packet_t();
+            libademco.ademco_make_ack_packet2(pkt, 1234, "", 666666l);
             System.out.println("data=" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }
 
@@ -173,11 +173,11 @@ public class JavaDemo {
     public class Client {
         SocketChannel channel;
         byte[] buf = new byte[0];
-        AdemcoPacket pkt = new AdemcoPacket();
-        AdemcoParseError err = new AdemcoParseError();
+        ademco_packet_t pkt = new ademco_packet_t();
+        ademco_parse_error_t err = new ademco_parse_error_t();
         SWIGTYPE_p_size_t cb = libademco.new_size_tp();
-        HbMachineType type = HbMachineType.HMT_INVALID;
-        HbMachineStatus status = HbMachineStatus.HMS_INVALID;
+        hb_machine_type_t type = hb_machine_type_t.HMT_INVALID;
+        hb_machine_status_t status = hb_machine_status_t.HMS_INVALID;
         int seq = 0;
         long ademco_id = 0;
         String acct = "";
@@ -195,16 +195,16 @@ public class JavaDemo {
         public void onMsg(byte[] data) throws IOException {
             buf = append(buf, data);
             // System.out.println(printable_bytes(buf));
-            AdemcoParseResult res = libademco.ademcoPacketParse(buf, buf.length, pkt, cb, err);
+            ademco_parse_result_t res = libademco.ademco_parse_packet(buf, buf.length, pkt, cb, err);
             System.out.println(res + ", " + libademco.size_tp_value(cb));
             switch (res) {
-                case RESULT_OK:
+                case ADEMCO_PARSE_RESULT_OK:
                     buf = trim(buf, (int) libademco.size_tp_value(cb));
                     handleMsg();
                     break;
-                case RESULT_NOT_ENOUGH:
+                case ADEMCO_PARSE_RESULT_NOT_ENOUGH:
                     break;
-                case RESULT_ERROR:
+                case ADEMCO_PARSE_RESULT_ERROR:
                     buf = new byte[0];
                     break;
             }
@@ -249,28 +249,28 @@ public class JavaDemo {
                 case AID_HB:
                 case AID_ADM_CID:
                     acct = pkt.getAcct();
-                    ademco_id = pkt.getData().getAdemcoId();
-                    AdemcoEvent event = pkt.getData().getAdemcoEvent();
-                    System.out.println(id() + " event=" + libademco.ademcoEventToString(event) + " zone="
+                    ademco_id = pkt.getData().getAdemco_id();
+                    ademco_event_t event = pkt.getData().getAdemco_event();
+                    System.out.println(id() + " event=" + libademco.ademco_event_to_string(event) + " zone="
                             + pkt.getData().getZone());
-                    if (libademco.ademcoIsMachineStatusEvent(event) != 0) {
-                        status = libademco.hbMachineStatusFromAdemcoEvent(event);
+                    if (libademco.ademco_is_machine_status_event(event) != 0) {
+                        status = libademco.hb_machine_status_from_ademco_event(event);
                         // 演示如何进行布撤防，真实项目里可以删改本段
                         long now = System.currentTimeMillis();
                         if (now - lastTimeStatusChange > 5000) {
                             lastTimeStatusChange = now;
-                            if (status == HbMachineStatus.HMS_ARM) {
+                            if (status == hb_machine_status_t.HMS_ARM) {
                                 disarm("123456");
                             } else {
                                 arm();
                             }
                         }
                     }
-                    if (libademco.ademcoIsMachineTypeEvent(event) != 0) {
-                        type = libademco.hbMachineTypeFromAdemcoEvent(event);
+                    if (libademco.ademco_is_machine_type_event(event) != 0) {
+                        type = libademco.hb_machine_type_from_ademco_event(event);
                     }
                     replyAck();
-                    if (type == HbMachineType.HMT_INVALID && !acct.isEmpty() && ademco_id != 0) {
+                    if (type == hb_machine_type_t.HMT_INVALID && !acct.isEmpty() && ademco_id != 0) {
                         askType();
                     }
                     break;
@@ -278,32 +278,32 @@ public class JavaDemo {
         }
 
         private void replyAck() throws IOException {
-            libademco.ademcoMakeAckPacket2(pkt, pkt.getSeq(), pkt.getAcct(), 0l);
+            libademco.ademco_make_ack_packet2(pkt, pkt.getSeq(), pkt.getAcct(), 0);
             channel.write(ByteBuffer.wrap(getRawWithLen()));
             System.out.println(id() + " S:" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }
 
         private void askType() throws IOException {
-            libademco.ademcoMakeHbPacket2(pkt, nextSeq(), acct, ademco_id, AdemcoEvent.EVENT_WHAT_IS_YOUR_TYPE, 0L, 0L,
+            libademco.ademco_make_hb_packet2(pkt, nextSeq(), acct, ademco_id, ademco_event_t.EVENT_WHAT_IS_YOUR_TYPE, (short)0, 0,
                     null);
             channel.write(ByteBuffer.wrap(getRawWithLen()));
             System.out.println(id() + " S:" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }
 
         private void arm() throws IOException {
-            libademco.ademcoMakeHbPacket2(pkt, nextSeq(), acct, ademco_id, AdemcoEvent.EVENT_ARM, 0L, 0L, null);
+            libademco.ademco_make_hb_packet2(pkt, nextSeq(), acct, ademco_id, ademco_event_t.EVENT_ARM, (short)0, 0, null);
             channel.write(ByteBuffer.wrap(getRawWithLen()));
             System.out.println(id() + " S:" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }
 
         private void disarm(String pwd) throws IOException {
-            AdemcoXDataSegment xdata = null;
+            ademco_xdata_t xdata = null;
             if (pwd != null && !pwd.isEmpty()) {
-                xdata = new AdemcoXDataSegment();
-                libademco.ademcoMakeXData(xdata, AdemcoXDataLengthFormat.TWO_HEX,
-                        AdemcoXDataTransform.AdemcoXDataTransform_as_is, pwd.getBytes(), pwd.length());
+                xdata = new ademco_xdata_t();
+                libademco.ademco_make_xdata(xdata, ademco_xdata_length_format_t.ADEMCO_XDATA_LENGTH_FMT_TWO_HEX,
+                        ademco_xdata_transform_t.ADEMCO_XDATA_TRANSFORM_AS_IS, pwd.getBytes(), pwd.length());
             }
-            libademco.ademcoMakeHbPacket2(pkt, nextSeq(), acct, ademco_id, AdemcoEvent.EVENT_DISARM, 0L, 0L, xdata);
+            libademco.ademco_make_hb_packet2(pkt, nextSeq(), acct, ademco_id, ademco_event_t.EVENT_DISARM, (short)0, 0, xdata);
             channel.write(ByteBuffer.wrap(getRawWithLen()));
             System.out.println(id() + " S:" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }

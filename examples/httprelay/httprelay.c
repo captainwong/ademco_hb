@@ -8,9 +8,9 @@
 
 typedef struct machine_info_s {
 	char acct[ADEMCO_PACKET_ACCT_MAX_LEN + 1];
-	AdemcoId ademcoId;
-	HbMachineType type;
-	HbMachineStatus status;
+	ademco_id_t ademco_id;
+	hb_machine_type_t type;
+	hb_machine_status_t status;
 }machine_info_t;
 
 struct {
@@ -81,7 +81,7 @@ int post(const char* json) {
 	return 0;
 }
 
-int relay(const char* acct, AdemcoEvent ademco_event, AdemcoZone zone, AdemcoGG gg) {
+int relay(const char* acct, ademco_event_t ademco_event, ademco_zone_t zone, ademco_gg_t gg) {
 	cJSON* json = NULL;
 	char* string = NULL;
 	int r = 0;
@@ -110,7 +110,7 @@ void on_tcp_connection(uv_tcpserver_client_context_t* client, int connected) {
 	if (connected) {
 		machine_info_t* machine = malloc(sizeof(machine_info_t));
 		memset(machine->acct, '\0', sizeof(machine->acct));
-		machine->ademcoId = 0;
+		machine->ademco_id = 0;
 		machine->type = HMT_INVALID;
 		machine->status = HMS_INVALID;
 		client->data = machine;
@@ -123,51 +123,51 @@ void on_tcp_connection(uv_tcpserver_client_context_t* client, int connected) {
 }
 
 uv_tcp_parse_result_t on_tcp_parse(uv_tcpserver_client_context_t* client, const char* buf, size_t len, size_t* ate) {
-	AdemcoPacket pkt;
-	AdemcoParseResult res = ademcoPacketParse(buf, len, &pkt, ate, NULL);
+	ademco_packet_t pkt;
+	ademco_parse_result_t res = ademco_parse_packet(buf, len, &pkt, ate, NULL);
 	switch (res) {
-	case RESULT_OK:
+	case ADEMCO_PARSE_RESULT_OK:
 		switch (pkt.id) {
 		case AID_NULL:			
 		case AID_HB:
 		case AID_ADM_CID:
 			printf("C:");
-			ademcoPrint(pkt.raw, pkt.raw_len);
+			ademco_print(pkt.raw, pkt.raw_len);
 
 			if (((machine_info_t*)(client->data))->acct[0] == '\0') {
 				strcpy(((machine_info_t*)(client->data))->acct, pkt.acct);
 				relay(pkt.acct, EVENT_ONLINE, 0, 0);
 			}
 
-			if (pkt.data.ademcoId) {
-				((machine_info_t*)(client->data))->ademcoId = pkt.data.ademcoId;
+			if (pkt.data.ademco_id) {
+				((machine_info_t*)(client->data))->ademco_id = pkt.data.ademco_id;
 			}
 
-			if (ademcoIsMachineStatusEvent(pkt.data.ademcoEvent)) {
-				((machine_info_t*)(client->data))->status = hbMachineStatusFromAdemcoEvent(pkt.data.ademcoEvent);
+			if (ademco_is_machine_status_event(pkt.data.ademco_event)) {
+				((machine_info_t*)(client->data))->status = hb_machine_status_from_ademco_event(pkt.data.ademco_event);
 			} 
 			
-			if (ademcoIsMachineTypeEvent(pkt.data.ademcoEvent)) {
-				((machine_info_t*)(client->data))->type = hbMachineTypeFromAdemcoEvent(pkt.data.ademcoEvent);
+			if (ademco_is_machine_type_event(pkt.data.ademco_event)) {
+				((machine_info_t*)(client->data))->type = hb_machine_type_from_ademco_event(pkt.data.ademco_event);
 			} 
 			
-			if (pkt.data.ademcoEvent != EVENT_INVALID_EVENT && ((machine_info_t*)(client->data))->acct[0] != '\0') {
-				relay(((machine_info_t*)(client->data))->acct, pkt.data.ademcoEvent, pkt.data.zone, pkt.data.gg);
+			if (pkt.data.ademco_event != EVENT_INVALID_EVENT && ((machine_info_t*)(client->data))->acct[0] != '\0') {
+				relay(((machine_info_t*)(client->data))->acct, pkt.data.ademco_event, pkt.data.zone, pkt.data.gg);
 			}
 
-			ademcoMakeAckPacket2(&pkt, pkt.seq, pkt.acct, pkt.data.ademcoId);
+			ademco_make_ack_packet2(&pkt, pkt.seq, pkt.acct, pkt.data.ademco_id);
 			uv_tcpserver_send_to_cli(client, pkt.raw, pkt.raw_len);
 			printf("S:");
-			ademcoPrint(pkt.raw, pkt.raw_len);
+			ademco_print(pkt.raw, pkt.raw_len);
 
 			break;
 		}
 		return uv_tcp_parse_ok;
 		break;
-	case RESULT_NOT_ENOUGH:
+	case ADEMCO_PARSE_RESULT_NOT_ENOUGH:
 		return uv_tcp_parse_not_enough;
 		break;
-	case RESULT_ERROR:
+	case ADEMCO_PARSE_RESULT_ERROR:
 		return uv_tcp_parse_error;
 		break;
 	default:

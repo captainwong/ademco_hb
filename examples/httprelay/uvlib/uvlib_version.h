@@ -1,6 +1,8 @@
 #ifndef __UVLIB_VERSION_H__
 #define __UVLIB_VERSION_H__
 
+#include "uvlib_config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -12,7 +14,7 @@ extern "C" {
 
 #define UVLIB_VERSION_MAJOR 1
 #define UVLIB_VERSION_MINOR 0
-#define UVLIB_VERSION_PATCH 0
+#define UVLIB_VERSION_PATCH 4
 #define UVLIB_VERSION_IS_RELEASE 1
 #define UVLIB_VERSION_SUFFIX ""
 
@@ -20,8 +22,8 @@ extern "C" {
                            (UVLIB_VERSION_MINOR << 8) |  \
                            (UVLIB_VERSION_PATCH))
 
-unsigned int uvlib_version(void);
-const char* uvlib_version_string(void);
+UVLIB_EXPORT_SYMBOL unsigned int uvlib_version(void);
+UVLIB_EXPORT_SYMBOL const char* uvlib_version_string(void);
 
 #ifdef __cplusplus
 }

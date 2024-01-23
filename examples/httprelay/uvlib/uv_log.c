@@ -73,12 +73,13 @@ void uv_log_raw(uv_log_level_t level, const char* msg) {
 }
 
 void uv_log_hexdump(uv_log_level_t level, const char* buf, size_t len,
-                    int show_header, int show_address, int show_ascii, char def_ascii) {
+                    int show_header, int show_address, int show_ascii, char def_ascii,
+                    const char* newline) {
     mybuf_t mybuf;
     if (level < g_level || level > uv_log_level_fatal) return;
     mybuf_init(&mybuf);
     mybuf_cat_printf(&mybuf, "hex dump of %p, len=%zu\n", buf, len);
-    mybuf_append_hexdump(&mybuf, buf, len, show_header, show_address, show_ascii, def_ascii);
+    mybuf_append_hexdump(&mybuf, buf, len, show_header, show_address, show_ascii, def_ascii, newline);
     uv_log_raw(level, mybuf.buf);
     mybuf_clear(&mybuf);
 }
