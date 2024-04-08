@@ -171,8 +171,8 @@ void print_machineTypes()
 
 	printf("*SMS指主机自身是否可以拨打电话、发送短信，不是指通过阿里语音打电话*\n");
 
-	printf("|事件码类型|主机类型|布防|撤防|半布防|设置|信号强度|防区|有线防区|SMS|内核|网络|型号|\n"
-		   "|---------|-------|----|----|-----|----|-------|----|-------|---|----|---|----|\n");
+	printf("|事件码|主机类型|布防|撤防|半布防|设置|信号强度|防区|有线防区|SMS|内核|网络|型号|\n"
+		   "|------|-------|----|----|-----|----|-------|----|-------|---|----|---|----|\n");
 
 	for (auto e : allEvents) {
 		if (ademco_is_machine_type_event(e)) { 
@@ -180,7 +180,7 @@ void print_machineTypes()
 			if(!hb_is_machine_on_sale(t)) continue; 
 
 			printf("|%04d %s", (int)e, ademco_event_to_string_chinese(e));
-			printf("|%s", hb_machine_type_to_string_chinese(t));
+			printf("|%d %s", (int)t, hb_machine_type_to_string_chinese(t));
 			printf("|%s", print_bool(hb_machine_can_arm(t)));
 			printf("|%s", print_bool(hb_machine_can_disarm(t)));
 			printf("|%s", print_bool(hb_machine_can_half_arm(t)));
@@ -405,7 +405,7 @@ int main()
 #define GEN_G250_CODES 2
 #define GEN_CONTROL_SOURCES 3
 
-	const int what = GEN_CONTROL_SOURCES;
+	const int what = GEN_EVENTS;
 
 	if (what == GEN_EVENTS) {
 		printf("### 主机状态\n\n");
