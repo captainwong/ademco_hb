@@ -1,6 +1,19 @@
 # Ademco Change Log
 
 
+## 2.4.0 2024-4-18 04:28:43
+
+- split some features from `hb_com` to `hb_core`
+
+
+## 2.3.0 2024-4-17 17:38:01
+
+
+
+## 2.2.2 2024-4-15 13:35:39
+
+
+
 ## 2.2.1
 
 

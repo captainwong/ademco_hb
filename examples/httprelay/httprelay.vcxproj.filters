@@ -30,9 +30,6 @@
     <ClCompile Include="..\..\ademco.c">
       <Filter>ademco</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\hb_com.c">
-      <Filter>ademco</Filter>
-    </ClCompile>
     <ClCompile Include="httprelay.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,12 +66,12 @@
     <ClCompile Include="uvlib\uv_tcp.c">
       <Filter>uvlib</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\hb_core.c">
+      <Filter>ademco</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ademco.h">
-      <Filter>ademco</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\hb_com.h">
       <Filter>ademco</Filter>
     </ClInclude>
     <ClInclude Include="uvlib\list.h">
@@ -106,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="cJSON\cJSON.h">
       <Filter>cJSON</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\hb_core.h">
+      <Filter>ademco</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

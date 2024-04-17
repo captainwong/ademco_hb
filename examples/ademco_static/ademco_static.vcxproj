@@ -20,11 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ademco.c" />
-    <ClCompile Include="..\..\hb_com.c" />
+    <ClCompile Include="..\..\hb_core.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ademco.h" />
-    <ClInclude Include="..\..\hb_com.h" />
+    <ClInclude Include="..\..\hb_core.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

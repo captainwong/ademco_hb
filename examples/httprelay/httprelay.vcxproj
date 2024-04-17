@@ -152,7 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ademco.c" />
-    <ClCompile Include="..\..\hb_com.c" />
+    <ClCompile Include="..\..\hb_core.c" />
     <ClCompile Include="cJSON\cJSON.c" />
     <ClCompile Include="httprelay.c" />
     <ClCompile Include="uvlib\llhttp\src\api.c" />
@@ -168,7 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ademco.h" />
-    <ClInclude Include="..\..\hb_com.h" />
+    <ClInclude Include="..\..\hb_core.h" />
     <ClInclude Include="cJSON\cJSON.h" />
     <ClInclude Include="uvlib\list.h" />
     <ClInclude Include="uvlib\mybuf.h" />

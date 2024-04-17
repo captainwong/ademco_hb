@@ -1,5 +1,5 @@
 ﻿#include "../../ademco.h"
-#include "../../hb_com.h"
+#include "../../hb_core.h"
 #include <jlib/win32/UnicodeTool.h>
 #include <jlib/win32/path_op.h>
 #include <jlib/util/std_util.h>

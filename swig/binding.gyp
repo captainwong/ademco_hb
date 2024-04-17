@@ -5,7 +5,7 @@
             "sources":[
                 "libademco_wrap.cxx",
                 "../ademco.c",
-                "../hb_com.c",
+                "../hb_core.c",
             ],
             'conditions': [
                 ['OS=="win"', {

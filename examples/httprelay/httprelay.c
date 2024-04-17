@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../../hb_com.h"
+#include "../../hb_core.h"
 #include "uvlib/uv_log.h"
 #include "uvlib/uv_tcpserver.h"
 #include "cJSON/cJSON.h"

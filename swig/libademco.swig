@@ -17,7 +17,7 @@
 /* Includes the header in the wrapper code */
 #include "../ademco_config.h"
 #include "../ademco_version.h"
-#include "../hb_com.h"
+#include "../hb_core.h"
 %}
 
 #ifdef SWIGJAVA
@@ -41,5 +41,5 @@ JAVA_ARRAYS_TYPEMAPS(uint8_t, byte, jbyte, Uint8, "[B")
 %include "../ademco_config.h"
 %include "../ademco_version.h"
 %include "../ademco.h"
-%include "../hb_com.h"
+%include "../hb_core.h"
 
