@@ -62,22 +62,23 @@
 * `1/3` 前缀，`1` 表示打开，`3` 表示关闭。如 `3400` 表示布防，`1400` 表示撤防。
 * `E/R` 前缀，`E` 表示打开，`R` 表示关闭。如 `R400` 表示布防，`E400` 表示撤防。
 * 报警时 `1/E` 前缀表示警情触发，`3/R` 表示警情恢复，如 `1387` 表示探测器受到强光干扰，`3387` 表示防区从光扰状态恢复。
+
 ### 主机状态
 
 |事件码|含义|en|
 |-----|----|--|
-|3400|布防|ARM|
+|3400|离家布防|ARM_AWAY|
 |1400|撤防|DISARM|
-|3456|半布防|HALFARM|
-|1456|半布防|HALFARM_1456|
-|1120|紧急报警|EMERGENCY|
+|3456|留守布防|ARM_STAY|
+|1456|留守布防|ARM_STAY_1456|
 
 ### 防区报警
 
 |事件码|含义|en|
 |-----|----|--|
+|1120|紧急报警|EMERGENCY|
 |1130|盗警|BURGLAR|
-|1134|门铃|DOORRINGING|
+|1134|门铃|DOOR_RING|
 |1110|火警|FIRE|
 |1121|胁迫|DURESS|
 |1151|煤气|GAS|
@@ -91,19 +92,18 @@
 |事件码|含义|en|
 |-----|----|--|
 |1301|主机AC掉电|AC_BROKE|
-|1302|低电|LOWBATTERY|
-|1311|坏电|BADBATTERY|
-|1387|光扰|SOLARDISTURB|
+|1302|低电|LOW_BATTERY|
+|1311|坏电|BAD_BATTERY|
+|1387|光扰|SOLAR_DISTURB|
 |1381|失效|DISCONNECT|
 |1393|失联|LOST|
 |1384|电源故障|BATTERY_EXCEPTION|
 |1380|其他故障|OTHER_EXCEPTION|
-|3570|解除旁路|BYPASS_RESUME|
 |3301|主机AC复电|AC_RECOVER|
-|3302|低电恢复|BATTERY_RECOVER|
-|3311|坏电恢复|BADBATTERY_RECOVER|
-|3387|光扰恢复|SOLARDISTURB_RECOVER|
-|3381|失效恢复|RECONNECT|
+|3302|低电恢复|LOW_BATTERY_RECOVER|
+|3311|坏电恢复|BAD_BATTERY_RECOVER|
+|3387|光扰恢复|SOLAR_DISTURB_RECOVER|
+|3381|失效恢复|DISCONNECT_RECOVER|
 |3393|失联恢复|LOST_RECOVER|
 |3384|电源故障恢复|BATTERY_EXCEPTION_RECOVER|
 |3380|其他故障恢复|OTHER_EXCEPTION_RECOVER|
@@ -113,15 +113,15 @@
 
 |事件码|含义|en|
 |-----|----|--|
-|1485|485断开|SERIAL485DIS|
-|3485|485连接|SERIAL485CONN|
+|1485|485断开|SERIAL_485_DIS|
+|3485|485连接|SERIAL_485_RECOVER|
 |1700|链路挂起|CONN_HANGUP|
-|3700|链路恢复|CONN_RESUME|
+|3700|链路恢复|CONN_RECOVER|
 |1701|撤防密码错误|DISARM_PWD_ERR|
 |1702|分机探头异常|SUB_MACHINE_SENSOR_EXCEPTION|
-|3702|分机探头恢复|SUB_MACHINE_SENSOR_RESUME|
+|3702|分机探头恢复|SUB_MACHINE_SENSOR_RECOVER|
 |1703|分机电源异常|SUB_MACHINE_POWER_EXCEPTION|
-|3703|分机电源恢复|SUB_MACHINE_POWER_RESUME|
+|3703|分机电源恢复|SUB_MACHINE_POWER_RECOVER|
 |1704|串口透传|COM_PASSTHROUGH|
 |2704|进入设置状态|ENTER_SET_MODE|
 |3704|退出设置状态|EXIT_SET_MODE|
@@ -129,16 +129,16 @@
 |1706|写入主机信息|WRITE_TO_MACHINE|
 |1707|主机类型--网络模块|I_AM_NET_MODULE|
 |1717|主机类型--GPRS主机|I_AM_GPRS|
-|1727|主机类型--液晶主机|I_AM_LCD_MACHINE|
-|1737|主机类型--网线主机|I_AM_WIRE_MACHINE|
-|1747|主机类型--WiFi主机(停用)|I_AM_WIFI_MACHINE|
-|1757|主机类型--三区段主机|I_AM_3_SECTION_MACHINE|
-|1767|主机类型--物联卡主机|I_AM_IOT_MACHINE|
+|1727|主机类型--液晶主机|I_AM_LCD|
+|1737|主机类型--网线主机|I_AM_WIRE|
+|1747|主机类型--WiFi主机(停用)|I_AM_WIFI|
+|1757|主机类型--三区段主机|I_AM_3_SECTION|
+|1767|主机类型--物联卡主机|I_AM_IOT|
 |1777|主机类型--真彩主机|I_AM_TRUE_COLOR|
 |1787|主机类型--物联卡主机|I_AM_GPRS_IOT|
 |1797|主机类型--GRPS主机带电话功能|I_AM_GPRS_PHONE|
-|1807|主机类型--NB报警接收主机|I_AM_NB_MACHINE|
-|1817|主机类型--WiFi主机(新版)|I_AM_WIFI2_MACHINE|
+|1807|主机类型--NB报警接收主机|I_AM_NB|
+|1817|主机类型--WiFi主机(新版)|I_AM_WIFI2|
 |1709|手机用户SOS|PHONE_USER_SOS|
 |1711|手机用户消警|PHONE_USER_CANCLE_ALARM|
 |1712|主机进入设置状态|ENTER_SETTING_MODE|
@@ -194,7 +194,7 @@
 
 * 防区属性是否支持失联报告
 
-||00 匪警全局|01 匪警紧急|02 火警防区|03 胁迫防区|04 燃气防区|05 淹水防区|06 分机|07 遥控器|08 匪警半局|09 屏蔽防区|0A  门铃防区|0F 旁路防区|
+||00 匪警全局|01 匪警紧急|02 火警防区|03 胁迫防区|04 燃气防区|05 淹水防区|06 分机|07 遥控器|08 匪警半局|09 屏蔽防区|0A 门铃防区|0F 旁路防区|
 |----|----|----|----|----|----|----|----|----|----|----|----|----|
 |失联支持|√|√| |√| | |√| |√| | |√|
 
