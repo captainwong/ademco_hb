@@ -21,7 +21,7 @@ function test_parse() {
     assert.strictEqual(pkt.seq, 0);
     assert.strictEqual(pkt.acct, "90219125916578");
     assert.strictEqual(pkt.data.ademco_id, 0);
-    assert.strictEqual(pkt.data.ademco_event, libademco.EVENT_I_AM_WIRE_MACHINE);
+    assert.strictEqual(pkt.data.ademco_event, libademco.EVENT_I_AM_WIRE);
     assert.strictEqual(pkt.data.gg, 0);
     assert.strictEqual(pkt.data.zone, 0);
     console.log("res=%d, commited=%d", res, libademco.size_tp_value(cb));
