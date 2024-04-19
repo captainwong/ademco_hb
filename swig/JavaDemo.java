@@ -103,7 +103,7 @@ public class JavaDemo {
             System.out.println("testing pack...");
             System.out.println("using seq=1234, acct=861234567890, ademco_id=666666, event=3400, zone=0, gg=0");
             ademco_packet_t pkt = new ademco_packet_t();
-            libademco.ademco_make_hb_packet2(pkt, 1234, "861234567890", 666666l, ademco_event_t.EVENT_ARM, (short)0, 0, null);
+            libademco.ademco_make_hb_packet2(pkt, 1234, "861234567890", 666666l, ademco_event_t.EVENT_ARM_AWAY, (short)0, 0, null);
             System.out.println("data=" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }
 
@@ -116,7 +116,7 @@ public class JavaDemo {
             libademco.ademco_make_xdata(xdata, ademco_xdata_length_format_t.ADEMCO_XDATA_LENGTH_FMT_TWO_HEX,
                     ademco_xdata_transform_t.ADEMCO_XDATA_TRANSFORM_AS_IS, "123456".getBytes(), 6);
             ademco_packet_t pkt = new ademco_packet_t();
-            libademco.ademco_make_hb_packet2(pkt, 1234, "861234567890", 666666l, ademco_event_t.EVENT_ARM, (short)0, 0, xdata);
+            libademco.ademco_make_hb_packet2(pkt, 1234, "861234567890", 666666l, ademco_event_t.EVENT_ARM_AWAY, (short)0, 0, xdata);
             System.out.println("data=" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }
 
@@ -135,7 +135,7 @@ public class JavaDemo {
             libademco.ademco_make_xdata(xdata, ademco_xdata_length_format_t.ADEMCO_XDATA_LENGTH_FMT_TWO_HEX,
                     ademco_xdata_transform_t.ADEMCO_XDATA_TRANSFORM_AS_IS, xdatacontent, 5);
             ademco_packet_t pkt = new ademco_packet_t();
-            libademco.ademco_make_hb_packet2(pkt, 1234, "861234567890", 666666l, ademco_event_t.EVENT_ARM, (short)0, 0, xdata);
+            libademco.ademco_make_hb_packet2(pkt, 1234, "861234567890", 666666l, ademco_event_t.EVENT_ARM_AWAY, (short)0, 0, xdata);
             System.out.println("data=" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }
 
@@ -291,7 +291,7 @@ public class JavaDemo {
         }
 
         private void arm() throws IOException {
-            libademco.ademco_make_hb_packet2(pkt, nextSeq(), acct, ademco_id, ademco_event_t.EVENT_ARM, (short)0, 0, null);
+            libademco.ademco_make_hb_packet2(pkt, nextSeq(), acct, ademco_id, ademco_event_t.EVENT_ARM_AWAY, (short)0, 0, null);
             channel.write(ByteBuffer.wrap(getRawWithLen()));
             System.out.println(id() + " S:" + printable_bytes(pkt.getRaw(), pkt.getRaw_len()));
         }

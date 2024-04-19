@@ -9,7 +9,6 @@
 extern "C" {
 #endif
 
-
 // 三防区主机状态GG范围 1~3
 #define HB_3SECTION_MACHINE_GG_MIN 1
 #define HB_3SECTION_MACHINE_GG_MAX 3
@@ -21,16 +20,16 @@ extern "C" {
 
 // 主机状态表
 #define HB_MACHINE_STATUS_MAP(XX) \
-    XX(ARM, 0, "布防")            \
-    XX(HALF_ARM, 1, "半布防")     \
+    XX(ARM_AWAY, 0, "离家布防")   \
+    XX(ARM_STAY, 1, "留守布防")   \
     XX(DISARM, 2, "撤防")         \
     XX(SETTING, 3, "设置")
 
 // 主机状态与安定宝事件码对照表
-#define HMS_EVENT_MAP(XX)           \
-    XX(HMS_ARM, EVENT_ARM)          \
-    XX(HMS_HALF_ARM, EVENT_HALFARM) \
-    XX(HMS_DISARM, EVENT_DISARM)    \
+#define HMS_EVENT_MAP(XX)            \
+    XX(HMS_ARM_AWAY, EVENT_ARM_AWAY) \
+    XX(HMS_ARM_STAY, EVENT_ARM_STAY) \
+    XX(HMS_DISARM, EVENT_DISARM)     \
     XX(HMS_SETTING, EVENT_ENTER_SETTING_MODE)
 
 // 主机状态
@@ -61,19 +60,19 @@ typedef enum hb_machine_status_t {
     XX(WIFI2, 12, "WiFi主机新版")
 
 // 主机类型与安定宝事件码对照表
-#define HMT_EVENT_MAP(XX)                               \
-    XX(HMT_WIFI, EVENT_I_AM_WIFI_MACHINE)               \
-    XX(HMT_GPRS_IOT, EVENT_I_AM_GPRS_IOT)               \
-    XX(HMT_NETMOD, EVENT_I_AM_NET_MODULE)               \
-    XX(HMT_GPRS, EVENT_I_AM_GPRS)                       \
-    XX(HMT_LCD, EVENT_I_AM_LCD_MACHINE)                 \
-    XX(HMT_WIRED, EVENT_I_AM_WIRE_MACHINE)              \
-    XX(HMT_TRUE_COLOR, EVENT_I_AM_TRUE_COLOR)           \
-    XX(HMT_THREE_SECTION, EVENT_I_AM_3_SECTION_MACHINE) \
-    XX(HMT_IOT, EVENT_I_AM_IOT_MACHINE)                 \
-    XX(HMT_GPRS_PHONE, EVENT_I_AM_GPRS_PHONE)           \
-    XX(HMT_NB, EVENT_I_AM_NB_MACHINE)                   \
-    XX(HMT_WIFI2, EVENT_I_AM_WIFI2_MACHINE)
+#define HMT_EVENT_MAP(XX)                       \
+    XX(HMT_WIFI, EVENT_I_AM_WIFI)               \
+    XX(HMT_GPRS_IOT, EVENT_I_AM_GPRS_IOT)       \
+    XX(HMT_NETMOD, EVENT_I_AM_NET_MODULE)       \
+    XX(HMT_GPRS, EVENT_I_AM_GPRS)               \
+    XX(HMT_LCD, EVENT_I_AM_LCD)                 \
+    XX(HMT_WIRED, EVENT_I_AM_WIRE)              \
+    XX(HMT_TRUE_COLOR, EVENT_I_AM_TRUE_COLOR)   \
+    XX(HMT_THREE_SECTION, EVENT_I_AM_3_SECTION) \
+    XX(HMT_IOT, EVENT_I_AM_IOT)                 \
+    XX(HMT_GPRS_PHONE, EVENT_I_AM_GPRS_PHONE)   \
+    XX(HMT_NB, EVENT_I_AM_NB)                   \
+    XX(HMT_WIFI2, EVENT_I_AM_WIFI2)
 
 // 主机类型
 typedef enum hb_machine_type_t {
@@ -110,7 +109,7 @@ typedef enum hb_machine_type_t {
     XX(HZP_DURESS, EVENT_DURESS)       \
     XX(HZP_GAS, EVENT_GAS)             \
     XX(HZP_WATER, EVENT_WATER)         \
-    XX(HZP_DOOR_RING, EVENT_DOORRINGING)
+    XX(HZP_DOOR_RING, EVENT_DOOR_RING)
 
 // 防区属性
 typedef enum hb_zone_property_t {
@@ -278,7 +277,7 @@ const char* hb_machine_type_to_string_chinese(hb_machine_type_t type);
 
 ADEMCO_EXPORT_SYMBOL
 const char* hb_zone_property_to_string_chinese(hb_zone_property_t zp);
-#endif // ADEMCO_ENABLE_CHINESE
+#endif  // ADEMCO_ENABLE_CHINESE
 
 ADEMCO_EXPORT_SYMBOL
 const char* hb_get_zone_format_str(hb_machine_type_t type);

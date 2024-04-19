@@ -333,8 +333,8 @@ hb_machine_status_t hb_machine_status_from_ademco_event(ademco_event_t ademco_ev
         HMS_EVENT_MAP(XX)
 #undef XX
 
-        case EVENT_HALFARM_1456:
-            return HMS_HALF_ARM;
+        case EVENT_ARM_STAY_1456:
+            return HMS_ARM_STAY;
         case EVENT_ENTER_SET_MODE:
             return HMS_SETTING;
         default:

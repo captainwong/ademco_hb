@@ -290,7 +290,7 @@ int main(int argc, char** argv) {
 
 		if (cmd == 'a' || cmd == 'A') {
 			std::lock_guard<std::mutex> lg(mutex);
-			evntsWaiting4Send.push_back(EVENT_ARM);
+			evntsWaiting4Send.push_back(EVENT_ARM_AWAY);
 		} else if (cmd == 'd' || cmd == 'D') {
 			int ret = 0;
 			do {

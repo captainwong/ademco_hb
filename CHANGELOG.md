@@ -1,6 +1,15 @@
 # Ademco Change Log
 
 
+## 2.5.0 2024-4-19 18:07:08
+
+- `ARM` to `ARM_AWAY`
+- `HALF_ARM` to `ARM_STAY`
+- `resume` to `recover`
+- add several recover events
+- fix some typo
+
+
 ## 2.4.0 2024-4-18 04:28:43
 
 - split some features from `hb_com` to `hb_core`
@@ -44,7 +53,7 @@
 
 ## 2.1.3
 
-- fix `hb_com_resp_a2_p1_t` typo
+- fix `uint8_t` typo
 
 
 ## 2.1.2
@@ -64,7 +73,7 @@
 
 ## 2.0.0
 
-- add `hb_com_resp_ad_iter_t`, `hb_com_resp_ad_iter_init` and `hb_com_resp_ad_iter_next`
+- add `hb_com_zone_lost_data_iter_t`, `hb_com_zone_lost_data_iter_init` and `hb_com_zone_lost_data_iter_next`
 - add `ADEMCO_PACKET_PWD_MIN_LEN`, `ADEMCO_PACKET_PWD_MAX_LEN`
 - code styles changed
 - when parse returns `ADEMCO_PARSE_RESULT_ERROR`, `*ate` will contains length to ignore, caller must drop `*ate` bytes of data
@@ -78,7 +87,7 @@
 
 ## 1.5.0
 
-- `hb_com_resp_a2_iter_t.com` changed to pointer
+- `hb_com_zone_data_iter_t.com` changed to pointer
 - update parser for `timestamp`
 - add `AdemcoControlSource` defs
 

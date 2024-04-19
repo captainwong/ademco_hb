@@ -93,61 +93,61 @@ int ademco_is_valid_account(const char* acct) {
 }
 
 int ademco_is_machine_status_event(ademco_event_t ademco_event) {
-    return ademco_event == EVENT_ARM ||
-           ademco_event == EVENT_HALFARM ||
-           ademco_event == EVENT_HALFARM_1456 ||
+    return ademco_event == EVENT_ARM_AWAY ||
+           ademco_event == EVENT_ARM_STAY ||
+           ademco_event == EVENT_ARM_STAY_1456 ||
            ademco_event == EVENT_DISARM;
 }
 
 int ademco_is_machine_type_event(ademco_event_t ademco_event) {
     return ademco_event == EVENT_I_AM_NET_MODULE ||
            ademco_event == EVENT_I_AM_GPRS ||
-           ademco_event == EVENT_I_AM_LCD_MACHINE ||
-           ademco_event == EVENT_I_AM_WIRE_MACHINE ||
-           ademco_event == EVENT_I_AM_WIFI_MACHINE ||
-           ademco_event == EVENT_I_AM_3_SECTION_MACHINE ||
-           ademco_event == EVENT_I_AM_IOT_MACHINE ||
+           ademco_event == EVENT_I_AM_LCD ||
+           ademco_event == EVENT_I_AM_WIRE ||
+           ademco_event == EVENT_I_AM_WIFI ||
+           ademco_event == EVENT_I_AM_3_SECTION ||
+           ademco_event == EVENT_I_AM_IOT ||
            ademco_event == EVENT_I_AM_TRUE_COLOR ||
            ademco_event == EVENT_I_AM_GPRS_IOT ||
            ademco_event == EVENT_I_AM_GPRS_PHONE ||
-           ademco_event == EVENT_I_AM_NB_MACHINE ||
-           ademco_event == EVENT_I_AM_WIFI2_MACHINE;
+           ademco_event == EVENT_I_AM_NB ||
+           ademco_event == EVENT_I_AM_WIFI2;
 }
 
 int ademco_is_event_need_control_source(ademco_event_t ademco_event) {
-    return ademco_event == EVENT_ARM ||
-           ademco_event == EVENT_HALFARM ||
-           ademco_event == EVENT_HALFARM_1456 ||
+    return ademco_event == EVENT_ARM_AWAY ||
+           ademco_event == EVENT_ARM_STAY ||
+           ademco_event == EVENT_ARM_STAY_1456 ||
            ademco_event == EVENT_DISARM ||
            ademco_event == EVENT_EMERGENCY ||
            ademco_event == EVENT_DURESS ||
            ademco_event == EVENT_PHONE_USER_CANCLE_ALARM;
 }
 
-ademco_event_t ademco_get_exception_event_by_resume_event(ademco_event_t resumeEvent) {
-    switch (resumeEvent) {
-        case EVENT_RECONNECT:
+ademco_event_t ademco_get_exception_event_by_recover_event(ademco_event_t recover_event) {
+    switch (recover_event) {
+        case EVENT_DISCONNECT_RECOVER:
             return EVENT_DISCONNECT;
         case EVENT_LOST_RECOVER:
             return EVENT_LOST;
-        case EVENT_SERIAL485CONN:
-            return EVENT_SERIAL485DIS;
-        case EVENT_SUB_MACHINE_SENSOR_RESUME:
+        case EVENT_SERIAL_485_RECOVER:
+            return EVENT_SERIAL_485_DIS;
+        case EVENT_SUB_MACHINE_SENSOR_RECOVER:
             return EVENT_SUB_MACHINE_SENSOR_EXCEPTION;
-        case EVENT_SUB_MACHINE_POWER_RESUME:
+        case EVENT_SUB_MACHINE_POWER_RECOVER:
             return EVENT_SUB_MACHINE_POWER_EXCEPTION;
-        case EVENT_BATTERY_RECOVER:
-            return EVENT_LOWBATTERY;
+        case EVENT_LOW_BATTERY_RECOVER:
+            return EVENT_LOW_BATTERY;
         case EVENT_BATTERY_EXCEPTION_RECOVER:
             return EVENT_BATTERY_EXCEPTION;
         case EVENT_OTHER_EXCEPTION_RECOVER:
             return EVENT_OTHER_EXCEPTION;
         case EVENT_AC_RECOVER:
             return EVENT_AC_BROKE;
-        case EVENT_SOLARDISTURB_RECOVER:
-            return EVENT_SOLARDISTURB;
-        case EVENT_BADBATTERY_RECOVER:
-            return EVENT_BADBATTERY;
+        case EVENT_SOLAR_DISTURB_RECOVER:
+            return EVENT_SOLAR_DISTURB;
+        case EVENT_BAD_BATTERY_RECOVER:
+            return EVENT_BAD_BATTERY;
         default:
             return EVENT_INVALID_EVENT;
     }
@@ -155,39 +155,38 @@ ademco_event_t ademco_get_exception_event_by_resume_event(ademco_event_t resumeE
 
 ademco_event_level_t ademco_get_event_level(ademco_event_t ademco_event) {
     switch (ademco_event) {
-        case EVENT_ARM:
+        case EVENT_ARM_AWAY:
         case EVENT_DISARM:
-        case EVENT_HALFARM:
-        case EVENT_HALFARM_1456:
+        case EVENT_ARM_STAY:
+        case EVENT_ARM_STAY_1456:
             return EVENT_LEVEL_STATUS;
 
-        case EVENT_BADBATTERY_RECOVER:
+        case EVENT_BAD_BATTERY_RECOVER:
         case EVENT_AC_RECOVER:
-        case EVENT_RECONNECT:
+        case EVENT_DISCONNECT_RECOVER:
         case EVENT_LOST_RECOVER:
-        case EVENT_SERIAL485CONN:
-        case EVENT_SUB_MACHINE_SENSOR_RESUME:
-        case EVENT_SUB_MACHINE_POWER_RESUME:
-        case EVENT_BATTERY_RECOVER:
+        case EVENT_SERIAL_485_RECOVER:
+        case EVENT_SUB_MACHINE_SENSOR_RECOVER:
+        case EVENT_SUB_MACHINE_POWER_RECOVER:
+        case EVENT_LOW_BATTERY_RECOVER:
         case EVENT_BATTERY_EXCEPTION_RECOVER:
         case EVENT_OTHER_EXCEPTION_RECOVER:
-        case EVENT_SOLARDISTURB_RECOVER:
-            return EVENT_LEVEL_EXCEPTION_RESUME;
+        case EVENT_SOLAR_DISTURB_RECOVER:
+            return EVENT_LEVEL_EXCEPTION_RECOVER;
 
         case EVENT_AC_BROKE:
-        case EVENT_LOWBATTERY:
-        case EVENT_BADBATTERY:
-        case EVENT_SOLARDISTURB:
+        case EVENT_LOW_BATTERY:
+        case EVENT_BAD_BATTERY:
+        case EVENT_SOLAR_DISTURB:
         case EVENT_DISCONNECT:
         case EVENT_LOST:
-            // case EVENT_DOORRINGING: //case EVENT_CONN_HANGUP: //case EVENT_CONN_RESUME:
         case EVENT_SUB_MACHINE_SENSOR_EXCEPTION:
         case EVENT_SUB_MACHINE_POWER_EXCEPTION:
         case EVENT_BATTERY_EXCEPTION:
         case EVENT_OTHER_EXCEPTION:
             return EVENT_LEVEL_EXCEPTION;
 
-        case EVENT_SERIAL485DIS:
+        case EVENT_SERIAL_485_DIS:
         case EVENT_BURGLAR:
         case EVENT_DURESS:
         case EVENT_EMERGENCY:
@@ -212,8 +211,9 @@ const char* ademco_event_to_string(ademco_event_t ademco_event) {
         // ----标准安定宝协议事件----
         ADEMCO_STATUS_EVENTS_MAP(XX)
         ADEMCO_ALARM_EVENTS_MAP(XX)
+        ADEMCO_ALARM_RECOVER_EVENTS_MAP(XX)
         ADEMCO_EXEPTION_EVENTS_MAP(XX)
-        ADEMCO_RESUME_EVENTS_MAP(XX)
+        ADEMCO_EXEPTION_RECOVER_EVENTS_MAP(XX)
 
         // ---私有事件---------
         ADEMCO_HB_EVENTS_MAP(XX)
@@ -233,8 +233,9 @@ const char* ademco_event_to_string_chinese(ademco_event_t ademco_event) {
         // ----标准安定宝协议事件----
         ADEMCO_STATUS_EVENTS_MAP(XX)
         ADEMCO_ALARM_EVENTS_MAP(XX)
+        ADEMCO_ALARM_RECOVER_EVENTS_MAP(XX)
         ADEMCO_EXEPTION_EVENTS_MAP(XX)
-        ADEMCO_RESUME_EVENTS_MAP(XX)
+        ADEMCO_EXEPTION_RECOVER_EVENTS_MAP(XX)
 
         // ---私有事件---------
         ADEMCO_HB_EVENTS_MAP(XX)
@@ -451,7 +452,7 @@ size_t ademco_data_to_congwin_fe100(ademco_char_t* fe100, size_t fe100_len,
 
         // E for open, R for close
         if (ademco_data->ademco_event / 1000 == 1 ||
-            ademco_data->ademco_event == EVENT_HALFARM)
+            ademco_data->ademco_event == EVENT_ARM_STAY)
             *p++ = 'E';
         else
             *p++ = 'R';

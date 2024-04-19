@@ -30,7 +30,7 @@ function test_parse() {
 function test_pack() {
     console.log("test pack");
     var pkt = new libademco.ademco_packet_t();
-    libademco.ademco_make_hb_packet2(pkt, 1, "861234567890", 666666, libademco.EVENT_ARM, 0, 0, null);
+    libademco.ademco_make_hb_packet2(pkt, 1, "861234567890", 666666, libademco.EVENT_ARM_AWAY, 0, 0, null);
     console.log("len=%d", pkt.raw_len);
     libademco.ademco_print(pkt.raw, pkt.raw_len);
 
@@ -44,7 +44,7 @@ function test_pack() {
     assert.strictEqual(pkt2.seq, 1);
     assert.strictEqual(pkt2.acct, "861234567890");
     assert.strictEqual(pkt2.data.ademco_id, 666666);
-    assert.strictEqual(pkt2.data.ademco_event, libademco.EVENT_ARM);
+    assert.strictEqual(pkt2.data.ademco_event, libademco.EVENT_ARM_AWAY);
     assert.strictEqual(pkt2.data.gg, 0);
     assert.strictEqual(pkt2.data.zone, 0);
 }

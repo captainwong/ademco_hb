@@ -43,7 +43,7 @@ namespace CSharpDemo
             {
                 Console.WriteLine("test pack");
                 byte[] buff = new byte[1024];
-                uint len = libademco.ademco_make_hb_packet(buff, 1024, 1, "861234567890", 666666, ademco_event_t.EVENT_ARM, 0, 0, null);
+                uint len = libademco.ademco_make_hb_packet(buff, 1024, 1, "861234567890", 666666, ademco_event_t.EVENT_ARM_AWAY, 0, 0, null);
                 Debug.Assert(len > 0);
                 Console.WriteLine("len={0:D}", len);
                 libademco.ademco_print(buff, len);
@@ -58,7 +58,7 @@ namespace CSharpDemo
                 Debug.Assert(pkt.seq == 1);
                 Debug.Assert(pkt.acct == "861234567890");
                 Debug.Assert(pkt.data.ademco_id == 666666);
-                Debug.Assert(pkt.data.ademco_event == ademco_event_t.EVENT_ARM);
+                Debug.Assert(pkt.data.ademco_event == ademco_event_t.EVENT_ARM_AWAY);
                 Debug.Assert(pkt.data.gg == 0);
                 Debug.Assert(pkt.data.zone == 0);
             }
@@ -68,7 +68,7 @@ namespace CSharpDemo
             {
                 Console.WriteLine("test pack, buff not enough");
                 Byte[] buff = new Byte[10];
-                uint len = libademco.ademco_make_hb_packet(buff, 10, 1, "861234567890", 666666, ademco_event_t.EVENT_ARM, 0, 0, null);
+                uint len = libademco.ademco_make_hb_packet(buff, 10, 1, "861234567890", 666666, ademco_event_t.EVENT_ARM_AWAY, 0, 0, null);
                 Debug.Assert(len == 0);
             }
 
@@ -215,7 +215,7 @@ namespace CSharpDemo
         static void sendArm(NetworkStream stream, ushort seq, string acct, uint ademco_id)
         {
             byte[] buff = new byte[1024];
-            uint len = libademco.ademco_make_hb_packet(buff, 1024, seq, acct, ademco_id, ademco_event_t.EVENT_ARM, 0, 0, null);
+            uint len = libademco.ademco_make_hb_packet(buff, 1024, seq, acct, ademco_id, ademco_event_t.EVENT_ARM_AWAY, 0, 0, null);
             Console.Write("S:");
             libademco.ademco_print(buff, len);
             stream.Write(buff, 0, (int)len);

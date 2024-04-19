@@ -69,18 +69,18 @@ typedef uint16_t ademco_zone_t;
 #define ADEMCO_SIGNAL_STRENGTH_MIN 0
 #define ADEMCO_SIGNAL_STRENGTH_MAX 31
 
-// 主机或分机状态报告
+// 主机状态
 #define ADEMCO_STATUS_EVENTS_MAP(XX) \
-    XX(ARM, 3400, "布防")            \
+    XX(ARM_AWAY, 3400, "离家布防")   \
     XX(DISARM, 1400, "撤防")         \
-    XX(HALFARM, 3456, "半布防")      \
-    XX(HALFARM_1456, 1456, "半布防") \
-    XX(EMERGENCY, 1120, "紧急报警")
+    XX(ARM_STAY, 3456, "留守布防")   \
+    XX(ARM_STAY_1456, 1456, "留守布防")
 
 // 防区报警
 #define ADEMCO_ALARM_EVENTS_MAP(XX)   \
+    XX(EMERGENCY, 1120, "紧急报警")   \
     XX(BURGLAR, 1130, "盗警")         \
-    XX(DOORRINGING, 1134, "门铃")     \
+    XX(DOOR_RING, 1134, "门铃")       \
     XX(FIRE, 1110, "火警")            \
     XX(DURESS, 1121, "胁迫")          \
     XX(GAS, 1151, "煤气")             \
@@ -89,25 +89,37 @@ typedef uint16_t ademco_zone_t;
     XX(ZONE_TAMPER, 1383, "防区防拆") \
     XX(BYPASS, 1570, "旁路")
 
+// 防区报警恢复
+#define ADEMCO_ALARM_RECOVER_EVENTS_MAP(XX)       \
+    XX(EMERGENCY_RECOVER, 3120, "紧急恢复")       \
+    XX(BURGLAR_RECOVER, 3130, "盗警恢复")         \
+    XX(DOOR_RING_RECOVER, 3134, "门铃恢复")       \
+    XX(FIRE_RECOVER, 3110, "火警恢复")            \
+    XX(DURESS_RECOVER, 3121, "胁迫恢复")          \
+    XX(GAS_RECOVER, 3151, "煤气恢复")             \
+    XX(WATER_RECOVER, 3113, "水警恢复")           \
+    XX(TAMPER_RECOVER, 3137, "主机防拆恢复")      \
+    XX(ZONE_TAMPER_RECOVER, 3383, "防区防拆恢复") \
+    XX(BYPASS_RECOVER, 3570, "解除旁路")
+
 // 防区异常
 #define ADEMCO_EXEPTION_EVENTS_MAP(XX)      \
     XX(AC_BROKE, 1301, "主机AC掉电")        \
-    XX(LOWBATTERY, 1302, "低电")            \
-    XX(BADBATTERY, 1311, "坏电")            \
-    XX(SOLARDISTURB, 1387, "光扰")          \
+    XX(LOW_BATTERY, 1302, "低电")           \
+    XX(BAD_BATTERY, 1311, "坏电")           \
+    XX(SOLAR_DISTURB, 1387, "光扰")         \
     XX(DISCONNECT, 1381, "失效")            \
     XX(LOST, 1393, "失联")                  \
     XX(BATTERY_EXCEPTION, 1384, "电源故障") \
     XX(OTHER_EXCEPTION, 1380, "其他故障")
 
 // 防区异常恢复
-#define ADEMCO_RESUME_EVENTS_MAP(XX)                    \
-    XX(BYPASS_RESUME, 3570, "解除旁路")                 \
+#define ADEMCO_EXEPTION_RECOVER_EVENTS_MAP(XX)          \
     XX(AC_RECOVER, 3301, "主机AC复电")                  \
-    XX(BATTERY_RECOVER, 3302, "低电恢复")               \
-    XX(BADBATTERY_RECOVER, 3311, "坏电恢复")            \
-    XX(SOLARDISTURB_RECOVER, 3387, "光扰恢复")          \
-    XX(RECONNECT, 3381, "失效恢复")                     \
+    XX(LOW_BATTERY_RECOVER, 3302, "低电恢复")           \
+    XX(BAD_BATTERY_RECOVER, 3311, "坏电恢复")           \
+    XX(SOLAR_DISTURB_RECOVER, 3387, "光扰恢复")         \
+    XX(DISCONNECT_RECOVER, 3381, "失效恢复")            \
     XX(LOST_RECOVER, 3393, "失联恢复")                  \
     XX(BATTERY_EXCEPTION_RECOVER, 3384, "电源故障恢复") \
     XX(OTHER_EXCEPTION_RECOVER, 3380, "其他故障恢复")   \
@@ -115,15 +127,15 @@ typedef uint16_t ademco_zone_t;
 
 // 恒博自定义安定宝事件码
 #define ADEMCO_HB_EVENTS_MAP(XX)                               \
-    XX(SERIAL485DIS, 1485, "485断开")                          \
-    XX(SERIAL485CONN, 3485, "485连接")                         \
+    XX(SERIAL_485_DIS, 1485, "485断开")                        \
+    XX(SERIAL_485_RECOVER, 3485, "485连接")                    \
     XX(CONN_HANGUP, 1700, "链路挂起")                          \
-    XX(CONN_RESUME, 3700, "链路恢复")                          \
+    XX(CONN_RECOVER, 3700, "链路恢复")                         \
     XX(DISARM_PWD_ERR, 1701, "撤防密码错误")                   \
     XX(SUB_MACHINE_SENSOR_EXCEPTION, 1702, "分机探头异常")     \
-    XX(SUB_MACHINE_SENSOR_RESUME, 3702, "分机探头恢复")        \
+    XX(SUB_MACHINE_SENSOR_RECOVER, 3702, "分机探头恢复")       \
     XX(SUB_MACHINE_POWER_EXCEPTION, 1703, "分机电源异常")      \
-    XX(SUB_MACHINE_POWER_RESUME, 3703, "分机电源恢复")         \
+    XX(SUB_MACHINE_POWER_RECOVER, 3703, "分机电源恢复")        \
     XX(COM_PASSTHROUGH, 1704, "串口透传")                      \
     XX(ENTER_SET_MODE, 2704, "进入设置状态")                   \
     XX(EXIT_SET_MODE, 3704, "退出设置状态")                    \
@@ -131,16 +143,16 @@ typedef uint16_t ademco_zone_t;
     XX(WRITE_TO_MACHINE, 1706, "写入主机信息")                 \
     XX(I_AM_NET_MODULE, 1707, "主机类型--网络模块")            \
     XX(I_AM_GPRS, 1717, "主机类型--GPRS主机")                  \
-    XX(I_AM_LCD_MACHINE, 1727, "主机类型--液晶主机")           \
-    XX(I_AM_WIRE_MACHINE, 1737, "主机类型--网线主机")          \
-    XX(I_AM_WIFI_MACHINE, 1747, "主机类型--WiFi主机(停用)")    \
-    XX(I_AM_3_SECTION_MACHINE, 1757, "主机类型--三区段主机")   \
-    XX(I_AM_IOT_MACHINE, 1767, "主机类型--物联卡主机")         \
+    XX(I_AM_LCD, 1727, "主机类型--液晶主机")                   \
+    XX(I_AM_WIRE, 1737, "主机类型--网线主机")                  \
+    XX(I_AM_WIFI, 1747, "主机类型--WiFi主机(停用)")            \
+    XX(I_AM_3_SECTION, 1757, "主机类型--三区段主机")           \
+    XX(I_AM_IOT, 1767, "主机类型--物联卡主机")                 \
     XX(I_AM_TRUE_COLOR, 1777, "主机类型--真彩主机")            \
     XX(I_AM_GPRS_IOT, 1787, "主机类型--物联卡主机")            \
     XX(I_AM_GPRS_PHONE, 1797, "主机类型--GRPS主机带电话功能")  \
-    XX(I_AM_NB_MACHINE, 1807, "主机类型--NB报警接收主机")      \
-    XX(I_AM_WIFI2_MACHINE, 1817, "主机类型--WiFi主机(新版)")   \
+    XX(I_AM_NB, 1807, "主机类型--NB报警接收主机")              \
+    XX(I_AM_WIFI2, 1817, "主机类型--WiFi主机(新版)")           \
     XX(PHONE_USER_SOS, 1709, "手机用户SOS")                    \
     XX(PHONE_USER_CANCLE_ALARM, 1711, "手机用户消警")          \
     XX(ENTER_SETTING_MODE, 1712, "主机进入设置状态")           \
@@ -166,10 +178,12 @@ typedef enum ademco_event_t {
     ADEMCO_STATUS_EVENTS_MAP(XX)
     // 防区报警
     ADEMCO_ALARM_EVENTS_MAP(XX)
+    // 防区报警恢复
+    ADEMCO_ALARM_RECOVER_EVENTS_MAP(XX)
     // 防区异常
     ADEMCO_EXEPTION_EVENTS_MAP(XX)
     // 防区异常恢复
-    ADEMCO_RESUME_EVENTS_MAP(XX)
+    ADEMCO_EXEPTION_RECOVER_EVENTS_MAP(XX)
 
     // ---私有事件---------
     ADEMCO_HB_EVENTS_MAP(XX)
@@ -182,10 +196,10 @@ typedef enum ademco_event_t {
 // 安定宝事件级别
 typedef enum ademco_event_level_t {
     EVENT_LEVEL_NULL,
-    EVENT_LEVEL_STATUS,            // 主机状态
-    EVENT_LEVEL_EXCEPTION_RESUME,  // 黄色报警
-    EVENT_LEVEL_EXCEPTION,         // 橙色报警
-    EVENT_LEVEL_ALARM,             // 红色报警
+    EVENT_LEVEL_STATUS,             // 主机状态
+    EVENT_LEVEL_EXCEPTION_RECOVER,  // 黄色报警
+    EVENT_LEVEL_EXCEPTION,          // 橙色报警
+    EVENT_LEVEL_ALARM,              // 红色报警
 } ademco_event_level_t;
 
 // 安定宝协议解析结果
@@ -351,7 +365,7 @@ ademco_event_level_t ademco_get_event_level(ademco_event_t ademco_event);
 
 // 获取异常恢复事件所对应的异常事件
 ADEMCO_EXPORT_SYMBOL
-ademco_event_t ademco_get_exception_event_by_resume_event(ademco_event_t resumeEvent);
+ademco_event_t ademco_get_exception_event_by_recover_event(ademco_event_t recover_event);
 
 ADEMCO_EXPORT_SYMBOL
 const char* ademco_event_to_string(ademco_event_t ademco_event);
