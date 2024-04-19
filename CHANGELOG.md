@@ -1,6 +1,11 @@
 # Ademco Change Log
 
 
+## 2.5.1 2024-4-19 23:39:51
+
+- `ARM_STAY` related functions
+
+
 ## 2.5.0 2024-4-19 18:07:08
 
 - `ARM` to `ARM_AWAY`

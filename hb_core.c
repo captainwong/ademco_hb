@@ -175,7 +175,7 @@ int hb_is_machine_on_sale(hb_machine_type_t type) {
            type == HMT_WIFI2;
 }
 
-int hb_machine_can_arm(hb_machine_type_t type) {
+int hb_machine_can_arm_away(hb_machine_type_t type) {
     return hb_is_machine_on_sale(type) && (type != HMT_NB);
 }
 
@@ -187,7 +187,7 @@ int hb_machine_can_config(hb_machine_type_t type) {
     return hb_is_machine_on_sale(type);
 }
 
-int hb_machine_can_half_arm(hb_machine_type_t type) {
+int hb_machine_can_arm_stay(hb_machine_type_t type) {
     return type == HMT_NETMOD || type == HMT_LCD;
 }
 

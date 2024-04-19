@@ -172,7 +172,7 @@ void print_machineTypes()
 
 	printf("*SMS指主机自身是否可以拨打电话、发送短信，不是指通过阿里语音打电话*\n");
 
-	printf("|事件码|主机类型|布防|撤防|半布防|设置|信号强度|防区|有线防区|SMS|内核|网络|型号|\n"
+	printf("|事件码|主机类型|离家布防|撤防|留守布防|设置|信号强度|防区|有线防区|SMS|内核|网络|型号|\n"
 		   "|------|-------|----|----|-----|----|-------|----|-------|---|----|---|----|\n");
 
 	for (auto e : allEvents) {
@@ -182,9 +182,9 @@ void print_machineTypes()
 
 			printf("|%04d %s", (int)e, ademco_event_to_string_chinese(e));
 			printf("|%d %s", (int)t, hb_machine_type_to_string_chinese(t));
-			printf("|%s", print_bool(hb_machine_can_arm(t)));
+			printf("|%s", print_bool(hb_machine_can_arm_away(t)));
 			printf("|%s", print_bool(hb_machine_can_disarm(t)));
-			printf("|%s", print_bool(hb_machine_can_half_arm(t)));
+			printf("|%s", print_bool(hb_machine_can_arm_stay(t)));
 			printf("|%s", print_bool(hb_machine_can_config(t)));
 			printf("|%s", print_bool(hb_machine_can_report_signal_strength(t)));
 			printf("|1~%d", hb_get_max_zone_by_type(t));

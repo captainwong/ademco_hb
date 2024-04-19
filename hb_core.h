@@ -167,9 +167,9 @@ int hb_is_valid_zone_by_type_strict(hb_machine_type_t type, ademco_zone_t zone);
 ADEMCO_EXPORT_SYMBOL
 int hb_is_machine_on_sale(hb_machine_type_t type);
 
-// 主机是否具有布防功能
+// 主机是否具有离家布防功能
 ADEMCO_EXPORT_SYMBOL
-int hb_machine_can_arm(hb_machine_type_t type);
+int hb_machine_can_arm_away(hb_machine_type_t type);
 
 // 主机是否具有撤防功能
 ADEMCO_EXPORT_SYMBOL
@@ -179,9 +179,9 @@ int hb_machine_can_disarm(hb_machine_type_t type);
 ADEMCO_EXPORT_SYMBOL
 int hb_machine_can_config(hb_machine_type_t type);
 
-// 主机是否具有半布防功能
+// 主机是否具有留守布防功能
 ADEMCO_EXPORT_SYMBOL
-int hb_machine_can_half_arm(hb_machine_type_t type);
+int hb_machine_can_arm_stay(hb_machine_type_t type);
 
 // 主机是否可以报告信号强度
 ADEMCO_EXPORT_SYMBOL
