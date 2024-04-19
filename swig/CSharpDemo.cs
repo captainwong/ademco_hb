@@ -180,7 +180,7 @@ namespace CSharpDemo
                                     // 演示如何进行布撤防，真实项目里可以删改本段                             
                                     if (++counter % 5 == 0)
                                     {
-                                        if (status == hb_machine_status_t.HMS_ARM)
+                                        if (status == hb_machine_status_t.HMS_ARM_STAY)
                                         {
                                             sendDisarm(stream, nextSeq(seq), acct, ademco_id, "123456");
                                         }

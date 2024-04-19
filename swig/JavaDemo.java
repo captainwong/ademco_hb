@@ -259,7 +259,7 @@ public class JavaDemo {
                         long now = System.currentTimeMillis();
                         if (now - lastTimeStatusChange > 5000) {
                             lastTimeStatusChange = now;
-                            if (status == hb_machine_status_t.HMS_ARM) {
+                            if (status == hb_machine_status_t.HMS_ARM_STAY) {
                                 disarm("123456");
                             } else {
                                 arm();
