@@ -5,6 +5,8 @@ libademco_csharp_wrap.c
 libademco_python_wrap.c
 libademco_wrap.cxx
 build/
+tools/dist/
+dist/
 
 .vscode/
 .vs/
