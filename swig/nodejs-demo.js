@@ -20,10 +20,10 @@ function test_parse() {
     assert.strictEqual(pkt.id, libademco.AID_HB);
     assert.strictEqual(pkt.seq, 0);
     assert.strictEqual(pkt.acct, "90219125916578");
-    assert.strictEqual(pkt.data.ademco_id, 0);
-    assert.strictEqual(pkt.data.ademco_event, libademco.EVENT_I_AM_WIRE);
-    assert.strictEqual(pkt.data.gg, 0);
-    assert.strictEqual(pkt.data.zone, 0);
+    assert.strictEqual(pkt.dat.ademco_id, 0);
+    assert.strictEqual(pkt.dat.ademco_event, libademco.EVENT_I_AM_WIRE);
+    assert.strictEqual(pkt.dat.gg, 0);
+    assert.strictEqual(pkt.dat.zone, 0);
     console.log("res=%d, commited=%d", res, libademco.size_tp_value(cb));
 }
 
@@ -43,10 +43,10 @@ function test_pack() {
     assert.strictEqual(pkt2.id, libademco.AID_HB);
     assert.strictEqual(pkt2.seq, 1);
     assert.strictEqual(pkt2.acct, "861234567890");
-    assert.strictEqual(pkt2.data.ademco_id, 666666);
-    assert.strictEqual(pkt2.data.ademco_event, libademco.EVENT_ARM_AWAY);
-    assert.strictEqual(pkt2.data.gg, 0);
-    assert.strictEqual(pkt2.data.zone, 0);
+    assert.strictEqual(pkt2.dat.ademco_id, 666666);
+    assert.strictEqual(pkt2.dat.ademco_event, libademco.EVENT_ARM_AWAY);
+    assert.strictEqual(pkt2.dat.gg, 0);
+    assert.strictEqual(pkt2.dat.zone, 0);
 }
 
 class AlarmHost {

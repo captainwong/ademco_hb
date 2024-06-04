@@ -1,6 +1,21 @@
 # Ademco Change Log
 
 
+## 2.7.0 2024-6-4 15:24:15
+
+- shrink `ademco_packet_t` size
+- add config option for `time`
+- add config option `ADEMCO_USE_STATIC_BUF, ADEMCO_USE_UNIQUE_BUF` for embedded systems
+- add `ademco_append_data3` and `ademco_make_hb_packet3` for inplace make
+- add `ademco_is_valid_password`
+- remove `grinwich` related functions, they are shit due to doc lacking, machine's timer is UTC+0
+- event 1384 changed to `EVENT_POWER_EXCEPTION`, 3384 changed to `EVENT_POWER_EXCEPTION_RECOVER`
+
+
+## 2.6.0 2024-4-20 00:58:15
+
+
+
 ## 2.5.1 2024-4-19 23:39:51
 
 - `ARM_STAY` related functions
@@ -81,7 +96,7 @@
 - add `hb_com_zone_lost_data_iter_t`, `hb_com_zone_lost_data_iter_init` and `hb_com_zone_lost_data_iter_next`
 - add `ADEMCO_PACKET_PWD_MIN_LEN`, `ADEMCO_PACKET_PWD_MAX_LEN`
 - code styles changed
-- when parse returns `ADEMCO_PARSE_RESULT_ERROR`, `*ate` will contains length to ignore, caller must drop `*ate` bytes of data
+- when parse returns `ADEMCO_PARSE_RESULT_ERROR`, `*ate` will contains length to ignore, caller must drop `*ate` bytes of dat
 
 
 ## 1.5.1

@@ -1,9 +1,9 @@
 #ifndef __HB_CORE_H__
 #define __HB_CORE_H__
 
-#pragma once
+#include <stdint.h>
 
-#include "ademco.h"
+#include "hb_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,7 +40,7 @@ typedef enum hb_machine_status_t {
     // valid count
     HMS_COUNT = 4,
     // invalid
-    HMS_INVALID = -1,
+    HMS_INVALID = 0xFF,
 } hb_machine_status_t;
 
 // 主机类型表
@@ -82,12 +82,12 @@ typedef enum hb_machine_type_t {
     // valid count
     HMT_COUNT = 13,
     // invalid
-    HMT_INVALID = -1,
+    HMT_INVALID = 0xFF,
 } hb_machine_type_t;
 
 // 防区属性表
 #define HB_ZONE_PROPERTY_MAP(XX)    \
-    XX(BUGLAR, 0, "匪警全局")       \
+    XX(BURGLAR, 0, "匪警全局")      \
     XX(EMERGENCY, 1, "匪警紧急")    \
     XX(FIRE, 2, "火警防区")         \
     XX(DURESS, 3, "胁迫防区")       \
@@ -95,21 +95,10 @@ typedef enum hb_machine_type_t {
     XX(WATER, 5, "淹水防区")        \
     XX(SUB_MACHINE, 6, "分机")      \
     XX(REMOTE_CONTROL, 7, "遥控器") \
-    XX(BUGLAR_HALF, 8, "匪警半局")  \
+    XX(BURGLAR_HALF, 8, "匪警半局") \
     XX(SHIELD, 9, "屏蔽防区")       \
     XX(DOOR_RING, 0x0A, "门铃防区") \
     XX(BYPASS, 0x0F, "旁路防区")
-
-// 防区属性与安定宝事件码对照表
-#define HZP_EVENT_MAP(XX)              \
-    XX(HZP_BUGLAR, EVENT_BURGLAR)      \
-    XX(HZP_BUGLAR_HALF, EVENT_BURGLAR) \
-    XX(HZP_EMERGENCY, EVENT_EMERGENCY) \
-    XX(HZP_FIRE, EVENT_FIRE)           \
-    XX(HZP_DURESS, EVENT_DURESS)       \
-    XX(HZP_GAS, EVENT_GAS)             \
-    XX(HZP_WATER, EVENT_WATER)         \
-    XX(HZP_DOOR_RING, EVENT_DOOR_RING)
 
 // 防区属性
 typedef enum hb_zone_property_t {
@@ -120,14 +109,15 @@ typedef enum hb_zone_property_t {
     // valid count
     HZP_COUNT = 12,
     // invalid
-    HZP_INVALID = -1,
+    HZP_INVALID = 0xFF,
 } hb_zone_property_t;
 
 typedef struct {
-    ademco_zone_t zone;
+    uint16_t zone;
     hb_zone_property_t prop;
 } hb_zone_and_property_t;
 
+// UTC time, its user's responsibility to convert to local time
 typedef struct {
     uint8_t hour;
     uint8_t minute;
@@ -140,146 +130,125 @@ typedef struct {
 
 typedef union {
     hb_machine_timer_one_t timer[2];  // 2 set of timer
-    uint8_t data[8];
+    uint8_t dat[8];
 } hb_machine_timer_t;
 
 ///////////////////////////// property functions //////////////////////////////
 
 // return available count
 // props must have at least HZP_COUNT items
-ADEMCO_EXPORT_SYMBOL
-size_t hb_get_available_zone_properties_by_type(hb_machine_type_t type,
-                                                hb_zone_property_t props[HZP_COUNT]);
+HB_EXPORT_SYMBOL
+uint8_t hb_get_available_zone_properties_by_type(hb_machine_type_t type,
+                                                 hb_zone_property_t props[HZP_COUNT]);
 
 // 最大防区号根据型号不同而不同
-ADEMCO_EXPORT_SYMBOL
-ademco_zone_t hb_get_max_zone_by_type(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint16_t hb_get_max_zone_by_type(hb_machine_type_t type);
 
 // 防区号是否合法（可以包含0防区）
-ADEMCO_EXPORT_SYMBOL
-int hb_is_valid_zone_by_type(hb_machine_type_t type, ademco_zone_t zone);
+HB_EXPORT_SYMBOL
+uint8_t hb_is_valid_zone_by_type(hb_machine_type_t type, uint16_t zone);
 
 // 防区号是否合法（不可以可以包含0防区）
-ADEMCO_EXPORT_SYMBOL
-int hb_is_valid_zone_by_type_strict(hb_machine_type_t type, ademco_zone_t zone);
+HB_EXPORT_SYMBOL
+uint8_t hb_is_valid_zone_by_type_strict(hb_machine_type_t type, uint16_t zone);
 
 // 主机是否已投产使用
-ADEMCO_EXPORT_SYMBOL
-int hb_is_machine_on_sale(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint8_t hb_is_machine_on_sale(hb_machine_type_t type);
 
 // 主机是否具有离家布防功能
-ADEMCO_EXPORT_SYMBOL
-int hb_machine_can_arm_away(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint8_t hb_machine_can_arm_away(hb_machine_type_t type);
 
 // 主机是否具有撤防功能
-ADEMCO_EXPORT_SYMBOL
-int hb_machine_can_disarm(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint8_t hb_machine_can_disarm(hb_machine_type_t type);
 
 // 主机是否可以进入设置状态
-ADEMCO_EXPORT_SYMBOL
-int hb_machine_can_config(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint8_t hb_machine_can_config(hb_machine_type_t type);
 
 // 主机是否具有留守布防功能
-ADEMCO_EXPORT_SYMBOL
-int hb_machine_can_arm_stay(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint8_t hb_machine_can_arm_stay(hb_machine_type_t type);
 
 // 主机是否可以报告信号强度
-ADEMCO_EXPORT_SYMBOL
-int hb_machine_can_report_signal_strength(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint8_t hb_machine_can_report_signal_strength(hb_machine_type_t type);
 
 // 主机本身是否可以短信报警（不算通过服务如阿里语音等）
-ADEMCO_EXPORT_SYMBOL
-int hb_machine_can_report_by_sms(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint8_t hb_machine_can_report_by_sms(hb_machine_type_t type);
 
 // 主机是否支持有线防区
-ADEMCO_EXPORT_SYMBOL
-int hb_machine_has_wired_zones(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint8_t hb_machine_has_wired_zones(hb_machine_type_t type);
 
 // 主机最小有线防区号
-ADEMCO_EXPORT_SYMBOL
-ademco_zone_t hb_wired_zone_min(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint16_t hb_wired_zone_min(hb_machine_type_t type);
 
 // 主机最大有线防区号
-ADEMCO_EXPORT_SYMBOL
-ademco_zone_t hb_wired_zone_max(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint16_t hb_wired_zone_max(hb_machine_type_t type);
 
 // 主机是否可以直接写入防区数据（无需对码）
-ADEMCO_EXPORT_SYMBOL
-int hb_machine_can_write_zone(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint8_t hb_machine_can_write_zone(hb_machine_type_t type);
+
 // 主机是否可以挂载分机
-ADEMCO_EXPORT_SYMBOL
-int hb_machine_can_link_sub_machine(hb_machine_type_t type);
+HB_EXPORT_SYMBOL
+uint8_t hb_machine_can_link_sub_machine(hb_machine_type_t type);
 
 // 根据防区属性判断是否支持失联报告
 // 失联报告是主机侧实现的跟防区属性没关系，但是人为限制了只有以下属性的才可以设置
-ADEMCO_EXPORT_SYMBOL
-int hb_zone_can_report_lost(hb_zone_property_t zp);
+HB_EXPORT_SYMBOL
+uint8_t hb_zone_can_report_lost(hb_zone_property_t zp);
 
 ///////////////////////////// timer functions /////////////////////////////////
 
-ADEMCO_EXPORT_SYMBOL
+HB_EXPORT_SYMBOL
+void hb_machine_timer_one_init(hb_machine_timer_one_t* timer);
+
+HB_EXPORT_SYMBOL
 void hb_machine_timer_init(hb_machine_timer_t* timer);
 
-ADEMCO_EXPORT_SYMBOL
-int hb_is_valid_time_point(hb_machine_time_point_t* tp);
+HB_EXPORT_SYMBOL
+uint8_t hb_is_valid_time_point(hb_machine_time_point_t* tp);
 
-ADEMCO_EXPORT_SYMBOL
-void hb_time_point_to_greenwich(hb_machine_time_point_t* tp);
+HB_EXPORT_SYMBOL
+uint8_t hb_time_point_equal(hb_machine_time_point_t* tp1, hb_machine_time_point_t* tp2);
 
-ADEMCO_EXPORT_SYMBOL
-void hb_time_point_from_greenwich(hb_machine_time_point_t* tp);
+HB_EXPORT_SYMBOL
+uint8_t hb_is_valid_timer_one(hb_machine_timer_one_t* timer);
 
-ADEMCO_EXPORT_SYMBOL
-int hb_is_valid_timer_one(hb_machine_timer_one_t* timer);
-
-ADEMCO_EXPORT_SYMBOL
-int hb_is_valid_machine_timer(hb_machine_timer_t* timer);
-
-// 传输的是格林威治时间
-ADEMCO_EXPORT_SYMBOL
-void hb_machine_timer_to_greenwich(hb_machine_timer_t* timer);
-
-ADEMCO_EXPORT_SYMBOL
-void hb_machine_timer_from_greenwich(hb_machine_timer_t* timer);
+HB_EXPORT_SYMBOL
+uint8_t hb_is_valid_machine_timer(hb_machine_timer_t* timer);
 
 ///////////////////////////// helper functions ////////////////////////////////
 
-ADEMCO_EXPORT_SYMBOL
-ademco_event_t hb_machine_status_to_ademco_event(hb_machine_status_t status);
-
-ADEMCO_EXPORT_SYMBOL
-hb_machine_status_t hb_machine_status_from_ademco_event(ademco_event_t ademco_event);
-
-ADEMCO_EXPORT_SYMBOL
-ademco_event_t hb_machine_type_to_ademco_event(hb_machine_type_t type);
-
-ADEMCO_EXPORT_SYMBOL
-hb_machine_type_t hb_machine_type_from_ademco_event(ademco_event_t ademco_event);
-
-ADEMCO_EXPORT_SYMBOL
-ademco_event_t hb_zone_property_to_ademco_event(hb_zone_property_t zp);
-
-ADEMCO_EXPORT_SYMBOL
+HB_EXPORT_SYMBOL
 const char* hb_machine_status_to_string(hb_machine_status_t status);
 
-ADEMCO_EXPORT_SYMBOL
+HB_EXPORT_SYMBOL
 const char* hb_machine_type_to_string(hb_machine_type_t type);
 
-ADEMCO_EXPORT_SYMBOL
+HB_EXPORT_SYMBOL
 const char* hb_zone_property_to_string(hb_zone_property_t zp);
 
-#if ADEMCO_ENABLE_CHINESE
-ADEMCO_EXPORT_SYMBOL
+#if HB_ENABLE_CHINESE
+HB_EXPORT_SYMBOL
 const char* hb_machine_status_to_string_chinese(hb_machine_status_t status);
 
-ADEMCO_EXPORT_SYMBOL
+HB_EXPORT_SYMBOL
 const char* hb_machine_type_to_string_chinese(hb_machine_type_t type);
 
-ADEMCO_EXPORT_SYMBOL
+HB_EXPORT_SYMBOL
 const char* hb_zone_property_to_string_chinese(hb_zone_property_t zp);
-#endif  // ADEMCO_ENABLE_CHINESE
+#endif  // HB_ENABLE_CHINESE
 
-ADEMCO_EXPORT_SYMBOL
+HB_EXPORT_SYMBOL
 const char* hb_get_zone_format_str(hb_machine_type_t type);
 
 #ifdef __cplusplus

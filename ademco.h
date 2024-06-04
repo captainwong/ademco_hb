@@ -1,8 +1,6 @@
 #ifndef __ADEMCO_H__
 #define __ADEMCO_H__
 
-#pragma once
-
 #include <stdint.h>
 #include <time.h>
 
@@ -28,11 +26,11 @@ typedef uint16_t ademco_zone_t;
 #define ADEMCO_PACKET_PWD_MAX_LEN 8                 // 主机密码最大长度
 #define ADEMCO_PACKET_DATA_SEGMENT_EMPTY_LEN 2      // 空data段[]长度
 #define ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN 21      // 非空data段长度，acct长度6
-#define ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN_MAX 64  // 非空data段长度，acct长度未知
-#define ADEMCO_PACKET_MAX_LEN 512                   // 安定宝协议最大长度，包括前缀、后缀、data段、xdata段
+#define ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN_MAX 32  // 非空data段长度，acct长度未知
+#define ADEMCO_PACKET_MAX_LEN 256                   // 安定宝协议最大长度，包括前缀、后缀、data段、xdata段
 #define CONGWIN_FE100_PACKET_LEN 31                 // 丛文FE100协议长度
 #define ADEMCO_PACKET_TIMESTAMP_LEN 20              // 时间戳长度
-#define ADEMCO_PACKET_XDATA_MAX_LEN 128             // xdata段最大长度
+#define ADEMCO_PACKET_XDATA_MAX_LEN 64              // xdata段最大长度
 
 // 安定宝ID范围
 #define ADEMCO_ID_INVALID 0
@@ -103,26 +101,26 @@ typedef uint16_t ademco_zone_t;
     XX(BYPASS_RECOVER, 3570, "解除旁路")
 
 // 防区异常
-#define ADEMCO_EXEPTION_EVENTS_MAP(XX)      \
-    XX(AC_BROKE, 1301, "主机AC掉电")        \
-    XX(LOW_BATTERY, 1302, "低电")           \
-    XX(BAD_BATTERY, 1311, "坏电")           \
-    XX(SOLAR_DISTURB, 1387, "光扰")         \
-    XX(DISCONNECT, 1381, "失效")            \
-    XX(LOST, 1393, "失联")                  \
-    XX(BATTERY_EXCEPTION, 1384, "电源故障") \
+#define ADEMCO_EXEPTION_EVENTS_MAP(XX)    \
+    XX(AC_BROKE, 1301, "主机AC掉电")      \
+    XX(LOW_BATTERY, 1302, "低电")         \
+    XX(BAD_BATTERY, 1311, "坏电")         \
+    XX(SOLAR_DISTURB, 1387, "光扰")       \
+    XX(DISCONNECT, 1381, "失效")          \
+    XX(LOST, 1393, "失联")                \
+    XX(POWER_EXCEPTION, 1384, "电源故障") \
     XX(OTHER_EXCEPTION, 1380, "其他故障")
 
 // 防区异常恢复
-#define ADEMCO_EXEPTION_RECOVER_EVENTS_MAP(XX)          \
-    XX(AC_RECOVER, 3301, "主机AC复电")                  \
-    XX(LOW_BATTERY_RECOVER, 3302, "低电恢复")           \
-    XX(BAD_BATTERY_RECOVER, 3311, "坏电恢复")           \
-    XX(SOLAR_DISTURB_RECOVER, 3387, "光扰恢复")         \
-    XX(DISCONNECT_RECOVER, 3381, "失效恢复")            \
-    XX(LOST_RECOVER, 3393, "失联恢复")                  \
-    XX(BATTERY_EXCEPTION_RECOVER, 3384, "电源故障恢复") \
-    XX(OTHER_EXCEPTION_RECOVER, 3380, "其他故障恢复")   \
+#define ADEMCO_EXEPTION_RECOVER_EVENTS_MAP(XX)        \
+    XX(AC_RECOVER, 3301, "主机AC复电")                \
+    XX(LOW_BATTERY_RECOVER, 3302, "低电恢复")         \
+    XX(BAD_BATTERY_RECOVER, 3311, "坏电恢复")         \
+    XX(SOLAR_DISTURB_RECOVER, 3387, "光扰恢复")       \
+    XX(DISCONNECT_RECOVER, 3381, "失效恢复")          \
+    XX(LOST_RECOVER, 3393, "失联恢复")                \
+    XX(POWER_EXCEPTION_RECOVER, 3384, "电源故障恢复") \
+    XX(OTHER_EXCEPTION_RECOVER, 3380, "其他故障恢复") \
     XX(CLEAR_EXCPTION, 3100, "清除异常指示")
 
 // 恒博自定义安定宝事件码
@@ -278,8 +276,8 @@ typedef struct ademco_packet_t {
     uint16_t seq;
     // +1 for '\0'
     char acct[ADEMCO_PACKET_ACCT_MAX_LEN + 1];
-    ademco_data_t data;
-    ademco_xdata_t xdata;
+    ademco_data_t dat;
+    ademco_xdata_t xdat;
     time_t timestamp;
 
     ademco_char_t raw[ADEMCO_PACKET_MAX_LEN];
@@ -324,26 +322,37 @@ typedef enum ademco_control_source_t {
 #undef XX
 } ademco_control_source_t;
 
+//////////////////// bcd ////////////////////
+
+#define bcd_encode(x) (((x) / 10) << 4 | ((x) % 10))
+#define bcd_decode(x) (((x) >> 4) * 10 + ((x) & 0x0F))
+
 //////////////////////// Functions ////////////////////////
 
 ADEMCO_EXPORT_SYMBOL
 uint32_t ademco_version(void);
 
+#if ADEMCO_ENABLE_TO_STRING
 ADEMCO_EXPORT_SYMBOL
 const char* ademco_version_string(void);
+#endif
 
 ADEMCO_EXPORT_SYMBOL
-void ademco_print(const ademco_char_t* buff, size_t len);
+void ademco_print(const ademco_char_t* buf, size_t len);
 
 ADEMCO_EXPORT_SYMBOL
 uint8_t ademco_encode_signal_strength(uint8_t strength);
 
 ADEMCO_EXPORT_SYMBOL
-uint8_t ademco_decode_signal_strength(uint8_t code);
+uint8_t ademco_decode_signal_strength(uint8_t bcd_strength);
 
 // 是否合法主机账号
 ADEMCO_EXPORT_SYMBOL
 int ademco_is_valid_account(const char* acct);
+
+// 是否合法主机密码
+ADEMCO_EXPORT_SYMBOL
+int ademco_is_valid_password(const char* pwd);
 
 //////////////////////// ademco_event_t functions ////////////////////////
 
@@ -367,8 +376,10 @@ ademco_event_level_t ademco_get_event_level(ademco_event_t ademco_event);
 ADEMCO_EXPORT_SYMBOL
 ademco_event_t ademco_get_exception_event_by_recover_event(ademco_event_t recover_event);
 
+#if ADEMCO_ENABLE_TO_STRING
 ADEMCO_EXPORT_SYMBOL
 const char* ademco_event_to_string(ademco_event_t ademco_event);
+#endif
 
 #if ADEMCO_ENABLE_CHINESE
 ADEMCO_EXPORT_SYMBOL
@@ -395,6 +406,10 @@ size_t ademco_append_data2(ademco_data_t* ademco_data,
                            ademco_gg_t gg,
                            ademco_zone_t zone);
 
+// inplace make a `DATA` packet and store to `ademco_data`, return length
+ADEMCO_EXPORT_SYMBOL
+size_t ademco_append_data3(ademco_data_t* ademco_data, const char* acct);
+
 // parse `DATA` packet, if ok, `ademco_data`'s members will be useful
 // err can be NULL; caller should only check err on got ADEMCO_PARSE_RESULT_ERROR
 ADEMCO_EXPORT_SYMBOL
@@ -411,38 +426,38 @@ size_t ademco_data_to_congwin_fe100(ademco_char_t* fe100,
 
 //////////////////////// ademco_xdata_t functions ////////////////////////
 
-// init a empty xdata
+// init a empty xdat
 ADEMCO_EXPORT_SYMBOL
-void ademco_xdata_init(ademco_xdata_t* xdata);
+void ademco_xdata_init(ademco_xdata_t* xdat);
 
 // return ADEMCO_OK for success, ADEMCO_ERR for failed
 ADEMCO_EXPORT_SYMBOL
-int ademco_xdata_convert(ademco_xdata_t* xdata, ademco_xdata_length_format_t xlf);
+int ademco_xdata_convert(ademco_xdata_t* xdat, ademco_xdata_length_format_t xlf);
 
 #ifndef SWIG
-// get valid content address of xdata (except [len])
+// get valid content address of xdat (except [len])
 ADEMCO_EXPORT_SYMBOL
-const char* ademco_xdata_get_valid_content_addr(const ademco_xdata_t* xdata);
+const char* ademco_xdata_get_valid_content_addr(const ademco_xdata_t* xdat);
 #endif
 
-// get valid content length of xdata (except [len])
+// get valid content length of xdat (except [len])
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_xdata_get_valid_content_len(const ademco_xdata_t* xdata);
+size_t ademco_xdata_get_valid_content_len(const ademco_xdata_t* xdat);
 
-// return 0 if xdata's valid content is exactly the same as [buf, buf+buf_len)
+// return 0 if xdat's valid content is exactly the same as [buf, buf+buf_len)
 ADEMCO_EXPORT_SYMBOL
-int ademco_xdata_memcmp(const ademco_xdata_t* xdata,
+int ademco_xdata_memcmp(const ademco_xdata_t* xdat,
                         const void* buf,
                         size_t buf_len);
 
-// copy xdata content from src to dst, return copied length = src.raw_len
+// copy xdat content from src to dst, return copied length = src.raw_len
 ADEMCO_EXPORT_SYMBOL
 size_t ademco_xdata_copy(ademco_xdata_t* dst,
                          const ademco_xdata_t* src);
 
 // return ADEMCO_OK for success, return ADEMCO_ERR for len is too long
 ADEMCO_EXPORT_SYMBOL
-int ademco_make_xdata(ademco_xdata_t* xdata,
+int ademco_make_xdata(ademco_xdata_t* xdat,
                       ademco_xdata_length_format_t xlf,
                       ademco_xdata_transform_t xtr,
                       const ademco_char_t* content,
@@ -464,7 +479,7 @@ const char* ademco_packet_id_to_string(ademco_packet_id_t id);
 
 /*
  * ademcoMake*Packet functions
- * if buff != NULL and len >= length needed, return length used and copy data to buff
+ * if buf != NULL and len >= length needed, return length used and copy dat to buf
  * otherwise return 0
  */
 
@@ -485,28 +500,28 @@ size_t ademco_make_adm_empty_data_packet(ademco_char_t* dst_buff,
                                          ademco_id_t ademco_id);
 
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_make_null_packet(ademco_char_t* buff,
+size_t ademco_make_null_packet(ademco_char_t* buf,
                                size_t len,
                                uint16_t seq,
                                const char* acct,
                                ademco_id_t ademco_id);
 
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_make_ack_packet(ademco_char_t* buff,
+size_t ademco_make_ack_packet(ademco_char_t* buf,
                               size_t len,
                               uint16_t seq,
                               const char* acct,
                               ademco_id_t ademco_id);
 
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_make_nak_packet(ademco_char_t* buff,
+size_t ademco_make_nak_packet(ademco_char_t* buf,
                               size_t len,
                               uint16_t seq,
                               const char* acct,
                               ademco_id_t ademco_id);
 
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_make_hb_packet(ademco_char_t* buff,
+size_t ademco_make_hb_packet(ademco_char_t* buf,
                              size_t len,
                              uint16_t seq,
                              const char* acct,
@@ -514,10 +529,10 @@ size_t ademco_make_hb_packet(ademco_char_t* buff,
                              ademco_event_t ademco_event,
                              ademco_gg_t gg,
                              ademco_zone_t zone,
-                             const ademco_xdata_t* xdata);
+                             const ademco_xdata_t* xdat);
 
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_make_adm_packet(ademco_char_t* buff,
+size_t ademco_make_adm_packet(ademco_char_t* buf,
                               size_t len,
                               uint16_t seq,
                               const char* acct,
@@ -525,9 +540,9 @@ size_t ademco_make_adm_packet(ademco_char_t* buff,
                               ademco_event_t ademco_event,
                               ademco_gg_t gg,
                               ademco_zone_t zone,
-                              const ademco_xdata_t* xdata);
+                              const ademco_xdata_t* xdat);
 
-// like upper funcs, store buff and len to pkt->raw, pkt->raw_len
+// like upper funcs, store buf and len to pkt->raw, pkt->raw_len
 ADEMCO_EXPORT_SYMBOL
 size_t ademco_make_null_packet2(ademco_packet_t* pkt,
                                 uint16_t seq,
@@ -554,7 +569,11 @@ size_t ademco_make_hb_packet2(ademco_packet_t* pkt,
                               ademco_event_t ademco_event,
                               ademco_gg_t gg,
                               ademco_zone_t zone,
-                              const ademco_xdata_t* xdata);
+                              const ademco_xdata_t* xdat);
+
+// inplace make from pkt and to pkt
+ADEMCO_EXPORT_SYMBOL
+size_t ademco_make_hb_packet3(ademco_packet_t* pkt);
 
 ADEMCO_EXPORT_SYMBOL
 size_t ademco_make_adm_packet2(ademco_packet_t* pkt,
@@ -564,12 +583,12 @@ size_t ademco_make_adm_packet2(ademco_packet_t* pkt,
                                ademco_event_t ademco_event,
                                ademco_gg_t gg,
                                ademco_zone_t zone,
-                               const ademco_xdata_t* xdata);
+                               const ademco_xdata_t* xdat);
 
 // parse a ademco packet, if everything is OK, cb_commited is the packet length
 // err can be NULL; caller should only check err on got ADEMCO_PARSE_RESULT_ERROR
 ADEMCO_EXPORT_SYMBOL
-ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buff,
+ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
                                           size_t len,
                                           ademco_packet_t* pkt,
                                           size_t* cb_commited,
@@ -587,7 +606,7 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buff,
  * Output for "123456789"     : 0xBB3D
  */
 ADEMCO_EXPORT_SYMBOL
-uint16_t ademco_crc16(const ademco_char_t* buff, size_t len);
+uint16_t ademco_crc16(const ademco_char_t* buf, size_t len);
 
 // 将一串以高低字节表示的十六进制数组转换为10进制数字符串
 // 每个字节的高四位和低四位若不大于9，将该四位表示的数字以10进制ascii码填入str，否则停止

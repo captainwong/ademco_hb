@@ -69,6 +69,12 @@
     <ClCompile Include="..\..\hb_core.c">
       <Filter>ademco</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\hb_core_ademco.c">
+      <Filter>ademco</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\hb_rf.c">
+      <Filter>ademco</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ademco.h">
@@ -105,6 +111,12 @@
       <Filter>cJSON</Filter>
     </ClInclude>
     <ClInclude Include="..\..\hb_core.h">
+      <Filter>ademco</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\hb_core_ademco.h">
+      <Filter>ademco</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\hb_rf.h">
       <Filter>ademco</Filter>
     </ClInclude>
   </ItemGroup>

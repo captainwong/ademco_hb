@@ -32,10 +32,10 @@ namespace CSharpDemo
                 Debug.Assert(pkt.id == ademco_packet_id_t.AID_HB);
                 Debug.Assert(pkt.seq == 0);
                 Debug.Assert(pkt.acct == "90219125916578");
-                Debug.Assert(pkt.data.ademco_id == 0);
-                Debug.Assert(pkt.data.ademco_event == ademco_event_t.EVENT_I_AM_WIRE);
-                Debug.Assert(pkt.data.gg == 0);
-                Debug.Assert(pkt.data.zone == 0);
+                Debug.Assert(pkt.dat.ademco_id == 0);
+                Debug.Assert(pkt.dat.ademco_event == ademco_event_t.EVENT_I_AM_WIRE);
+                Debug.Assert(pkt.dat.gg == 0);
+                Debug.Assert(pkt.dat.zone == 0);
                 Console.WriteLine("res={0:D}, commited={1:D}", res, libademco.size_tp_value(cb));
             }
 
@@ -57,10 +57,10 @@ namespace CSharpDemo
                 Debug.Assert(pkt.id == ademco_packet_id_t.AID_HB);
                 Debug.Assert(pkt.seq == 1);
                 Debug.Assert(pkt.acct == "861234567890");
-                Debug.Assert(pkt.data.ademco_id == 666666);
-                Debug.Assert(pkt.data.ademco_event == ademco_event_t.EVENT_ARM_AWAY);
-                Debug.Assert(pkt.data.gg == 0);
-                Debug.Assert(pkt.data.zone == 0);
+                Debug.Assert(pkt.dat.ademco_id == 666666);
+                Debug.Assert(pkt.dat.ademco_event == ademco_event_t.EVENT_ARM_AWAY);
+                Debug.Assert(pkt.dat.gg == 0);
+                Debug.Assert(pkt.dat.zone == 0);
             }
 
             // test pack
@@ -167,14 +167,14 @@ namespace CSharpDemo
                                 case ademco_packet_id_t.AID_ADM_CID:
                                     replyAck(stream, pkt.seq, pkt.acct);
                                     acct = pkt.acct;
-                                    ademco_id = pkt.data.ademco_id;
-                                    if (libademco.ademco_is_machine_type_event(pkt.data.ademco_event) != 0)
+                                    ademco_id = pkt.dat.ademco_id;
+                                    if (libademco.ademco_is_machine_type_event(pkt.dat.ademco_event) != 0)
                                     {
-                                        type = libademco.hb_machine_type_from_ademco_event(pkt.data.ademco_event);
+                                        type = libademco.hb_machine_type_from_ademco_event(pkt.dat.ademco_event);
                                     }
-                                    if (libademco.ademco_is_machine_status_event(pkt.data.ademco_event) != 0)
+                                    if (libademco.ademco_is_machine_status_event(pkt.dat.ademco_event) != 0)
                                     {
-                                        status = libademco.hb_machine_status_from_ademco_event(pkt.data.ademco_event);
+                                        status = libademco.hb_machine_status_from_ademco_event(pkt.dat.ademco_event);
                                     }
 
                                     // 演示如何进行布撤防，真实项目里可以删改本段                             

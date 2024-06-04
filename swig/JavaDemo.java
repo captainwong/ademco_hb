@@ -249,10 +249,10 @@ public class JavaDemo {
                 case AID_HB:
                 case AID_ADM_CID:
                     acct = pkt.getAcct();
-                    ademco_id = pkt.getData().getAdemco_id();
-                    ademco_event_t event = pkt.getData().getAdemco_event();
+                    ademco_id = pkt.getDat().getAdemco_id();
+                    ademco_event_t event = pkt.getDat().getAdemco_event();
                     System.out.println(id() + " event=" + libademco.ademco_event_to_string(event) + " zone="
-                            + pkt.getData().getZone());
+                            + pkt.getDat().getZone());
                     if (libademco.ademco_is_machine_status_event(event) != 0) {
                         status = libademco.hb_machine_status_from_ademco_event(event);
                         // 演示如何进行布撤防，真实项目里可以删改本段

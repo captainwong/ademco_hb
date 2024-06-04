@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="dllmain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ademco.c">
@@ -24,12 +24,33 @@
     <ClCompile Include="..\..\hb_core.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\hb_core_ademco.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\hb_rf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ademco.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\hb_core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ademco_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ademco_version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\hb_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\hb_core_ademco.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\hb_rf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

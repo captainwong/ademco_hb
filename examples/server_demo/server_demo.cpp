@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
 			case AID_ADM_CID:
 			{
 				clientAcct = pkt.acct;
-				clientAdemcoId = pkt.data.ademco_id;
+				clientAdemcoId = pkt.dat.ademco_id;
 				// handle event
 
 				// reply ack

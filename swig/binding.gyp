@@ -6,6 +6,8 @@
                 "libademco_wrap.cxx",
                 "../ademco.c",
                 "../hb_core.c",
+                "../hb_core_ademco.c",
+                "../hb_rf.c",
             ],
             'conditions': [
                 ['OS=="win"', {
