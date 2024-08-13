@@ -253,7 +253,7 @@ public class JavaDemo {
                     ademco_event_t event = pkt.getDat().getAdemco_event();
                     System.out.println(id() + " event=" + libademco.ademco_event_to_string(event) + " zone="
                             + pkt.getDat().getZone());
-                    if (libademco.ademco_is_machine_status_event(event) != 0) {
+                    if (libademco.ademco_is_machine_status_event(event)) {
                         status = libademco.hb_machine_status_from_ademco_event(event);
                         // 演示如何进行布撤防，真实项目里可以删改本段
                         long now = System.currentTimeMillis();
@@ -266,7 +266,7 @@ public class JavaDemo {
                             }
                         }
                     }
-                    if (libademco.ademco_is_machine_type_event(event) != 0) {
+                    if (libademco.ademco_is_machine_type_event(event)) {
                         type = libademco.hb_machine_type_from_ademco_event(event);
                     }
                     replyAck();
