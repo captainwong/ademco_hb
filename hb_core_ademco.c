@@ -99,8 +99,8 @@ ademco_event_t hb_rf_code_to_ademco_event(uint8_t rf_code) {
         case HB_RF_CODE_S_BATTERY_LOW:
         case HB_RF_CODE_R_BATTERY_LOW:
             return EVENT_LOW_BATTERY;
-        case HB_RF_CODE_S_BATTERY_BROKE:
-        case HB_RF_CODE_R_BATTERY_BROKE:
+        case HB_RF_CODE_S_BATTERY_BROKEN:
+        case HB_RF_CODE_R_BATTERY_BROKEN:
             return EVENT_BAD_BATTERY;
         case HB_RF_CODE_BATTERY_RECOVER:
             return EVENT_LOW_BATTERY_RECOVER;
@@ -122,8 +122,8 @@ ademco_event_t hb_rf_code_to_ademco_event(uint8_t rf_code) {
             return EVENT_SUB_MACHINE_POWER_EXCEPTION;
         case HB_RF_CODE_SM_POWER_RECOVER:
             return EVENT_SUB_MACHINE_POWER_RECOVER;
-        case HB_RF_CODE_AC_BROKE:
-            return EVENT_AC_BROKE;
+        case HB_RF_CODE_AC_BROKEN:
+            return EVENT_AC_BROKEN;
         case HB_RF_CODE_AC_RECOVER:
             return EVENT_AC_RECOVER;
 

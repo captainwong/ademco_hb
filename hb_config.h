@@ -1,6 +1,8 @@
 #ifndef __HB_CONFIG_H__
 #define __HB_CONFIG_H__
 
+#include "ademco_config.h"
+
 #ifdef HB_EXPORTS
 
 #if defined __GNUC__
@@ -38,4 +40,8 @@
 #define HB_ENABLE_CHINESE 0
 #endif // HB_ENABLE_TO_STRING
 
-#endif
+#ifndef HB_ENABLE_TIMER_ARM_STAY
+#define HB_ENABLE_TIMER_ARM_STAY 1
+#endif // HB_ENABLE_TIMER_ARM_STAY
+
+#endif // __HB_CONFIG_H__

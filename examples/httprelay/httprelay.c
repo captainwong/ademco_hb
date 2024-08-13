@@ -111,6 +111,7 @@ end:
 void on_tcp_connection(uv_tcpserver_client_context_t* client, int connected) {
     if (connected) {
         machine_info_t* machine = malloc(sizeof(machine_info_t));
+        fatal_if_null(machine);
         memset(machine->acct, '\0', sizeof(machine->acct));
         machine->ademco_id = 0;
         machine->type = HMT_INVALID;

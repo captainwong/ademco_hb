@@ -1,9 +1,6 @@
 #ifndef __ADEMCO_H__
 #define __ADEMCO_H__
 
-#include <stdint.h>
-#include <time.h>
-
 #include "ademco_config.h"
 #include "ademco_version.h"
 
@@ -16,9 +13,6 @@ typedef uint32_t ademco_id_t;
 typedef uint8_t ademco_gg_t;
 typedef uint16_t ademco_zone_t;
 
-#define ADEMCO_OK 0
-#define ADEMCO_ERR -1
-
 #define ADEMCO_PACKET_ACCT_MIN_LEN 6                // #acct之acct最小长度
 #define ADEMCO_PACKET_ACCT_MAX_LEN 18               // #acct之acct最大长度
 #define ADEMCO_PACKET_ACCT_MAC_LEN 12               // WiFi主机账号使用MAC地址
@@ -30,7 +24,7 @@ typedef uint16_t ademco_zone_t;
 #define ADEMCO_PACKET_MAX_LEN 256                   // 安定宝协议最大长度，包括前缀、后缀、data段、xdata段
 #define CONGWIN_FE100_PACKET_LEN 31                 // 丛文FE100协议长度
 #define ADEMCO_PACKET_TIMESTAMP_LEN 20              // 时间戳长度
-#define ADEMCO_PACKET_XDATA_MAX_LEN 64              // xdata段最大长度
+#define ADEMCO_PACKET_XDATA_MAX_LEN 128             // xdata段最大长度
 
 // 安定宝ID范围
 #define ADEMCO_ID_INVALID 0
@@ -69,107 +63,107 @@ typedef uint16_t ademco_zone_t;
 
 // 主机状态
 #define ADEMCO_STATUS_EVENTS_MAP(XX) \
-    XX(ARM_AWAY, 3400, "离家布防")   \
-    XX(DISARM, 1400, "撤防")         \
-    XX(ARM_STAY, 3456, "留守布防")   \
-    XX(ARM_STAY_1456, 1456, "留守布防")
+    XX(3400, ARM_AWAY, "离家布防")   \
+    XX(1400, DISARM, "撤防")         \
+    XX(3456, ARM_STAY, "留守布防")   \
+    XX(1456, ARM_STAY_1456, "留守布防")
 
 // 防区报警
 #define ADEMCO_ALARM_EVENTS_MAP(XX)   \
-    XX(EMERGENCY, 1120, "紧急报警")   \
-    XX(BURGLAR, 1130, "盗警")         \
-    XX(DOOR_RING, 1134, "门铃")       \
-    XX(FIRE, 1110, "火警")            \
-    XX(DURESS, 1121, "胁迫")          \
-    XX(GAS, 1151, "煤气")             \
-    XX(WATER, 1113, "水警")           \
-    XX(TAMPER, 1137, "主机防拆")      \
-    XX(ZONE_TAMPER, 1383, "防区防拆") \
-    XX(BYPASS, 1570, "旁路")
+    XX(1120, EMERGENCY, "紧急报警")   \
+    XX(1130, BURGLAR, "盗警")         \
+    XX(1134, DOOR_RING, "门铃")       \
+    XX(1110, FIRE, "火警")            \
+    XX(1121, DURESS, "胁迫")          \
+    XX(1151, GAS, "煤气")             \
+    XX(1113, WATER, "水警")           \
+    XX(1137, TAMPER, "主机防拆")      \
+    XX(1383, ZONE_TAMPER, "防区防拆") \
+    XX(1570, BYPASS, "旁路")
 
 // 防区报警恢复
 #define ADEMCO_ALARM_RECOVER_EVENTS_MAP(XX)       \
-    XX(EMERGENCY_RECOVER, 3120, "紧急恢复")       \
-    XX(BURGLAR_RECOVER, 3130, "盗警恢复")         \
-    XX(DOOR_RING_RECOVER, 3134, "门铃恢复")       \
-    XX(FIRE_RECOVER, 3110, "火警恢复")            \
-    XX(DURESS_RECOVER, 3121, "胁迫恢复")          \
-    XX(GAS_RECOVER, 3151, "煤气恢复")             \
-    XX(WATER_RECOVER, 3113, "水警恢复")           \
-    XX(TAMPER_RECOVER, 3137, "主机防拆恢复")      \
-    XX(ZONE_TAMPER_RECOVER, 3383, "防区防拆恢复") \
-    XX(BYPASS_RECOVER, 3570, "解除旁路")
+    XX(3120, EMERGENCY_RECOVER, "紧急恢复")       \
+    XX(3130, BURGLAR_RECOVER, "盗警恢复")         \
+    XX(3134, DOOR_RING_RECOVER, "门铃恢复")       \
+    XX(3110, FIRE_RECOVER, "火警恢复")            \
+    XX(3121, DURESS_RECOVER, "胁迫恢复")          \
+    XX(3151, GAS_RECOVER, "煤气恢复")             \
+    XX(3113, WATER_RECOVER, "水警恢复")           \
+    XX(3137, TAMPER_RECOVER, "主机防拆恢复")      \
+    XX(3383, ZONE_TAMPER_RECOVER, "防区防拆恢复") \
+    XX(3570, BYPASS_RECOVER, "解除旁路")
 
 // 防区异常
 #define ADEMCO_EXEPTION_EVENTS_MAP(XX)    \
-    XX(AC_BROKE, 1301, "主机AC掉电")      \
-    XX(LOW_BATTERY, 1302, "低电")         \
-    XX(BAD_BATTERY, 1311, "坏电")         \
-    XX(SOLAR_DISTURB, 1387, "光扰")       \
-    XX(DISCONNECT, 1381, "失效")          \
-    XX(LOST, 1393, "失联")                \
-    XX(POWER_EXCEPTION, 1384, "电源故障") \
-    XX(OTHER_EXCEPTION, 1380, "其他故障")
+    XX(1301, AC_BROKEN, "主机AC掉电")     \
+    XX(1302, LOW_BATTERY, "低电")         \
+    XX(1311, BAD_BATTERY, "坏电")         \
+    XX(1387, SOLAR_DISTURB, "光扰")       \
+    XX(1381, DISCONNECT, "失效")          \
+    XX(1393, LOST, "失联")                \
+    XX(1384, POWER_EXCEPTION, "电源故障") \
+    XX(1380, OTHER_EXCEPTION, "其他故障")
 
 // 防区异常恢复
 #define ADEMCO_EXEPTION_RECOVER_EVENTS_MAP(XX)        \
-    XX(AC_RECOVER, 3301, "主机AC复电")                \
-    XX(LOW_BATTERY_RECOVER, 3302, "低电恢复")         \
-    XX(BAD_BATTERY_RECOVER, 3311, "坏电恢复")         \
-    XX(SOLAR_DISTURB_RECOVER, 3387, "光扰恢复")       \
-    XX(DISCONNECT_RECOVER, 3381, "失效恢复")          \
-    XX(LOST_RECOVER, 3393, "失联恢复")                \
-    XX(POWER_EXCEPTION_RECOVER, 3384, "电源故障恢复") \
-    XX(OTHER_EXCEPTION_RECOVER, 3380, "其他故障恢复") \
-    XX(CLEAR_EXCPTION, 3100, "清除异常指示")
+    XX(3301, AC_RECOVER, "主机AC复电")                \
+    XX(3302, LOW_BATTERY_RECOVER, "低电恢复")         \
+    XX(3311, BAD_BATTERY_RECOVER, "坏电恢复")         \
+    XX(3387, SOLAR_DISTURB_RECOVER, "光扰恢复")       \
+    XX(3381, DISCONNECT_RECOVER, "失效恢复")          \
+    XX(3393, LOST_RECOVER, "失联恢复")                \
+    XX(3384, POWER_EXCEPTION_RECOVER, "电源故障恢复") \
+    XX(3380, OTHER_EXCEPTION_RECOVER, "其他故障恢复") \
+    XX(3100, CLEAR_EXCPTION, "清除异常指示")
 
 // 恒博自定义安定宝事件码
 #define ADEMCO_HB_EVENTS_MAP(XX)                               \
-    XX(SERIAL_485_DIS, 1485, "485断开")                        \
-    XX(SERIAL_485_RECOVER, 3485, "485连接")                    \
-    XX(CONN_HANGUP, 1700, "链路挂起")                          \
-    XX(CONN_RECOVER, 3700, "链路恢复")                         \
-    XX(DISARM_PWD_ERR, 1701, "撤防密码错误")                   \
-    XX(SUB_MACHINE_SENSOR_EXCEPTION, 1702, "分机探头异常")     \
-    XX(SUB_MACHINE_SENSOR_RECOVER, 3702, "分机探头恢复")       \
-    XX(SUB_MACHINE_POWER_EXCEPTION, 1703, "分机电源异常")      \
-    XX(SUB_MACHINE_POWER_RECOVER, 3703, "分机电源恢复")        \
-    XX(COM_PASSTHROUGH, 1704, "串口透传")                      \
-    XX(ENTER_SET_MODE, 2704, "进入设置状态")                   \
-    XX(EXIT_SET_MODE, 3704, "退出设置状态")                    \
-    XX(QUERY_SUB_MACHINE, 1705, "查询分机信息")                \
-    XX(WRITE_TO_MACHINE, 1706, "写入主机信息")                 \
-    XX(I_AM_NET_MODULE, 1707, "主机类型--网络模块")            \
-    XX(I_AM_GPRS, 1717, "主机类型--GPRS主机")                  \
-    XX(I_AM_LCD, 1727, "主机类型--液晶主机")                   \
-    XX(I_AM_WIRE, 1737, "主机类型--网线主机")                  \
-    XX(I_AM_WIFI, 1747, "主机类型--WiFi主机(停用)")            \
-    XX(I_AM_3_SECTION, 1757, "主机类型--三区段主机")           \
-    XX(I_AM_IOT, 1767, "主机类型--物联卡主机")                 \
-    XX(I_AM_TRUE_COLOR, 1777, "主机类型--真彩主机")            \
-    XX(I_AM_GPRS_IOT, 1787, "主机类型--物联卡主机")            \
-    XX(I_AM_GPRS_PHONE, 1797, "主机类型--GRPS主机带电话功能")  \
-    XX(I_AM_NB, 1807, "主机类型--NB报警接收主机")              \
-    XX(I_AM_WIFI2, 1817, "主机类型--WiFi主机(新版)")           \
-    XX(PHONE_USER_SOS, 1709, "手机用户SOS")                    \
-    XX(PHONE_USER_CANCLE_ALARM, 1711, "手机用户消警")          \
-    XX(ENTER_SETTING_MODE, 1712, "主机进入设置状态")           \
-    XX(EXIT_SETTING_MODE, 3712, "主机退出设置状态")            \
-    XX(RESTORE_FACTORY_SETTINGS_710, 1710, "主机恢复出厂设置") \
-    XX(RESTORE_FACTORY_SETTINGS, 1713, "主机恢复出厂设置")     \
-    XX(SIM_IS_IOT_CARD, 1756, "物联卡")                        \
-    XX(SIM_IS_IOT_PLATFORM_CARD, 2756, "平台物联卡")           \
-    XX(SIM_IS_NOT_IOT_CARD, 3756, "非物联卡")                  \
-    XX(WHAT_IS_YOUR_TYPE, 1798, "索要主机类型")                \
-    XX(SIGNAL_STRENGTH_CHANGED, 1799, "信号强度")              \
-    XX(OFFLINE, 1944, "主机断线")                              \
-    XX(ONLINE, 1946, "主机上线")
+    XX(1485, SERIAL_485_DIS, "485断开")                        \
+    XX(3485, SERIAL_485_RECOVER, "485连接")                    \
+    XX(1700, CONN_HANGUP, "链路挂起")                          \
+    XX(3700, CONN_RECOVER, "链路恢复")                         \
+    XX(1701, DISARM_PWD_ERR, "撤防密码错误")                   \
+    XX(1702, SUB_MACHINE_SENSOR_EXCEPTION, "分机探头异常")     \
+    XX(3702, SUB_MACHINE_SENSOR_RECOVER, "分机探头恢复")       \
+    XX(1703, SUB_MACHINE_POWER_EXCEPTION, "分机电源异常")      \
+    XX(3703, SUB_MACHINE_POWER_RECOVER, "分机电源恢复")        \
+    XX(1704, COM_PASSTHROUGH, "串口透传")                      \
+    XX(2704, ENTER_SET_MODE, "进入设置状态")                   \
+    XX(3704, EXIT_SET_MODE, "退出设置状态")                    \
+    XX(1705, QUERY_SUB_MACHINE, "查询分机信息")                \
+    XX(1706, WRITE_TO_MACHINE, "写入主机信息")                 \
+    XX(1707, I_AM_NET_MODULE, "主机类型--网络模块")            \
+    XX(1717, I_AM_GPRS, "主机类型--GPRS主机")                  \
+    XX(1727, I_AM_LCD, "主机类型--液晶主机")                   \
+    XX(1737, I_AM_WIRE, "主机类型--网线主机")                  \
+    XX(1747, I_AM_WIFI, "主机类型--WiFi主机(停用)")            \
+    XX(1757, I_AM_3_SECTION, "主机类型--三区段主机")           \
+    XX(1767, I_AM_IOT, "主机类型--物联卡主机")                 \
+    XX(1777, I_AM_TRUE_COLOR, "主机类型--真彩主机")            \
+    XX(1787, I_AM_GPRS_IOT, "主机类型--物联卡主机")            \
+    XX(1797, I_AM_GPRS_PHONE, "主机类型--GRPS主机带电话功能")  \
+    XX(1807, I_AM_NB, "主机类型--NB报警接收主机")              \
+    XX(1817, I_AM_WIFI2, "主机类型--WiFi主机(新版)")           \
+    XX(1709, PHONE_USER_SOS, "手机用户SOS")                    \
+    XX(1711, PHONE_USER_CANCLE_ALARM, "手机用户消警")          \
+    XX(1712, ENTER_SETTING_MODE, "主机进入设置状态")           \
+    XX(3712, EXIT_SETTING_MODE, "主机退出设置状态")            \
+    XX(1710, RESTORE_FACTORY_SETTINGS_710, "主机恢复出厂设置") \
+    XX(1713, RESTORE_FACTORY_SETTINGS, "主机恢复出厂设置")     \
+    XX(1756, SIM_IS_IOT_CARD, "物联卡")                        \
+    XX(2756, SIM_IS_IOT_PLATFORM_CARD, "平台物联卡")           \
+    XX(3756, SIM_IS_NOT_IOT_CARD, "非物联卡")                  \
+    XX(1798, WHAT_IS_YOUR_TYPE, "索要主机类型")                \
+    XX(1799, SIGNAL_STRENGTH_CHANGED, "信号强度")              \
+    XX(1944, OFFLINE, "主机断线")                              \
+    XX(1946, ONLINE, "主机上线")
 
 // Ademco events
 typedef enum ademco_event_t {
     EVENT_INVALID_EVENT = 0,
 
-#define XX(name, code, zh) EVENT_##name = code,
+#define XX(code, name, zh) EVENT_##name = code,
 
     // ----标准安定宝协议事件----
     // 主机状态
@@ -285,39 +279,42 @@ typedef struct ademco_packet_t {
 } ademco_packet_t;
 
 /* control source defs
- * 范围 0~255
- * 0: 主机
- * 1~50: 遥控器
- * 51~97: 智能家居
+ * 范围 0-255
+ * 0: 主机(布撤防来源目前只有键盘，紧急报警可以是键盘，也可以是遥控器)
+ * 1-10: 遥控器
+ * 11-50: 保留
+ * 51-96: 智能家居
+ * 97: 定时器自动控制
  * 98: 中转接警中心
  * 99: 直连接警中心
- * 100~199: 手机APP，末二位为手机尾号
+ * 100-199: 手机APP，末二位为手机尾号
  * 200: web用户，web端包括 网页，H5, 公众号，小程序等
- * 201~255: web分享用户
- * 特别注意：三区段主机，0 代表主机，1~255 都是遥控器
+ * 201-255: web分享用户
+ * 特别注意：三区段主机，0 代表主机，1-255 都是遥控器
  */
 #define ADEMCO_CONTROL_SOURCES_MAP(XX)                \
-    XX(MACHINE, 0, "主机")                            \
-    XX(REMOTE, 1, "遥控器")                           \
-    XX(REMOTE_MAX, 50, "遥控器MAX")                   \
-    XX(SMART_HOME_ALEXA, 51, "Amazon Alexa")          \
-    XX(SMART_HOME_GOOGLE, 52, "Google Home")          \
-    XX(SMART_HOME_APPLE, 54, "Apple Homekit")         \
-    XX(SMART_HOME_SAMSUNG, 55, "Samsung Smartthings") \
-    XX(SMART_HOME_ALI_GENIE, 56, "阿里天猫精灵")      \
-    XX(SMART_HOME_MI_AI, 57, "小米小爱同学")          \
-    XX(SMART_HOME_BAIDU, 58, "百度小度")              \
-    XX(SMART_HOME_MAX, 97, "智能家居MAX")             \
-    XX(CENTER_TRANSMIT, 98, "中转接警中心")           \
-    XX(CENTER_DIRECT, 99, "直连接警中心")             \
-    XX(PHONE_APP, 100, "手机APP")                     \
-    XX(PHONE_APP_MAX, 199, "手机APP_MAX")             \
-    XX(OWNER, 200, "web用户")                         \
-    XX(SHAREE, 201, "web分享用户")                    \
-    XX(SHAREE_MAX, 255, "web分享用户MAX")
+    XX(0, MACHINE, "主机")                            \
+    XX(1, REMOTE, "遥控器")                           \
+    XX(10, REMOTE_MAX, "遥控器MAX")                   \
+    XX(51, SMART_HOME_ALEXA, "Amazon Alexa")          \
+    XX(52, SMART_HOME_GOOGLE, "Google Home")          \
+    XX(54, SMART_HOME_APPLE, "Apple Homekit")         \
+    XX(55, SMART_HOME_SAMSUNG, "Samsung Smartthings") \
+    XX(56, SMART_HOME_ALI_GENIE, "阿里天猫精灵")      \
+    XX(57, SMART_HOME_MI_AI, "小米小爱同学")          \
+    XX(58, SMART_HOME_BAIDU, "百度小度")              \
+    XX(96, SMART_HOME_MAX, "智能家居MAX")             \
+    XX(97, TIMER, "定时器")                           \
+    XX(98, CENTER_TRANSMIT, "中转接警中心")           \
+    XX(99, CENTER_DIRECT, "直连接警中心")             \
+    XX(100, PHONE_APP, "手机APP")                     \
+    XX(199, PHONE_APP_MAX, "手机APP_MAX")             \
+    XX(200, OWNER, "web用户")                         \
+    XX(201, SHAREE, "web分享用户")                    \
+    XX(255, SHAREE_MAX, "web分享用户MAX")
 
 typedef enum ademco_control_source_t {
-#define XX(name, code, zh) ADEMCO_CONTROL_SOURCE_##name = code,
+#define XX(code, name, zh) ADEMCO_CONTROL_SOURCE_##name = code,
     ADEMCO_CONTROL_SOURCES_MAP(XX)
 #undef XX
 } ademco_control_source_t;
@@ -326,6 +323,14 @@ typedef enum ademco_control_source_t {
 
 #define bcd_encode(x) (((x) / 10) << 4 | ((x) % 10))
 #define bcd_decode(x) (((x) >> 4) * 10 + ((x) & 0x0F))
+
+/////////////////// reverse //////////////////
+
+#define rev16(u) (uint16_t)((((uint16_t)(u) & 0xFF) << 8) | (((uint16_t)(u) & 0xFF00) >> 8))
+#define rev32(u) (uint32_t)((((uint32_t)(u) & 0xFF) << 24) |    \
+                            (((uint32_t)(u) & 0xFF00) << 8) |   \
+                            (((uint32_t)(u) & 0xFF0000) >> 8) | \
+                            (((uint32_t)(u) & 0xFF000000) >> 24))
 
 //////////////////////// Functions ////////////////////////
 
@@ -348,25 +353,25 @@ uint8_t ademco_decode_signal_strength(uint8_t bcd_strength);
 
 // 是否合法主机账号
 ADEMCO_EXPORT_SYMBOL
-int ademco_is_valid_account(const char* acct);
+bool ademco_is_valid_account(const char* acct);
 
 // 是否合法主机密码
 ADEMCO_EXPORT_SYMBOL
-int ademco_is_valid_password(const char* pwd);
+bool ademco_is_valid_password(const char* pwd);
 
 //////////////////////// ademco_event_t functions ////////////////////////
 
 // 是否主机状态事件
 ADEMCO_EXPORT_SYMBOL
-int ademco_is_machine_status_event(ademco_event_t ademco_event);
+bool ademco_is_machine_status_event(ademco_event_t ademco_event);
 
 // 是否主机类型事件
 ADEMCO_EXPORT_SYMBOL
-int ademco_is_machine_type_event(ademco_event_t ademco_event);
+bool ademco_is_machine_type_event(ademco_event_t ademco_event);
 
 // 事件是否需要控制源
 ADEMCO_EXPORT_SYMBOL
-int ademco_is_event_need_control_source(ademco_event_t ademco_event);
+bool ademco_is_event_need_control_source(ademco_event_t ademco_event);
 
 // 获取安定宝事件级别
 ADEMCO_EXPORT_SYMBOL
@@ -430,9 +435,8 @@ size_t ademco_data_to_congwin_fe100(ademco_char_t* fe100,
 ADEMCO_EXPORT_SYMBOL
 void ademco_xdata_init(ademco_xdata_t* xdat);
 
-// return ADEMCO_OK for success, ADEMCO_ERR for failed
 ADEMCO_EXPORT_SYMBOL
-int ademco_xdata_convert(ademco_xdata_t* xdat, ademco_xdata_length_format_t xlf);
+bool ademco_xdata_convert(ademco_xdata_t* xdat, ademco_xdata_length_format_t xlf);
 
 #ifndef SWIG
 // get valid content address of xdat (except [len])
@@ -446,7 +450,7 @@ size_t ademco_xdata_get_valid_content_len(const ademco_xdata_t* xdat);
 
 // return 0 if xdat's valid content is exactly the same as [buf, buf+buf_len)
 ADEMCO_EXPORT_SYMBOL
-int ademco_xdata_memcmp(const ademco_xdata_t* xdat,
+bool ademco_xdata_memeq(const ademco_xdata_t* xdat,
                         const void* buf,
                         size_t buf_len);
 
@@ -455,20 +459,19 @@ ADEMCO_EXPORT_SYMBOL
 size_t ademco_xdata_copy(ademco_xdata_t* dst,
                          const ademco_xdata_t* src);
 
-// return ADEMCO_OK for success, return ADEMCO_ERR for len is too long
 ADEMCO_EXPORT_SYMBOL
-int ademco_make_xdata(ademco_xdata_t* xdat,
-                      ademco_xdata_length_format_t xlf,
-                      ademco_xdata_transform_t xtr,
-                      const ademco_char_t* content,
-                      size_t len);
+bool ademco_make_xdata(ademco_xdata_t* xdat,
+                       ademco_xdata_length_format_t xlf,
+                       ademco_xdata_transform_t xtr,
+                       const ademco_char_t* content,
+                       size_t len);
 
 //////////////////////// ademco_packet_id_t functions ////////////////////////
 
 ADEMCO_EXPORT_SYMBOL
-int ademco_is_valid_packet_id(const char* standard,
-                              const char* id,
-                              size_t len);
+bool ademco_is_valid_packet_id(const char* standard,
+                               const char* id,
+                               size_t len);
 
 ADEMCO_EXPORT_SYMBOL
 ademco_packet_id_t ademco_packet_id_from_string(const char* id,
@@ -593,7 +596,7 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
                                           ademco_packet_t* pkt,
                                           size_t* cb_commited,
                                           ademco_parse_error_t* err);
-
+#ifndef ADEMCO_USE_EXTERNAL_CRC16
 /* CRC16 implementation according to ARC
  * Name                       : CRC-16/ARC
  * Alias					  : ARC, CRC-16, CRC-16/LHA, CRC-IBM
@@ -606,7 +609,19 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
  * Output for "123456789"     : 0xBB3D
  */
 ADEMCO_EXPORT_SYMBOL
-uint16_t ademco_crc16(const ademco_char_t* buf, size_t len);
+uint16_t ademco_crc16(const ademco_char_t ADEMCO_BUF_MEMORY_MODIFIER* buf, size_t len);
+#endif
+
+// 0~9, A~F to '0'~'9', 'A'~'F'
+ADEMCO_EXPORT_SYMBOL uint8_t ademco_hex2char(uint8_t h);
+
+// '0'~'9', 'A'~'F', 'a'~'f' to 0~9, A~F
+ADEMCO_EXPORT_SYMBOL uint8_t ademco_char2hex(uint8_t c);
+
+// like snprintf(str, hex_len * 2 + 1, "%0`hex_len`X", dec)
+// caller should make sure `str` has enough space
+// e.g. ademco_dec_to_hex_str(buf, 0x12345678, 3) => buf = "678"
+ADEMCO_EXPORT_SYMBOL size_t ademco_dec_to_hex_str(char* str, uint32_t dec, uint8_t hex_len);
 
 // 将一串以高低字节表示的十六进制数组转换为10进制数字符串
 // 每个字节的高四位和低四位若不大于9，将该四位表示的数字以10进制ascii码填入str，否则停止
@@ -615,8 +630,8 @@ uint16_t ademco_crc16(const ademco_char_t* buf, size_t len);
 // 调用者应确保str有足够空间，至少len的2倍，否则会崩溃
 // 示例：输入数组：0x18 0x24 0x08 0x88 0x10 0x1f 0xff，输出字符串"18240888101"
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_hilo_array_to_dec_str(ademco_char_t* str,
-                                    const uint8_t* arr,
+size_t ademco_hilo_array_to_dec_str(ademco_char_t ADEMCO_BUF_MEMORY_MODIFIER* str,
+                                    const uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
                                     size_t len);
 
 // 将一串以高低字节表示的十六进制数组转换为字符串
@@ -628,8 +643,8 @@ size_t ademco_hilo_array_to_dec_str(ademco_char_t* str,
 // 示例：输入数组：0x18 0x24 0x08 0x88 0x10 0x1f 0xff，输出字符串"18240888101"
 // 示例：输入数组：0x24 0x94 0x94 0x4c 0x48 0x15 0xff，输出字符串"2494944C4815"
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_hilo_array_to_hex_str(ademco_char_t* str,
-                                    const uint8_t* arr,
+size_t ademco_hilo_array_to_hex_str(ademco_char_t ADEMCO_BUF_MEMORY_MODIFIER* str,
+                                    const uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
                                     size_t len);
 
 // 将一个10进制数字符串转为高低字节表示的数组，节省空间
@@ -645,9 +660,9 @@ size_t ademco_hilo_array_to_hex_str(ademco_char_t* str,
 // return 9
 // 示例：输入NULL，返回 9个 0xFF
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_dec_str_to_hilo_array(uint8_t* arr,
+size_t ademco_dec_str_to_hilo_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
                                     size_t len,
-                                    const char* str);
+                                    const char ADEMCO_BUF_MEMORY_MODIFIER* str);
 
 // 将一个16进制数字符串转为高低字节表示的数组，节省空间
 // str应只包含'0'~'9', 'A'~'F', 'a'~'f'，否则失败返回0
@@ -662,9 +677,9 @@ size_t ademco_dec_str_to_hilo_array(uint8_t* arr,
 // return 9
 // 示例：输入NULL，返回 9个 0xFF
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_hex_str_to_hilo_array(uint8_t* arr,
+size_t ademco_hex_str_to_hilo_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
                                     size_t len,
-                                    const char* str);
+                                    const char ADEMCO_BUF_MEMORY_MODIFIER* str);
 
 // 将一串字节流转换为可打印形式
 // 返回str长度（len * 2)
@@ -673,8 +688,8 @@ size_t ademco_hex_str_to_hilo_array(uint8_t* arr,
 // 示例：输入 arr=[0xEB 0xBA 0x3F], len=3, 则str = "EBBA3F"，返回6
 // 示例：输入 ary="123", len=3, 则str = "313233"，返回6
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_hex_array_to_str(char* str,
-                               const uint8_t* arr,
+size_t ademco_hex_array_to_str(char ADEMCO_BUF_MEMORY_MODIFIER* str,
+                               const uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
                                size_t len);
 
 // 将一串字符串（内容为'0'~'9', 'A'~'F', 'a' ~'f')转为字节流
@@ -685,16 +700,16 @@ size_t ademco_hex_array_to_str(char* str,
 // 示例：输入字符串str="ABC", padding = 0, 输出arr=[0xAB, 0xC0]，返回2
 // 示例：输入字符串str="ABC", padding = 0x0F, 输出arr=[0xAB, 0xCF]，返回2
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_hex_str_to_array(uint8_t* arr,
-                               const char* str,
+size_t ademco_hex_str_to_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
+                               const char ADEMCO_BUF_MEMORY_MODIFIER* str,
                                uint8_t padding);
 
 // 功能同ademcoHexStrToArray
 // 若strlen(str) > len, str[len]及之后的内容将被舍弃以避免溢出
 // 示例：输入字符串str="ABCDE", len = 4 padding = 0x0F, 输出arr=[0xAB, 0xCD], return 2
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_hex_str_to_array_n(uint8_t* arr,
-                                 const char* str,
+size_t ademco_hex_str_to_array_n(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
+                                 const char ADEMCO_BUF_MEMORY_MODIFIER* str,
                                  size_t len, uint8_t padding);
 
 // 同ademcoHexStrToArrayN，但允许str包含非hex字符，
@@ -702,8 +717,8 @@ size_t ademco_hex_str_to_array_n(uint8_t* arr,
 // 示例：str="AB\xFFD", len=4, padding=0x0F, 则 arr=[ 0xAB, 0xFD ], return 2
 // 网线主机 0d 00 命令，接警中心账号部分，有可能是这种
 ADEMCO_EXPORT_SYMBOL
-size_t ademco_hex_str_to_array_n_allow_non_hex_str(uint8_t* arr,
-                                                   const char* str,
+size_t ademco_hex_str_to_array_n_allow_non_hex_str(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
+                                                   const char ADEMCO_BUF_MEMORY_MODIFIER* str,
                                                    size_t len,
                                                    uint8_t padding);
 

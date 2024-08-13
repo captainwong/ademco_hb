@@ -23,32 +23,32 @@ const char* print_bool(bool b) {
 }
 
 ademco_event_t statusEvents[] = {
-#define XX(name, code, zh) EVENT_##name,
+#define XX(code, name, zh) EVENT_##name,
 	ADEMCO_STATUS_EVENTS_MAP(XX)
 #undef XX
 };
 
 ademco_event_t alarmEvents[] = {
-#define XX(name, code, zh) EVENT_##name,
+#define XX(code, name, zh) EVENT_##name,
 	ADEMCO_ALARM_EVENTS_MAP(XX)
 #undef XX
 };
 
 ademco_event_t excepEvents[] = {
-#define XX(name, code, zh) EVENT_##name,
+#define XX(code, name, zh) EVENT_##name,
 	ADEMCO_EXEPTION_EVENTS_MAP(XX)
 	ADEMCO_EXEPTION_RECOVER_EVENTS_MAP(XX)
 #undef XX
 };
 
 ademco_event_t privateEvents[] = {
-#define XX(name, code, zh) EVENT_##name,
+#define XX(code, name, zh) EVENT_##name,
 	ADEMCO_HB_EVENTS_MAP(XX)
 #undef XX
 };
 
 ademco_event_t allEvents[] = {
-#define XX(name, code, zh) EVENT_##name,
+#define XX(code, name, zh) EVENT_##name,
 	ADEMCO_STATUS_EVENTS_MAP(XX)
 	ADEMCO_ALARM_EVENTS_MAP(XX)
 	ADEMCO_ALARM_RECOVER_EVENTS_MAP(XX)
@@ -59,7 +59,7 @@ ademco_event_t allEvents[] = {
 };
 
 hb_zone_property_t allZoneProperties[] = {
-#define XX(name, value, str) HZP_##name,
+#define XX(value, name, str) HZP_##name,
 	HB_ZONE_PROPERTY_MAP(XX)
 #undef XX
 };
@@ -391,7 +391,7 @@ void gen_sources() {
 	printf("%s\n", comment);
 	printf("|zone|name|source|\n");
 	printf("|----|----|------|\n");
-#define XX(name, code, zh) \
+#define XX(code, name, zh) \
 	printf("|%d|%s|%s|\n", code, #name, zh);
 	ADEMCO_CONTROL_SOURCES_MAP(XX)
 #undef XX

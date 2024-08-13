@@ -1,14 +1,17 @@
 #ifndef __HB_RF_H__
 #define __HB_RF_H__
 
-#include <stdint.h>
-
 #include "hb_config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define HB_INVALID_RF_ADDR 0xFFFF
+#define hb_is_valid_rf_addr(addr) ((0 < (addr)) && ((addr) < 0xFFFF))
+
+// 无线命令码
+// Note: 工程主机删除所有探头会报 E0，其他都是探头无线码
 #define HB_RF_CODE_MAP(XX)                            \
     XX(0x00, BURGLAR, "报警")                         \
     XX(0x01, ARM, "布防")                             \
@@ -22,13 +25,13 @@ extern "C" {
     XX(0x57, NIGHT, "夜间")                           \
     XX(0x69, SENDER_REBOOT, "发送端重启")             \
     XX(0x75, DAY, "白天")                             \
-    XX(0xA5, R_BATTERY_BROKE, "收电池损坏")           \
+    XX(0xA5, R_BATTERY_BROKEN, "收电池损坏")          \
     XX(0xA8, DOOR_RING, "门铃")                       \
     XX(0xAB, S_BATTERY_LOW, "发低电")                 \
     XX(0xAC, R_BATTERY_LOW, "收低电")                 \
     XX(0xAD, BATTERY_RECOVER, "复电")                 \
-    XX(0xAE, S_BATTERY_BROKE, "发电池损坏")           \
-    XX(0xB0, AC_BROKE, "AC掉电")                      \
+    XX(0xAE, S_BATTERY_BROKEN, "发电池损坏")          \
+    XX(0xB0, AC_BROKEN, "AC掉电")                     \
     XX(0xB1, AC_RECOVER, "AC恢复")                    \
     XX(0xBA, TAMPER, "防拆")                          \
     XX(0xBB, SLEEP, "电池电压小于3V，终端进入休眠")   \
@@ -42,6 +45,7 @@ extern "C" {
     XX(0xCE, SM_EXCEPTION, "分机产生异常信息")        \
     XX(0xCF, SM_EXCEPT_RECOVER, "分机恢复异常信息")   \
     XX(0xDD, QUERY, "查询分机状态")                   \
+    XX(0xE0, DELETED_ALL_SENSOR, "已删除所有传感器")  \
     XX(0xED, SHUTDOWN, "关机")
 
 // 无线命令码

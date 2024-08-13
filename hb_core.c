@@ -12,7 +12,7 @@ uint8_t hb_get_available_zone_properties_by_type(hb_machine_type_t type,
         case HMT_GPRS_IOT:
         case HMT_GPRS:
         case HMT_WIFI2: {
-            hb_zone_property_t hzps[] = {
+            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
                 HZP_BURGLAR,
                 HZP_EMERGENCY,
                 HZP_FIRE,
@@ -25,7 +25,7 @@ uint8_t hb_get_available_zone_properties_by_type(hb_machine_type_t type,
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_NETMOD: {
-            hb_zone_property_t hzps[] = {
+            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
                 HZP_BURGLAR,
                 HZP_EMERGENCY,
                 HZP_FIRE,
@@ -35,23 +35,23 @@ uint8_t hb_get_available_zone_properties_by_type(hb_machine_type_t type,
                 HZP_SUB_MACHINE,
                 HZP_REMOTE_CONTROL,
                 HZP_BURGLAR_HALF,
-                HZP_SHIELD,
+                HZP_BYPASS,
                 HZP_DOOR_RING,
             };
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_LCD: {
-            hb_zone_property_t hzps[] = {
+            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
                 HZP_BURGLAR, HZP_EMERGENCY, HZP_FIRE,
                 HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE,
-                HZP_REMOTE_CONTROL, HZP_BURGLAR_HALF, HZP_SHIELD,
+                HZP_REMOTE_CONTROL, HZP_BURGLAR_HALF,
                 HZP_DOOR_RING, HZP_BYPASS};
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_WIRED: {
-            hb_zone_property_t hzps[] = {
+            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
                 HZP_BURGLAR,
                 HZP_EMERGENCY,
                 HZP_FIRE,
@@ -64,31 +64,31 @@ uint8_t hb_get_available_zone_properties_by_type(hb_machine_type_t type,
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_TRUE_COLOR: {
-            hb_zone_property_t hzps[] = {
+            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
                 HZP_BURGLAR, HZP_EMERGENCY, HZP_FIRE,
                 HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL,
-                HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS};
+                HZP_DOOR_RING, HZP_BYPASS};
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_THREE_SECTION: {
-            hb_zone_property_t hzps[] = {
+            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
                 HZP_BURGLAR, HZP_EMERGENCY, HZP_FIRE,
                 HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL,
-                HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS};
+                HZP_DOOR_RING, HZP_BYPASS};
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_IOT: {
-            hb_zone_property_t hzps[] = {
+            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
                 HZP_BURGLAR, HZP_EMERGENCY, HZP_FIRE,
                 HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL,
-                HZP_SHIELD, HZP_DOOR_RING, HZP_BYPASS};
+                HZP_DOOR_RING, HZP_BYPASS};
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_GPRS_PHONE: {
-            hb_zone_property_t hzps[] = {
+            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
                 HZP_BURGLAR,
                 HZP_EMERGENCY,
                 HZP_FIRE,
@@ -101,7 +101,7 @@ uint8_t hb_get_available_zone_properties_by_type(hb_machine_type_t type,
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_NB: {
-            hb_zone_property_t hzps[] = {
+            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
                 HZP_BURGLAR,
                 HZP_EMERGENCY,
                 HZP_FIRE,
@@ -117,6 +117,17 @@ uint8_t hb_get_available_zone_properties_by_type(hb_machine_type_t type,
             return 0;
     }
     return 0;
+}
+
+bool hb_machine_supports_zone_property(hb_machine_type_t type, hb_zone_property_t prop) {
+    hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER props[HZP_COUNT];
+    uint8_t count = hb_get_available_zone_properties_by_type(type, props), i;
+    for (i = 0; i < count; i++) {
+        if (props[i] == prop) {
+            return true;
+        }
+    }
+    return false;
 }
 
 uint16_t hb_get_max_zone_by_type(hb_machine_type_t type) {
@@ -152,16 +163,16 @@ uint16_t hb_get_max_zone_by_type(hb_machine_type_t type) {
     }
 }
 
-uint8_t hb_is_valid_zone_by_type(hb_machine_type_t type, uint16_t zone) {
+bool hb_is_valid_zone_by_type(hb_machine_type_t type, uint16_t zone) {
     return 0 <= zone &&
            zone <= hb_get_max_zone_by_type(type);
 }
 
-uint8_t hb_is_valid_zone_by_type_strict(hb_machine_type_t type, uint16_t zone) {
+bool hb_is_valid_zone_by_type_strict(hb_machine_type_t type, uint16_t zone) {
     return 1 <= zone && zone <= hb_get_max_zone_by_type(type);
 }
 
-uint8_t hb_is_machine_on_sale(hb_machine_type_t type) {
+bool hb_is_machine_on_sale(hb_machine_type_t type) {
     return type == HMT_GPRS_IOT ||
            type == HMT_NETMOD ||
            type == HMT_GPRS ||
@@ -175,23 +186,23 @@ uint8_t hb_is_machine_on_sale(hb_machine_type_t type) {
            type == HMT_WIFI2;
 }
 
-uint8_t hb_machine_can_arm_away(hb_machine_type_t type) {
+bool hb_machine_can_arm_away(hb_machine_type_t type) {
     return hb_is_machine_on_sale(type) && (type != HMT_NB);
 }
 
-uint8_t hb_machine_can_disarm(hb_machine_type_t type) {
+bool hb_machine_can_disarm(hb_machine_type_t type) {
     return hb_is_machine_on_sale(type) && (type != HMT_NB);
 }
 
-uint8_t hb_machine_can_config(hb_machine_type_t type) {
+bool hb_machine_can_config(hb_machine_type_t type) {
     return hb_is_machine_on_sale(type);
 }
 
-uint8_t hb_machine_can_arm_stay(hb_machine_type_t type) {
+bool hb_machine_can_arm_stay(hb_machine_type_t type) {
     return type == HMT_NETMOD || type == HMT_LCD;
 }
 
-uint8_t hb_machine_can_report_signal_strength(hb_machine_type_t type) {
+bool hb_machine_can_report_signal_strength(hb_machine_type_t type) {
     return type == HMT_GPRS ||
            type == HMT_GPRS_IOT ||
            type == HMT_IOT ||
@@ -203,7 +214,7 @@ uint8_t hb_machine_can_report_signal_strength(hb_machine_type_t type) {
            type == HMT_WIFI2;
 }
 
-uint8_t hb_machine_can_report_by_sms(hb_machine_type_t type) {
+bool hb_machine_can_report_by_sms(hb_machine_type_t type) {
     return type == HMT_GPRS ||
            type == HMT_LCD ||
            type == HMT_TRUE_COLOR ||
@@ -211,7 +222,7 @@ uint8_t hb_machine_can_report_by_sms(hb_machine_type_t type) {
            type == HMT_GPRS_PHONE;
 }
 
-uint8_t hb_machine_has_wired_zones(hb_machine_type_t type) {
+bool hb_machine_has_wired_zones(hb_machine_type_t type) {
     return type == HMT_NETMOD ||
            type == HMT_TRUE_COLOR ||
            type == HMT_THREE_SECTION;
@@ -243,15 +254,15 @@ uint16_t hb_wired_zone_max(hb_machine_type_t type) {
     }
 }
 
-uint8_t hb_machine_can_write_zone(hb_machine_type_t type) {
+bool hb_machine_can_write_zone(hb_machine_type_t type) {
     return type == HMT_NETMOD;
 }
 
-uint8_t hb_machine_can_link_sub_machine(hb_machine_type_t type) {
+bool hb_machine_can_link_sub_machine(hb_machine_type_t type) {
     return type == HMT_NETMOD;
 }
 
-uint8_t hb_zone_can_report_lost(hb_zone_property_t zp) {
+bool hb_zone_can_report_lost(hb_zone_property_t zp) {
     switch (zp) {
         case HZP_BURGLAR:
         case HZP_EMERGENCY:
@@ -273,32 +284,36 @@ void hb_machine_timer_init(hb_machine_timer_t* timer) {
     memset(timer->dat, 0xFF, sizeof(*timer));
 }
 
-uint8_t hb_is_valid_time_point(hb_machine_time_point_t* tp) {
+uint8_t hb_is_valid_time_point(const hb_machine_time_point_t* tp) {
     return tp &&
            tp->hour < 24 &&
            tp->minute < 60;
 }
 
-uint8_t hb_time_point_equal(hb_machine_time_point_t* tp1, hb_machine_time_point_t* tp2) {
+uint8_t hb_time_point_equal(const hb_machine_time_point_t* tp1, const hb_machine_time_point_t* tp2) {
     return tp1->hour == tp2->hour && tp1->minute == tp2->minute;
 }
 
-uint8_t hb_is_valid_timer_one(hb_machine_timer_one_t* timer) {
+uint8_t hb_is_valid_timer_one(const hb_machine_timer_one_t* timer) {
     return timer &&
+#if HB_ENABLE_TIMER_ARM_STAY
+           (timer->arm_what == HB_TIMER_ARM_WHAT_ARM_AWAY || timer->arm_what == HB_TIMER_ARM_WHAT_ARM_STAY) &&
+#endif
            hb_is_valid_time_point(&timer->arm_at) &&
            hb_is_valid_time_point(&timer->disarm_at) &&
            !hb_time_point_equal(&timer->arm_at, &timer->disarm_at);
 }
 
-uint8_t hb_is_valid_machine_timer(hb_machine_timer_t* timer) {
+uint8_t hb_is_valid_machine_timer(const hb_machine_timer_t* timer) {
     return timer &&
            hb_is_valid_timer_one(&timer->timer[0]) &&
            hb_is_valid_timer_one(&timer->timer[1]);
 }
 
+#if HB_ENABLE_TO_STRING
 const char* hb_machine_status_to_string(hb_machine_status_t status) {
     switch (status) {
-#define XX(name, value, str) \
+#define XX(value, name, str) \
     case HMS_##name:         \
         return #name;
         HB_MACHINE_STATUS_MAP(XX)
@@ -310,7 +325,7 @@ const char* hb_machine_status_to_string(hb_machine_status_t status) {
 
 const char* hb_machine_type_to_string(hb_machine_type_t type) {
     switch (type) {
-#define XX(name, value, str) \
+#define XX(value, name, str) \
     case HMT_##name:         \
         return #name;
         HB_MACHINE_TYPE_MAP(XX)
@@ -323,7 +338,7 @@ const char* hb_machine_type_to_string(hb_machine_type_t type) {
 
 const char* hb_zone_property_to_string(hb_zone_property_t zp) {
     switch (zp) {
-#define XX(name, value, str) \
+#define XX(value, name, str) \
     case HZP_##name:         \
         return #name;
         HB_ZONE_PROPERTY_MAP(XX)
@@ -337,7 +352,7 @@ const char* hb_zone_property_to_string(hb_zone_property_t zp) {
 #if HB_ENABLE_CHINESE
 const char* hb_machine_status_to_string_chinese(hb_machine_status_t status) {
     switch (status) {
-#define XX(name, value, str) \
+#define XX(value, name, str) \
     case HMS_##name:         \
         return str;
         HB_MACHINE_STATUS_MAP(XX)
@@ -350,7 +365,7 @@ const char* hb_machine_status_to_string_chinese(hb_machine_status_t status) {
 
 const char* hb_machine_type_to_string_chinese(hb_machine_type_t type) {
     switch (type) {
-#define XX(name, value, str) \
+#define XX(value, name, str) \
     case HMT_##name:         \
         return str;
         HB_MACHINE_TYPE_MAP(XX)
@@ -363,7 +378,7 @@ const char* hb_machine_type_to_string_chinese(hb_machine_type_t type) {
 
 const char* hb_zone_property_to_string_chinese(hb_zone_property_t zp) {
     switch (zp) {
-#define XX(name, value, str) \
+#define XX(value, name, str) \
     case HZP_##name:         \
         return str;
         HB_ZONE_PROPERTY_MAP(XX)
@@ -384,3 +399,4 @@ const char* hb_get_zone_format_str(hb_machine_type_t type) {
     else
         return "%d";
 }
+#endif  // HB_ENABLE_TO_STRING

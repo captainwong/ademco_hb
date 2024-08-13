@@ -168,11 +168,11 @@ namespace CSharpDemo
                                     replyAck(stream, pkt.seq, pkt.acct);
                                     acct = pkt.acct;
                                     ademco_id = pkt.dat.ademco_id;
-                                    if (libademco.ademco_is_machine_type_event(pkt.dat.ademco_event) != 0)
+                                    if (libademco.ademco_is_machine_type_event(pkt.dat.ademco_event))
                                     {
                                         type = libademco.hb_machine_type_from_ademco_event(pkt.dat.ademco_event);
                                     }
-                                    if (libademco.ademco_is_machine_status_event(pkt.dat.ademco_event) != 0)
+                                    if (libademco.ademco_is_machine_status_event(pkt.dat.ademco_event))
                                     {
                                         status = libademco.hb_machine_status_from_ademco_event(pkt.dat.ademco_event);
                                     }

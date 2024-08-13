@@ -6,9 +6,9 @@
  * evolve between minor releases, but only in a backwards compatible way.
  */
 
-#define ADEMCO_VERSION_MAJOR 2
-#define ADEMCO_VERSION_MINOR 7
-#define ADEMCO_VERSION_PATCH 0
+#define ADEMCO_VERSION_MAJOR 3
+#define ADEMCO_VERSION_MINOR 2
+#define ADEMCO_VERSION_PATCH 2
 #define ADEMCO_VERSION_IS_RELEASE 1
 #define ADEMCO_VERSION_SUFFIX ""
 

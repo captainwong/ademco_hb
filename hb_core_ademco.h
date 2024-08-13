@@ -9,6 +9,21 @@
 extern "C" {
 #endif
 
+// 主机类型与安定宝事件码对照表
+#define HMT_EVENT_MAP(XX)                       \
+    XX(HMT_WIFI, EVENT_I_AM_WIFI)               \
+    XX(HMT_GPRS_IOT, EVENT_I_AM_GPRS_IOT)       \
+    XX(HMT_NETMOD, EVENT_I_AM_NET_MODULE)       \
+    XX(HMT_GPRS, EVENT_I_AM_GPRS)               \
+    XX(HMT_LCD, EVENT_I_AM_LCD)                 \
+    XX(HMT_WIRED, EVENT_I_AM_WIRE)              \
+    XX(HMT_TRUE_COLOR, EVENT_I_AM_TRUE_COLOR)   \
+    XX(HMT_THREE_SECTION, EVENT_I_AM_3_SECTION) \
+    XX(HMT_IOT, EVENT_I_AM_IOT)                 \
+    XX(HMT_GPRS_PHONE, EVENT_I_AM_GPRS_PHONE)   \
+    XX(HMT_NB, EVENT_I_AM_NB)                   \
+    XX(HMT_WIFI2, EVENT_I_AM_WIFI2)
+
 // 防区属性与安定宝事件码对照表
 #define HZP_EVENT_MAP(XX)               \
     XX(HZP_BURGLAR, EVENT_BURGLAR)      \
