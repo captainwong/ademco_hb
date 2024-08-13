@@ -64,83 +64,81 @@ hb_zone_property_t allZoneProperties[] = {
 #undef XX
 };
 
-void printEvents(const ademco_event_t* events, size_t len)
-{
+void printEvents(const ademco_event_t* events, size_t len) {
 	printf("|事件码|含义|en|\n|-----|----|--|\n");
 	for (size_t i = 0; i < len; i++) {
 		auto e = events[i];
-		printf("|%04d|%s|%s|\n", e, 
-			   ademco_event_to_string_chinese(e), 
+		printf("|%04d|%s|%s|\n", e,
+			   ademco_event_to_string_chinese(e),
 			   ademco_event_to_string(e));
 	}
 	printf("\n");
 }
 
 
-const char* get_core_author(hb_machine_type_t t)
-{
+const char* get_core_author(hb_machine_type_t t) {
 	switch (t) {
-	case HMT_WIFI:
-	case HMT_GPRS_IOT:
-	case HMT_GPRS:
-	case HMT_WIRED:
-	case HMT_WIFI2:
-		return "wzq";
+		case HMT_GPRS:
+		case HMT_WIFI:
+		case HMT_GPRS_IOT:
+		case HMT_WIFI2:
+			return "wzq";
 
-	case HMT_NETMOD:
-	case HMT_LCD:
-	case HMT_TRUE_COLOR:
-	case HMT_THREE_SECTION:
-	case HMT_IOT:
-	case HMT_GPRS_PHONE:
-		return "jjf";
+		case HMT_LCD:
+		case HMT_TRUE_COLOR:
+		case HMT_THREE_SECTION:
+		case HMT_IOT:
+		case HMT_GPRS_PHONE:
+			return "jjf";
+
+		case HMT_NETMOD:
+		case HMT_WIRED:
+			return "jack";
 	}
 
 	return "";
 }
 
-const char* get_net_author(hb_machine_type_t t)
-{
+const char* get_net_author(hb_machine_type_t t) {
 	switch (t) {
-	case HMT_WIFI:
-	case HMT_WIRED:
-	case HMT_NETMOD:
-	case HMT_GPRS_IOT:
-	case HMT_GPRS:
-	case HMT_LCD:
-	case HMT_TRUE_COLOR:
-	case HMT_THREE_SECTION:
-	case HMT_IOT:
-	case HMT_GPRS_PHONE:
-	case HMT_WIFI2:
-		return "qfm";
+		case HMT_WIFI:
+		case HMT_GPRS_IOT:
+		case HMT_GPRS:
+		case HMT_LCD:
+		case HMT_TRUE_COLOR:
+		case HMT_THREE_SECTION:
+		case HMT_IOT:
+		case HMT_GPRS_PHONE:
+		case HMT_WIFI2:
+			return "qfm";
+
+		case HMT_WIRED:
+		case HMT_NETMOD:
+			return "jack";
 	}
 
 	return "";
 }
 
-std::vector<std::string> get_machine_brands(hb_machine_type_t t)
-{
+std::vector<std::string> get_machine_brands(hb_machine_type_t t) {
 	switch (t) {
-	case HMT_WIFI:
-	case HMT_CAMERA: return {};
-	case HMT_GPRS_IOT: return { "5050G-4GW", };
-	case HMT_NETMOD: return { "G250" };
-	case HMT_GPRS: return { "4040G", "5050G", "5050G-4G",  };
-	case HMT_LCD: return { "BJQ560", "BJQ560B" };
-	case HMT_WIRED: return { "4040R", "5050R" };
-	case HMT_TRUE_COLOR:return { "G1000", "G1000-4G" };
-	case HMT_THREE_SECTION:return { "G1000", "G1000-4G" };
-	case HMT_IOT: return { "2050-4GW" };
-	case HMT_GPRS_PHONE: return { "2050" };
-	//case hb::common::Nb: return { "" };
-	default: return {};
-		break;
+		case HMT_WIFI:
+		case HMT_CAMERA: return {};
+		case HMT_GPRS_IOT: return { "5050G-4GW", };
+		case HMT_NETMOD: return { "G250" };
+		case HMT_GPRS: return { "4040G", "5050G", "5050G-4G", };
+		case HMT_LCD: return { "BJQ560", "BJQ560B" };
+		case HMT_WIRED: return { "4040R", "5050R" };
+		case HMT_TRUE_COLOR:return { "G1000", "G1000-4G" };
+		case HMT_THREE_SECTION:return { "G1000", "G1000-4G" };
+		case HMT_IOT: return { "2050-4GW" };
+		case HMT_GPRS_PHONE: return { "2050" };
+		default: return {};
+			   break;
 	}
 }
 
-std::string brand_to_path(const std::string& brand)
-{
+std::string brand_to_path(const std::string& brand) {
 	std::vector<std::string> exts = { "png", "jpg" };
 	std::string path = jlib::win32::utf16_to_mbcs(L"..\\..\\docs\\主机类型\\smartresize\\HB-") + brand;
 	for (auto ext : exts) {
@@ -151,21 +149,18 @@ std::string brand_to_path(const std::string& brand)
 	return {};
 }
 
-void print_machine_brands(hb_machine_type_t t)
-{
+void print_machine_brands(hb_machine_type_t t) {
 	printf("|<ul>");
-	for (auto brand : get_machine_brands(t)) {		
+	for (auto brand : get_machine_brands(t)) {
 		auto path = brand_to_path(brand);
 		if (!path.empty()) {
-			printf(jlib::win32::utf16_to_mbcs(LR"(<li>%s</li>)").data(), brand.data());// , brand.data(), path.data());
+			printf(jlib::win32::utf16_to_mbcs(LR"(<li>%s</li>)").data(), brand.data());
 		}
-		
 	}
 	printf("</ul>");
 }
 
-void print_machineTypes()
-{
+void print_machineTypes() {
 	printf("### *恒博主机类型对照表*\n\n");
 
 	printf("*SMS指主机自身是否可以拨打电话、发送短信，不是指通过阿里语音打电话*\n");
@@ -174,9 +169,9 @@ void print_machineTypes()
 		   "|------|-------|----|----|-----|----|-------|----|-------|---|----|---|----|\n");
 
 	for (auto e : allEvents) {
-		if (ademco_is_machine_type_event(e)) { 
-			auto t = hb_machine_type_from_ademco_event(e); 
-			if(!hb_is_machine_on_sale(t)) continue; 
+		if (ademco_is_machine_type_event(e)) {
+			auto t = hb_machine_type_from_ademco_event(e);
+			if (!hb_is_machine_on_sale(t)) continue;
 
 			printf("|%04d %s", (int)e, ademco_event_to_string_chinese(e));
 			printf("|%d %s", (int)t, hb_machine_type_to_string_chinese(t));
@@ -198,11 +193,9 @@ void print_machineTypes()
 			printf("|\n");
 		}
 	}
-
 }
 
-void print_imgs()
-{
+void print_imgs() {
 	printf("\n\n### *恒博主机型号示例图片*\n\n");
 
 	printf("|型号|示例图片|\n"
@@ -236,19 +229,12 @@ bool zprop_is_contain(hb_zone_property_t* props, int count, hb_zone_property_t p
 	return false;
 }
 
-void print_available_zone_props()
-{
+void print_available_zone_props() {
 	printf("### *恒博主机类型与支持的防区属性对照表*\n\n");
-
-	
-	//auto all_props = getAvailableZoneProperties();
 
 	auto print_prop = [](hb_zone_property_t zp) {
 		printf("%02X %s", zp, hb_zone_property_to_string_chinese(zp));
 	};
-
-
-
 
 	printf("* 防区属性是否支持失联报告\n\n");
 	printf("|");
@@ -268,7 +254,6 @@ void print_available_zone_props()
 		printf("|%s", print_bool(hb_zone_can_report_lost(zp)));
 	}
 	printf("|\n\n");
-
 
 	printf("* 主机类型与支持的防区属性对照表\n\n");
 	printf("|事件码|类型|型号");
@@ -299,13 +284,9 @@ void print_available_zone_props()
 			printf("|\n");
 		}
 	}
-
-
 }
 
-
-void print_g250_alarm_codes()
-{
+void print_g250_alarm_codes() {
 	//printf("# 工程主机串口通信协议\n\n");
 	//printf("9600, N, 8, 1\n\n");
 	//printf("SUM = DATA(N) = DATA(0) + DATA(1) + ... + DATA(N-1)\n\n");
@@ -375,16 +356,18 @@ void gen_sources() {
 	const char* comment = R"(
 ```c
 /* control source defs
- * 范围 0~255
- * 0: 主机
- * 1~50: 遥控器
- * 51~97: 智能家居
+ * 范围 0-255
+ * 0: 主机(布撤防来源目前只有键盘，紧急报警可以是键盘，也可以是遥控器)
+ * 1-10: 遥控器
+ * 11-50: 保留
+ * 51-96: 智能家居
+ * 97: 定时器自动控制
  * 98: 中转接警中心
  * 99: 直连接警中心
- * 100~199: 手机APP，末二位为手机尾号
+ * 100-199: 手机APP，末二位为手机尾号
  * 200: web用户，web端包括 网页，H5, 公众号，小程序等
- * 201~255: web分享用户
- * 特别注意：三区段主机，0 代表主机，1~255 都是遥控器
+ * 201-255: web分享用户
+ * 特别注意：三区段主机，0 代表主机，1-255 都是遥控器
  */
 ```
 )";
@@ -397,8 +380,7 @@ void gen_sources() {
 #undef XX
 }
 
-int main()
-{
+int main() {
 
 #define GEN_EVENTS 1
 #define GEN_G250_CODES 2

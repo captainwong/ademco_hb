@@ -16,12 +16,7 @@ QQ群：`1093730796`
 
 ## docs
 
-[开发文档](docs/README.md)
-
+[对接说明](docs/对接说明.md)
+[协议文档](docs/README.md)
 
 ## 测试及演示工具，已编译的dll等请点击 [releases](https://github.com/captainwong/ademco_hb/releases)下载
-
-
-## ChangeLog
-
-* 2022年7月31日 废弃旧版 `C++` 头文件版本，启用纯 `C` 版本。`C++` 版本可以在 `cpp` 分支查看。
