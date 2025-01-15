@@ -24,6 +24,7 @@
 
 #include <mutex>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
 #include "../../ademco.h"
@@ -56,6 +57,72 @@ ademco_id_t clientAdemcoId = 0;
 std::mutex mutex = {};
 std::vector<ademco_event_t> evntsWaiting4Send = {};
 char pwd[1024] = {};
+
+// 开关量示例：在收到报警时上报报警，在一定时间后自动上报报警恢复，在撤防时上报报警恢复
+constexpr auto DEDUP_GAP = 3;        // 3秒内重复报警事件不上报
+constexpr auto SWITCH_TIMEOUT = 10;  // 10秒后自动上报3120报警恢复
+typedef struct {
+    time_t time;
+    ademco_event_t event;
+} alarm_one_t;
+std::unordered_map<ademco_zone_t, alarm_one_t> switch_alarms;  // 开关量报警缓存, zone -> alarm
+const ademco_event_t switch_events[] = {
+    // 仅处理这些报警事件，其他事件忽略
+    EVENT_BURGLAR,
+    // ... 有需要自己改
+};
+
+void switch_report(ademco_zone_t zone, ademco_event_t event) {
+    // 上报报警
+    // 这里自己实现上报逻辑
+}
+
+// 开关量处理函数，过滤重复报警事件
+void switch_filter(ademco_zone_t zone, ademco_event_t event) {
+    bool should_handle = false;
+    for (const auto& e : switch_events) {
+        if (e == event) {
+            should_handle = true;
+            break;
+        }
+    }
+    if (!should_handle) {
+        return;
+    }
+    auto now = time(nullptr);
+    auto it = switch_alarms.find(zone);
+    if (it == switch_alarms.end()) {
+        switch_alarms[zone] = {now, event};
+        return;
+    }
+    if (now - it->second.time < DEDUP_GAP) {
+        return;
+    }
+    it->second.time = now;
+    it->second.event = event;
+    switch_report(zone, event);
+}
+
+// 开关量清理函数，撤防时上报报警恢复
+void swithc_all_clear() {
+    for (auto& it : switch_alarms) {
+        switch_report(it.first, EVENT_BURGLAR_RECOVER);
+    }
+    switch_alarms.clear();
+}
+
+// 开关量超时处理函数，超时自动上报报警恢复
+void switch_check_timeout() {
+    auto now = time(nullptr);
+    for (auto it = switch_alarms.begin(); it != switch_alarms.end();) {
+        if (now - it->second.time > SWITCH_TIMEOUT) {
+            switch_report(it->first, EVENT_BURGLAR_RECOVER);
+            it = switch_alarms.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
 
 int setNonBlocking(SOCKET socket) {
     u_long lngMode = 1;
@@ -188,6 +255,13 @@ int main(int argc, char** argv) {
                                 break;
                         }
 
+                        // 开关量过滤
+                        switch_filter(pkt.dat.zone, pkt.dat.ademco_event);
+                        // 撤防时上报报警恢复
+                        if (pkt.dat.ademco_event == EVENT_DISARM) {
+                            swithc_all_clear();
+                        }
+
                         break;
                     }
 
@@ -279,6 +353,9 @@ int main(int argc, char** argv) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             do_accept();
             do_read();
+
+            // 开关量检查超时
+            switch_check_timeout();
 
             if (clientSock != INVALID_SOCKET && !evntsWaiting4Send.empty()) {
                 std::lock_guard<std::mutex> lg(mutex);
