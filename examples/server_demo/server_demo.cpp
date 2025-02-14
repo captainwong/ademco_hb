@@ -93,6 +93,7 @@ void switch_filter(ademco_zone_t zone, ademco_event_t event) {
     auto it = switch_alarms.find(zone);
     if (it == switch_alarms.end()) {
         switch_alarms[zone] = {now, event};
+        switch_report(zone, event);
         return;
     }
     if (now - it->second.time < DEDUP_GAP) {
