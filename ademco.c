@@ -84,9 +84,9 @@ bool ademco_is_valid_account(const char* acct) {
     size_t ADEMCO_BUF_MEMORY_MODIFIER len = 0;
     int ADEMCO_BUF_MEMORY_MODIFIER ishex = 0;
     while (*acct && len < ADEMCO_PACKET_ACCT_MAX_LEN) {
-        if (isdigit(*acct)) {
+        if (isdigit((int)*acct)) {
             len++;
-        } else if (isxdigit(*acct) && len < ADEMCO_PACKET_ACCT_MAC_LEN) {
+        } else if (isxdigit((int)*acct) && len < ADEMCO_PACKET_ACCT_MAC_LEN) {
             len++;
             ishex = 1;
         } else {
@@ -101,7 +101,7 @@ bool ademco_is_valid_account(const char* acct) {
 bool ademco_is_valid_password(const char* pwd) {
     size_t ADEMCO_BUF_MEMORY_MODIFIER len = 0;
     while (*pwd && len < ADEMCO_PACKET_PWD_MAX_LEN) {
-        if (isdigit(*pwd)) {
+        if (isdigit((int)*pwd)) {
             len++;
         } else {
             return false;
@@ -478,7 +478,7 @@ ademco_parse_result_t ademco_parse_data(const ademco_char_t* packet, size_t pack
         if (ademco_data->ademco_id > ADEMCO_ID_SENTINEL) {
             // ademco_id maybe acct like "861234567890"
             ademco_data->ademco_id = ADEMCO_ID_INVALID;
-		}
+        }
         p += acct_len;
 
         if (*p++ != '|') {
@@ -1426,7 +1426,7 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
     // #acct
     pacct = ++p;
     while (p - pacct < ADEMCO_PACKET_ACCT_MAX_LEN && *p != '[') {
-        if (!isxdigit(*p)) {
+        if (!isxdigit((int)*p)) {
             ADEMCO_FILL_PARSE_ERROR(err, p - buf, "acct contains non-hex characters");
             *cb_commited += p - buf;
             return ADEMCO_PARSE_RESULT_ERROR;
@@ -1629,10 +1629,10 @@ size_t ademco_hilo_array_to_hex_str(ademco_char_t ADEMCO_BUF_MEMORY_MODIFIER* st
 size_t ademco_dec_str_to_hilo_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
                                     size_t len,
                                     const char ADEMCO_BUF_MEMORY_MODIFIER* str) {
-    char ADEMCO_BUF_MEMORY_MODIFIER* p = (char ADEMCO_BUF_MEMORY_MODIFIER*)arr;
+    uint8_t ADEMCO_BUF_MEMORY_MODIFIER* p = (uint8_t ADEMCO_BUF_MEMORY_MODIFIER*)arr;
     size_t ADEMCO_BUF_MEMORY_MODIFIER i;
     size_t ADEMCO_BUF_MEMORY_MODIFIER slen = str ? strlen(str) : 0;
-    char ADEMCO_BUF_MEMORY_MODIFIER hi, lo;
+    uint8_t ADEMCO_BUF_MEMORY_MODIFIER hi, lo;
     if (slen > len * 2)
         slen = len * 2;
     for (i = 0; i < slen; i += 2) {
@@ -1653,7 +1653,7 @@ size_t ademco_dec_str_to_hilo_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
         } else
             break;
     }
-    while ((char ADEMCO_BUF_MEMORY_MODIFIER*)arr + len > p)
+    while (arr + len > p)
         *p++ = 0xFF;
     return len;
 }
@@ -1661,10 +1661,10 @@ size_t ademco_dec_str_to_hilo_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
 size_t ademco_hex_str_to_hilo_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
                                     size_t len,
                                     const char ADEMCO_BUF_MEMORY_MODIFIER* str) {
-    char ADEMCO_BUF_MEMORY_MODIFIER* p = (char ADEMCO_BUF_MEMORY_MODIFIER*)arr;
+    uint8_t ADEMCO_BUF_MEMORY_MODIFIER* p = (uint8_t ADEMCO_BUF_MEMORY_MODIFIER*)arr;
     size_t ADEMCO_BUF_MEMORY_MODIFIER i;
     size_t ADEMCO_BUF_MEMORY_MODIFIER slen = str ? strlen(str) : 0;
-    char ADEMCO_BUF_MEMORY_MODIFIER hi, lo;
+    uint8_t ADEMCO_BUF_MEMORY_MODIFIER hi, lo;
     if (slen > len * 2)
         slen = len * 2;
     for (i = 0; i < slen; i += 2) {
@@ -1686,27 +1686,31 @@ size_t ademco_hex_str_to_hilo_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
             break;
         }
     }
-    while ((char ADEMCO_BUF_MEMORY_MODIFIER*)arr + len > p)
+    while (arr + len > p)
         *p++ = 0xFF;
     return len;
 }
 
-size_t ademco_hex_array_to_str(char ADEMCO_BUF_MEMORY_MODIFIER* str, const uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr, size_t len) {
-    char ADEMCO_BUF_MEMORY_MODIFIER* p = str;
+size_t ademco_hex_array_to_str(char ADEMCO_BUF_MEMORY_MODIFIER* str,
+                               const uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
+                               size_t len) {
+    uint8_t ADEMCO_BUF_MEMORY_MODIFIER* p = (uint8_t*)str;
     size_t ADEMCO_BUF_MEMORY_MODIFIER i;
     for (i = 0; i < len; i++) {
         *p++ = ademco_hex2char((arr[i] >> 4) & 0x0F);
         *p++ = ademco_hex2char(arr[i] & 0x0F);
     }
-    return p - str;
+    return p - (uint8_t*)str;
 }
 
-size_t ademco_hex_str_to_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr, const char ADEMCO_BUF_MEMORY_MODIFIER* str, uint8_t padding) {
+size_t ademco_hex_str_to_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
+                               const char ADEMCO_BUF_MEMORY_MODIFIER* str,
+                               uint8_t padding) {
     uint8_t ADEMCO_BUF_MEMORY_MODIFIER* p = arr;
     uint8_t ADEMCO_BUF_MEMORY_MODIFIER hi = 0, lo = 0;
     size_t ADEMCO_BUF_MEMORY_MODIFIER i;
     size_t ADEMCO_BUF_MEMORY_MODIFIER slen = str ? strlen(str) : 0;
-    char ADEMCO_BUF_MEMORY_MODIFIER c;
+    uint8_t ADEMCO_BUF_MEMORY_MODIFIER c;
     padding &= 0x0F;
     for (i = 0; i < slen / 2; i++) {
         c = str[i * 2];
@@ -1729,7 +1733,7 @@ size_t ademco_hex_str_to_array_n(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
     uint8_t ADEMCO_BUF_MEMORY_MODIFIER* p = arr;
     uint8_t ADEMCO_BUF_MEMORY_MODIFIER hi = 0, lo = 0;
     size_t ADEMCO_BUF_MEMORY_MODIFIER i;
-    char ADEMCO_BUF_MEMORY_MODIFIER c;
+    uint8_t ADEMCO_BUF_MEMORY_MODIFIER c;
     padding &= 0x0F;
     for (i = 0; i < len / 2; i++) {
         c = str[i * 2];
@@ -1753,7 +1757,7 @@ size_t ademco_hex_str_to_array_n_allow_non_hex_str(uint8_t ADEMCO_BUF_MEMORY_MOD
     uint8_t ADEMCO_BUF_MEMORY_MODIFIER* p = arr;
     uint8_t ADEMCO_BUF_MEMORY_MODIFIER hi = 0, lo = 0;
     size_t ADEMCO_BUF_MEMORY_MODIFIER i;
-    char ADEMCO_BUF_MEMORY_MODIFIER c;
+    uint8_t ADEMCO_BUF_MEMORY_MODIFIER c;
     padding &= 0x0F;
     for (i = 0; i < len / 2; i++) {
         c = str[i * 2];

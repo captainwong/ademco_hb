@@ -7,6 +7,10 @@
 extern "C" {
 #endif
 
+#if !defined(__C51__) || defined(VSCODE)
+#pragma pack(1)
+#endif
+
 // 三防区主机状态GG范围 1~3
 #define HB_3SECTION_MACHINE_GG_MIN 1
 #define HB_3SECTION_MACHINE_GG_MAX 3
@@ -122,6 +126,119 @@ typedef union {
 } hb_machine_timer_t;
 
 ///////////////////////////// property functions //////////////////////////////
+
+#define HB_GPRS_MACHINE_SUPPORTED_ZONE_PROPERTIES \
+    {                                             \
+        HZP_BURGLAR,                              \
+        HZP_EMERGENCY,                            \
+        HZP_FIRE,                                 \
+        HZP_DURESS,                               \
+        HZP_GAS,                                  \
+        HZP_WATER,                                \
+        HZP_REMOTE_CONTROL,                       \
+    }
+
+#define HB_NETMOD_MACHINE_SUPPORTED_ZONE_PROPERTIES \
+    {                                               \
+        HZP_BURGLAR,                                \
+        HZP_EMERGENCY,                              \
+        HZP_FIRE,                                   \
+        HZP_DURESS,                                 \
+        HZP_GAS,                                    \
+        HZP_WATER,                                  \
+        HZP_SUB_MACHINE,                            \
+        HZP_REMOTE_CONTROL,                         \
+        HZP_BURGLAR_HALF,                           \
+        HZP_BYPASS,                                 \
+        HZP_DOOR_RING,                              \
+    }
+
+#define HB_LCD_MACHINE_SUPPORTED_ZONE_PROPERTIES \
+    {                                            \
+        HZP_BURGLAR,                             \
+        HZP_EMERGENCY,                           \
+        HZP_FIRE,                                \
+        HZP_DURESS,                              \
+        HZP_GAS,                                 \
+        HZP_WATER,                               \
+        HZP_SUB_MACHINE,                         \
+        HZP_REMOTE_CONTROL,                      \
+        HZP_BURGLAR_HALF,                        \
+        HZP_DOOR_RING,                           \
+        HZP_BYPASS,                              \
+    }
+
+#define HB_WIRED_MACHINE_SUPPORTED_ZONE_PROPERTIES \
+    {                                              \
+        HZP_BURGLAR,                               \
+        HZP_EMERGENCY,                             \
+        HZP_FIRE,                                  \
+        HZP_DURESS,                                \
+        HZP_GAS,                                   \
+        HZP_WATER,                                 \
+        HZP_REMOTE_CONTROL,                        \
+    }
+
+#define HB_TRUE_COLOR_MACHINE_SUPPORTED_ZONE_PROPERTIES \
+    {                                                   \
+        HZP_BURGLAR,                                    \
+        HZP_EMERGENCY,                                  \
+        HZP_FIRE,                                       \
+        HZP_DURESS,                                     \
+        HZP_GAS,                                        \
+        HZP_WATER,                                      \
+        HZP_REMOTE_CONTROL,                             \
+        HZP_DOOR_RING,                                  \
+        HZP_BYPASS,                                     \
+    }
+
+#define HB_THREE_SECTION_MACHINE_SUPPORTED_ZONE_PROPERTIES \
+    {                                                      \
+        HZP_BURGLAR,                                       \
+        HZP_EMERGENCY,                                     \
+        HZP_FIRE,                                          \
+        HZP_DURESS,                                        \
+        HZP_GAS,                                           \
+        HZP_WATER,                                         \
+        HZP_REMOTE_CONTROL,                                \
+        HZP_DOOR_RING,                                     \
+        HZP_BYPASS,                                        \
+    }
+
+#define HB_IOT_MACHINE_SUPPORTED_ZONE_PROPERTIES \
+    {                                            \
+        HZP_BURGLAR,                             \
+        HZP_EMERGENCY,                           \
+        HZP_FIRE,                                \
+        HZP_DURESS,                              \
+        HZP_GAS,                                 \
+        HZP_WATER,                               \
+        HZP_REMOTE_CONTROL,                      \
+        HZP_DOOR_RING,                           \
+        HZP_BYPASS,                              \
+    }
+
+#define HB_GPRS_PHONE_MACHINE_SUPPORTED_ZONE_PROPERTIES \
+    {                                                   \
+        HZP_BURGLAR,                                    \
+        HZP_EMERGENCY,                                  \
+        HZP_FIRE,                                       \
+        HZP_DURESS,                                     \
+        HZP_GAS,                                        \
+        HZP_WATER,                                      \
+        HZP_REMOTE_CONTROL,                             \
+    }
+
+#define HB_NB_MACHINE_SUPPORTED_ZONE_PROPERTIES \
+    {                                           \
+        HZP_BURGLAR,                            \
+        HZP_EMERGENCY,                          \
+        HZP_FIRE,                               \
+        HZP_DURESS,                             \
+        HZP_GAS,                                \
+        HZP_WATER,                              \
+        HZP_DOOR_RING,                          \
+    }
 
 // return available count
 // props must have at least HZP_COUNT slots
@@ -244,6 +361,10 @@ const char* hb_zone_property_to_string_chinese(hb_zone_property_t zp);
 HB_EXPORT_SYMBOL
 const char* hb_get_zone_format_str(hb_machine_type_t type);
 #endif  // HB_ENABLE_TO_STRING
+
+#if !defined(__C51__) || defined(VSCODE)
+#pragma pack()
+#endif
 
 #ifdef __cplusplus
 }

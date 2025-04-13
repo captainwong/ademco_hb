@@ -12,104 +12,47 @@ uint8_t hb_get_available_zone_properties_by_type(hb_machine_type_t type,
         case HMT_GPRS_IOT:
         case HMT_GPRS:
         case HMT_WIFI2: {
-            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
-                HZP_BURGLAR,
-                HZP_EMERGENCY,
-                HZP_FIRE,
-                HZP_DURESS,
-                HZP_GAS,
-                HZP_WATER,
-                HZP_REMOTE_CONTROL,
-            };
+            const hb_zone_property_t ADEMCO_CONST_MODIFIER hzps[] = HB_GPRS_MACHINE_SUPPORTED_ZONE_PROPERTIES;
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_NETMOD: {
-            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
-                HZP_BURGLAR,
-                HZP_EMERGENCY,
-                HZP_FIRE,
-                HZP_DURESS,
-                HZP_GAS,
-                HZP_WATER,
-                HZP_SUB_MACHINE,
-                HZP_REMOTE_CONTROL,
-                HZP_BURGLAR_HALF,
-                HZP_BYPASS,
-                HZP_DOOR_RING,
-            };
+            const hb_zone_property_t ADEMCO_CONST_MODIFIER hzps[] = HB_NETMOD_MACHINE_SUPPORTED_ZONE_PROPERTIES;
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_LCD: {
-            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
-                HZP_BURGLAR, HZP_EMERGENCY, HZP_FIRE,
-                HZP_DURESS, HZP_GAS, HZP_WATER, HZP_SUB_MACHINE,
-                HZP_REMOTE_CONTROL, HZP_BURGLAR_HALF,
-                HZP_DOOR_RING, HZP_BYPASS};
+            const hb_zone_property_t ADEMCO_CONST_MODIFIER hzps[] = HB_LCD_MACHINE_SUPPORTED_ZONE_PROPERTIES;
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_WIRED: {
-            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
-                HZP_BURGLAR,
-                HZP_EMERGENCY,
-                HZP_FIRE,
-                HZP_DURESS,
-                HZP_GAS,
-                HZP_WATER,
-                HZP_REMOTE_CONTROL,
-            };
+            const hb_zone_property_t ADEMCO_CONST_MODIFIER hzps[] = HB_WIRED_MACHINE_SUPPORTED_ZONE_PROPERTIES;
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_TRUE_COLOR: {
-            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
-                HZP_BURGLAR, HZP_EMERGENCY, HZP_FIRE,
-                HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL,
-                HZP_DOOR_RING, HZP_BYPASS};
+            const hb_zone_property_t ADEMCO_CONST_MODIFIER hzps[] = HB_TRUE_COLOR_MACHINE_SUPPORTED_ZONE_PROPERTIES;
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_THREE_SECTION: {
-            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
-                HZP_BURGLAR, HZP_EMERGENCY, HZP_FIRE,
-                HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL,
-                HZP_DOOR_RING, HZP_BYPASS};
+            const hb_zone_property_t ADEMCO_CONST_MODIFIER hzps[] = HB_THREE_SECTION_MACHINE_SUPPORTED_ZONE_PROPERTIES;
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_IOT: {
-            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
-                HZP_BURGLAR, HZP_EMERGENCY, HZP_FIRE,
-                HZP_DURESS, HZP_GAS, HZP_WATER, HZP_REMOTE_CONTROL,
-                HZP_DOOR_RING, HZP_BYPASS};
+            const hb_zone_property_t ADEMCO_CONST_MODIFIER hzps[] = HB_IOT_MACHINE_SUPPORTED_ZONE_PROPERTIES;
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_GPRS_PHONE: {
-            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
-                HZP_BURGLAR,
-                HZP_EMERGENCY,
-                HZP_FIRE,
-                HZP_DURESS,
-                HZP_GAS,
-                HZP_WATER,
-                HZP_REMOTE_CONTROL,
-            };
+            const hb_zone_property_t ADEMCO_CONST_MODIFIER hzps[] = HB_GPRS_PHONE_MACHINE_SUPPORTED_ZONE_PROPERTIES;
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
         case HMT_NB: {
-            hb_zone_property_t ADEMCO_BUF_MEMORY_MODIFIER hzps[] = {
-                HZP_BURGLAR,
-                HZP_EMERGENCY,
-                HZP_FIRE,
-                HZP_DURESS,
-                HZP_GAS,
-                HZP_WATER,
-                HZP_DOOR_RING,
-            };
+            const hb_zone_property_t ADEMCO_CONST_MODIFIER hzps[] = HB_NB_MACHINE_SUPPORTED_ZONE_PROPERTIES;
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
@@ -164,8 +107,7 @@ uint16_t hb_get_max_zone_by_type(hb_machine_type_t type) {
 }
 
 bool hb_is_valid_zone_by_type(hb_machine_type_t type, uint16_t zone) {
-    return 0 <= zone &&
-           zone <= hb_get_max_zone_by_type(type);
+    return zone <= hb_get_max_zone_by_type(type);
 }
 
 bool hb_is_valid_zone_by_type_strict(hb_machine_type_t type, uint16_t zone) {

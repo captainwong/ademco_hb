@@ -154,6 +154,7 @@ typedef uint16_t ademco_zone_t;
     XX(1756, SIM_IS_IOT_CARD, "物联卡")                        \
     XX(2756, SIM_IS_IOT_PLATFORM_CARD, "平台物联卡")           \
     XX(3756, SIM_IS_NOT_IOT_CARD, "非物联卡")                  \
+    XX(1796, SYS_READY, "主机稳定")                            \
     XX(1798, WHAT_IS_YOUR_TYPE, "索要主机类型")                \
     XX(1799, SIGNAL_STRENGTH_CHANGED, "信号强度")              \
     XX(1944, OFFLINE, "主机断线")                              \
@@ -612,10 +613,10 @@ ADEMCO_EXPORT_SYMBOL
 uint16_t ademco_crc16(const ademco_char_t ADEMCO_BUF_MEMORY_MODIFIER* buf, size_t len);
 #endif
 
-// 0~9, A~F to '0'~'9', 'A'~'F'
+// 0-9, A-F to '0'-'9', 'A'-'F'
 ADEMCO_EXPORT_SYMBOL uint8_t ademco_hex2char(uint8_t h);
 
-// '0'~'9', 'A'~'F', 'a'~'f' to 0~9, A~F
+// '0'-'9', 'A'-'F', 'a'-'f' to 0-9, A-F
 ADEMCO_EXPORT_SYMBOL uint8_t ademco_char2hex(uint8_t c);
 
 // like snprintf(str, hex_len * 2 + 1, "%0`hex_len`X", dec)
@@ -636,7 +637,7 @@ size_t ademco_hilo_array_to_dec_str(ademco_char_t ADEMCO_BUF_MEMORY_MODIFIER* st
 
 // 将一串以高低字节表示的十六进制数组转换为字符串
 // 每个字节的高四位和低四位若不大于9，将该四位表示的数字以10进制ascii码填入str，否则：
-// 若定长6字节包含a~f，说明是WiFi主机
+// 若定长6字节包含a-f，说明是WiFi主机
 // 返回字符串长度
 // 注意：函数不会在str末尾补 null terminator
 // 调用者应确保str有足够空间，至少len的2倍，否则会崩溃
@@ -648,7 +649,7 @@ size_t ademco_hilo_array_to_hex_str(ademco_char_t ADEMCO_BUF_MEMORY_MODIFIER* st
                                     size_t len);
 
 // 将一个10进制数字符串转为高低字节表示的数组，节省空间
-// str应只包含'0'~'9'，否则失败返回0
+// str应只包含'0'-'9'，否则失败返回0
 // str长度若大于len * 2，str[len]及之后的内容将被舍弃以避免溢出
 // 转换后的长度若不满len，则以0xF补满。
 // 示例：输入字符串"123ABC"，返回0
@@ -665,7 +666,7 @@ size_t ademco_dec_str_to_hilo_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
                                     const char ADEMCO_BUF_MEMORY_MODIFIER* str);
 
 // 将一个16进制数字符串转为高低字节表示的数组，节省空间
-// str应只包含'0'~'9', 'A'~'F', 'a'~'f'，否则失败返回0
+// str应只包含'0'-'9', 'A'-'F', 'a'-'f'，否则失败返回0
 // str长度若大于len * 2，str[len]及之后的内容将被舍弃以避免溢出
 // 转换后的长度若不满len，则以0xF补满。
 // 示例：输入字符串"123ABC"，len=6, 则 arr 内容为 0x12 0x3a 0xbc 0xff 0xff 0xff
@@ -692,7 +693,7 @@ size_t ademco_hex_array_to_str(char ADEMCO_BUF_MEMORY_MODIFIER* str,
                                const uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
                                size_t len);
 
-// 将一串字符串（内容为'0'~'9', 'A'~'F', 'a' ~'f')转为字节流
+// 将一串字符串（内容为'0'-'9', 'A'-'F', 'a'-'f')转为字节流
 // 若strlen(str)为奇数，以padding补足arr, padding 应 <= 0x0F
 // 若str内包含非hex字符串，返回0
 // 调用者应确保arr有足够的容量，至少strlen(str)*2
@@ -713,7 +714,7 @@ size_t ademco_hex_str_to_array_n(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
                                  size_t len, uint8_t padding);
 
 // 同ademcoHexStrToArrayN，但允许str包含非hex字符，
-// 即'0'~'9','a'~'f','A'~'F'之外的内容，以 padding 替换
+// 即'0'-'9','a'-'f','A'-'F'之外的内容，以 padding 替换
 // 示例：str="AB\xFFD", len=4, padding=0x0F, 则 arr=[ 0xAB, 0xFD ], return 2
 // 网线主机 0d 00 命令，接警中心账号部分，有可能是这种
 ADEMCO_EXPORT_SYMBOL

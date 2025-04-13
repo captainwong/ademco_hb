@@ -23,6 +23,7 @@ extern "C" {
     XX(0x40, GAS, "煤气")                             \
     XX(0x50, WATER, "水警")                           \
     XX(0x57, NIGHT, "夜间")                           \
+    XX(0x66, HEART_BEAT, "心跳")                      \
     XX(0x69, SENDER_REBOOT, "发送端重启")             \
     XX(0x75, DAY, "白天")                             \
     XX(0xA5, R_BATTERY_BROKEN, "收电池损坏")          \
