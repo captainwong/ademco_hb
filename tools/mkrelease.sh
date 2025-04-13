@@ -14,7 +14,7 @@ fi
 export LINUX_TARGET=root@192.168.50.107
 export LINUX_PROJECT_PATH=/root/projects/ademco_hb
 export LINUX_JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-export MACOS_TARGET=jack@JackMacBook-Pro.local
+export MACOS_TARGET=jack@JackMacBook-Pro
 export MACOS_PROJECT_PATH=/Users/jack/projects/ademco_hb
 export MACOS_JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_291.jdk/Contents/Home
 
