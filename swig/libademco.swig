@@ -15,10 +15,11 @@
 
 %{
 /* Includes the header in the wrapper code */
-#include "../ademco_config.h"
-#include "../ademco_version.h"
-#include "../hb_core_ademco.h"
-#include "../hb_rf.h"
+#include "../src/libademco/ademco_config.h"
+#include "../src/libademco/ademco_version.h"
+#include "../src/libhb/hb_core_ademco.h"
+#include "../src/libhbiot/rf/hb_rf.h"
+#include "../src/libemb/emb_config.h"
 %}
 
 #ifdef SWIGJAVA
@@ -39,11 +40,11 @@ JAVA_ARRAYS_TYPEMAPS(uint8_t, byte, jbyte, Uint8, "[B")
 %pointer_functions(size_t, size_tp);
 
 /* Parse the header file to generate wrappers */
-%include "../ademco_config.h"
-%include "../ademco_version.h"
-%include "../ademco.h"
-%include "../hb_config.h"
-%include "../hb_core.h"
-%include "../hb_core_ademco.h"
-%include "../hb_rf.h"
+%include "../src/libademco/ademco_config.h"
+%include "../src/libademco/ademco_version.h"
+%include "../src/libademco/ademco.h"
+%include "../src/libhb/hb_config.h"
+%include "../src/libhb/hb_core.h"
+%include "../src/libhb/hb_core_ademco.h"
+%include "../src/libhbiot/rf/hb_rf.h"
 
