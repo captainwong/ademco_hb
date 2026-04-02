@@ -12,14 +12,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if ADEMCO_USE_UNIQUE_BUF
-static char ADEMCO_BUF_MEMORY_MODIFIER buf[ADEMCO_PACKET_MAX_LEN];
+#if EMB_USE_UNIQUE_BUF
+static char buf[ADEMCO_PACKET_MAX_LEN];
 #endif
 
-#define ADEMCO_STRINGIFY(v) ADEMCO_STRINGIFY_HELPER(v)
-#define ADEMCO_STRINGIFY_HELPER(v) #v
-
-#define ADEMCO_VERSION_STRING_BASE ADEMCO_STRINGIFY(ADEMCO_VERSION_MAJOR) "." ADEMCO_STRINGIFY(ADEMCO_VERSION_MINOR) "." ADEMCO_STRINGIFY(ADEMCO_VERSION_PATCH)
+#define ADEMCO_VERSION_STRING_BASE EMB_STRINGIFY(ADEMCO_VERSION_MAJOR) "." EMB_STRINGIFY(ADEMCO_VERSION_MINOR) "." EMB_STRINGIFY(ADEMCO_VERSION_PATCH)
 
 #if ADEMCO_VERSION_IS_RELEASE
 #define ADEMCO_VERSION_STRING ADEMCO_VERSION_STRING_BASE
@@ -81,25 +78,43 @@ uint8_t ademco_decode_signal_strength(uint8_t bcd_strength) {
 }
 
 bool ademco_is_valid_account(const char* acct) {
-    size_t ADEMCO_BUF_MEMORY_MODIFIER len = 0;
-    int ADEMCO_BUF_MEMORY_MODIFIER ishex = 0;
+    size_t EMB_DATA_MODIFIER len = 0;
+    bool EMB_DATA_MODIFIER ishex = false, all0 = true, allf = true;
     while (*acct && len < ADEMCO_PACKET_ACCT_MAX_LEN) {
         if (isdigit((int)*acct)) {
             len++;
         } else if (isxdigit((int)*acct) && len < ADEMCO_PACKET_ACCT_MAC_LEN) {
             len++;
-            ishex = 1;
+            ishex = true;
         } else {
-            return 0;
+            return false;  // only take digits or hex characters
+        }
+        if (all0 && *acct != '0') {
+            all0 = false;  // at least one digit is not '0'
+        }
+        if (allf && *acct != 'F' && *acct != 'f') {
+            allf = false;  // at least one digit is not 'F' or 'f'
         }
         acct++;
     }
-    return *acct == '\0' &&
-           (ishex ? len == ADEMCO_PACKET_ACCT_MAC_LEN : (len >= ADEMCO_PACKET_ACCT_MIN_LEN));
+    if (all0 || allf || *acct != '\0') {
+        return false;
+    }
+    if (ishex) {
+        if (len != ADEMCO_PACKET_ACCT_MAC_LEN) {
+            return false;
+        }
+    } else {
+        if (len < ADEMCO_PACKET_ACCT_MIN_LEN) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool ademco_is_valid_password(const char* pwd) {
-    size_t ADEMCO_BUF_MEMORY_MODIFIER len = 0;
+    size_t EMB_DATA_MODIFIER len = 0;
     while (*pwd && len < ADEMCO_PACKET_PWD_MAX_LEN) {
         if (isdigit((int)*pwd)) {
             len++;
@@ -268,7 +283,7 @@ const char* ademco_event_to_string_chinese(ademco_event_t ademco_event) {
 #endif
 
 #ifndef ADEMCO_USE_EXTERNAL_CRC16
-static const uint16_t ADEMCO_CONST_MODIFIER crc16Table[256] = {
+static const uint16_t EMB_CODE_MODIFIER crc16Table[256] = {
     /* DEFINE THE FIRST ORDER POLYINOMIAL TABLE */
     0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,  // 0x00
     0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,  // 0x08
@@ -304,8 +319,8 @@ static const uint16_t ADEMCO_CONST_MODIFIER crc16Table[256] = {
     0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,  // 0xF8
 };
 
-uint16_t ademco_crc16(const ademco_char_t ADEMCO_BUF_MEMORY_MODIFIER* buf, size_t len) {
-    uint16_t ADEMCO_BUF_MEMORY_MODIFIER crc = 0;
+uint16_t ademco_crc16(const ademco_char_t* buf, size_t len) {
+    uint16_t crc = 0;
     while (len--)
         crc = (crc >> 8) ^ crc16Table[(crc ^ *buf++) & 0xFF];
     return crc;
@@ -456,12 +471,12 @@ ademco_parse_result_t ademco_parse_data(const ademco_char_t* packet, size_t pack
                packet[0] == '[' &&
                packet[packet_len - 1] == ']') {  // [#000000|1400 00 000]
         const char* p = packet + 2;
-        size_t ADEMCO_BUF_MEMORY_MODIFIER acct_len = packet_len - 15;
-#if !ADEMCO_USE_UNIQUE_BUF
-#if ADEMCO_USE_STATIC_BUF
+        size_t acct_len = packet_len - 15;
+#if !EMB_USE_UNIQUE_BUF
+#if EMB_USE_STATIC_BUF
         static
 #endif
-            char ADEMCO_BUF_MEMORY_MODIFIER buf[ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN_MAX] = {0};
+            char buf[ADEMCO_PACKET_DATA_SEGMENT_FULL_LEN_MAX] = {0};
 #endif
 
         if (acct_len < 6) {
@@ -603,13 +618,13 @@ void ademco_xdata_init(ademco_xdata_t* xdat) {
 
 bool ademco_xdata_convert(ademco_xdata_t* xdat,
                           ademco_xdata_length_format_t xlf) {
-#if !ADEMCO_USE_UNIQUE_BUF
-#if ADEMCO_USE_STATIC_BUF
+#if !EMB_USE_UNIQUE_BUF
+#if EMB_USE_STATIC_BUF
     static
 #endif
-        char ADEMCO_BUF_MEMORY_MODIFIER buf[ADEMCO_PACKET_XDATA_MAX_LEN];
+        char buf[ADEMCO_PACKET_XDATA_MAX_LEN];
 #endif
-    size_t ADEMCO_BUF_MEMORY_MODIFIER len;
+    size_t len;
 
     if (!xdat) {
         return false;
@@ -687,13 +702,13 @@ bool ademco_make_xdata(ademco_xdata_t* xdat,
                        ademco_xdata_length_format_t xlf,
                        ademco_xdata_transform_t xtr,
                        const ademco_char_t* content, size_t len) {
-#if !ADEMCO_USE_UNIQUE_BUF
-#if ADEMCO_USE_STATIC_BUF
+#if !EMB_USE_UNIQUE_BUF
+#if EMB_USE_STATIC_BUF
     static
 #endif
-        char ADEMCO_BUF_MEMORY_MODIFIER buf[ADEMCO_PACKET_XDATA_MAX_LEN];
+        char buf[ADEMCO_PACKET_XDATA_MAX_LEN];
 #endif
-    uint32_t ADEMCO_BUF_MEMORY_MODIFIER translen;
+    uint32_t translen;
     len &= 0xFFFF;
     translen = len & 0xFFFF;
 
@@ -785,14 +800,15 @@ const char* ademco_packet_id_to_string(ademco_packet_id_t id) {
 }
 
 static void getNowTimestamp(char* buf) {
-    time_t ADEMCO_BUF_MEMORY_MODIFIER now = time(NULL);
+    time_t now = time(NULL);
 
-#if ADEMCO_DISABLE_GMTIME
-    struct tm ADEMCO_BUF_MEMORY_MODIFIER tm = {0};
+#if EMB_DISABLE_GMTIME
+    struct tm tm = {0};
     _localtime_r(&now, &tm);
 #else
-    struct tm ADEMCO_BUF_MEMORY_MODIFIER tm = *localtime(&now);
-#endif  // ADEMCO_DISABLE_GMTIME
+    struct tm tm, *ptm = localtime(&now);
+    tm = *ptm;
+#endif  // EMB_DISABLE_GMTIME
     tm.tm_mon += 1;
     tm.tm_year += 1900;
     *buf++ = '_';
@@ -819,11 +835,11 @@ static void getNowTimestamp(char* buf) {
 }
 
 static void getGmtTimestamp(char* buf) {
-#ifdef ADEMCO_DISABLE_GMTIME
+#ifdef EMB_DISABLE_GMTIME
     getNowTimestamp(buf);
 #else
-    time_t ADEMCO_BUF_MEMORY_MODIFIER now = time(NULL);
-    struct tm ADEMCO_BUF_MEMORY_MODIFIER tm = *gmtime(&now);
+    time_t now = time(NULL);
+    struct tm tm = *gmtime(&now);
     tm.tm_mon += 1;
     tm.tm_year += 1900;
     *buf++ = '_';
@@ -853,18 +869,18 @@ static void getGmtTimestamp(char* buf) {
 size_t ademco_make_empty_data_packet(ademco_char_t* dst_buff, size_t len,
                                      const char* id, uint16_t seq,
                                      const char* acct, ademco_id_t ademco_id) {
-#if !ADEMCO_USE_UNIQUE_BUF
-#if ADEMCO_USE_STATIC_BUF
+#if !EMB_USE_UNIQUE_BUF
+#if EMB_USE_STATIC_BUF
     static
 #endif
-        char ADEMCO_BUF_MEMORY_MODIFIER buf[ADEMCO_PACKET_MAX_LEN];
+        char buf[ADEMCO_PACKET_MAX_LEN];
 #endif
-    char ADEMCO_BUF_MEMORY_MODIFIER* p = buf;
-    char ADEMCO_BUF_MEMORY_MODIFIER* pcrc = buf + 1;
-    char ADEMCO_BUF_MEMORY_MODIFIER* plen = buf + 5;
-    char ADEMCO_BUF_MEMORY_MODIFIER* pid = buf + 9;
-    uint16_t ADEMCO_BUF_MEMORY_MODIFIER crc;
-    uint16_t ADEMCO_BUF_MEMORY_MODIFIER packet_len, ademco_len;
+    char* p = buf;
+    char* pcrc = buf + 1;
+    char* plen = buf + 5;
+    char* pid = buf + 9;
+    uint16_t crc;
+    uint16_t packet_len, ademco_len;
     uint8_t i;
 
     buf[0] = ADEMCO_PACKET_PREFIX;
@@ -911,18 +927,18 @@ size_t ademco_make_empty_data_packet(ademco_char_t* dst_buff, size_t len,
 size_t ademco_make_adm_empty_data_packet(ademco_char_t* dst_buff, size_t len,
                                          const char* id, uint16_t seq,
                                          const char* acct, ademco_id_t ademco_id) {
-#if !ADEMCO_USE_UNIQUE_BUF
-#if ADEMCO_USE_STATIC_BUF
+#if !EMB_USE_UNIQUE_BUF
+#if EMB_USE_STATIC_BUF
     static
 #endif
-        char ADEMCO_BUF_MEMORY_MODIFIER buf[ADEMCO_PACKET_MAX_LEN];
+        char buf[ADEMCO_PACKET_MAX_LEN];
 #endif
-    char ADEMCO_BUF_MEMORY_MODIFIER* p = buf;
-    char ADEMCO_BUF_MEMORY_MODIFIER* pcrc = buf + 1;
-    char ADEMCO_BUF_MEMORY_MODIFIER* plen = buf + 5;
-    char ADEMCO_BUF_MEMORY_MODIFIER* pid = buf + 9;
-    uint16_t ADEMCO_BUF_MEMORY_MODIFIER crc;
-    uint16_t ADEMCO_BUF_MEMORY_MODIFIER packet_len, ademco_len;
+    char* p = buf;
+    char* pcrc = buf + 1;
+    char* plen = buf + 5;
+    char* pid = buf + 9;
+    uint16_t crc;
+    uint16_t packet_len, ademco_len;
     uint8_t i;
 
     buf[0] = ADEMCO_PACKET_PREFIX;
@@ -996,18 +1012,18 @@ size_t ademco_make_hb_packet(ademco_char_t* dst_buff, size_t len,
                              ademco_id_t ademco_id, ademco_event_t ademco_event,
                              ademco_gg_t gg, ademco_zone_t zone,
                              const ademco_xdata_t* xdat) {
-#if !ADEMCO_USE_UNIQUE_BUF
-#if ADEMCO_USE_STATIC_BUF
+#if !EMB_USE_UNIQUE_BUF
+#if EMB_USE_STATIC_BUF
     static
 #endif
-        char ADEMCO_BUF_MEMORY_MODIFIER buf[ADEMCO_PACKET_MAX_LEN];
+        char buf[ADEMCO_PACKET_MAX_LEN];
 #endif
-    char ADEMCO_BUF_MEMORY_MODIFIER* p = buf;
-    char ADEMCO_BUF_MEMORY_MODIFIER* pcrc = buf + 1;
-    char ADEMCO_BUF_MEMORY_MODIFIER* plen = buf + 5;
-    char ADEMCO_BUF_MEMORY_MODIFIER* pid = buf + 9;
-    uint16_t ADEMCO_BUF_MEMORY_MODIFIER crc;
-    uint16_t ADEMCO_BUF_MEMORY_MODIFIER packet_len, ademco_len;
+    char* p = buf;
+    char* pcrc = buf + 1;
+    char* plen = buf + 5;
+    char* pid = buf + 9;
+    uint16_t crc;
+    uint16_t packet_len, ademco_len;
     uint8_t i;
 
     buf[0] = ADEMCO_PACKET_PREFIX;
@@ -1024,7 +1040,7 @@ size_t ademco_make_hb_packet(ademco_char_t* dst_buff, size_t len,
     p += strlen(ADEMCO_LPREF_DEFAULT);
     *p++ = '#';
     if (acct && acct[0]) {
-        char ADEMCO_BUF_MEMORY_MODIFIER* src = (char*)acct;
+        char* src = (char*)acct;
         for (i = 0; i < ADEMCO_PACKET_ACCT_MAX_LEN && *src; i++) {
             *p++ = *src++;
         }
@@ -1061,18 +1077,18 @@ size_t ademco_make_adm_packet(ademco_char_t* dst_buff, size_t len,
                               ademco_event_t ademco_event,
                               ademco_gg_t gg, ademco_zone_t zone,
                               const ademco_xdata_t* xdat) {
-#if !ADEMCO_USE_UNIQUE_BUF
-#if ADEMCO_USE_STATIC_BUF
+#if !EMB_USE_UNIQUE_BUF
+#if EMB_USE_STATIC_BUF
     static
 #endif
-        char ADEMCO_BUF_MEMORY_MODIFIER buf[ADEMCO_PACKET_MAX_LEN];
+        char buf[ADEMCO_PACKET_MAX_LEN];
 #endif
-    char ADEMCO_BUF_MEMORY_MODIFIER* p = buf;
-    char ADEMCO_BUF_MEMORY_MODIFIER* pcrc = buf + 1;
-    char ADEMCO_BUF_MEMORY_MODIFIER* plen = buf + 5;
-    char ADEMCO_BUF_MEMORY_MODIFIER* pid = buf + 9;
-    uint16_t ADEMCO_BUF_MEMORY_MODIFIER crc;
-    uint16_t ADEMCO_BUF_MEMORY_MODIFIER packet_len, ademco_len;
+    char* p = buf;
+    char* pcrc = buf + 1;
+    char* plen = buf + 5;
+    char* pid = buf + 9;
+    uint16_t crc;
+    uint16_t packet_len, ademco_len;
     uint8_t i;
 
     buf[0] = ADEMCO_PACKET_PREFIX;
@@ -1089,7 +1105,7 @@ size_t ademco_make_adm_packet(ademco_char_t* dst_buff, size_t len,
     p += strlen(ADEMCO_LPREF_DEFAULT);
     *p++ = '#';
     if (acct && acct[0]) {
-        char ADEMCO_BUF_MEMORY_MODIFIER* src = (char*)acct;
+        char* src = (char*)acct;
         for (i = 0; i < ADEMCO_PACKET_ACCT_MAX_LEN && *src; i++) {
             *p++ = *src++;
         }
@@ -1122,7 +1138,7 @@ size_t ademco_make_adm_packet(ademco_char_t* dst_buff, size_t len,
 
 static void copyAcct2AdemcoPacket(ademco_packet_t* pkt, const char* acct) {
     if (acct) {
-        size_t ADEMCO_BUF_MEMORY_MODIFIER len = strlen(acct);
+        size_t len = strlen(acct);
         if (len > ADEMCO_PACKET_ACCT_MAX_LEN)
             len = ADEMCO_PACKET_ACCT_MAX_LEN;
         memcpy(pkt->acct, acct, len);
@@ -1183,18 +1199,18 @@ size_t ademco_make_hb_packet2(ademco_packet_t* pkt, uint16_t seq,
 }
 
 size_t ademco_make_hb_packet3(ademco_packet_t* pkt) {
-#if !ADEMCO_USE_UNIQUE_BUF
-#if ADEMCO_USE_STATIC_BUF
+#if !EMB_USE_UNIQUE_BUF
+#if EMB_USE_STATIC_BUF
     static
 #endif
-        char ADEMCO_BUF_MEMORY_MODIFIER buf[ADEMCO_PACKET_MAX_LEN];
+        char buf[ADEMCO_PACKET_MAX_LEN];
 #endif
-    char ADEMCO_BUF_MEMORY_MODIFIER* p = buf;
-    char ADEMCO_BUF_MEMORY_MODIFIER* pcrc = buf + 1;
-    char ADEMCO_BUF_MEMORY_MODIFIER* plen = buf + 5;
-    char ADEMCO_BUF_MEMORY_MODIFIER* pid = buf + 9;
-    uint16_t ADEMCO_BUF_MEMORY_MODIFIER crc;
-    uint16_t ADEMCO_BUF_MEMORY_MODIFIER packet_len, ademco_len;
+    char* p = buf;
+    char* pcrc = buf + 1;
+    char* plen = buf + 5;
+    char* pid = buf + 9;
+    uint16_t crc;
+    uint16_t packet_len, ademco_len;
     uint8_t i;
 
     buf[0] = ADEMCO_PACKET_PREFIX;
@@ -1266,9 +1282,9 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
                                           size_t* cb_commited,
                                           ademco_parse_error_t* err) {
     const char *p, *q, *pid, *pend, *pacct, *pdat;
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER h;
-    uint16_t ADEMCO_BUF_MEMORY_MODIFIER crc;
-    size_t ADEMCO_BUF_MEMORY_MODIFIER len_needed;
+    uint8_t h;
+    uint16_t crc;
+    size_t len_needed;
 
     if (len < 9) {
         ADEMCO_FILL_PARSE_ERROR(err, 0, "ADEMCO_PARSE_RESULT_NOT_ENOUGH");
@@ -1464,9 +1480,9 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
     // *xdat
     if (*p == '[') {  // xdat exists
         const char* pxdata = p++;
-        ademco_xdata_length_format_t ADEMCO_BUF_MEMORY_MODIFIER xlf = ADEMCO_XDATA_LENGTH_FMT_FOUR_DECIMAL;
-        size_t ADEMCO_BUF_MEMORY_MODIFIER valid_len = 0;
-        uint8_t ADEMCO_BUF_MEMORY_MODIFIER i;
+        ademco_xdata_length_format_t xlf = ADEMCO_XDATA_LENGTH_FMT_FOUR_DECIMAL;
+        size_t valid_len = 0;
+        uint8_t EMB_DATA_MODIFIER i;
         for (i = 0; i < 4; i++)
             if (!isxdigit(*(uint8_t*)(p + i)))
                 xlf = ADEMCO_XDATA_LENGTH_FMT_TWO_HEX;
@@ -1497,7 +1513,7 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
     // timestamp, _%02d:%02d:%02d,%02d-%02d-%04d
     // only check lengh, if format is incorrect, use local time instead
     if (pend - p == ADEMCO_PACKET_TIMESTAMP_LEN) {
-        struct tm ADEMCO_BUF_MEMORY_MODIFIER tm = {0};
+        struct tm EMB_DATA_MODIFIER tm = {0};
         pkt->timestamp = 0;
         do {
             if (*p++ != '_') {
@@ -1540,7 +1556,7 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
 
             tm.tm_year -= 1900;
             tm.tm_mon--;
-            tm.tm_isdst = -1;
+            tm.tm_isdst = 0;
             pkt->timestamp = mktime(&tm);
         } while (0);
 
@@ -1567,19 +1583,19 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
 
 size_t ademco_dec_to_hex_str(char* str, uint32_t dec, uint8_t hex_len) {
     char* p = str;
-    uint8_t i;
+    uint8_t EMB_DATA_MODIFIER i;
     for (i = 0; i < hex_len; i++) {
         *p++ = ademco_hex2char((dec >> (4 * (hex_len - i - 1))) & 0x0F);
     }
     return p - str;
 }
 
-size_t ademco_hilo_array_to_dec_str(ademco_char_t ADEMCO_BUF_MEMORY_MODIFIER* str,
-                                    const uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
+size_t ademco_hilo_array_to_dec_str(ademco_char_t* str,
+                                    const uint8_t* arr,
                                     size_t len) {
-    char ADEMCO_BUF_MEMORY_MODIFIER* p = str;
-    size_t ADEMCO_BUF_MEMORY_MODIFIER i;
-    char ADEMCO_BUF_MEMORY_MODIFIER c;
+    char* p = str;
+    size_t EMB_DATA_MODIFIER i;
+    char EMB_DATA_MODIFIER c;
     for (i = 0; i < len; i++) {
         c = (arr[i] >> 4) & 0x0F;
         if (c > 9) {
@@ -1595,13 +1611,13 @@ size_t ademco_hilo_array_to_dec_str(ademco_char_t ADEMCO_BUF_MEMORY_MODIFIER* st
     return p - str;
 }
 
-size_t ademco_hilo_array_to_hex_str(ademco_char_t ADEMCO_BUF_MEMORY_MODIFIER* str,
-                                    const uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
+size_t ademco_hilo_array_to_hex_str(ademco_char_t* str,
+                                    const uint8_t* arr,
                                     size_t len) {
-    char ADEMCO_BUF_MEMORY_MODIFIER* p = str;
-    size_t ADEMCO_BUF_MEMORY_MODIFIER i;
+    char* p = str;
+    size_t EMB_DATA_MODIFIER i;
     for (i = 0; i < len; i++) {
-        char ADEMCO_BUF_MEMORY_MODIFIER c = (arr[i] >> 4) & 0x0F;
+        char c = (arr[i] >> 4) & 0x0F;
         if (c > 9) {
             if (i < 6) {
                 *p++ = c - 10 + 'A';
@@ -1626,13 +1642,32 @@ size_t ademco_hilo_array_to_hex_str(ademco_char_t ADEMCO_BUF_MEMORY_MODIFIER* st
     return p - str;
 }
 
-size_t ademco_dec_str_to_hilo_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
+bool ademco_hilo_array_streq(const uint8_t* arr,
+                             size_t len,
+                             const char* str) {
+    size_t EMB_DATA_MODIFIER i, slen = str ? strlen(str) : 0;
+    if (slen / 2 != len)
+        return false;  // length mismatch
+    for (i = 0; i < len; i++) {
+        uint8_t EMB_DATA_MODIFIER hi = ademco_char2hex(str[i * 2]);
+        uint8_t EMB_DATA_MODIFIER lo = ademco_char2hex(str[i * 2 + 1]);
+        if (hi > 0x0F || lo > 0x0F) {
+            return false;  // not a hex digit
+        }
+        if (arr[i] != ((hi << 4) | lo)) {
+            return false;  // value mismatch
+        }
+    }
+    return true;  // all match
+}
+
+size_t ademco_dec_str_to_hilo_array(uint8_t* arr,
                                     size_t len,
-                                    const char ADEMCO_BUF_MEMORY_MODIFIER* str) {
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER* p = (uint8_t ADEMCO_BUF_MEMORY_MODIFIER*)arr;
-    size_t ADEMCO_BUF_MEMORY_MODIFIER i;
-    size_t ADEMCO_BUF_MEMORY_MODIFIER slen = str ? strlen(str) : 0;
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER hi, lo;
+                                    const char* str) {
+    uint8_t* p = (uint8_t*)arr;
+    size_t EMB_DATA_MODIFIER i;
+    size_t EMB_DATA_MODIFIER slen = str ? strlen(str) : 0;
+    uint8_t EMB_DATA_MODIFIER hi, lo;
     if (slen > len * 2)
         slen = len * 2;
     for (i = 0; i < slen; i += 2) {
@@ -1658,13 +1693,13 @@ size_t ademco_dec_str_to_hilo_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
     return len;
 }
 
-size_t ademco_hex_str_to_hilo_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
+size_t ademco_hex_str_to_hilo_array(uint8_t* arr,
                                     size_t len,
-                                    const char ADEMCO_BUF_MEMORY_MODIFIER* str) {
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER* p = (uint8_t ADEMCO_BUF_MEMORY_MODIFIER*)arr;
-    size_t ADEMCO_BUF_MEMORY_MODIFIER i;
-    size_t ADEMCO_BUF_MEMORY_MODIFIER slen = str ? strlen(str) : 0;
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER hi, lo;
+                                    const char* str) {
+    uint8_t* p = (uint8_t*)arr;
+    size_t EMB_DATA_MODIFIER i;
+    size_t EMB_DATA_MODIFIER slen = str ? strlen(str) : 0;
+    uint8_t EMB_DATA_MODIFIER hi, lo;
     if (slen > len * 2)
         slen = len * 2;
     for (i = 0; i < slen; i += 2) {
@@ -1691,11 +1726,11 @@ size_t ademco_hex_str_to_hilo_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
     return len;
 }
 
-size_t ademco_hex_array_to_str(char ADEMCO_BUF_MEMORY_MODIFIER* str,
-                               const uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
+size_t ademco_hex_array_to_str(char* str,
+                               const uint8_t* arr,
                                size_t len) {
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER* p = (uint8_t*)str;
-    size_t ADEMCO_BUF_MEMORY_MODIFIER i;
+    uint8_t* p = (uint8_t*)str;
+    size_t EMB_DATA_MODIFIER i;
     for (i = 0; i < len; i++) {
         *p++ = ademco_hex2char((arr[i] >> 4) & 0x0F);
         *p++ = ademco_hex2char(arr[i] & 0x0F);
@@ -1703,14 +1738,14 @@ size_t ademco_hex_array_to_str(char ADEMCO_BUF_MEMORY_MODIFIER* str,
     return p - (uint8_t*)str;
 }
 
-size_t ademco_hex_str_to_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
-                               const char ADEMCO_BUF_MEMORY_MODIFIER* str,
+size_t ademco_hex_str_to_array(uint8_t* arr,
+                               const char* str,
                                uint8_t padding) {
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER* p = arr;
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER hi = 0, lo = 0;
-    size_t ADEMCO_BUF_MEMORY_MODIFIER i;
-    size_t ADEMCO_BUF_MEMORY_MODIFIER slen = str ? strlen(str) : 0;
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER c;
+    uint8_t* p = arr;
+    uint8_t EMB_DATA_MODIFIER hi = 0, lo = 0;
+    size_t EMB_DATA_MODIFIER i;
+    size_t EMB_DATA_MODIFIER slen = str ? strlen(str) : 0;
+    uint8_t EMB_DATA_MODIFIER c;
     padding &= 0x0F;
     for (i = 0; i < slen / 2; i++) {
         c = str[i * 2];
@@ -1727,13 +1762,13 @@ size_t ademco_hex_str_to_array(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
     return p - arr;
 }
 
-size_t ademco_hex_str_to_array_n(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
-                                 const char ADEMCO_BUF_MEMORY_MODIFIER* str,
+size_t ademco_hex_str_to_array_n(uint8_t* arr,
+                                 const char* str,
                                  size_t len, uint8_t padding) {
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER* p = arr;
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER hi = 0, lo = 0;
-    size_t ADEMCO_BUF_MEMORY_MODIFIER i;
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER c;
+    uint8_t* p = arr;
+    uint8_t EMB_DATA_MODIFIER hi = 0, lo = 0;
+    size_t EMB_DATA_MODIFIER i;
+    uint8_t EMB_DATA_MODIFIER c;
     padding &= 0x0F;
     for (i = 0; i < len / 2; i++) {
         c = str[i * 2];
@@ -1750,14 +1785,14 @@ size_t ademco_hex_str_to_array_n(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
     return p - arr;
 }
 
-size_t ademco_hex_str_to_array_n_allow_non_hex_str(uint8_t ADEMCO_BUF_MEMORY_MODIFIER* arr,
-                                                   const char ADEMCO_BUF_MEMORY_MODIFIER* str,
+size_t ademco_hex_str_to_array_n_allow_non_hex_str(uint8_t* arr,
+                                                   const char* str,
                                                    size_t len,
                                                    uint8_t padding) {
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER* p = arr;
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER hi = 0, lo = 0;
-    size_t ADEMCO_BUF_MEMORY_MODIFIER i;
-    uint8_t ADEMCO_BUF_MEMORY_MODIFIER c;
+    uint8_t* p = arr;
+    uint8_t EMB_DATA_MODIFIER hi = 0, lo = 0;
+    size_t EMB_DATA_MODIFIER i;
+    uint8_t EMB_DATA_MODIFIER c;
     padding &= 0x0F;
     for (i = 0; i < len / 2; i++) {
         c = str[i * 2];

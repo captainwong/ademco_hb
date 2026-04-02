@@ -13,45 +13,102 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{e4c96de3-7e14-44f2-8af0-9fa8afa1d4fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libademco">
+      <UniqueIdentifier>{7720b87d-b7ee-46de-9725-785f987255b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libemb">
+      <UniqueIdentifier>{8d2af227-0a6c-44a0-a547-0b167351f058}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libhb">
+      <UniqueIdentifier>{a4b97580-f8d8-42e8-9672-54a1a5fd8d78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libhbcheck">
+      <UniqueIdentifier>{bf7a9dd2-575c-4c57-ba70-dcf24ea25c67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libhbcrypto">
+      <UniqueIdentifier>{e6a70a10-1a7d-4bf9-8c17-35e55488ff66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libhbiot">
+      <UniqueIdentifier>{e0a8880a-dfe1-4823-a627-f70cfc44fe54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libhbiot\rf">
+      <UniqueIdentifier>{a1f6b728-6949-4d12-9087-7222e05f35a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ademco.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\libademco\ademco.c">
+      <Filter>src\libademco</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\hb_core.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\libhb\hb_core.c">
+      <Filter>src\libhb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\hb_core_ademco.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\libhb\hb_core_ademco.c">
+      <Filter>src\libhb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\hb_rf.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\libhbiot\rf\hb_rf.c">
+      <Filter>src\libhbiot\rf</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\ademco.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\src\libademco\ademco.h">
+      <Filter>src\libademco</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\hb_core.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\src\libademco\ademco_config.h">
+      <Filter>src\libademco</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ademco_config.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\src\libademco\ademco_version.h">
+      <Filter>src\libademco</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ademco_version.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\src\libemb\emb_bitrev.h">
+      <Filter>src\libemb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\hb_config.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\src\libemb\emb_config.h">
+      <Filter>src\libemb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\hb_core_ademco.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\src\libemb\emb_version.h">
+      <Filter>src\libemb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\hb_rf.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\src\libemb\libemb.h">
+      <Filter>src\libemb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libhb\hb_config.h">
+      <Filter>src\libhb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libhb\hb_core.h">
+      <Filter>src\libhb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libhb\hb_core_ademco.h">
+      <Filter>src\libhb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libhb\hb_version.h">
+      <Filter>src\libhb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libhbcheck\hb_check.h">
+      <Filter>src\libhbcheck</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libhbcheck\hbcheck_config.h">
+      <Filter>src\libhbcheck</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libhbcheck\hbcheck_version.h">
+      <Filter>src\libhbcheck</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libhbcheck\libhbcheck.h">
+      <Filter>src\libhbcheck</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libhbcrypto\libhbcrypto.h">
+      <Filter>src\libhbcrypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libhbiot\hb_iot_config.h">
+      <Filter>src\libhbiot</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libhbiot\rf\hb_rf.h">
+      <Filter>src\libhbiot\rf</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

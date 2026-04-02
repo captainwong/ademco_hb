@@ -2,10 +2,28 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../../hb_core_ademco.h"
+#include <libhb/hb_core_ademco.h>
 #include "cJSON/cJSON.h"
 #include "uvlib/uv_log.h"
 #include "uvlib/uv_tcpserver.h"
+
+#ifdef _WIN32
+
+#ifdef _WIN64 // 64bit
+#ifdef _DEBUG
+#pragma comment(lib, "../x64/Debug/ademco_static.lib")
+#else
+#pragma comment(lib, "../x64/Release/ademco_static.lib")
+#endif
+#else // 32bit
+#ifdef _DEBUG
+#pragma comment(lib, "../Debug/ademco_static.lib")
+#else
+#pragma comment(lib, "../Release/ademco_static.lib")
+#endif
+#endif /* _WIN64 */
+
+#endif /* _WIN32 */
 
 typedef struct machine_info_s {
     char acct[ADEMCO_PACKET_ACCT_MAX_LEN + 1];

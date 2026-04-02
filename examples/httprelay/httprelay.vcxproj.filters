@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="ademco">
-      <UniqueIdentifier>{e5563916-4ea7-4065-9be4-f34d41d6e97f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="uvlib">
       <UniqueIdentifier>{ccce695b-7cff-4961-8c57-f722d12402cb}</UniqueIdentifier>
     </Filter>
@@ -27,9 +24,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ademco.c">
-      <Filter>ademco</Filter>
-    </ClCompile>
     <ClCompile Include="httprelay.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,20 +60,8 @@
     <ClCompile Include="uvlib\uv_tcp.c">
       <Filter>uvlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\hb_core.c">
-      <Filter>ademco</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\hb_core_ademco.c">
-      <Filter>ademco</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\hb_rf.c">
-      <Filter>ademco</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\ademco.h">
-      <Filter>ademco</Filter>
-    </ClInclude>
     <ClInclude Include="uvlib\list.h">
       <Filter>uvlib</Filter>
     </ClInclude>
@@ -109,15 +91,6 @@
     </ClInclude>
     <ClInclude Include="cJSON\cJSON.h">
       <Filter>cJSON</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\hb_core.h">
-      <Filter>ademco</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\hb_core_ademco.h">
-      <Filter>ademco</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\hb_rf.h">
-      <Filter>ademco</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

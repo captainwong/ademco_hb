@@ -1,4 +1,4 @@
-﻿#include "../../hb_core_ademco.h"
+﻿#include <libhb/hb_core_ademco.h>
 #include <jlib/win32/UnicodeTool.h>
 #include <jlib/win32/path_op.h>
 #include <jlib/util/std_util.h>

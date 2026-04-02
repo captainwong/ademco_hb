@@ -16,12 +16,16 @@ cp ../examples/Win32/Release/server_demo.exe dist/examples/x86/
 cp ../examples/Release/httprelay.exe dist/examples/x86/
 cp ../examples/Release/ademco.dll dist/examples/x86/
 cp ../examples/Release/ademco.lib dist/examples/x86/
+cp ../examples/Release/ademco_static.lib dist/examples/x86/
+cp ../examples/Release/ademco_static_mt.lib dist/examples/x86/
 
 ./examples_x64.bat
 mkdir -p dist/examples/x64
 cp ../examples/x64/Release/server_demo_x64.exe dist/examples/x64/
 cp ../examples/x64/Release/ademco.dll dist/examples/x64/
 cp ../examples/x64/Release/ademco.lib dist/examples/x64/
+cp ../examples/x64/Release/ademco_static.lib dist/examples/x64/
+cp ../examples/x64/Release/ademco_static_mt.lib dist/examples/x64/
 cp ../examples/x64/Release/httprelay.exe dist/examples/x64/
 cp "/g/dev_libs/curl-7.87.0/builds/libcurl-vc14-x64-release-dll-ipv6-sspi-schannel/bin/libcurl.dll" dist/examples/x64/
 

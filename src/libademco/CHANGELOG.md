@@ -1,6 +1,61 @@
 # Ademco Change Log
 
 
+## 3.6.3 2026-04-02 15:14:05
+
+- 增加主机类型 1827 门铃主机，1837 铁路预警主机
+
+
+## 3.6.2 2025-7-4 03:23:29
+
+- add compitability for `CX51`
+
+
+## 3.6.1 2025-7-1 16:41:04
+
+- add `bitrev*` functions
+
+
+## 3.6.0 2025-6-3 15:26:52
+
+控制源协议更新:
+
+- 取消原 `96` 中继报警识别码，`96` 重新分配给 `SMART_HOME_MAX`
+- 将保留的 `11-50` 拿出 `11-30` 作为中继报警的识别码
+
+
+## 3.5.3 2025-5-26 21:48:16
+
+- `ademco_is_valid_account` don't recognize all `0` or all `f` account as valid account anymore
+- add some docs
+- add `ademco_hilo_array_streq`
+
+
+## 3.5.2 2025-5-24 15:39:50
+
+
+
+## 3.5.1 2025-5-19 15:57:38
+
+
+
+## 3.5.0 2025-5-16 16:19:24
+
+
+
+## 3.4.13 2025-5-9 15:32:20
+
+
+
+## 3.4.12 2025-5-8 20:32:49
+
+- add event `POWER_STATE` 1708 for power state, add `hb_power.h`
+
+
+## 3.4.11 2025-4-17 16:24:04
+
+
+
 ## 3.4.10 2025-3-15 18:24:26
 
 - `CFLAGS` add `-Wpedantic -Wextra -Werror -std=gnu99 -O2`
@@ -107,7 +162,7 @@
 
 - shrink `ademco_packet_t` size
 - add config option for `time`
-- add config option `ADEMCO_USE_STATIC_BUF, ADEMCO_USE_UNIQUE_BUF` for embedded systems
+- add config option `EMB_USE_STATIC_BUF, EMB_USE_UNIQUE_BUF` for embedded systems
 - add `ademco_append_data3` and `ademco_make_hb_packet3` for inplace make
 - add `ademco_is_valid_password`
 - remove `grinwich` related functions, they are shit due to doc lacking, machine's timer is UTC+0

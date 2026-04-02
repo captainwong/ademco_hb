@@ -19,14 +19,30 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ademco.c" />
-    <ClCompile Include="..\..\hb_core.c" />
-    <ClCompile Include="..\..\hb_core_ademco.c" />
-    <ClCompile Include="..\..\hb_rf.c" />
+    <ClCompile Include="..\..\src\libademco\ademco.c" />
+    <ClCompile Include="..\..\src\libhbiot\rf\hb_rf.c" />
+    <ClCompile Include="..\..\src\libhb\hb_core.c" />
+    <ClCompile Include="..\..\src\libhb\hb_core_ademco.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\ademco.h" />
-    <ClInclude Include="..\..\hb_core.h" />
+    <ClInclude Include="..\..\src\libademco\ademco.h" />
+    <ClInclude Include="..\..\src\libademco\ademco_config.h" />
+    <ClInclude Include="..\..\src\libademco\ademco_version.h" />
+    <ClInclude Include="..\..\src\libemb\emb_bitrev.h" />
+    <ClInclude Include="..\..\src\libemb\emb_config.h" />
+    <ClInclude Include="..\..\src\libemb\emb_version.h" />
+    <ClInclude Include="..\..\src\libemb\libemb.h" />
+    <ClInclude Include="..\..\src\libhbcheck\hbcheck_config.h" />
+    <ClInclude Include="..\..\src\libhbcheck\hbcheck_version.h" />
+    <ClInclude Include="..\..\src\libhbcheck\hb_check.h" />
+    <ClInclude Include="..\..\src\libhbcheck\libhbcheck.h" />
+    <ClInclude Include="..\..\src\libhbcrypto\libhbcrypto.h" />
+    <ClInclude Include="..\..\src\libhbiot\hb_iot_config.h" />
+    <ClInclude Include="..\..\src\libhbiot\rf\hb_rf.h" />
+    <ClInclude Include="..\..\src\libhb\hb_config.h" />
+    <ClInclude Include="..\..\src\libhb\hb_core.h" />
+    <ClInclude Include="..\..\src\libhb\hb_core_ademco.h" />
+    <ClInclude Include="..\..\src\libhb\hb_version.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -102,6 +118,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -121,6 +138,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -140,6 +158,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -159,6 +178,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>

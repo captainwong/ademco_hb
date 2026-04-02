@@ -27,7 +27,25 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../../ademco.h"
+#include <libademco/ademco.h>
+
+#ifdef _WIN32
+
+#ifdef _WIN64 // 64bit
+#ifdef _DEBUG
+#pragma comment(lib, "../x64/Debug/ademco_static.lib")
+#else
+#pragma comment(lib, "../x64/Release/ademco_static.lib")
+#endif
+#else // 32bit
+#ifdef _DEBUG
+#pragma comment(lib, "../Debug/ademco_static.lib")
+#else
+#pragma comment(lib, "../Release/ademco_static.lib")
+#endif
+#endif /* _WIN64 */
+
+#endif /* _WIN32 */
 
 void op_usage() {
     printf("Press A for Arm, D for Disarm, E for Emergency, Q for Quit\n");
