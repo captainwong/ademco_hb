@@ -11,9 +11,11 @@ else
   export PROJECT_BRANCH=$1
 fi
 
+my_macbook_is_broken=1
+
 export LINUX_TARGET=root@192.168.50.67
 export LINUX_PROJECT_PATH=/root/projects/ademco_hb
-# export LINUX_JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export LINUX_JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 export MACOS_TARGET=jack@192.168.50.231
 export MACOS_PROJECT_PATH=/Users/jack/projects/ademco_hb
 export MACOS_JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_291.jdk/Contents/Home
@@ -42,7 +44,9 @@ mkdir -p dist
 ./mk_linux_java.sh
 
 # macOS java
-./mk_macos_java.sh
+if [ $my_macbook_is_broken -eq 0 ]; then
+  ./mk_macos_java.sh
+fi
 
 # win-node
 ./mk_win_node.sh
@@ -51,7 +55,9 @@ mkdir -p dist
 ./mk_linux_node.sh
 
 # mac-node
-./mk_macos_node.sh
+if [ $my_macbook_is_broken -eq 0 ]; then
+  ./mk_macos_node.sh
+fi
 
 mv dist ademco_hb-$version
 tar -zcvf ademco_hb-$version.tar.gz ademco_hb-$version

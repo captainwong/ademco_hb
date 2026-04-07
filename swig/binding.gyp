@@ -4,10 +4,13 @@
             "target_name": "libademco_js",
             "sources":[
                 "libademco_wrap.cxx",
-                "../ademco.c",
-                "../hb_core.c",
-                "../hb_core_ademco.c",
-                "../hb_rf.c",
+                "../src/libademco/ademco.c",
+                "../src/libhb/hb_core.c",
+                "../src/libhb/hb_core_ademco.c",
+                "../src/libhbiot/rf/hb_rf.c",
+            ],
+            "include_dirs": [
+                "../src",
             ],
             'conditions': [
                 ['OS=="win"', {
