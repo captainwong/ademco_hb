@@ -13,6 +13,7 @@ ssh -t ${LINUX_TARGET} <<EOF
   git pull origin ${PROJECT_BRANCH}
   chmod +x ./swig/*.sh ./tools/*.sh
   cd swig 
+  LINUX_JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | grep 'java.home' | cut -d'=' -f2 | xargs)
   export JAVA_HOME=${LINUX_JAVA_HOME}
   ./linux_java.sh 
   cd ../tools
