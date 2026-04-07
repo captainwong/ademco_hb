@@ -4,3 +4,4 @@ set -e
 
 swig -c++ -javascript -node libademco.swig
 node-gyp configure build
+# node nodejs-demo.js

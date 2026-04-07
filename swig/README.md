@@ -88,6 +88,7 @@ make && make install
 #### 2. 安装 `node`
 
 ```bash
+# 最高支持v22.22.2(LTS)，ubuntu22.04下测试 v24.14.1(LTS) 编译失败
 curl -sL https://deb.nodesource.com/setup_18.x -o /tmp/nodesource_setup.sh
 bash /tmp/nodesource_setup.sh
 sudo apt-get install -y nodejs
