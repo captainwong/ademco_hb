@@ -9,19 +9,15 @@ echo "building linux java on ${LINUX_TARGET} with path ${LINUX_PROJECT_PATH}, br
 ssh -t ${LINUX_TARGET} <<EOF
   #!/bin/bash
   echo "getting java home on linux server"
-  # 方法1: 尝试通过update-alternatives
   if command -v update-alternatives >/dev/null 2>&1; then
       JAVA_PATH=$(update-alternatives --list java 2>/dev/null | head -1)
       if [ -n "$JAVA_PATH" ]; then
           JAVA_HOME=$(dirname "$(dirname "$JAVA_PATH")")
-          echo "$JAVA_HOME"
-          exit 0
+          echo "方法1： $JAVA_HOME"
+          exit 1
       fi
   fi
   java -XshowSettings:properties -version 2>&1 | grep 'java.home' | cut -d'=' -f2 | xargs
-  # cat java_home.txt
-  # LINUX_JAVA_HOME=$(cat java_home.txt)
-  # rm -f java_home.txt
   LINUX_JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | grep 'java.home' | cut -d'=' -f2 | xargs)
   echo "LINUX_JAVA_HOME: ${LINUX_JAVA_HOME}"
   # check if LINUX_JAVA_HOME is empty
