@@ -18,7 +18,6 @@ ssh -t ${LINUX_TARGET} <<EOF
           exit 0
       fi
   fi
-  exit 0
   java -XshowSettings:properties -version 2>&1 | grep 'java.home' | cut -d'=' -f2 | xargs
   # cat java_home.txt
   # LINUX_JAVA_HOME=$(cat java_home.txt)
