@@ -53,7 +53,8 @@ uint8_t hb_get_available_zone_properties_by_type(hb_machine_type_t type,
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
         }
-        case HMT_THREE_SECTION: {
+        case HMT_THREE_SECTION:
+        case HMT_TRAIN: {
             const hb_zone_property_t EMB_CODE_MODIFIER hzps[] = HB_THREE_SECTION_MACHINE_SUPPORTED_ZONE_PROPERTIES;
             memcpy(props, hzps, sizeof(hzps));
             return sizeof(hzps) / sizeof(hb_zone_property_t);
@@ -110,6 +111,7 @@ uint16_t hb_get_max_zone_by_type(hb_machine_type_t type) {
             return 68;
 
         case HMT_THREE_SECTION:
+        case HMT_TRAIN:
             return 191;
 
         case HMT_IOT:
@@ -144,7 +146,8 @@ bool hb_is_machine_on_sale(hb_machine_type_t type) {
            type == HMT_GPRS_PHONE ||
            type == HMT_NB ||
            type == HMT_WIFI2 ||
-           type == HMT_BELL;
+           type == HMT_BELL ||
+           type == HMT_TRAIN;
 }
 
 bool hb_machine_can_arm_away(hb_machine_type_t type) {
@@ -173,7 +176,8 @@ bool hb_machine_can_report_signal_strength(hb_machine_type_t type) {
            type == HMT_GPRS_PHONE ||
            type == HMT_NB ||
            type == HMT_WIFI2 ||
-           type == HMT_BELL;
+           type == HMT_BELL ||
+           type == HMT_TRAIN;
 }
 
 bool hb_machine_can_report_by_sms(hb_machine_type_t type) {
@@ -187,7 +191,8 @@ bool hb_machine_can_report_by_sms(hb_machine_type_t type) {
 bool hb_machine_has_wired_zones(hb_machine_type_t type) {
     return type == HMT_NETMOD ||
            type == HMT_TRUE_COLOR ||
-           type == HMT_THREE_SECTION;
+           type == HMT_THREE_SECTION ||
+           type == HMT_TRAIN;
 }
 
 uint16_t hb_wired_zone_min(hb_machine_type_t type) {
@@ -197,6 +202,7 @@ uint16_t hb_wired_zone_min(hb_machine_type_t type) {
         case HMT_TRUE_COLOR:
             return 1;
         case HMT_THREE_SECTION:
+        case HMT_TRAIN:
             return 61;
         default:
             return 0;
@@ -210,6 +216,7 @@ uint16_t hb_wired_zone_max(hb_machine_type_t type) {
         case HMT_TRUE_COLOR:
             return 8;
         case HMT_THREE_SECTION:
+        case HMT_TRAIN:
             return 68;
         default:
             return 0;
