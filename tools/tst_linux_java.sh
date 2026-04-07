@@ -13,6 +13,7 @@ fi
 
 export LINUX_TARGET=root@192.168.50.67
 export LINUX_PROJECT_PATH=/root/projects/ademco_hb
+export LINUX_JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
 
 major=`cat ../src/libademco/ademco_version.h | grep ADEMCO_VERSION_MAJOR | head -n1 | awk '{print $3}'`
