@@ -12,15 +12,16 @@ then
 fi
 
 
-${cxx} -std=c++11 -O3 ../server_demo/server_demo.cpp ../../ademco.c -I../../ -lpthread -o server_demo
+${cxx} -std=c++11 -O3 ../server_demo/server_demo.cpp ../../src/libademco/ademco.c -I../../src -lpthread -o server_demo
 
-${cc} -std=gnu99 ../../ademco.c \
-    ../../hb_core.c \
-    ../../hb_core_ademco.c \
+${cc} -std=gnu99 ../../src/libademco/ademco.c \
+    ../../src/libhb/hb_core.c \
+    ../../src/libhb/hb_core_ademco.c \
     ../httprelay/cJSON/cJSON.c \
     ../httprelay/uvlib/*.c \
     ../httprelay/uvlib/llhttp/src/*.c \
     ../httprelay/*.c \
-    -I ../httprelay/uvlib/llhttp/include \
+    -I../httprelay/uvlib/llhttp/include \
+    -I../../src \
     -luv -lcurl \
     -o httprelay

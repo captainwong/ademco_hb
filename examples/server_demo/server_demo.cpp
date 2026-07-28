@@ -26,6 +26,9 @@
 #include <thread>
 #include <unordered_map>
 #include <vector>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 
 #include <libademco/ademco.h>
 
