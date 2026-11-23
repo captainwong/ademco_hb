@@ -21,3 +21,11 @@ C 编写的简易版 TCP 服务器与 HTTP 转发器，可以用来接收主机�
 ```
 
 httprelay 须运行在公网环境，报警主机配置直连接警中心IP、端口，主机有事件发生时将转发至 http://your-http-server.com:8080/ademco
+
+转发格式为 `POST` + `application/json`（无 query 参数），如：
+
+```json
+{"acct":"861234567890","ademco_event":3400,"zone":0,"gg":0,"timestamp":1763893209}
+```
+
+完整回调接口规格、上线/掉线合成事件等说明见 `docs/对接说明.md`。

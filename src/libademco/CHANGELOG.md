@@ -1,6 +1,42 @@
 # Ademco Change Log
 
 
+## 3.8.0 2026-09-09 16:40:14
+
+- add event `1847 I_AM_T213`
+
+
+## 3.7.5 2026-07-10 13:54:01
+
+- all `time` related struct/function now using `emb_`
+
+
+## 3.7.4 2026-06-25 21:14:32
+
+- 1151 煤气 -> 燃气泄漏
+- 1113 水警 -> 水泄漏
+
+
+## 3.7.3 2026-06-23 16:53:05
+
+- add event `1574 SYSTEM_BYPASS` and `3574 SYSTEM_BYPASS_RECOVER`
+
+
+## 3.7.2 2026-06-21 08:40:06
+
+- event 1383 `EVENT_ZONE_TAMPER` renamed to `EVENT_SENSOR_TAMPER`
+
+
+## 3.7.1 2026-06-01 19:05:04
+
+- add event `1900 EVENT_PROGRAM_MODIFY, 3900 EVENT_PROGRAM_DELETE`
+
+
+## 3.7.0 2026-05-19 20:48:41
+
+- all structs are 1 byte alignment
+
+
 ## 3.6.3 2026-04-02 15:14:05
 
 - 增加主机类型 1827 门铃主机，1837 铁路预警主机

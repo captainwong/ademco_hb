@@ -24,7 +24,8 @@ extern "C" {
     XX(HMT_NB, EVENT_I_AM_NB)                   \
     XX(HMT_WIFI2, EVENT_I_AM_WIFI2)             \
     XX(HMT_BELL, EVENT_I_AM_BELL)               \
-    XX(HMT_TRAIN, EVENT_I_AM_TRAIN)
+    XX(HMT_TRAIN, EVENT_I_AM_TRAIN)             \
+    XX(HMT_T213, EVENT_I_AM_T213)
 
 // 防区属性与安定宝事件码对照表
 #define HZP_EVENT_MAP(XX)               \

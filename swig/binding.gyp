@@ -5,6 +5,7 @@
             "sources":[
                 "libademco_wrap.cxx",
                 "../src/libademco/ademco.c",
+                "../src/libemb/emb_string.c",
                 "../src/libhb/hb_core.c",
                 "../src/libhb/hb_core_ademco.c",
                 "../src/libhbiot/rf/hb_rf.c",

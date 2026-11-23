@@ -8,6 +8,7 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include <libemb/emb_string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,25 +34,6 @@ const char* ademco_version_string(void) {
     return ADEMCO_VERSION_STRING;
 }
 #endif
-
-uint8_t ademco_hex2char(uint8_t h) {
-    h &= 0x0F;
-    if (h > 9)
-        return 'A' + h - 10;
-    else
-        return '0' + h;
-}
-
-uint8_t ademco_char2hex(uint8_t c) {
-    if ('0' <= c && c <= '9')
-        return c - '0';
-    else if ('A' <= c && c <= 'F')
-        return c - 'A' + 10;
-    else if ('a' <= c && c <= 'f')
-        return c - 'a' + 10;
-    else
-        return 0xFF;
-}
 
 void ademco_print(const ademco_char_t* p, size_t len) {
     while (len--) {
@@ -227,7 +209,7 @@ ademco_event_level_t ademco_get_event_level(ademco_event_t ademco_event) {
         case EVENT_FIRE:
         case EVENT_GAS:
         case EVENT_TAMPER:
-        case EVENT_ZONE_TAMPER:
+        case EVENT_SENSOR_TAMPER:
         case EVENT_WATER:
             return EVENT_LEVEL_ALARM;
 
@@ -316,7 +298,7 @@ static const uint16_t EMB_CODE_MODIFIER crc16Table[256] = {
     0x8801, 0x48C0, 0x4980, 0x8941, 0x4B00, 0x8BC1, 0x8A81, 0x4A40,  // 0xE0
     0x4E00, 0x8EC1, 0x8F81, 0x4F40, 0x8D01, 0x4DC0, 0x4C80, 0x8C41,  // 0xE8
     0x4400, 0x84C1, 0x8581, 0x4540, 0x8701, 0x47C0, 0x4680, 0x8641,  // 0xF0
-    0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,  // 0xF8
+    0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040   // 0xF8
 };
 
 uint16_t ademco_crc16(const ademco_char_t* buf, size_t len) {
@@ -487,7 +469,7 @@ ademco_parse_result_t ademco_parse_data(const ademco_char_t* packet, size_t pack
             return ADEMCO_PARSE_RESULT_ERROR;
         }
 
-        strncpy(buf, (const char*)p, acct_len);
+        memcpy(buf, p, acct_len);
         buf[acct_len] = '\0';
         ademco_data->ademco_id = (ademco_id_t)strtoul(buf, NULL, 16);
         if (ademco_data->ademco_id > ADEMCO_ID_SENTINEL) {
@@ -500,7 +482,7 @@ ademco_parse_result_t ademco_parse_data(const ademco_char_t* packet, size_t pack
             ADEMCO_FILL_PARSE_ERROR(err, p - packet, "*p++ != '|'");
             return ADEMCO_PARSE_RESULT_ERROR;
         }
-        strncpy(buf, (const char*)p, 4);
+        memcpy(buf, p, 4);
         buf[4] = '\0';
         ademco_data->ademco_event = (ademco_event_t)(atoi(buf));
         p += 4;
@@ -522,7 +504,7 @@ ademco_parse_result_t ademco_parse_data(const ademco_char_t* packet, size_t pack
             ADEMCO_FILL_PARSE_ERROR(err, p - packet, "*p++ != ' '");
             return ADEMCO_PARSE_RESULT_ERROR;
         }
-        strncpy(buf, (const char*)p, 3);
+        memcpy(buf, p, 3);
         buf[3] = '\0';
         ademco_data->zone = (ademco_zone_t)atoi(buf);
 
@@ -800,13 +782,13 @@ const char* ademco_packet_id_to_string(ademco_packet_id_t id) {
 }
 
 static void getNowTimestamp(char* buf) {
-    time_t now = time(NULL);
+    emb_time_t now = emb_time(NULL);
 
 #if EMB_DISABLE_GMTIME
-    struct tm tm = {0};
-    _localtime_r(&now, &tm);
+    struct emb_tm tm = {0};
+    emb_localtime_r(&now, &tm);
 #else
-    struct tm tm, *ptm = localtime(&now);
+    struct emb_tm tm, *ptm = emb_localtime(&now);
     tm = *ptm;
 #endif  // EMB_DISABLE_GMTIME
     tm.tm_mon += 1;
@@ -838,8 +820,8 @@ static void getGmtTimestamp(char* buf) {
 #ifdef EMB_DISABLE_GMTIME
     getNowTimestamp(buf);
 #else
-    time_t now = time(NULL);
-    struct tm tm = *gmtime(&now);
+    emb_time_t now = emb_time(NULL);
+    struct emb_tm tm = *emb_gmtime(&now);
     tm.tm_mon += 1;
     tm.tm_year += 1900;
     *buf++ = '_';
@@ -1313,7 +1295,7 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
     // crc
     crc = 0;
     for (q = p; p - q < 4; p++) {
-        h = ademco_char2hex(*p);
+        h = emb_char2hex(*p);
         if (h == 0xFF) {
             ADEMCO_FILL_PARSE_ERROR(err, p - buf, "crc contains non-hex characters");
             *cb_commited += p - buf;
@@ -1325,7 +1307,7 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
     // len
     pkt->len = 0;
     for (q = p; p - q < 4; p++) {
-        h = ademco_char2hex(*p);
+        h = emb_char2hex(*p);
         if (h == 0xFF) {
             ADEMCO_FILL_PARSE_ERROR(err, p - buf, "len contains non-hex characters");
             *cb_commited += p - buf;
@@ -1454,7 +1436,7 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
         *cb_commited += p - buf;
         return ADEMCO_PARSE_RESULT_ERROR;
     }
-    strncpy(pkt->acct, (const char*)pacct, p - pacct);
+    memcpy(pkt->acct, pacct, p - pacct);
     pkt->acct[p - pacct] = '\0';
 
     // dat
@@ -1488,10 +1470,10 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
                 xlf = ADEMCO_XDATA_LENGTH_FMT_TWO_HEX;
 
         if (xlf == ADEMCO_XDATA_LENGTH_FMT_FOUR_DECIMAL) {
-            valid_len = (ademco_char2hex(*(pxdata + 1)) << 12) |
-                        (ademco_char2hex(*(pxdata + 2)) << 8) |
-                        (ademco_char2hex(*(pxdata + 3)) << 4) |
-                        (ademco_char2hex(*(pxdata + 4)));
+            valid_len = (emb_char2hex(*(pxdata + 1)) << 12) |
+                        (emb_char2hex(*(pxdata + 2)) << 8) |
+                        (emb_char2hex(*(pxdata + 3)) << 4) |
+                        (emb_char2hex(*(pxdata + 4)));
             p += 4 + valid_len;
         } else {
             valid_len = (pxdata[1] << 8) | pxdata[2];
@@ -1513,55 +1495,55 @@ ademco_parse_result_t ademco_parse_packet(const ademco_char_t* buf,
     // timestamp, _%02d:%02d:%02d,%02d-%02d-%04d
     // only check lengh, if format is incorrect, use local time instead
     if (pend - p == ADEMCO_PACKET_TIMESTAMP_LEN) {
-        struct tm EMB_DATA_MODIFIER tm = {0};
+        struct emb_tm EMB_DATA_MODIFIER tm = {0};
         pkt->timestamp = 0;
         do {
             if (*p++ != '_') {
                 break;
             }
-            tm.tm_hour = ademco_char2hex(*p++);
-            tm.tm_hour = tm.tm_hour * 10 + ademco_char2hex(*p++);
+            tm.tm_hour = emb_char2hex(*p++);
+            tm.tm_hour = tm.tm_hour * 10 + emb_char2hex(*p++);
             if (*p++ != ':') {
                 break;
             }
 
-            tm.tm_min = ademco_char2hex(*p++);
-            tm.tm_min = tm.tm_min * 10 + ademco_char2hex(*p++);
+            tm.tm_min = emb_char2hex(*p++);
+            tm.tm_min = tm.tm_min * 10 + emb_char2hex(*p++);
             if (*p++ != ':') {
                 break;
             }
 
-            tm.tm_sec = ademco_char2hex(*p++);
-            tm.tm_sec = tm.tm_sec * 10 + ademco_char2hex(*p++);
+            tm.tm_sec = emb_char2hex(*p++);
+            tm.tm_sec = tm.tm_sec * 10 + emb_char2hex(*p++);
             if (*p++ != ',') {
                 break;
             }
 
-            tm.tm_mon = ademco_char2hex(*p++);
-            tm.tm_mon = tm.tm_mon * 10 + ademco_char2hex(*p++);
+            tm.tm_mon = emb_char2hex(*p++);
+            tm.tm_mon = tm.tm_mon * 10 + emb_char2hex(*p++);
             if (*p++ != '-') {
                 break;
             }
 
-            tm.tm_mday = ademco_char2hex(*p++);
-            tm.tm_mday = tm.tm_mday * 10 + ademco_char2hex(*p++);
+            tm.tm_mday = emb_char2hex(*p++);
+            tm.tm_mday = tm.tm_mday * 10 + emb_char2hex(*p++);
             if (*p++ != '-') {
                 break;
             }
 
-            tm.tm_year = ademco_char2hex(*p++);
-            tm.tm_year = tm.tm_year * 10 + ademco_char2hex(*p++);
-            tm.tm_year = tm.tm_year * 10 + ademco_char2hex(*p++);
-            tm.tm_year = tm.tm_year * 10 + ademco_char2hex(*p++);
+            tm.tm_year = emb_char2hex(*p++);
+            tm.tm_year = tm.tm_year * 10 + emb_char2hex(*p++);
+            tm.tm_year = tm.tm_year * 10 + emb_char2hex(*p++);
+            tm.tm_year = tm.tm_year * 10 + emb_char2hex(*p++);
 
             tm.tm_year -= 1900;
             tm.tm_mon--;
             tm.tm_isdst = 0;
-            pkt->timestamp = mktime(&tm);
+            pkt->timestamp = emb_mktime(&tm);
         } while (0);
 
         if (pkt->timestamp <= 0) {  // use local time instead
-            pkt->timestamp = time(NULL);
+            pkt->timestamp = emb_time(NULL);
             p = pend;
         }
     } else {
@@ -1585,7 +1567,7 @@ size_t ademco_dec_to_hex_str(char* str, uint32_t dec, uint8_t hex_len) {
     char* p = str;
     uint8_t EMB_DATA_MODIFIER i;
     for (i = 0; i < hex_len; i++) {
-        *p++ = ademco_hex2char((dec >> (4 * (hex_len - i - 1))) & 0x0F);
+        *p++ = emb_hex2char((dec >> (4 * (hex_len - i - 1))) & 0x0F);
     }
     return p - str;
 }
@@ -1649,8 +1631,8 @@ bool ademco_hilo_array_streq(const uint8_t* arr,
     if (slen / 2 != len)
         return false;  // length mismatch
     for (i = 0; i < len; i++) {
-        uint8_t EMB_DATA_MODIFIER hi = ademco_char2hex(str[i * 2]);
-        uint8_t EMB_DATA_MODIFIER lo = ademco_char2hex(str[i * 2 + 1]);
+        uint8_t EMB_DATA_MODIFIER hi = emb_char2hex(str[i * 2]);
+        uint8_t EMB_DATA_MODIFIER lo = emb_char2hex(str[i * 2 + 1]);
         if (hi > 0x0F || lo > 0x0F) {
             return false;  // not a hex digit
         }
@@ -1708,13 +1690,13 @@ size_t ademco_hex_str_to_hilo_array(uint8_t* arr,
             if (i + 1 < slen) {
                 lo = str[i + 1];
                 if (isxdigit(lo))
-                    *p++ = (ademco_char2hex(hi) << 4) | (ademco_char2hex(lo) & 0x0F);
+                    *p++ = (emb_char2hex(hi) << 4) | (emb_char2hex(lo) & 0x0F);
                 else {
-                    *p++ = (ademco_char2hex(hi) << 4) | 0x0F;
+                    *p++ = (emb_char2hex(hi) << 4) | 0x0F;
                     break;
                 }
             } else {
-                *p++ = (ademco_char2hex(hi) << 4) | 0x0F;
+                *p++ = (emb_char2hex(hi) << 4) | 0x0F;
                 break;
             }
         } else {
@@ -1732,8 +1714,8 @@ size_t ademco_hex_array_to_str(char* str,
     uint8_t* p = (uint8_t*)str;
     size_t EMB_DATA_MODIFIER i;
     for (i = 0; i < len; i++) {
-        *p++ = ademco_hex2char((arr[i] >> 4) & 0x0F);
-        *p++ = ademco_hex2char(arr[i] & 0x0F);
+        *p++ = emb_hex2char((arr[i] >> 4) & 0x0F);
+        *p++ = emb_hex2char(arr[i] & 0x0F);
     }
     return p - (uint8_t*)str;
 }
@@ -1749,11 +1731,11 @@ size_t ademco_hex_str_to_array(uint8_t* arr,
     padding &= 0x0F;
     for (i = 0; i < slen / 2; i++) {
         c = str[i * 2];
-        if ((hi = ademco_char2hex(c)) == 0xFF)
+        if ((hi = emb_char2hex(c)) == 0xFF)
             return 0;
         if (i * 2 + 1 < slen) {
             c = str[i * 2 + 1];
-            if ((lo = ademco_char2hex(c)) == 0xFF)
+            if ((lo = emb_char2hex(c)) == 0xFF)
                 return 0;
         } else
             lo = padding;
@@ -1772,11 +1754,11 @@ size_t ademco_hex_str_to_array_n(uint8_t* arr,
     padding &= 0x0F;
     for (i = 0; i < len / 2; i++) {
         c = str[i * 2];
-        if ((hi = ademco_char2hex(c)) == 0xFF)
+        if ((hi = emb_char2hex(c)) == 0xFF)
             return 0;
         if (i * 2 + 1 < len) {
             c = str[i * 2 + 1];
-            if ((lo = ademco_char2hex(c)) == 0xFF)
+            if ((lo = emb_char2hex(c)) == 0xFF)
                 return 0;
         } else
             lo = padding;
@@ -1796,11 +1778,11 @@ size_t ademco_hex_str_to_array_n_allow_non_hex_str(uint8_t* arr,
     padding &= 0x0F;
     for (i = 0; i < len / 2; i++) {
         c = str[i * 2];
-        if ((hi = ademco_char2hex(c)) == 0xFF)
+        if ((hi = emb_char2hex(c)) == 0xFF)
             hi = padding;
         if (i * 2 + 1 < len) {
             c = str[i * 2 + 1];
-            if ((lo = ademco_char2hex(c)) == 0xFF)
+            if ((lo = emb_char2hex(c)) == 0xFF)
                 lo = padding;
         } else
             lo = padding;

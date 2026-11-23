@@ -8,6 +8,10 @@
 extern "C" {
 #endif
 
+#if !(defined(__C51__) || defined(__SDCC)) || defined(VSCODE)
+#pragma pack(push, 1)
+#endif
+
 // Prototypes
 typedef uint32_t ademco_id_t;
 typedef uint8_t ademco_gg_t;
@@ -69,30 +73,32 @@ typedef uint16_t ademco_zone_t;
     XX(1456, ARM_STAY_1456, "留守布防")
 
 // 防区报警
-#define ADEMCO_ALARM_EVENTS_MAP(XX)   \
-    XX(1120, EMERGENCY, "紧急报警")   \
-    XX(1130, BURGLAR, "盗警")         \
-    XX(1134, DOOR_RING, "门铃")       \
-    XX(1110, FIRE, "火警")            \
-    XX(1121, DURESS, "胁迫")          \
-    XX(1151, GAS, "煤气")             \
-    XX(1113, WATER, "水警")           \
-    XX(1137, TAMPER, "主机防拆")      \
-    XX(1383, ZONE_TAMPER, "防区防拆") \
-    XX(1570, BYPASS, "旁路")
+#define ADEMCO_ALARM_EVENTS_MAP(XX)     \
+    XX(1120, EMERGENCY, "紧急报警")     \
+    XX(1130, BURGLAR, "盗警")           \
+    XX(1134, DOOR_RING, "门铃")         \
+    XX(1110, FIRE, "火警")              \
+    XX(1121, DURESS, "胁迫")            \
+    XX(1151, GAS, "燃气泄漏")           \
+    XX(1113, WATER, "水泄漏")           \
+    XX(1137, TAMPER, "主机防拆")        \
+    XX(1383, SENSOR_TAMPER, "防区防拆") \
+    XX(1570, BYPASS, "防区旁路")        \
+    XX(1574, SYSTEM_BYPASS, "系统旁路")
 
 // 防区报警恢复
-#define ADEMCO_ALARM_RECOVER_EVENTS_MAP(XX)       \
-    XX(3120, EMERGENCY_RECOVER, "紧急恢复")       \
-    XX(3130, BURGLAR_RECOVER, "盗警恢复")         \
-    XX(3134, DOOR_RING_RECOVER, "门铃恢复")       \
-    XX(3110, FIRE_RECOVER, "火警恢复")            \
-    XX(3121, DURESS_RECOVER, "胁迫恢复")          \
-    XX(3151, GAS_RECOVER, "煤气恢复")             \
-    XX(3113, WATER_RECOVER, "水警恢复")           \
-    XX(3137, TAMPER_RECOVER, "主机防拆恢复")      \
-    XX(3383, ZONE_TAMPER_RECOVER, "防区防拆恢复") \
-    XX(3570, BYPASS_RECOVER, "解除旁路")
+#define ADEMCO_ALARM_RECOVER_EVENTS_MAP(XX)         \
+    XX(3120, EMERGENCY_RECOVER, "紧急恢复")         \
+    XX(3130, BURGLAR_RECOVER, "盗警恢复")           \
+    XX(3134, DOOR_RING_RECOVER, "门铃恢复")         \
+    XX(3110, FIRE_RECOVER, "火警恢复")              \
+    XX(3121, DURESS_RECOVER, "胁迫恢复")            \
+    XX(3151, GAS_RECOVER, "燃气恢复")               \
+    XX(3113, WATER_RECOVER, "水泄漏恢复")           \
+    XX(3137, TAMPER_RECOVER, "主机防拆恢复")        \
+    XX(3383, SENSOR_TAMPER_RECOVER, "防区防拆恢复") \
+    XX(3570, BYPASS_RECOVER, "防区旁路解除")        \
+    XX(3574, SYSTEM_BYPASS_RECOVER, "系统旁路解除")
 
 // 防区异常
 #define ADEMCO_EXEPTION_EVENTS_MAP(XX)    \
@@ -147,6 +153,7 @@ typedef uint16_t ademco_zone_t;
     XX(1817, I_AM_WIFI2, "主机类型--WiFi主机(新版)")           \
     XX(1827, I_AM_BELL, "主机类型--门铃主机")                  \
     XX(1837, I_AM_TRAIN, "主机类型--铁路预警主机")             \
+    XX(1847, I_AM_T213, "主机类型--T213主机")                  \
     XX(1709, PHONE_USER_SOS, "手机用户SOS")                    \
     XX(1711, PHONE_USER_CANCLE_ALARM, "手机用户消警")          \
     XX(1712, ENTER_SETTING_MODE, "主机进入设置状态")           \
@@ -161,7 +168,9 @@ typedef uint16_t ademco_zone_t;
     XX(1799, SIGNAL_STRENGTH_CHANGED, "信号强度")              \
     XX(1944, OFFLINE, "主机断线")                              \
     XX(1946, ONLINE, "主机上线")                               \
-    XX(1708, POWER_STATE, "电源状态")
+    XX(1708, POWER_STATE, "电源状态")                          \
+    XX(1900, PROGRAM_MODIFY, "程序修改")                       \
+    XX(3900, PROGRAM_DELETE, "程序删除")
 
 // Ademco events
 typedef enum ademco_event_t {
@@ -276,7 +285,7 @@ typedef struct ademco_packet_t {
     char acct[ADEMCO_PACKET_ACCT_MAX_LEN + 1];
     ademco_data_t dat;
     ademco_xdata_t xdat;
-    time_t timestamp;
+    emb_time_t timestamp;
 
     ademco_char_t raw[ADEMCO_PACKET_MAX_LEN];
     size_t raw_len;
@@ -577,12 +586,6 @@ ADEMCO_EXPORT_SYMBOL ademco_parse_result_t ademco_parse_packet(const ademco_char
 ADEMCO_EXPORT_SYMBOL uint16_t ademco_crc16(const ademco_char_t* buf, size_t len);
 #endif
 
-// 0-9, A-F to '0'-'9', 'A'-'F'
-ADEMCO_EXPORT_SYMBOL uint8_t ademco_hex2char(uint8_t h);
-
-// '0'-'9', 'A'-'F', 'a'-'f' to 0-9, A-F
-ADEMCO_EXPORT_SYMBOL uint8_t ademco_char2hex(uint8_t c);
-
 /**
  * @brief 将一个十进制数字转换为十六进制字符串
  * @param str 输出字符串，至少 hex_len * 2 个字节空间
@@ -745,6 +748,10 @@ ADEMCO_EXPORT_SYMBOL size_t ademco_hex_str_to_array_n_allow_non_hex_str(uint8_t*
                                                                         const char* str,
                                                                         size_t len,
                                                                         uint8_t padding);
+
+#if !(defined(__C51__) || defined(__SDCC)) || defined(VSCODE)
+#pragma pack(pop)
+#endif
 
 #ifdef __cplusplus
 }

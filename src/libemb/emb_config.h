@@ -13,6 +13,26 @@
 #define EMB_EXPORT_SYMBOL
 #endif  // LIBEMB_EXPORTS
 
+//////////////////// bit ////////////////////
+
+#define BIT7 0x80
+#define BIT6 0x40
+#define BIT5 0x20
+#define BIT4 0x10
+#define BIT3 0x08
+#define BIT2 0x04
+#define BIT1 0x02
+#define BIT0 0x01
+
+// bitn in BIT0, BIT1, ... , BIT7
+#define set_bit(x, bitn) ((x) |= (bitn))
+// bitn in BIT0, BIT1, ... , BIT7
+#define clr_bit(x, bitn) ((x) &= ~(bitn))
+// bitn in BIT0, BIT1, ... , BIT7
+#define tst_bit(x, bitn) ((x) & (bitn))
+
+//////////////////// helper macros ////////////////////
+
 #ifndef count_of
 #define count_of(x) (sizeof(x) / sizeof((x)[0]))
 #endif  // count_of
@@ -31,6 +51,33 @@
 #define container_of(ptr, type, member) \
     ((type*)((char*)(ptr) - offset_of(type, member)))
 #endif  // container_of
+
+/**
+ * Flexible array helper macros, similar to kernel struct_size/flex_array_size usage.
+ * Portable across GCC, Clang, and MSVC (no __typeof__ dependency).
+ *
+ * e.g. for a struct like:
+ *   typedef struct {
+ *     uint8_t count;
+ *     item_t items[]; // flexible array
+ *   } my_struct_t;
+ *
+ * you can use these macros to calculate sizes and get pointer to items:
+ *    size_t size = struct_size(ptr, items, ptr->count); // total size
+ *    const item_t* items_ptr = flex_array_data_cptr(ptr, my_struct_t, items, item_t); // pointer to items
+ * these macros will do the right thing even if items is declared as item_t items[1] for older C standards.
+ */
+
+// calculate the size of the flexible array member
+#define flex_array_size(ptr, member, count) ((size_t)(count) * sizeof((ptr)->member[0]))
+// calculate the total size of the struct including the flexible array
+#define struct_size(ptr, member, count) (sizeof(*(ptr)) + flex_array_size((ptr), member, (count)))
+// get a pointer to the flexible array member
+#define flex_array_data_ptr(ptr, type, member, elem_type) \
+    ((elem_type*)((const uint8_t*)(ptr) + offset_of(type, member)))
+// get a const pointer to the flexible array member
+#define flex_array_data_cptr(ptr, type, member, elem_type) \
+    ((const elem_type*)((const uint8_t*)(ptr) + offset_of(type, member)))
 
 #ifndef UNUSED
 #if defined(__C51__)
@@ -177,10 +224,6 @@ typedef unsigned char bool;
 #define NULL ((void*)0)
 #endif
 
-// we need our own implementation of time.h
-#define EMB_ENABLE_CUSTOM_TIME
-#include "emb_time.h"
-
 #else  // suppose we are in a normal environment, and these headers are available
        // gcc-avr has these headers
 #include <stdbool.h>
@@ -195,18 +238,6 @@ typedef unsigned char bool;
 #include "emb_stdio.h"
 #endif
 
-#if defined(__C51__) && defined(EMB_ENABLE_STRNLEN)
-// C51 doesn't have `strnlen` in string.h
-#define EMB_ENABLE_CUSTOM_STRNLEN
-#include "emb_strnlen.h"
-#endif
-
-#if defined(EMB_ENABLE_STRNICMP)
-// `strnicmp` is not standard, provide our own implementation
-#define EMB_ENABLE_CUSTOM_STRNICMP
-#include "emb_strnicmp.h"
-#endif
-
 #if defined(__C51__)
 #if defined(EMB_ENABLE_INTTYPES)
 // C51 doesn't have inttypes.h
@@ -215,6 +246,20 @@ typedef unsigned char bool;
 #endif  // EMB_ENABLE_INTTYPES
 #else
 #include <inttypes.h>  // assume normal environment has inttypes.h
+#endif
+
+#ifdef EMB_ENABLE_CUSTOM_TIME
+#include "emb_time.h"
+#else
+#include <time.h>
+typedef time_t emb_time_t;
+#define emb_tm tm
+#define emb_localtime localtime
+#define emb_localtime_r localtime_r
+#define emb_time time
+#define emb_mktime mktime
+#define emb_gmtime gmtime
+#define emb_gmtime_r gmtime_r
 #endif
 
 #endif /* __EMB_CONFIG_H__ */

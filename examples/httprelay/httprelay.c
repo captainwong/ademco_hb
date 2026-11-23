@@ -101,7 +101,7 @@ int post(const char* json) {
     return 0;
 }
 
-int relay(const char* acct, ademco_event_t ademco_event, ademco_zone_t zone, ademco_gg_t gg) {
+int relay(const char* acct, ademco_event_t ademco_event, ademco_zone_t zone, ademco_gg_t gg, emb_time_t timestamp) {
     cJSON* json = NULL;
     char* string = NULL;
     int r = 0;
@@ -112,6 +112,7 @@ int relay(const char* acct, ademco_event_t ademco_event, ademco_zone_t zone, ade
     if (cJSON_AddNumberToObject(json, "ademco_event", ademco_event) == NULL) goto end;
     if (cJSON_AddNumberToObject(json, "zone", zone) == NULL) goto end;
     if (cJSON_AddNumberToObject(json, "gg", gg) == NULL) goto end;
+    if (cJSON_AddNumberToObject(json, "timestamp", (double)timestamp) == NULL) goto end;
     string = cJSON_Print(json);
     if (string == NULL) goto end;
 
@@ -137,7 +138,7 @@ void on_tcp_connection(uv_tcpserver_client_context_t* client, int connected) {
         client->data = machine;
     } else if (client->data) {
         if (((machine_info_t*)(client->data))->acct[0] != '\0') {
-            relay(((machine_info_t*)(client->data))->acct, EVENT_OFFLINE, 0, 0);
+            relay(((machine_info_t*)(client->data))->acct, EVENT_OFFLINE, 0, 0, time(NULL));
         }
         free(client->data);
     }
@@ -157,7 +158,7 @@ uv_tcp_parse_result_t on_tcp_parse(uv_tcpserver_client_context_t* client, const 
 
                     if (((machine_info_t*)(client->data))->acct[0] == '\0') {
                         strcpy(((machine_info_t*)(client->data))->acct, pkt.acct);
-                        relay(pkt.acct, EVENT_ONLINE, 0, 0);
+                        relay(pkt.acct, EVENT_ONLINE, 0, 0, time(NULL));
                     }
 
                     if (pkt.dat.ademco_id) {
@@ -173,7 +174,7 @@ uv_tcp_parse_result_t on_tcp_parse(uv_tcpserver_client_context_t* client, const 
                     }
 
                     if (pkt.dat.ademco_event != EVENT_INVALID_EVENT && ((machine_info_t*)(client->data))->acct[0] != '\0') {
-                        relay(((machine_info_t*)(client->data))->acct, pkt.dat.ademco_event, pkt.dat.zone, pkt.dat.gg);
+                        relay(((machine_info_t*)(client->data))->acct, pkt.dat.ademco_event, pkt.dat.zone, pkt.dat.gg, pkt.timestamp);
                     }
 
                     ademco_make_ack_packet2(&pkt, pkt.seq, pkt.acct, pkt.dat.ademco_id);

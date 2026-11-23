@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\libademco\ademco.c" />
+    <ClCompile Include="..\..\src\libemb\emb_string.c" />
     <ClCompile Include="..\..\src\libhbiot\rf\hb_rf.c" />
     <ClCompile Include="..\..\src\libhb\hb_core.c" />
     <ClCompile Include="..\..\src\libhb\hb_core_ademco.c" />

@@ -17,6 +17,8 @@ cp -f ${repo_emb}/emb_config.h ../src/libemb/
 cp -f ${repo_emb}/emb_bitrev.h ../src/libemb/
 cp -f ${repo_emb}/emb_version.h ../src/libemb/
 cp -f ${repo_emb}/libemb.h ../src/libemb/
+cp -f ${repo_emb}/emb_string.h ../src/libemb/
+cp -f ${repo_emb}/emb_string.c ../src/libemb/
 
 mkdir -p ../src/libhb
 cp -f ${repo_hb}/hb_config.h ../src/libhb/

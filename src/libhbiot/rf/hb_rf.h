@@ -11,8 +11,10 @@ extern "C" {
 #pragma pack(push, 1)
 #endif
 
-#define HB_INVALID_RF_ADDR 0xFFFF
-#define hb_is_valid_rf_addr(addr) ((0 < (addr)) && ((addr) < 0xFFFF))
+#define HB_INVALID_RF_ADDR16 0xFFFF
+#define HB_INVALID_RF_ADDR24 0xFFFFFF
+#define hb_is_valid_rf_addr16(addr) ((0 < (addr)) && ((addr) < 0xFFFF))
+#define hb_is_valid_rf_addr24(addr) ((0 < (addr)) && ((addr) < 0xFFFFFF))
 
 #define HB_RF_ADDR_INVALID \
     {.hi = 0xFF, .mi = 0xFF, .lo = 0xFF}
@@ -36,6 +38,7 @@ typedef struct hb_rf_packet_t {
 // 无线命令码
 // Note: 工程主机删除所有探头会报 E0，其他都是探头无线码
 #define HB_RF_CODE_MAP(XX)                            \
+    /* value name  str */                             \
     XX(0x00, BURGLAR, "报警")                         \
     XX(0x01, ARM, "布防")                             \
     XX(0x02, DISARM, "撤防")                          \
@@ -86,18 +89,28 @@ typedef enum hb_rf_code_t {
 
 ///////////////////////////// rf functions /////////////////////////////////
 
+// 是否是可以配对遥控器的无线码
+#define hb_rf_code_can_pairing_remote(rf_code) \
+    ((rf_code) == HB_RF_CODE_ARM)
+
+// 是否是可以配对探测器的无线码
+#define hb_rf_code_can_pairing_sensor(rf_code) \
+    ((rf_code) == HB_RF_CODE_BURGLAR || (rf_code) == HB_RF_CODE_STARTUP || (rf_code) == HB_RF_CODE_TAMPER)
+
 hb_rf_code_t hb_rf_code_from_u8(uint8_t rf_code);
 const char* hb_rf_code_to_string(hb_rf_code_t rf_code);
 const char* hb_rf_code_to_string_chinese(hb_rf_code_t rf_code);
 
 // reset to all 0xFF address
 void hb_rf_addr_reset(hb_rf_addr_t* addr);
+bool hb_rf_addr_is_valid(const hb_rf_addr_t* addr);
 bool hb_rf_addr_equal(const hb_rf_addr_t* addr1, const hb_rf_addr_t* addr2);
 void hb_rf_addr_from_packet(hb_rf_addr_t* addr, const hb_rf_packet_t* pkt);
 uint32_t hb_rf_addr_to_u32(const hb_rf_addr_t* addr);
 void hb_rf_addr_from_u32(hb_rf_addr_t* addr, uint32_t u32_addr);
 
 bool hb_rf_packet_eq(const hb_rf_packet_t* a, const hb_rf_packet_t* b);
+void hb_rf_packet_calc_sum(hb_rf_packet_t* pkt);
 
 #ifdef __cplusplus
 }

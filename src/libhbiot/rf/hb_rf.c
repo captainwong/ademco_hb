@@ -50,6 +50,13 @@ void hb_rf_addr_reset(hb_rf_addr_t* addr) {
     addr->lo = 0xFF;
 }
 
+bool hb_rf_addr_is_valid(const hb_rf_addr_t* addr) {
+    if (addr == NULL) {
+        return false;
+    }
+    return (addr->hi != 0xFF) || (addr->mi != 0xFF) || (addr->lo != 0xFF);
+}
+
 bool hb_rf_addr_equal(const hb_rf_addr_t* addr1,
                       const hb_rf_addr_t* addr2) {
     if (addr1 == NULL || addr2 == NULL) {
@@ -71,7 +78,7 @@ void hb_rf_addr_from_packet(hb_rf_addr_t* addr, const hb_rf_packet_t* pkt) {
 
 uint32_t hb_rf_addr_to_u32(const hb_rf_addr_t* addr) {
     if (addr == NULL) {
-        return 0;
+        return HB_INVALID_RF_ADDR24;
     }
     return ((uint32_t)addr->hi << 16) | ((uint32_t)addr->mi << 8) | (uint32_t)addr->lo;
 }
@@ -93,4 +100,11 @@ bool hb_rf_packet_eq(const hb_rf_packet_t* a, const hb_rf_packet_t* b) {
            (a->lo == b->lo) &&
            (a->cmd == b->cmd) &&
            (a->hi == b->hi);  // no need to check sum, as it is calculated from the other fields
+}
+
+void hb_rf_packet_calc_sum(hb_rf_packet_t* pkt) {
+    if (pkt == NULL) {
+        return;
+    }
+    pkt->sum = 0xFF - (pkt->mi + pkt->lo + pkt->cmd + pkt->hi);
 }

@@ -17,8 +17,8 @@ extern "C" {
  */
 
 #define EMB_VERSION_MAJOR 0
-#define EMB_VERSION_MINOR 0
-#define EMB_VERSION_PATCH 7
+#define EMB_VERSION_MINOR 9
+#define EMB_VERSION_PATCH 0
 #define EMB_VERSION_IS_RELEASE 1
 #define EMB_VERSION_SUFFIX ""
 

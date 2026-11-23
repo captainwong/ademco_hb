@@ -61,7 +61,8 @@ typedef enum hb_machine_status_t {
     XX(11, NB, "NB报警接收主机")         \
     XX(12, WIFI2, "WiFi主机新版")        \
     XX(13, BELL, "门铃主机")             \
-    XX(14, TRAIN, "铁路预警主机")
+    XX(14, TRAIN, "铁路预警主机")        \
+    XX(15, T213, "T213主机")
 
 // 主机类型
 typedef enum hb_machine_type_t {
@@ -69,7 +70,7 @@ typedef enum hb_machine_type_t {
     HB_MACHINE_TYPE_MAP(XX)
 #undef XX
     // valid count
-    HMT_COUNT = 15,
+    HMT_COUNT = 16,
     // invalid
     HMT_INVALID = 0xFF,
 } hb_machine_type_t;

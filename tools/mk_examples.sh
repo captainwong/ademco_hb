@@ -7,7 +7,7 @@ cd $CURRENT_DIR
 
 ./clean.sh
 
-./examples.bat
+./build_examples.bat x86
 mkdir -p dist/examples/x86
 cp "/h/dev_hb/AlarmCenterTestTools/Release/直连型主机模拟器V1.20.exe" dist/examples/x86/
 cp "/h/dev_hb/AlarmCenterTestTools/Release/AdemcoParser.exe" dist/examples/x86/
@@ -19,7 +19,7 @@ cp ../examples/Release/ademco.lib dist/examples/x86/
 cp ../examples/Release/ademco_static.lib dist/examples/x86/
 cp ../examples/Release/ademco_static_mt.lib dist/examples/x86/
 
-./examples_x64.bat
+./build_examples.bat x64
 mkdir -p dist/examples/x64
 cp ../examples/x64/Release/server_demo_x64.exe dist/examples/x64/
 cp ../examples/x64/Release/ademco.dll dist/examples/x64/
