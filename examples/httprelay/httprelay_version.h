@@ -1,0 +1,14 @@
+#ifndef __HTTPRELAY_VERSION_H__
+#define __HTTPRELAY_VERSION_H__
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#pragma once
+#endif
+
+#define HTTPRELAY_VERSION_MAJOR 1
+#define HTTPRELAY_VERSION_MINOR 0
+#define HTTPRELAY_VERSION_PATCH 0
+
+#define HTTPRELAY_VERSION_STRING "1.0.0"
+
+#endif /* __HTTPRELAY_VERSION_H__ */

@@ -168,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="control.h" />
+    <ClInclude Include="httprelay_version.h" />
     <ClInclude Include="cJSON\cJSON.h" />
     <ClInclude Include="uvlib\list.h" />
     <ClInclude Include="uvlib\mybuf.h" />

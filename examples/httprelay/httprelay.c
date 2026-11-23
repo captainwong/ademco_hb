@@ -5,6 +5,7 @@
 #include <libhb/hb_core_ademco.h>
 #include "cJSON/cJSON.h"
 #include "control.h"
+#include "httprelay_version.h"
 #include "uvlib/uv_log.h"
 #include "uvlib/uv_tcpserver.h"
 
@@ -216,19 +217,27 @@ int init_tcpd(int port) {
 }
 
 int main(int argc, char** argv) {
+    if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
+        printf("httprelay %s\n", HTTPRELAY_VERSION_STRING);
+        return 0;
+    }
+
     control_settings_t cs;
     const char* positional[2] = {NULL, NULL};
     int npos = control_parse_args(argc, argv, &cs, positional);
     if (npos != 2 || atoi(positional[0]) <= 0) {
         fprintf(stderr,
+                "httprelay %s\n\n"
                 "Usage: %s tcp_server_listening_port http_client_relay_to_uri"
                 " [--control_port=N] [--listen_addr=ADDR] [--token=STR]\n"
                 "  Example: %s 12345 http://your-http-server.com:8080/ademco\n"
                 "  Control: %s 12345 http://cb/ademco --control_port=8081"
                 " --listen_addr=0.0.0.0 --token=secret\n",
-                argv[0], argv[0], argv[0]);
+                HTTPRELAY_VERSION_STRING, argv[0], argv[0], argv[0]);
         exit(1);
     }
+
+    printf("httprelay %s\n", HTTPRELAY_VERSION_STRING);
 
     uv_log_set_level(uv_log_level_debug);
     memset(&context, 0, sizeof(context));
