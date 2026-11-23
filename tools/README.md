@@ -16,6 +16,12 @@
 | `clean.sh` | 清理 swig 与 tools 的构建产物 |
 | `copy_from_hb.sh` | 从本机 libhb 源码仓库同步 `src/` 各库文件 |
 
+## 测试
+
+| 脚本 | 说明 |
+| ---- | ---- |
+| `test_control.sh` | httprelay 远程控制端到端测试（配合 libhb 私有仓库 `vsprojects/Release/uvmachine.exe`，维护者专用不随 release 发布） |
+
 ## remote/
 
 远程构建（本地打包源码上传，不依赖远端 git 仓库，未 push 的本地改动可直接构建验证）：

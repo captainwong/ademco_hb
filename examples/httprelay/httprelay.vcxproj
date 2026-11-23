@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cJSON\cJSON.c" />
+    <ClCompile Include="control.cpp" />
     <ClCompile Include="httprelay.c" />
     <ClCompile Include="uvlib\llhttp\src\api.c" />
     <ClCompile Include="uvlib\llhttp\src\http.c" />
@@ -166,6 +167,7 @@
     <ClCompile Include="uvlib\uv_tcpserver.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="control.h" />
     <ClInclude Include="cJSON\cJSON.h" />
     <ClInclude Include="uvlib\list.h" />
     <ClInclude Include="uvlib\mybuf.h" />

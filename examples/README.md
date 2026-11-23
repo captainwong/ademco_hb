@@ -10,7 +10,7 @@ C++ 编写的简易版接警中心，可用来接收主机连接，进行简单�
 
 ## httprelay
 
-C 编写的简易版 TCP 服务器与 HTTP 转发器，可以用来接收主机连接，并转发主机事件到指定的 URI.
+C/C++ 编写的简易版 TCP 服务器与 HTTP 转发器，可以用来接收主机连接，并转发主机事件到指定的 URI；3.9.0 起内置远程控制接口，支持布撤防命令下发.
 
 依赖 `libuv, libcurl`，用包管理器如 `apt, brew, yum`等安装 `dev` 版，执行 `build.sh` 编译.
 
@@ -28,4 +28,12 @@ httprelay 须运行在公网环境，报警主机配置直连接警中心IP、�
 {"acct":"861234567890","ademco_event":3400,"zone":0,"gg":0,"timestamp":1763893209}
 ```
 
-完整回调接口规格、上线/掉线合成事件等说明见 `docs/对接说明.md`。
+远程控制（可选启用）：
+
+```bash
+./httprelay 12345 http://cb/ademco --control_port=8081 --listen_addr=0.0.0.0 --token=secret
+```
+
+`POST /control`（携带 `Authorization: Bearer <token>`）下发布防 `3400` / 留守布防 `3456` / 撤防 `1400`（须带 `password`），fire-and-forget，执行结果以状态事件经转发回调返回.
+
+完整回调与控制接口规格、上线/掉线合成事件等说明见 `docs/对接说明.md`。

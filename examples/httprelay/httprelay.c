@@ -4,6 +4,7 @@
 
 #include <libhb/hb_core_ademco.h>
 #include "cJSON/cJSON.h"
+#include "control.h"
 #include "uvlib/uv_log.h"
 #include "uvlib/uv_tcpserver.h"
 
@@ -113,7 +114,7 @@ int relay(const char* acct, ademco_event_t ademco_event, ademco_zone_t zone, ade
     if (cJSON_AddNumberToObject(json, "zone", zone) == NULL) goto end;
     if (cJSON_AddNumberToObject(json, "gg", gg) == NULL) goto end;
     if (cJSON_AddNumberToObject(json, "timestamp", (double)timestamp) == NULL) goto end;
-    string = cJSON_Print(json);
+    string = cJSON_PrintUnformatted(json);
     if (string == NULL) goto end;
 
     uvlog_debug("OUT:\n%s\n", string);
@@ -141,6 +142,7 @@ int on_tcp_connection(uv_tcpserver_client_context_t* client, int connected) {
     } else if (client->data) {
         if (((machine_info_t*)(client->data))->acct[0] != '\0') {
             relay(((machine_info_t*)(client->data))->acct, EVENT_OFFLINE, 0, 0, time(NULL));
+            control_index_remove(((machine_info_t*)(client->data))->acct);
         }
         free(client->data);
     }
@@ -162,10 +164,12 @@ uv_tcp_parse_result_t on_tcp_parse(uv_tcpserver_client_context_t* client, const 
                     if (((machine_info_t*)(client->data))->acct[0] == '\0') {
                         strcpy(((machine_info_t*)(client->data))->acct, pkt.acct);
                         relay(pkt.acct, EVENT_ONLINE, 0, 0, time(NULL));
+                        control_index_update(pkt.acct, client, pkt.dat.ademco_id);
                     }
 
                     if (pkt.dat.ademco_id) {
                         ((machine_info_t*)(client->data))->ademco_id = pkt.dat.ademco_id;
+                        control_index_update(((machine_info_t*)(client->data))->acct, client, pkt.dat.ademco_id);
                     }
 
                     if (ademco_is_machine_status_event(pkt.dat.ademco_event)) {
@@ -212,24 +216,34 @@ int init_tcpd(int port) {
 }
 
 int main(int argc, char** argv) {
-    if (argc != 3) {
+    control_settings_t cs;
+    const char* positional[2] = {NULL, NULL};
+    int npos = control_parse_args(argc, argv, &cs, positional);
+    if (npos != 2 || atoi(positional[0]) <= 0) {
         fprintf(stderr,
-                "Usage: %s tcp_server_listening_port http_client_relay_to_uri\n"
-                "	Example: %s 12345 http://your-http-server.com:8080/ademco\n",
-                argv[0], argv[0]);
+                "Usage: %s tcp_server_listening_port http_client_relay_to_uri"
+                " [--control_port=N] [--listen_addr=ADDR] [--token=STR]\n"
+                "  Example: %s 12345 http://your-http-server.com:8080/ademco\n"
+                "  Control: %s 12345 http://cb/ademco --control_port=8081"
+                " --listen_addr=0.0.0.0 --token=secret\n",
+                argv[0], argv[0], argv[0]);
         exit(1);
     }
 
     uv_log_set_level(uv_log_level_debug);
     memset(&context, 0, sizeof(context));
-    context.uri = argv[2];
+    context.uri = positional[1];
 
     context.loop = uv_default_loop();
     fatal_if_null(context.loop);
 
     curl_global_init(CURL_GLOBAL_ALL);
 
-    if (init_tcpd(atoi(argv[1]))) {
+    if (init_tcpd(atoi(positional[0]))) {
+        abort();
+    }
+
+    if (control_start(&cs)) {
         abort();
     }
 
