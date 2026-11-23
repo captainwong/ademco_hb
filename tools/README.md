@@ -6,7 +6,7 @@
 
 | 脚本 | 说明 |
 | ---- | ---- |
-| `mkrelease.sh [branch]` | **发版总入口**。串联 examples 与 windows/linux 各语言构建，产出 `ademco_hb-<version>.tar.gz/.zip`（版本号读自 `src/libademco/ademco_version.h`），手动上传 github release |
+| `mkrelease.sh [branch]` | **发版总入口**。串联 examples 与 windows/linux 各语言构建，产出 `ademco_hb-<version>.tar.gz/.zip`（版本号读自根目录 `RELEASE_VERSION`，项目版本与 libademco 库版本独立维护，变更记录见根目录 `CHANGELOG.md`），产物手动上传 github release |
 | `mkrelease.bat` | Windows 下以 Git Bash 调起 `mkrelease.sh` 的快捷方式 |
 | `mk_examples.sh` | 调 `build_examples.bat` 编译 examples sln（x86/x64），收集 exe/dll 及模拟器等工具为 `dist/examples.zip` |
 | `build_examples.bat x86\|x64` | devenv 编译 examples 解决方案 |
@@ -28,6 +28,6 @@
 
 ## 发版流程
 
-1. 改 `src/libademco/ademco_version.h` 版本号；
+1. 改根目录 `RELEASE_VERSION` 并在根目录 `CHANGELOG.md` 记录变更（含组件版本矩阵）；
 2. 执行 `./mkrelease.sh`（或双击 `mkrelease.bat`）；
 3. 产物上传 github release。

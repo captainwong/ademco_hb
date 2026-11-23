@@ -1,7 +1,9 @@
 #ifndef __UV_TCPCLIENT_H__
 #define __UV_TCPCLIENT_H__
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
 #include "mybuf.h"
 #include "uv_tcp.h"
@@ -17,6 +19,10 @@ typedef uv_tcp_parse_result_t (*uv_tcpclient_on_parse_t)(uv_tcpclient_t* client,
 typedef void (*uv_tcpclient_on_connect_t)(uv_tcpclient_t* client, int connected);
 typedef void (*uv_tcpclient_on_closed_t)(uv_tcpclient_t* client);
 
+/**
+ * Create a new TCP client.
+ * @param settings Must NOT be NULL. All callbacks (on_connect, on_parse, on_close) are expected to be set.
+ */
 UVLIB_EXPORT_SYMBOL int uv_tcpclient_new(uv_tcpclient_t** client, uv_loop_t* loop, uv_tcpclient_settings_t* settings);
 UVLIB_EXPORT_SYMBOL int uv_tcpclient_start(uv_tcpclient_t* client, const char* domain, const char* port);
 UVLIB_EXPORT_SYMBOL void uv_tcpclient_send(uv_tcpclient_t* client, const char* buf, size_t len);

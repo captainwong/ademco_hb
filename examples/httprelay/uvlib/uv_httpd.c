@@ -2,6 +2,8 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include <libemb/emb_string.h>
+#include <libemb/libemb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,21 +18,17 @@ static int enable_print = 0;
     if (enable_print) printf
 #define dnprintf \
     if (enable_print) nprintf
-#define print_func dprintf("%s\n", __FUNCTION__);
+#define print_func dprintf("%s\n", __func__)
 
-#define HEADERS_DEFAULT_LENGTH 16
-#define DEFAULT_BUFF_SIZE 1024
+#ifndef UNUSED
+#define UNUSED(x) (void)(x)
+#endif
 
-struct uv_httpd_client_s {
-    uv_tcp_t tcp;
-    uv_httpd_server_t* server;
-    llhttp_t parser;
-    on_request_t on_request;
-    uv_httpd_request_t req;
-    uv_httpd_header_t headers[HEADERS_DEFAULT_LENGTH];
-    mybuf_t buf;
-    mybuf_t pkt;
-};
+// uv_httpd_client_s is now defined in uv_httpd.h (with linked-list support)
+// keep local accessors for buf/pkt as mybuf_t*
+#define CLIENT_BUF(client)  ((mybuf_t*)(client)->buf)
+#define CLIENT_PKT(client)  ((mybuf_t*)(client)->pkt)
+#define CLIENT_HEADERS(client) ((uv_httpd_header_t*)(client)->headers)
 
 struct write_req_t {
     uv_write_t req;
@@ -42,20 +40,28 @@ static void on_close(uv_handle_t* peer);
 /*************************** helper functions ****************/
 
 static void reset_request(uv_httpd_client_t* client) {
-    if (client->req.headers.headers != client->headers) {
+    if (client->req.headers.headers != CLIENT_HEADERS(client)) {
         free(client->req.headers.headers);
+        client->req.headers.headers = CLIENT_HEADERS(client);
     }
-    memset((char*)&client->req + sizeof(client->req.ip), 0, sizeof(uv_httpd_request_t) - sizeof(client->req.ip));
-    client->req.headers.headers = client->headers;
+    client->req.headers.n = 0;
+    client->req.base = NULL;
+    client->req.method = 0;
+    client->req.url.offset = 0;
+    client->req.url.len = 0;
+    client->req.version.offset = 0;
+    client->req.version.len = 0;
+    client->req.body.offset = 0;
+    client->req.body.len = 0;
 }
 
 static void headers_append_key(uv_httpd_client_t* client, size_t offset, size_t len) {
-    if (client->req.headers.n == HEADERS_DEFAULT_LENGTH) {
+    if (client->req.headers.n == 16) {
         uv_httpd_header_t* headers = malloc((client->req.headers.n + 1) * sizeof(uv_httpd_header_t));
         fatal_if_null(headers);
         memcpy(headers, client->req.headers.headers, (client->req.headers.n) * sizeof(uv_httpd_header_t));
         client->req.headers.headers = headers;
-    } else if (client->req.headers.n > HEADERS_DEFAULT_LENGTH) {
+    } else if (client->req.headers.n > 16) {
         uv_httpd_header_t* headers = realloc(client->req.headers.headers, (client->req.headers.n + 1) * sizeof(uv_httpd_header_t));
         fatal_if_null(headers);
         client->req.headers.headers = headers;
@@ -70,22 +76,12 @@ static void headers_append_value(uv_httpd_client_t* client, size_t offset, size_
     client->req.headers.n++;
 }
 
-static int headers_contains(uv_httpd_client_t* client, const char* key, const char* value) {
-    for (size_t i = 0; i < client->req.headers.n; i++) {
-        uv_httpd_header_t header = client->req.headers.headers[i];
-        if (0 == string0_nicmp(key, client->req.base + header.key.offset, header.key.len) && 0 == string0_nicmp(value, client->req.base + header.value.offset, header.value.len)) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
 /*************************** llhttp callback functions ****************/
 
 static int on_message_begin(llhttp_t* llhttp) {
     print_func;
     uv_httpd_client_t* client = llhttp->data;
-    mybuf_clear(&client->pkt);
+    mybuf_clear(CLIENT_PKT(client));
     reset_request(client);
     return 0;
 }
@@ -94,19 +90,21 @@ static int on_url(llhttp_t* llhttp, const char* at, size_t length) {
     print_func;
     dnprintf(at, length, 1);
     uv_httpd_client_t* client = llhttp->data;
-    client->req.url.offset = client->pkt.size;
+    client->req.url.offset = CLIENT_PKT(client)->size;
     client->req.url.len = length;
-    mybuf_append(&client->pkt, at, length);
+    mybuf_append(CLIENT_PKT(client), at, length);
     return 0;
 }
 
 static int on_status(llhttp_t* llhttp, const char* at, size_t length) {
+    UNUSED(llhttp);
     print_func;
     dnprintf(at, length, 1);
     return 0;
 }
 
 static int on_method(llhttp_t* llhttp, const char* at, size_t length) {
+    UNUSED(llhttp);
     print_func;
     dnprintf(at, length, 1);
     return 0;
@@ -116,9 +114,9 @@ static int on_version(llhttp_t* llhttp, const char* at, size_t length) {
     print_func;
     dnprintf(at, length, 1);
     uv_httpd_client_t* client = llhttp->data;
-    client->req.version.offset = client->pkt.size;
+    client->req.version.offset = CLIENT_PKT(client)->size;
     client->req.version.len = length;
-    mybuf_append(&client->pkt, at, length);
+    mybuf_append(CLIENT_PKT(client), at, length);
     return 0;
 }
 
@@ -126,8 +124,8 @@ static int on_header_field(llhttp_t* llhttp, const char* at, size_t length) {
     print_func;
     dnprintf(at, length, 1);
     uv_httpd_client_t* client = llhttp->data;
-    headers_append_key(client, client->pkt.size, length);
-    mybuf_append(&client->pkt, at, length);
+    headers_append_key(client, CLIENT_PKT(client)->size, length);
+    mybuf_append(CLIENT_PKT(client), at, length);
     return 0;
 }
 
@@ -135,24 +133,27 @@ static int on_header_value(llhttp_t* llhttp, const char* at, size_t length) {
     print_func;
     dnprintf(at, length, 1);
     uv_httpd_client_t* client = llhttp->data;
-    headers_append_value(client, client->pkt.size, length);
-    mybuf_append(&client->pkt, at, length);
+    headers_append_value(client, CLIENT_PKT(client)->size, length);
+    mybuf_append(CLIENT_PKT(client), at, length);
     return 0;
 }
 
 static int on_chunk_extension_name(llhttp_t* llhttp, const char* at, size_t length) {
+    UNUSED(llhttp);
     print_func;
     dnprintf(at, length, 1);
     return 0;
 }
 
 static int on_chunk_extension_value(llhttp_t* llhttp, const char* at, size_t length) {
+    UNUSED(llhttp);
     print_func;
     dnprintf(at, length, 1);
     return 0;
 }
 
 static int on_headers_complete(llhttp_t* llhttp) {
+    UNUSED(llhttp);
     print_func;
     return 0;
 }
@@ -161,30 +162,57 @@ static int on_body(llhttp_t* llhttp, const char* at, size_t length) {
     print_func;
     dnprintf(at, length, 1);
     uv_httpd_client_t* client = llhttp->data;
-    client->req.body.offset = client->pkt.size;
-    client->req.body.len = length;
-    mybuf_append(&client->pkt, at, length);
+    if (client->req.body.len + length > UV_HTTPD_MAX_BODY_SIZE) {
+        uvlog_warn("Request body too large (%zu + %zu)", client->req.body.len, length);
+        return -1;  // 返回非零值会停止解析
+    }
+    /* 只在第一块 body 数据到来时记录起始偏移 */
+    if (client->req.body.len == 0) {
+        client->req.body.offset = CLIENT_PKT(client)->size;
+    }
+    /* 累加总长度，而非每次覆盖 */
+    client->req.body.len += length;
+    mybuf_append(CLIENT_PKT(client), at, length);
     return 0;
+}
+
+/* Drain pending writes before FIN: uv_close directly would cancel
+ * queued writes and truncate large responses mid-flight. */
+static void on_shutdown(uv_shutdown_t* req, int status) {
+    uv_stream_t* stream = req->handle;
+    free(req);
+    if (status) {
+        uvlog_debug("httpd shutdown failed: %d: %s", status, uv_strerror(status));
+    }
+    uv_close((uv_handle_t*)stream, on_close);
 }
 
 static int on_message_complete(llhttp_t* llhttp) {
     print_func;
     uv_httpd_client_t* client = llhttp->data;
-    client->req.base = client->pkt.buf;
+    client->req.base = CLIENT_PKT(client)->buf;
     client->on_request(client->server, client, &client->req);
-    if (!headers_contains(client, "Connection", "keep-alive")) {
-        uv_close((uv_handle_t*)&client->tcp, on_close);
+    /* HTTP/1.1 defaults to keep-alive; only explicit "Connection: close"
+     * (or HTTP/1.0 without keep-alive) should end the connection. */
+    if (!llhttp_should_keep_alive(&client->parser) && !uv_is_closing((uv_handle_t*)&client->tcp)) {
+        uv_shutdown_t* req = malloc(sizeof *req);
+        if (!req || uv_shutdown(req, (uv_stream_t*)&client->tcp, on_shutdown) != 0) {
+            free(req);
+            uv_close((uv_handle_t*)&client->tcp, on_close);
+        }
     }
     reset_request(client);
     return 0;
 }
 
 static int on_url_complete(llhttp_t* llhttp) {
+    UNUSED(llhttp);
     print_func;
     return 0;
 }
 
 static int on_status_complete(llhttp_t* llhttp) {
+    UNUSED(llhttp);
     print_func;
     return 0;
 }
@@ -197,21 +225,25 @@ static int on_method_complete(llhttp_t* llhttp) {
 }
 
 static int on_version_complete(llhttp_t* llhttp) {
+    UNUSED(llhttp);
     print_func;
     return 0;
 }
 
 static int on_header_field_complete(llhttp_t* llhttp) {
+    UNUSED(llhttp);
     print_func;
     return 0;
 }
 
 static int on_header_value_complete(llhttp_t* llhttp) {
+    UNUSED(llhttp);
     print_func;
     return 0;
 }
 
 static int on_chunk_extension_name_complete(llhttp_t* llhttp) {
+    UNUSED(llhttp);
     print_func;
     return 0;
 }
@@ -222,21 +254,25 @@ static int on_chunk_extension_name_complete(llhttp_t* llhttp) {
 // }
 
 static int on_chunk_header(llhttp_t* llhttp) {
+    UNUSED(llhttp);
     print_func;
     return 0;
 }
 
 static int on_chunk_complete(llhttp_t* llhttp) {
+    UNUSED(llhttp);
     print_func;
     return 0;
 }
 
 static int on_reset(llhttp_t* llhttp) {
+    UNUSED(llhttp);
     print_func;
     return 0;
 }
 
 static void setup_default_llhttp_settings(llhttp_settings_t* settings) {
+    llhttp_settings_init(settings);  // 先归零
     settings->on_message_begin = on_message_begin;
     settings->on_url = on_url;
     settings->on_status = on_status;
@@ -265,7 +301,10 @@ static void setup_default_llhttp_settings(llhttp_settings_t* settings) {
 
 static void on_write(uv_write_t* req, int status) {
     print_func;
-    assert(status == 0);
+    if (status) {
+        // client disconnected mid-write (ECONNRESET/EPIPE/ECANCELED), normal event
+        uvlog_debug("httpd write failed: %d: %s", status, uv_strerror(status));
+    }
     struct write_req_t* wr = req->data;
     free(wr->buf.base);
     free(wr);
@@ -275,21 +314,41 @@ static void on_alloc(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) 
     print_func;
     dprintf("suggested_size=%zu\n", suggested_size);
     uv_httpd_client_t* client = handle->data;
-    mybuf_reserve(&client->buf, DEFAULT_BUFF_SIZE);
-    buf->base = client->buf.buf;
+    mybuf_reserve(CLIENT_BUF(client), suggested_size);
+    buf->base = CLIENT_BUF(client)->buf;
 #ifdef _WIN32
-    buf->len = (ULONG)mybuf_space(&client->buf);
+    buf->len = (ULONG)mybuf_space(CLIENT_BUF(client));
 #else
-    buf->len = mybuf_space(&client->buf);
+    buf->len = mybuf_space(CLIENT_BUF(client));
 #endif
 }
 
 static void on_close(uv_handle_t* peer) {
     print_func;
     uv_httpd_client_t* client = peer->data;
-    mybuf_clear(&client->buf);
-    mybuf_clear(&client->pkt);
+
+    // remove from server's client linked list
+    if (client->server) {
+        uv_httpd_server_t* server = client->server;
+        uv_httpd_client_t** pp = &server->clients;
+        while (*pp) {
+            if (*pp == client) {
+                *pp = client->next;
+                server->nclients--;
+                break;
+            }
+            pp = &(*pp)->next;
+        }
+    }
+
+    if (client->user_on_closing.on_closing) {
+        client->user_on_closing.on_closing(client, client->user_on_closing.user);
+    }
+    mybuf_clear(CLIENT_BUF(client));
+    mybuf_clear(CLIENT_PKT(client));
     reset_request(client);
+    free(CLIENT_BUF(client));  // free heap-allocated mybuf_t
+    free(CLIENT_PKT(client));  // free heap-allocated mybuf_t
     free(peer);  // since our uv_tcpclient_t's first member is uv_tcp_t, so peer's addr IS our client's addr, just free it.
 }
 
@@ -307,111 +366,98 @@ static void on_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
     }
 
     dprintf("before llhttp_execute\n");
-    dnprintf(buf->base, nread, 1);
-    parse_ret = llhttp_execute(&client->parser, client->buf.buf, nread);
+    // dnprintf(buf->base, nread, 1);
+    if (enable_print) {
+        uv_log_hexdump(uv_log_level_debug, buf->base, nread, 1, 1, 1, '.', "\n");
+    }
+    parse_ret = llhttp_execute(&client->parser, buf->base, nread);
     if (parse_ret != HPE_OK) {
-        fprintf(stderr, "Parse error: %s %s\n", llhttp_errno_name(parse_ret),
-                client->parser.reason);
+        uvlog_error("Parse error: %s %s\n", llhttp_errno_name(parse_ret),
+                    client->parser.reason);
         uv_close((uv_handle_t*)stream, on_close);
     } else {
         // parse succeed, on_request_t should be called in on_message_complete
     }
     dprintf("after llhttp_execute\n");
-    mybuf_clear(&client->buf);
+    mybuf_clear(CLIENT_BUF(client));
 }
 
 static void on_connected(uv_stream_t* stream, int status) {
     print_func;
-    assert(status == 0);
+    if (status) {
+        uvlog_debug("httpd accept failed: %d: %s", status, uv_strerror(status));
+        return;
+    }
     uv_httpd_server_t* server = stream->data;
-    uv_httpd_client_t* client = malloc(sizeof *client);
-    fatal_if_null(client);
+    uv_httpd_client_t* client = calloc(1, sizeof *client);
+    if (!client) {
+        warn_on_uv_err(UV_ENOMEM, "calloc client");
+        return;
+    }
     int r = uv_tcp_init(stream->loop, &client->tcp);
-    fatal_on_uv_err(r, "uv_tcp_init failed");
+    if (r) {
+        warn_on_uv_err(r, "uv_tcp_init failed");
+        free(client);
+        return;
+    }
     r = uv_accept(stream, (uv_stream_t*)&client->tcp);
-    fatal_on_uv_err(r, "uv_accept error");
+    if (r) {
+        warn_on_uv_err(r, "uv_accept error");
+        uv_close((uv_handle_t*)&client->tcp, on_close);
+        return;
+    }
+
+    // allocate mybuf_t on heap
+    mybuf_t* buf = malloc(sizeof(mybuf_t));
+    mybuf_t* pkt = malloc(sizeof(mybuf_t));
+    if (!buf || !pkt) {
+        free(buf);
+        free(pkt);
+        warn_on_uv_err(UV_ENOMEM, "malloc mybuf_t");
+        uv_close((uv_handle_t*)&client->tcp, on_close);
+        return;
+    }
+    mybuf_init(buf);
+    mybuf_init(pkt);
 
     client->server = server;
     client->on_request = server->on_request;
     client->tcp.data = client;
+    client->buf = buf;
+    client->pkt = pkt;
     llhttp_init(&client->parser, HTTP_REQUEST, &server->http_settings);
     client->parser.data = client;
-    mybuf_init(&client->buf);
-    mybuf_init(&client->pkt);
-    client->req.headers.headers = client->headers;
+    client->req.headers.headers = CLIENT_HEADERS(client);
     client->req.headers.n = 0;
+    client->user_on_closing.user = NULL;
+    client->user_on_closing.on_closing = NULL;
+    client->next = NULL;
     getpeeraddr(&client->tcp, client->req.ip, sizeof(client->req.ip), NULL);
-    uv_read_start((uv_stream_t*)&client->tcp, on_alloc, on_read);
+
+    // add to server's client linked list
+    client->next = server->clients;
+    server->clients = client;
+    server->nclients++;
+
+    r = uv_read_start((uv_stream_t*)&client->tcp, on_alloc, on_read);
+    if (r) {
+        warn_on_uv_err(r, "uv_read_start");
+        uv_close((uv_handle_t*)&client->tcp, on_close);
+    }
 }
 
 /*************************** public functions ****************/
-
-void nprintf(const char* at, size_t len, int newline) {
-    char buf[4096];
-    char* p = buf;
-    if (len < sizeof buf) {
-        p = buf;
-    } else {
-        p = malloc(len + 1);
-        fatal_if_null(p);
-    }
-    memcpy(p, at, len);
-    p[len] = '\0';
-    printf("%s", p);
-    if (newline)
-        printf("\n");
-
-    if (p != buf) {
-        free(p);
-    }
-}
-
-int string_ncmp(const char* s1, size_t len1, const char* s2, size_t len2) {
-    if (len1 == len2) {
-        return memcmp(s1, s2, len1);
-    }
-    return 1;
-}
-
-int string0_ncmp(const char* s1, const char* s2, size_t len2) {
-    size_t len1 = strlen(s1);
-    if (len1 == len2) {
-        return memcmp(s1, s2, len1);
-    }
-    return 1;
-}
-
-int string_nicmp(const char* s1, size_t len1, const char* s2, size_t len2) {
-    if (len1 == len2) {
-        int ca, cb;
-        do {
-            ca = *((unsigned char*)s1++);
-            cb = *((unsigned char*)s2++);
-            ca = tolower(toupper(ca));
-            cb = tolower(toupper(cb));
-        } while (ca == cb && ca != '\0' && len1--);
-        return len1 != 0;
-    }
-    return 1;
-}
-
-int string0_nicmp(const char* s1, const char* s2, size_t len2) {
-    size_t len1 = strlen(s1);
-    if (len1 == len2) {
-        return string_nicmp(s1, len1, s2, len2);
-    }
-    return 1;
-}
 
 void uv_httpd_enable_printf(int enable) {
     enable_print = enable;
 }
 
 int uv_httpd_create(uv_httpd_server_t** server, uv_loop_t* loop, on_request_t on_request) {
+    if (!server || !loop || !on_request) return UV_EINVAL;
     int r = UV_ENOMEM;
     uv_httpd_server_t* s;
 
-    s = malloc(sizeof(*s));
+    s = calloc(1, sizeof(*s));
     if (!s) {
         goto failed;
     }
@@ -433,11 +479,23 @@ failed:
 }
 
 static void on_server_closed(uv_handle_t* handle) {
+    UNUSED(handle);
     uvlog_debug("uv_httpd.tcp closed");
 }
 
 void uv_httpd_stop(uv_httpd_server_t* server) {
-    uv_close((uv_handle_t*)&server->tcp, on_server_closed);
+    // close all active clients first
+    uv_httpd_client_t* client = server->clients;
+    while (client) {
+        uv_httpd_client_t* next = client->next;
+        if (!uv_is_closing((uv_handle_t*)&client->tcp)) {
+            uv_close((uv_handle_t*)&client->tcp, on_close);
+        }
+        client = next;
+    }
+    // then close the listen socket
+    if (!uv_is_closing((uv_handle_t*)&server->tcp))
+        uv_close((uv_handle_t*)&server->tcp, on_server_closed);
 }
 
 void uv_httpd_free(uv_httpd_server_t* server) {
@@ -461,6 +519,7 @@ int uv_httpd_listen(uv_httpd_server_t* server, const char* ip, int port) {
 }
 
 int uv_httpd_write_response(uv_httpd_client_t* client, char* response, size_t len) {
+    if (!client || !response) return UV_EINVAL;
     struct write_req_t* req = malloc(sizeof *req);
     if (!req) return UV_ENOMEM;
     req->buf.base = malloc(len);
@@ -475,5 +534,15 @@ int uv_httpd_write_response(uv_httpd_client_t* client, char* response, size_t le
     req->buf.len = len;
 #endif
     req->req.data = req;
-    return uv_write(&req->req, (uv_stream_t*)&client->tcp, &req->buf, 1, on_write);
+    int r = uv_write(&req->req, (uv_stream_t*)&client->tcp, &req->buf, 1, on_write);
+    if (r) {
+        free(req->buf.base);
+        free(req);
+    }
+    return r;
+}
+
+void uv_httpd_setup_on_client_closing(uv_httpd_client_t* client, on_httpd_client_closing_cb_t on_closing, void* user) {
+    client->user_on_closing.on_closing = on_closing;
+    client->user_on_closing.user = user;
 }

@@ -13,11 +13,8 @@ fi
 
 my_macbook_is_broken=1
 
-major=`cat ../src/libademco/ademco_version.h | grep ADEMCO_VERSION_MAJOR | head -n1 | awk '{print $3}'`
-minor=`cat ../src/libademco/ademco_version.h | grep ADEMCO_VERSION_MINOR | head -n1 | awk '{print $3}'`
-patch=`cat ../src/libademco/ademco_version.h | grep ADEMCO_VERSION_PATCH | head -n1 | awk '{print $3}'`
-
-version=$major.$minor.$patch
+# 项目版本自 3.8.1 起与 libademco 库版本解耦，来源为根目录 RELEASE_VERSION
+version=`cat ../RELEASE_VERSION | tr -d '[:space:]'`
 
 echo "version: $version"
 

@@ -157,6 +157,7 @@
     <ClCompile Include="uvlib\llhttp\src\http.c" />
     <ClCompile Include="uvlib\llhttp\src\llhttp.c" />
     <ClCompile Include="uvlib\mybuf.c" />
+    <ClCompile Include="uvlib\uv_http.c" />
     <ClCompile Include="uvlib\uv_httpc.c" />
     <ClCompile Include="uvlib\uv_httpd.c" />
     <ClCompile Include="uvlib\uv_log.c" />
@@ -168,6 +169,8 @@
     <ClInclude Include="cJSON\cJSON.h" />
     <ClInclude Include="uvlib\list.h" />
     <ClInclude Include="uvlib\mybuf.h" />
+    <ClInclude Include="uvlib\libuvlib.h" />
+    <ClInclude Include="uvlib\libuvlib_version.h" />
     <ClInclude Include="uvlib\uv_http.h" />
     <ClInclude Include="uvlib\uv_httpc.h" />
     <ClInclude Include="uvlib\uv_httpd.h" />

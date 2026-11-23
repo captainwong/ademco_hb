@@ -8,23 +8,14 @@
 
 #define DEFAULT_BUFF_SIZE 1024
 
+#ifndef UNUSED
+#define UNUSED(x) (void)(x)
+#endif
+
 typedef struct {
     uv_write_t req;
     uv_buf_t buf;
 } write_req_t;
-
-static void client_init(uv_tcpclient_t* cli) {
-    cli->data = NULL;
-    cli->loop = NULL;
-    cli->tcp = NULL;
-    cli->reconn_timer = NULL;
-    cli->enable_reconn = 0;
-    cli->settings = NULL;
-    cli->domain = NULL;
-    cli->port = NULL;
-    mybuf_init(&cli->buf);
-    cli->connected = 0;
-}
 
 /********************************** uv callbacks ****************************/
 
@@ -35,7 +26,7 @@ static void on_write(uv_write_t* req, int status) {
 
     if (status == 0) return;
 
-    uvlog_error("uv_write error: %s - %s\n",
+    uvlog_error("uv_write error: %s - %s",
                 uv_err_name(status),
                 uv_strerror(status));
 }
@@ -79,6 +70,7 @@ static void on_close(uv_handle_t* stream) {
 }
 
 static void on_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+    UNUSED(buf);
     uv_tcpclient_t* cli = stream->data;
     assert(stream == (uv_stream_t*)cli->tcp);
     if (nread < 0) {
@@ -93,15 +85,11 @@ static void on_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
         size_t cb = 0, total = cli->buf.size;
         const char* p = cli->buf.buf;
         uv_tcp_parse_result_t r = cli->settings->on_parse(cli, p, total, &cb);
-        while (r == uv_tcp_parse_ok && total > 0) {
+        while ((r == uv_tcp_parse_ok || r == uv_tcp_parse_error) && total > 0 && cb > 0) {
             p += cb;
             total -= cb;
             if (total > 0)
                 r = cli->settings->on_parse(cli, p, total, &cb);
-        }
-        if (r == uv_tcp_parse_error) {
-            p += cb;
-            total -= cb;
         }
         if (p != cli->buf.buf) {
             if (total > 0) {
@@ -116,8 +104,9 @@ static void on_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 }
 
 static void on_alloc(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
+    size_t sz = suggested_size > 0 ? suggested_size : DEFAULT_BUFF_SIZE;
     uv_tcpclient_t* cli = handle->data;
-    mybuf_reserve(&cli->buf, DEFAULT_BUFF_SIZE);
+    mybuf_reserve(&cli->buf, sz);
     buf->base = cli->buf.buf + cli->buf.size;
 #ifdef _WIN32
     buf->len = (ULONG)mybuf_space(&cli->buf);
@@ -169,12 +158,12 @@ static void on_resolved(uv_getaddrinfo_t* resolver, int status, struct addrinfo*
 /********************************** uv_tcpclient_t functions ****************************/
 
 int uv_tcpclient_new(uv_tcpclient_t** client, uv_loop_t* loop, uv_tcpclient_settings_t* settings) {
-    uv_tcpclient_t* cli = malloc(sizeof(*cli));
+    if (!client || !loop || !settings) return UV_EINVAL;
+    uv_tcpclient_t* cli = calloc(1, sizeof(*cli));
     if (!cli) return UV_ENOMEM;
-    client_init(cli);
+    mybuf_init(&cli->buf);
     cli->loop = loop;
-    if (settings)
-        cli->settings = settings;
+    cli->settings = settings;
     *client = cli;
     return 0;
 }
@@ -183,15 +172,17 @@ int uv_tcpclient_start(uv_tcpclient_t* cli, const char* domain, const char* port
     int r;
     struct addrinfo hints;
 
-    if (domain != cli->domain) {
+    if (!cli->domain || strcmp(domain, cli->domain) != 0) {
         if (cli->domain)
             free(cli->domain);
         cli->domain = strdup(domain);
+        if (!cli->domain) return UV_ENOMEM;
     }
-    if (port != cli->port) {
+    if (!cli->port || strcmp(port, cli->port) != 0) {
         if (cli->port)
             free(cli->port);
         cli->port = strdup(port);
+        if (!cli->port) return UV_ENOMEM;
     }
     hints.ai_family = PF_INET;
     hints.ai_socktype = SOCK_STREAM;
@@ -216,7 +207,12 @@ void uv_tcpclient_send(uv_tcpclient_t* client, const char* buf, size_t len) {
 #else
     req->buf.len = len;
 #endif
-    uv_write(&req->req, (uv_stream_t*)client->tcp, &req->buf, 1, on_write);
+    int r = uv_write(&req->req, (uv_stream_t*)client->tcp, &req->buf, 1, on_write);
+    if (r) {
+        free(req->buf.base);
+        free(req);
+        uvlog_error("uv_tcpclient_send uv_write failed: %s", uv_strerror(r));
+    }
 }
 
 void uv_tcpclient_stop(uv_tcpclient_t* client) {
@@ -225,6 +221,11 @@ void uv_tcpclient_stop(uv_tcpclient_t* client) {
     }
 }
 
+/**
+ * Free the client. Must be called only after uv_tcpclient_stop() has been called
+ * and all outstanding I/O has completed (e.g. in on_close callback with connected=0
+ * when enable_reconn is disabled).
+ */
 void uv_tcpclient_free(uv_tcpclient_t* client) {
     if (client->domain)
         free(client->domain);

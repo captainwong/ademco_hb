@@ -11,8 +11,13 @@
 
 #define DEFAULT_BUFF_SIZE 1024
 
+#ifndef UNUSED
+#define UNUSED(x) (void)(x)
+#endif
+
 struct uv_httpc_s {
     void* data;
+    int stopped;
     uv_tcp_t tcp;
     uv_timer_t* timer;
     uv_getaddrinfo_t resolver;
@@ -127,6 +132,7 @@ static int on_header_value(llhttp_t* llhttp, const char* at, size_t length) {
 }
 
 static int on_headers_complete(llhttp_t* llhttp) {
+    UNUSED(llhttp);
     return 0;
 }
 
@@ -209,6 +215,7 @@ static void* memdup(const void* mem, size_t len) {
 }
 
 static void on_alloc(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
+    UNUSED(suggested_size);
     uv_httpc_t* httpc = handle->data;
     mybuf_reserve(&httpc->buf, DEFAULT_BUFF_SIZE);
     buf->base = httpc->buf.buf + httpc->buf.size;
@@ -220,6 +227,7 @@ static void on_alloc(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) 
 }
 
 static void on_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+    UNUSED(buf);
     uv_httpc_t* httpc = stream->data;
     enum llhttp_errno parse_ret;
 
@@ -248,7 +256,7 @@ static void on_write(uv_write_t* req, int status) {
 
     if (status == 0) return;
 
-    uvlog_error("uv_write error: %s - %s\n",
+    uvlog_error("uv_write error: %s - %s",
                 uv_err_name(status),
                 uv_strerror(status));
 }
@@ -273,7 +281,12 @@ static int send_request(uv_httpc_t* httpc) {
     req->uvbuf.len = req->buf.size;
 #endif
     r = uv_write(&req->req, (uv_stream_t*)&httpc->tcp, &req->uvbuf, 1, on_write);
-    fatal_on_uv_err(r, "uv_write");
+    if (r) {
+        uvlog_error("uv_write failed: %s", uv_strerror(r));
+        mybuf_clear(&req->buf);
+        free(req);
+        generic_on_response(httpc, uv_httpc_connection_reset, r);
+    }
     return r;
 }
 
@@ -288,7 +301,11 @@ static void on_connect(uv_connect_t* req, int status) {
         llhttp_init(&httpc->parser, HTTP_RESPONSE, &httpc->http_settings);
         httpc->parser.data = httpc;
         send_request(httpc);
-        uv_read_start((uv_stream_t*)&httpc->tcp, on_alloc, on_read);
+        int r = uv_read_start((uv_stream_t*)&httpc->tcp, on_alloc, on_read);
+        if (r) {
+            warn_on_uv_err(r, "uv_read_start");
+            generic_on_response(httpc, uv_httpc_connection_reset, r);
+        }
     }
 }
 
@@ -314,6 +331,7 @@ static void on_resolved(uv_getaddrinfo_t* resolver, int status, struct addrinfo*
 
 int uv_httpc_create(uv_httpc_t** httpc, uv_loop_t* loop, const char* host, const char* port,
                     uv_httpc_on_response_t on_response) {
+    if (!httpc || !loop || !host || !port || !on_response) return UV_EINVAL;
     uv_httpc_t* ptr = malloc(sizeof *ptr);
     if (!ptr) return UV_ENOMEM;
     int r = uv_tcp_init(loop, &ptr->tcp);
@@ -324,8 +342,11 @@ int uv_httpc_create(uv_httpc_t** httpc, uv_loop_t* loop, const char* host, const
     ptr->tcp.data = ptr;
     ptr->timer = NULL;
     ptr->data = NULL;
+    ptr->stopped = 0;
     ptr->host = strdup(host);
+    if (!ptr->host) { free(ptr); return UV_ENOMEM; }
     ptr->port = strdup(port);
+    if (!ptr->port) { free(ptr->host); free(ptr); return UV_ENOMEM; }
     ptr->addrinfo = NULL;
     ptr->method = NULL;
     ptr->url = NULL;
@@ -343,12 +364,14 @@ int uv_httpc_create(uv_httpc_t** httpc, uv_loop_t* loop, const char* host, const
 
 int uv_httpc_post(uv_httpc_t* httpc, const char* url, uv_httpc_headers_t* headers,
                   const char* data, size_t len, int timeout) {
+    if (!httpc || !url || (!data && len > 0)) return UV_EINVAL;
     int r = 0;
     httpc->method = "POST";
     if (!httpc->url || strcmp(httpc->url, url)) {
         if (httpc->url)
             free(httpc->url);
         httpc->url = strdup(url);
+        if (!httpc->url) return UV_ENOMEM;
     }
     if (httpc->headers)
         uv_httpc_headers_free_all(httpc->headers, 1);
@@ -376,11 +399,14 @@ int uv_httpc_post(uv_httpc_t* httpc, const char* url, uv_httpc_headers_t* header
 }
 
 int uv_httpc_stop(uv_httpc_t* httpc) {
+    if (!httpc || httpc->stopped) return 0;
+    httpc->stopped = 1;
     if (httpc->timer) {
         uv_timer_stop(httpc->timer);
         uv_close((uv_handle_t*)httpc->timer, on_close_timer);
     }
-    uv_close((uv_handle_t*)&httpc->tcp, on_close);
+    if (!uv_is_closing((uv_handle_t*)&httpc->tcp))
+        uv_close((uv_handle_t*)&httpc->tcp, on_close);
     return 0;
 }
 
@@ -437,86 +463,4 @@ void uv_httpc_headers_free_all(uv_httpc_headers_t* headers, int freedata) {
     }
 }
 
-#ifdef WEUV_TEST
-#include "uv_httpd.h"
 
-#define TEST_PORT "8000"
-#define RESPONSE                   \
-    "HTTP/1.1 200 OK\r\n"          \
-    "Content-Type: text/plain\r\n" \
-    "Content-Length: 12\r\n"       \
-    "\r\n"                         \
-    "hello world\n"
-
-#define MAX_RESPONSES 5000
-
-static int max_responses = MAX_RESPONSES;
-static int responses = 0;
-static int ok = 0;
-static int failed = 0;
-static uv_httpd_server_t* httpd = NULL;
-static uv_httpc_t* httpc = NULL;
-uv_httpc_headers_t* gheaders = NULL;
-
-static void on_request(uv_httpd_server_t* server, uv_httpd_client_t* client, uv_httpd_request_t* req) {
-    uv_httpd_write_response(client, RESPONSE, sizeof(RESPONSE) - 1);
-}
-
-static void on_response(uv_httpc_t* httpc, uv_httpc_response_t* res) {
-    responses++;
-    if (res->http_status == 200 && res->code == 0) {
-        ok++;
-        if (responses < max_responses) {
-            uv_httpc_post(httpc, "/api/test", gheaders, "hello world!", strlen("hello world!"), 0);
-        } else {
-            uv_httpc_stop(httpc);
-            uv_httpd_stop(httpd);
-        }
-    } else {
-        failed++;
-        uv_httpd_stop(httpd);
-    }
-}
-
-/* Fully close a loop */
-static void close_walk_cb(uv_handle_t* handle, void* arg) {
-    if (!uv_is_closing(handle))
-        uv_close(handle, NULL);
-}
-
-static void close_loop(uv_loop_t* loop) {
-    uv_walk(loop, close_walk_cb, NULL);
-    uv_run(loop, UV_RUN_DEFAULT);
-}
-
-int uv_httpc_test_main(int argc, char** argv) {
-    uv_loop_t* loop = uv_default_loop();
-    int r;
-    uint64_t now, ms;
-
-    if (argc > 2) {
-        max_responses = atoi(argv[2]);
-    }
-
-    r = uv_httpd_create(&httpd, loop, on_request);
-    fatal_on_uv_err(r, "uv_httpd_create");
-    r = uv_httpd_listen(httpd, "127.0.0.1", atoi(TEST_PORT));
-    fatal_on_uv_err(r, "uv_httpd_listen");
-    r = uv_httpc_create(&httpc, loop, "127.0.0.1", TEST_PORT, on_response);
-    fatal_on_uv_err(r, "uv_httpc_create");
-    gheaders = uv_httpc_headers_append(gheaders, "Connection:Keep-Alive");
-    r = uv_httpc_post(httpc, "/api/test", gheaders, "hello world!", strlen("hello world!"), 0);
-    fatal_on_uv_err(r, "uv_httpc_post");
-    now = uv_now(loop);
-    r = uv_run(loop, UV_RUN_DEFAULT);
-    ms = uv_now(loop) - now;
-    printf("run %d requests, ok:%d, failed:%d, total %" PRIu64 "ms, avg %dms\n", responses, ok, failed, ms, (int)(ms / MAX_RESPONSES));
-    uv_httpc_headers_free_all(gheaders, 1);
-    uv_httpc_free(httpc);
-    uv_httpd_free(httpd);
-    close_loop(loop);
-    uv_loop_close(loop);
-    uv_library_shutdown();
-    return r;
-}
-#endif

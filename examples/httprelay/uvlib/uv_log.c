@@ -12,6 +12,7 @@ static uv_log_level_t g_level = uv_log_level_info;
 static char g_logfile[1024] = {0};
 
 uv_log_level_t uv_log_level_from_string(const char* str) {
+    if (!str) return uv_log_level_invalid;
 #define XX(name, value)            \
     if (strcmp(str, #name) == 0) { \
         return value;              \
@@ -42,7 +43,8 @@ void uv_log_set_level(uv_log_level_t level) {
 
 void uv_log_set_log_file(const char* file) {
     if (file) {
-        strncpy(g_logfile, file, sizeof(g_logfile));
+        // strlcpy(g_logfile, file, sizeof(g_logfile));
+        snprintf(g_logfile, sizeof(g_logfile), "%s", file);
     } else {
         g_logfile[0] = '\0';
     }
@@ -52,6 +54,18 @@ uv_log_level_t uv_log_get_level() {
     return g_level;
 }
 
+long uv_log_get_file_size() {
+    uv_fs_t req;
+    long size;
+
+    if (g_logfile[0] == '\0') return 0;
+
+    if (uv_fs_stat(uv_default_loop(), &req, g_logfile, NULL) != 0) return -1;
+    size = (long)req.statbuf.st_size;
+    uv_fs_req_cleanup(&req);
+    return size;
+}
+
 void uv_log_raw(uv_log_level_t level, const char* msg) {
     size_t off;
     uv_timeval64_t now;
@@ -59,15 +73,34 @@ void uv_log_raw(uv_log_level_t level, const char* msg) {
     const char* c = "AVDIWEF";
     int log_to_stdout = g_logfile[0] == '\0';
     FILE* fp = NULL;
+    time_t t;
+    struct tm tm_buf;
 
-    if (level < g_level || level > uv_log_level_fatal) return;
+    /* separate raw flag from base level */
+    int raw = (level & uv_log_level_raw) != 0;
+    uv_log_level_t base = level & ~uv_log_level_raw;
+
+    /* only check base level range; raw flag does not affect filtering */
+    if (base < g_level || base > uv_log_level_fatal) return;
+
     fp = log_to_stdout ? stdout : fopen(g_logfile, "a");
     if (!fp) return;
 
     uv_gettimeofday(&now);
-    off = strftime(buf, sizeof(buf), "%b %d %H:%M:%S.", localtime(&now.tv_sec));
-    snprintf(buf + off, sizeof(buf) - off, "%03d", (int)(now.tv_usec / 1000));
-    fprintf(fp, "%s %c %s\n", buf, c[level], msg);
+
+    if (!raw) {
+        t = now.tv_sec;
+#ifdef _WIN32
+        localtime_s(&tm_buf, &t);
+#else
+        localtime_r(&t, &tm_buf);
+#endif
+        off = strftime(buf, sizeof(buf), "%b %d %H:%M:%S.", &tm_buf);
+        snprintf(buf + off, sizeof(buf) - off, "%03d", (int)(now.tv_usec / 1000));
+        fprintf(fp, "%s %c %s\n", buf, c[base], msg);
+    } else {
+        fprintf(fp, "%s\n", msg);
+    }
     fflush(fp);
     if (!log_to_stdout) fclose(fp);
 }
@@ -76,7 +109,8 @@ void uv_log_hexdump(uv_log_level_t level, const char* buf, size_t len,
                     int show_header, int show_address, int show_ascii, char def_ascii,
                     const char* newline) {
     mybuf_t mybuf;
-    if (level < g_level || level > uv_log_level_fatal) return;
+    uv_log_level_t base = level & ~uv_log_level_raw;
+    if (base < g_level || base > uv_log_level_fatal) return;
     mybuf_init(&mybuf);
     mybuf_cat_printf(&mybuf, "hex dump of %p, len=%zu\n", buf, len);
     mybuf_append_hexdump(&mybuf, buf, len, show_header, show_address, show_ascii, def_ascii, newline);

@@ -182,3 +182,15 @@ char* mybuf_to_string(mybuf_t* buf) {
 void mybuf_free(char* str) {
     free(str);
 }
+
+char* mybuf_printf_alloc(const char* fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    mybuf_t buf;
+    mybuf_init(&buf);
+    mybuf_cat_vprintf(&buf, fmt, ap);
+    va_end(ap);
+    char* str = mybuf_to_string(&buf);
+    mybuf_clear(&buf);
+    return str;
+}

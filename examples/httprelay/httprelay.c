@@ -127,7 +127,9 @@ end:
     return r;
 }
 
-void on_tcp_connection(uv_tcpserver_client_context_t* client, int connected) {
+// uvlib >= 1.1.0: on_connect returns int
+//   return 0: server keeps the client in its pending list (default lifecycle)
+int on_tcp_connection(uv_tcpserver_client_context_t* client, int connected) {
     if (connected) {
         machine_info_t* machine = malloc(sizeof(machine_info_t));
         fatal_if_null(machine);
@@ -142,6 +144,7 @@ void on_tcp_connection(uv_tcpserver_client_context_t* client, int connected) {
         }
         free(client->data);
     }
+    return 0;
 }
 
 uv_tcp_parse_result_t on_tcp_parse(uv_tcpserver_client_context_t* client, const char* buf, size_t len, size_t* ate) {

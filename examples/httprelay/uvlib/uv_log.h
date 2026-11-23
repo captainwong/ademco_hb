@@ -1,9 +1,11 @@
 #ifndef __UV_LOG_H__
 #define __UV_LOG_H__
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
+#endif
 
-#include "uvlib_config.h"
+#include "libuvlib_config.h"
 #include <stdlib.h>
 
 #ifdef __cplusplus
@@ -34,6 +36,7 @@ UVLIB_EXPORT_SYMBOL const char* uv_log_level_to_string(uv_log_level_t level);
 UVLIB_EXPORT_SYMBOL void uv_log_set_level(uv_log_level_t level);
 UVLIB_EXPORT_SYMBOL void uv_log_set_log_file(const char* file);
 UVLIB_EXPORT_SYMBOL uv_log_level_t uv_log_get_level();
+UVLIB_EXPORT_SYMBOL long uv_log_get_file_size();
 UVLIB_EXPORT_SYMBOL void uv_log(uv_log_level_t level, const char* fmt, ...);
 UVLIB_EXPORT_SYMBOL void uv_log_raw(uv_log_level_t level, const char* msg);
 
