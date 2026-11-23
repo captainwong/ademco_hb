@@ -1,5 +1,34 @@
 # swig 绑定说明
 
+## 0. 开始之前：你需要本文档吗？
+
+**SWIG**（Simplified Wrapper and Interface Generator）是一个将 C/C++ 库自动包装成其他语言绑定的工具。本目录提供 `libademco`（安定宝协议解析库）的 **Java / C# / Node.js 语言绑定**，使你可以在不写一行协议解析代码的情况下，直接用熟悉的语言开发接警中心程序（解析主机上报、构造下发命令、处理 `ACK`/心跳）。
+
+先回答三个问题：
+
+**1. 你需要 TCP 直连吗？**
+
+- 只需要**接收事件**，或**布撤防控制** → 不需要本目录，使用 `httprelay`，见[对接说明](../docs/对接说明.md)；
+- 需要深度对接（自行管理连接、索要防区信息、定时器等完整协议能力）→ 继续往下。
+
+**2. 能用预编译产物吗？**
+
+优先从 [releases](https://github.com/captainwong/ademco_hb/releases) 下载对应平台的绑定包（`win_java.zip` / `win_csharp.zip` / `win_node.zip` / `linux_java.zip` / `linux_node.zip` 等），解压即可使用，无需编译。本文第 1~3 章的编译流程仅在以下情况需要：预编译包不覆盖你的平台、你修改了 `src/` 下的 C 源码、或你想自己验证。
+
+**3. 绑定包里有什么、怎么装？**
+
+每个绑定包含两部分：**动态库**（`Windows` 为 `dll`，`Linux` 为 `so`，`macOS` 为 `dylib`）和**语言侧源码**（`Java` 包 `com/hb3344/ademco` 下的 `.java`、`C#` 的 `.cs`、`Node.js` 的 `.node` + `nodejs-demo.js` 示例）。使用方式：
+
+| 语言 | 装载方式 |
+| ---- | ---- |
+| Java | `System.loadLibrary("ademco_java")`，将 `.java` 编入工程 |
+| C# | `DllImport("libademco")`，`.cs` 编入工程 |
+| Node.js | `require('./build/Release/ademco_js.node')` |
+
+各包内附演示程序（`JavaDemo` / `CSharpDemo` / `nodejs-demo.js`），先跑通演示再写自己的代码。
+
+> 提示：绑定是 `libademco` C 接口的直接映射，函数语义与 [协议文档](../docs/README.md) 及 `src/libademco/ademco.h` 的注释一一对应，遇到不理解的参数先查头文件注释。
+
 ## 1. Java 绑定
 
 ### 1.1 Windows环境
