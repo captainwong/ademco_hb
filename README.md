@@ -13,7 +13,7 @@ flowchart LR
 
 | 你的需求 | 推荐路线 | 需要开发什么 | 先读 |
 | ---- | ---- | ---- | ---- |
-| 收报警/布撤防等事件，远程布撤防 | **httprelay（推荐）** | 一个 `HTTP` 接口（如 Spring Boot Controller） | [对接说明](docs/对接说明.md) |
+| 收报警/布撤防等事件，远程布撤防 | **httprelay（推荐）** | 一个 `HTTP` 接口（如 Spring Boot Controller） | [快速上手](docs/快速上手.md) → [对接说明](docs/对接说明.md) |
 | 完整协议直连（防区表下载、定时器管理等） | `TCP SERVER` 直连 | 自行开发（可用绑定省去协议解析） | [协议文档](docs/README.md) + [swig 绑定](swig/README.md) |
 | 研究协议本身 | — | — | [协议文档](docs/README.md) |
 
@@ -33,7 +33,8 @@ flowchart LR
 
 ## 文档
 
-- [对接说明](docs/对接说明.md)——**第三方接入从这里开始**：httprelay 部署、回调接口规格、远程控制、事件码速查、`FAQ`
+- [快速上手](docs/快速上手.md)——**第一次接入从这里开始**：15 分钟从零跑通（无需真机）
+- [对接说明](docs/对接说明.md)——第三方接入主文档：httprelay 部署、回调接口规格、远程控制、事件码速查、`FAQ`
 - [协议文档](docs/README.md)——帧格式、`ACK`/重传机制、事件码全集、主机类型、恒博扩展
 - [二次开发](docs/二次开发.md)——编译环境、模拟器联调、抓包分析
 

@@ -232,8 +232,12 @@ int main(int argc, char** argv) {
                 " [--control_port=N] [--listen_addr=ADDR] [--token=STR]\n"
                 "  Example: %s 12345 http://your-http-server.com:8080/ademco\n"
                 "  Control: %s 12345 http://cb/ademco --control_port=8081"
-                " --listen_addr=0.0.0.0 --token=secret\n",
+                " --listen_addr=0.0.0.0 --token=secret\n\n"
+                "Note: run from a command prompt (double-clicking closes the\n"
+                "window immediately). See docs/quick-start tutorial for a\n"
+                "step-by-step guide.\n",
                 HTTPRELAY_VERSION_STRING, argv[0], argv[0], argv[0]);
+        getchar(); /* keep window open when launched by double-click */
         exit(1);
     }
 
