@@ -30,7 +30,14 @@ cp ../examples/x64/Release/httprelay.exe dist/examples/x64/
 cp "/g/dev_libs/curl-7.87.0/builds/libcurl-vc14-x64-release-dll-ipv6-sspi-schannel/bin/libcurl.dll" dist/examples/x64/
 
 rm -f dist/examples.zip
-cp ../docs/模拟器使用说明.pdf dist/examples/
+
+# build PDFs for all docs (incremental: only re-convert when md is newer than pdf)
+./md2pdf.sh
+
+# ship PDFs alongside the binaries so users without GitHub access
+# (or without a markdown viewer) can read the full docs offline
+mkdir -p dist/examples/docs_pdf
+cp --preserve=timestamps ../docs/*.pdf dist/examples/docs_pdf/
 cd dist/examples
 zip -r ../examples.zip . *
 cd ..
