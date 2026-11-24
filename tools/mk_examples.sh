@@ -30,6 +30,7 @@ cp ../examples/x64/Release/httprelay.exe dist/examples/x64/
 cp "/g/dev_libs/curl-7.87.0/builds/libcurl-vc14-x64-release-dll-ipv6-sspi-schannel/bin/libcurl.dll" dist/examples/x64/
 
 rm -f dist/examples.zip
+cp ../docs/模拟器使用说明.pdf dist/examples/
 cd dist/examples
 zip -r ../examples.zip . *
 cd ..
