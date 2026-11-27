@@ -133,6 +133,7 @@ end:
 //   return 0: server keeps the client in its pending list (default lifecycle)
 int on_tcp_connection(uv_tcpserver_client_context_t* client, int connected) {
     if (connected) {
+        printf("machine connected, waiting for its first packet...\n");
         machine_info_t* machine = malloc(sizeof(machine_info_t));
         fatal_if_null(machine);
         memset(machine->acct, '\0', sizeof(machine->acct));
@@ -213,6 +214,9 @@ int init_tcpd(int port) {
     r = uv_tcpserver_start_listen(context.tcpd, "0.0.0.0", port);
     fatal_on_uv_err(r, "uv_tcpserver_start_listen");
     printf("tcp server listening on %s:%d\n", "0.0.0.0", port);
+    printf("relay target: %s (HTTP POST on each machine event)\n", context.uri);
+    printf("waiting for machines: nothing will be printed until a machine connects.\n");
+    printf("machines connect when configured (APP -> standard center) to this server's IP and port above.\n");
     return r;
 }
 
